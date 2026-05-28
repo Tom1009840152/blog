@@ -1,0 +1,1361 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>自回归模型是怎么"写出"图像的？从 Token 到像素的完整原理</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #F7F5F0;
+    --bg-card: #FFFFFF;
+    --bg-code: #F0EDE8;
+    --text-primary: #1A1814;
+    --text-secondary: #5C5850;
+    --text-tertiary: #9A948A;
+    --accent: #C4622A;
+    --accent-light: #FAE8DC;
+    --accent-mid: #E8855A;
+    --info: #185FA5;
+    --info-light: #E6F1FB;
+    --danger: #993C1D;
+    --danger-light: #FAECE7;
+    --success: #0F6E56;
+    --success-light: #E1F5EE;
+    --border: rgba(60,50,40,0.1);
+    --border-strong: rgba(60,50,40,0.2);
+    --serif: 'Noto Serif SC', Georgia, serif;
+    --sans: 'Noto Sans SC', system-ui, sans-serif;
+    --mono: 'JetBrains Mono', monospace;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text-primary);
+    font-family: var(--sans);
+    font-weight: 400;
+    line-height: 1.85;
+    min-height: 100vh;
+  }
+
+  /* ── Header ── */
+  .site-header {
+    border-bottom: 0.5px solid var(--border);
+    padding: 18px 0;
+    position: sticky;
+    top: 0;
+    background: rgba(247,245,240,0.9);
+    backdrop-filter: blur(12px);
+    z-index: 100;
+  }
+
+  .header-inner {
+    max-width: 1020px;
+    margin: 0 auto;
+    padding: 0 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .site-name {
+    font-family: var(--serif);
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-primary);
+    letter-spacing: 0.02em;
+  }
+
+  .header-tag {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    font-weight: 400;
+  }
+
+  /* ── Hero ── */
+  .hero {
+    max-width: 1020px;
+    margin: 0 auto;
+    padding: 72px 32px 48px;
+    border-bottom: 0.5px solid var(--border);
+  }
+
+  .kicker {
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 500;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .kicker::after {
+    content: '';
+    display: block;
+    height: 1px;
+    width: 40px;
+    background: var(--accent-mid);
+    opacity: 0.5;
+  }
+
+  .headline {
+    font-family: var(--serif);
+    font-size: 42px;
+    font-weight: 700;
+    line-height: 1.25;
+    color: var(--text-primary);
+    margin-bottom: 20px;
+    letter-spacing: -0.01em;
+  }
+
+  .headline em {
+    font-style: normal;
+    color: var(--accent);
+  }
+
+  .deck {
+    font-size: 16px;
+    color: var(--text-secondary);
+    font-weight: 400;
+    line-height: 1.75;
+    max-width: 560px;
+    margin-bottom: 32px;
+  }
+
+  .meta-row {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    font-size: 12px;
+    color: var(--text-tertiary);
+  }
+
+  .meta-row span { display: flex; align-items: center; gap: 5px; }
+
+  /* ── Layout ── */
+  .content-wrap {
+    max-width: 1020px;
+    margin: 0 auto;
+    padding: 0 32px;
+    display: grid;
+    grid-template-columns: 1fr 260px;
+    gap: 0 56px;
+    align-items: start;
+  }
+
+  .article-body {
+    padding: 48px 0 80px;
+    min-width: 0;
+  }
+
+  /* ── Sidebar ── */
+  .sidebar {
+    padding: 48px 0 80px;
+    position: sticky;
+    top: 72px;
+  }
+
+  .toc-label {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-tertiary);
+    font-weight: 500;
+    margin-bottom: 14px;
+  }
+
+  .toc-list {
+    list-style: none;
+    border-left: 1px solid var(--border-strong);
+    padding-left: 14px;
+  }
+
+  .toc-list li { margin-bottom: 8px; }
+
+  .toc-list a {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    text-decoration: none;
+    font-weight: 400;
+    line-height: 1.5;
+    transition: color 0.2s;
+    display: block;
+  }
+
+  .toc-list a:hover { color: var(--accent); }
+  .toc-list a.active { color: var(--accent); font-weight: 500; }
+
+  /* ── Typography ── */
+  .section-label {
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--text-tertiary);
+    font-weight: 500;
+    margin: 52px 0 10px;
+  }
+
+  .section-heading {
+    font-family: var(--serif);
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 18px;
+    line-height: 1.4;
+  }
+
+  .body-text {
+    font-size: 15px;
+    color: var(--text-primary);
+    margin-bottom: 18px;
+    font-weight: 400;
+    line-height: 1.9;
+  }
+
+  .body-text strong {
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+
+  /* ── Pull quote ── */
+  .pull-quote {
+    font-family: var(--serif);
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text-primary);
+    line-height: 1.6;
+    padding: 32px 0;
+    margin: 36px 0;
+    border-top: 1.5px solid var(--accent);
+    border-bottom: 0.5px solid var(--border);
+    position: relative;
+  }
+
+  .pull-quote::before {
+    content: '\201C';
+    font-family: var(--serif);
+    font-size: 72px;
+    color: var(--accent);
+    opacity: 0.15;
+    position: absolute;
+    top: 10px;
+    left: -8px;
+    line-height: 1;
+  }
+
+  /* ── Callout ── */
+  .callout {
+    border-left: 2px solid var(--accent);
+    padding: 16px 20px;
+    background: var(--accent-light);
+    border-radius: 0 8px 8px 0;
+    margin: 28px 0;
+  }
+
+  .callout p {
+    font-size: 14px;
+    color: var(--danger);
+    font-weight: 400;
+    line-height: 1.75;
+    margin: 0;
+  }
+
+  .callout.info { border-color: var(--info); background: var(--info-light); }
+  .callout.info p { color: var(--info); }
+  .callout.success { border-color: var(--success); background: var(--success-light); }
+  .callout.success p { color: var(--success); }
+
+  /* ── Diagram blocks ── */
+  .diagram {
+    border: 0.5px solid var(--border-strong);
+    border-radius: 12px;
+    overflow: hidden;
+    margin: 28px 0;
+    background: var(--bg-card);
+  }
+
+  .diagram-header {
+    padding: 12px 18px;
+    border-bottom: 0.5px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .diagram-label {
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-tertiary);
+    font-weight: 500;
+  }
+
+  .diagram-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    flex-shrink: 0;
+  }
+
+  .diagram-body { padding: 20px 18px; }
+
+  /* ── Flow chain ── */
+  .flow-chain {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    margin: 16px 0;
+    flex-wrap: wrap;
+  }
+
+  .flow-step {
+    flex: 1;
+    background: var(--bg);
+    border: 0.5px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 8px;
+    text-align: center;
+    font-size: 11px;
+    color: var(--text-secondary);
+    line-height: 1.45;
+    min-width: 0;
+    font-weight: 400;
+  }
+
+  .flow-step.accent {
+    background: var(--accent-light);
+    border-color: rgba(196,98,42,0.3);
+    color: var(--accent);
+    font-weight: 500;
+  }
+
+  .flow-step.info {
+    background: var(--info-light);
+    border-color: rgba(24,95,165,0.25);
+    color: var(--info);
+    font-weight: 500;
+  }
+
+  .flow-step.danger {
+    background: var(--danger-light);
+    border-color: rgba(153,60,29,0.25);
+    color: var(--danger);
+    font-weight: 500;
+  }
+
+  .flow-step span {
+    display: block;
+    font-size: 10px;
+    color: var(--text-tertiary);
+    margin-top: 3px;
+    font-weight: 400;
+  }
+
+  .flow-step.accent span { color: rgba(196,98,42,0.65); }
+  .flow-step.info span { color: rgba(24,95,165,0.6); }
+  .flow-step.danger span { color: rgba(153,60,29,0.6); }
+
+  .flow-arrow {
+    display: flex;
+    align-items: center;
+    color: var(--text-tertiary);
+    font-size: 13px;
+    padding: 0 4px;
+    flex-shrink: 0;
+  }
+
+  /* ── Reasons grid ── */
+  .reasons-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .reason-item {
+    background: var(--bg);
+    border: 0.5px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+  }
+
+  .reason-icon {
+    font-size: 20px;
+    margin-bottom: 8px;
+    display: block;
+  }
+
+  .reason-title {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-primary);
+    margin-bottom: 6px;
+  }
+
+  .reason-desc {
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.65;
+    font-weight: 400;
+  }
+
+  /* ── Timeline ── */
+  .timeline {
+    position: relative;
+    padding-left: 28px;
+    margin: 16px 0;
+  }
+
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 7px;
+    top: 6px;
+    bottom: 6px;
+    width: 1.5px;
+    background: var(--border-strong);
+  }
+
+  .timeline-item {
+    position: relative;
+    margin-bottom: 20px;
+  }
+
+  .timeline-item:last-child { margin-bottom: 0; }
+
+  .timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -23px;
+    top: 6px;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: 2px solid var(--bg-card);
+    box-shadow: 0 0 0 1.5px var(--accent);
+  }
+
+  .timeline-label {
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 500;
+    margin-bottom: 4px;
+  }
+
+  .timeline-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+  }
+
+  .timeline-desc {
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.65;
+  }
+
+  /* ── Token strip ── */
+  .token-strip {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+    margin: 14px 0;
+  }
+
+  .token-box {
+    padding: 5px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-family: var(--mono);
+    font-weight: 500;
+    border: 0.5px solid var(--border-strong);
+    background: var(--bg);
+    color: var(--text-secondary);
+    transition: all 0.2s;
+  }
+
+  .token-box.generated {
+    background: var(--accent-light);
+    border-color: rgba(196,98,42,0.35);
+    color: var(--accent);
+  }
+
+  .token-box.predicted {
+    background: var(--info-light);
+    border-color: rgba(24,95,165,0.3);
+    color: var(--info);
+    animation: pulse 1.4s ease infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.55; }
+  }
+
+  .token-box.masked {
+    background: var(--bg-code);
+    border-color: var(--border);
+    color: var(--text-tertiary);
+    letter-spacing: 0.1em;
+  }
+
+  /* ── Compare grid ── */
+  .compare-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .compare-card {
+    background: var(--bg);
+    border: 0.5px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+  }
+
+  .compare-card-title {
+    font-size: 12px;
+    font-weight: 500;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .compare-card-title.forward { color: var(--danger); }
+  .compare-card-title.reverse { color: var(--success); }
+
+  .card-desc {
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.65;
+    font-weight: 400;
+  }
+
+  /* ── Tradeoff table ── */
+  .tradeoff-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin: 16px 0;
+  }
+
+  .tradeoff-table th {
+    text-align: left;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-tertiary);
+    font-weight: 500;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border-strong);
+  }
+
+  .tradeoff-table td {
+    padding: 10px 12px;
+    border-bottom: 0.5px solid var(--border);
+    color: var(--text-primary);
+    font-weight: 400;
+    vertical-align: top;
+    line-height: 1.6;
+  }
+
+  .tradeoff-table tr:last-child td { border-bottom: none; }
+
+  .tradeoff-table td:first-child {
+    font-weight: 500;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    width: 140px;
+  }
+
+  .badge {
+    display: inline-block;
+    font-size: 10px;
+    padding: 2px 7px;
+    border-radius: 20px;
+    font-weight: 500;
+    margin-left: 4px;
+  }
+
+  .badge.good { background: var(--success-light); color: var(--success); }
+  .badge.bad { background: var(--danger-light); color: var(--danger); }
+  .badge.mid { background: var(--accent-light); color: var(--accent); }
+
+  /* ── Code block ── */
+  .code-block {
+    background: var(--bg-code);
+    border: 0.5px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 18px;
+    margin: 16px 0;
+    font-family: var(--mono);
+    font-size: 12px;
+    line-height: 1.75;
+    color: var(--text-primary);
+    overflow-x: auto;
+    white-space: pre;
+  }
+
+  .code-block .comment { color: var(--text-tertiary); }
+  .code-block .highlight { color: var(--accent); font-weight: 500; }
+  .code-block .green { color: var(--success); }
+  .code-block .blue { color: var(--info); }
+
+  /* ── Tags ── */
+  .tag-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 48px;
+    padding-top: 24px;
+    border-top: 0.5px solid var(--border);
+  }
+
+  .tag {
+    font-size: 11px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    border: 0.5px solid var(--border-strong);
+    color: var(--text-secondary);
+    font-weight: 400;
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+
+  .tag:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* ── Math display ── */
+  .math-block {
+    background: var(--bg-code);
+    border: 0.5px solid var(--border);
+    border-radius: 8px;
+    padding: 18px 22px;
+    margin: 16px 0;
+    text-align: center;
+  }
+
+  .math-block .formula {
+    font-family: var(--serif);
+    font-size: 15px;
+    color: var(--text-primary);
+    letter-spacing: 0.03em;
+    line-height: 2;
+  }
+
+  .math-block .formula-label {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    margin-top: 6px;
+  }
+
+  /* ── Grid image mosaic ── */
+  .token-grid {
+    display: grid;
+    gap: 2px;
+    margin: 14px auto;
+  }
+
+  .token-cell {
+    border-radius: 2px;
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 8px;
+    font-family: var(--mono);
+    font-weight: 500;
+    color: rgba(255,255,255,0.7);
+    transition: all 0.3s;
+  }
+
+  /* ── Animations ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .hero { animation: fadeUp 0.6s ease both; }
+  .article-body { animation: fadeUp 0.6s 0.1s ease both; }
+  .sidebar { animation: fadeUp 0.6s 0.15s ease both; }
+
+  /* ── Footer ── */
+  .site-footer {
+    border-top: 0.5px solid var(--border);
+    padding: 28px 32px;
+    max-width: 1020px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    color: var(--text-tertiary);
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 680px) {
+    .content-wrap { grid-template-columns: 1fr; }
+    .sidebar { display: none; }
+    .headline { font-size: 28px; }
+    .compare-grid, .reasons-grid { grid-template-columns: 1fr; }
+    .hero { padding: 40px 20px 32px; }
+    .content-wrap { padding: 0 20px; }
+    .header-inner { padding: 0 20px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <a class="site-name" href="../index.html" style="text-decoration:none;color:inherit;">聚合叉的博客</a>
+    <span class="header-tag">图像生成 · 原理科普</span>
+  </div>
+</header>
+
+<section class="hero">
+  <p class="kicker">原理深度科普</p>
+  <h1 class="headline">自回归模型是怎么<br><em>"写出"</em>图像的？</h1>
+  <p class="deck">把一张图像拆成一串 Token，像写文章一样一个字一个字地"预测"下一个——自回归模型用语言模型的逻辑，重新定义了图像的生成方式。</p>
+  <div class="meta-row">
+    <span>2026-05-27</span>
+    <span>阅读约 9 分钟</span>
+    <span>自回归模型 · VQ-VAE · Transformer · GPT-4o</span>
+  </div>
+</section>
+
+<div class="content-wrap">
+  <article class="article-body">
+
+    <p class="body-text">如果你用过 image2，或者GPT-4o 的图像生成，又或者听说过 LlamaGen、VQGAN，你其实已经接触过自回归图像模型的产物。它的生成方式和扩散模型截然不同——不是从噪声里"擦出"图像，而是像在写一篇文章：一个 Token 一个 Token 地"写"出整张图。</p>
+
+    <p class="body-text">这个思路听起来朴素，背后却藏着精妙的设计：图像本质上是二维的连续像素，要让语言模型的"下一词预测"逻辑能用于图像，需要回答三个核心问题——如何把图像变成 Token 序列？如何建模 Token 之间的依赖？如何用文字来"指挥"生成？本文将带你一一拆解。</p>
+
+    <!-- Section 1 -->
+    <p class="section-label" id="s1">核心直觉</p>
+    <h2 class="section-heading">一个来自语言模型的类比：图像就是"文章"</h2>
+
+    <p class="body-text">语言模型的核心任务是预测下一个词：给定"今天天气很"，模型预测下一个词是"好"的概率比"坏"高。自回归模型把同样的逻辑搬到了图像上：把图像的每一个像素块（Token）看作一个"词"，从左到右、从上到下依次预测。</p>
+
+    <div class="diagram">
+      <div class="diagram-header">
+        <span class="diagram-dot"></span>
+        <span class="diagram-label">自回归生成：从第一个 Token 到完整图像</span>
+      </div>
+      <div class="diagram-body">
+        <div class="token-strip" id="tokenStripDemo">
+          <div class="token-box generated">tok_0042</div>
+          <div class="token-box generated">tok_1837</div>
+          <div class="token-box generated">tok_0291</div>
+          <div class="token-box generated">tok_3104</div>
+          <div class="token-box generated">tok_0756</div>
+          <div class="token-box generated">tok_2418</div>
+          <div class="token-box generated">tok_0983</div>
+          <div class="token-box predicted">tok_?</div>
+          <div class="token-box masked">···</div>
+          <div class="token-box masked">···</div>
+          <div class="token-box masked">···</div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px;">
+          <span style="font-size:11px;color:var(--text-tertiary);">🟠 已生成 Token &nbsp; 🔵 正在预测 &nbsp; ⬜ 待生成</span>
+          <button id="arBtn" onclick="startARDemo()" style="font-size:11px;padding:4px 12px;border-radius:20px;border:0.5px solid var(--border-strong);background:var(--bg);color:var(--text-secondary);cursor:pointer;">▶ 播放动画</button>
+        </div>
+        <p style="font-size:11px;color:var(--text-tertiary);margin-top:8px;">💡 模型每次只能看到已生成的 Token，预测下一个，不能"偷看"未来。</p>
+      </div>
+    </div>
+
+    <div class="callout info">
+      <p>关键洞察：自回归生成是严格因果的——每个 Token 只依赖它左侧（和上方）的 Token，绝不能看到还未生成的内容。这种"单向性"既是设计约束，也是它天然支持统一文图模型的根本原因。</p>
+    </div>
+
+    <!-- Section 2 -->
+    <p class="section-label" id="s2">数学基础</p>
+    <h2 class="section-heading">链式法则：把图像概率分解成 Token 序列</h2>
+
+    <p class="body-text">自回归模型的数学基础是概率论中经典的<strong>链式法则（Chain Rule）</strong>：一张图像的联合概率，可以被分解为每个 Token 在其前驱条件下的条件概率之积。</p>
+
+    <div class="math-block">
+      <div class="formula">
+        p(x<sub>1</sub>, x<sub>2</sub>, …, x<sub>N</sub>) = ∏<sub>i=1</sub><sup>N</sup> p(x<sub>i</sub> | x<sub>1</sub>, …, x<sub>i−1</sub>)
+      </div>
+      <div class="formula-label">图像的联合概率被分解为 N 个条件概率之积，每个条件概率只依赖前驱 Token</div>
+    </div>
+
+    <p class="body-text">这个分解方式有一个极其重要的含义：<strong>只要能精确建模每一个条件概率，就能精确建模整个图像的分布</strong>。神经网络（特别是 Transformer）在这件事上表现出色，因为它能通过注意力机制捕捉任意长程依赖。</p>
+
+    <div class="diagram">
+      <div class="diagram-header">
+        <span class="diagram-dot"></span>
+        <span class="diagram-label">与扩散模型的核心建模差异</span>
+      </div>
+      <div class="diagram-body">
+        <div class="compare-grid">
+          <div class="compare-card">
+            <div class="compare-card-title forward">🌊 扩散模型</div>
+            <p class="card-desc">在<strong>连续空间</strong>建模——学习从噪声分布到图像分布的<strong>渐进去噪过程</strong>，每一步都在全局像素空间操作，建模整张图的分布变换。</p>
+          </div>
+          <div class="compare-card">
+            <div class="compare-card-title reverse">📝 自回归模型</div>
+            <p class="card-desc">在<strong>离散 Token 空间</strong>建模——学习<strong>序列中每个位置的条件分布</strong>，每一步只预测一个 Token，积累到完整序列即为完整图像。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 3 -->
+    <p class="section-label" id="s3">图像离散化</p>
+    <h2 class="section-heading">VQ-VAE：把连续像素"翻译"成离散 Token</h2>
+
+    <p class="body-text">语言模型能预测下一个词，因为词汇表是有限的（比如 5 万个词）。但像素值有无穷多种可能——如果直接对每个像素做 softmax，词汇表大小将达到 256³ ≈ 1600 万，完全不现实。</p>
+
+    <p class="body-text">解决方案是 <strong>VQ-VAE（向量量化变分自编码器）</strong>：先用一个编码器把图像压缩成低分辨率的特征图，再用一个<strong>码本（Codebook）</strong>把每个特征向量"量化"到最近的离散编码，从而把图像变成一串整数索引序列。</p>
+
+    <div class="diagram">
+      <div class="diagram-header">
+        <span class="diagram-dot"></span>
+        <span class="diagram-label">VQ-VAE 图像离散化流程</span>
+      </div>
+      <div class="diagram-body">
+        <div class="flow-chain" style="margin-bottom:16px;">
+          <div class="flow-step">256×256 像素图像<span>3 通道 RGB</span></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step accent">CNN 编码器<span>下采样 16×</span></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">16×16 特征图<span>每格一个向量</span></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step danger">向量量化<span>查最近码本项</span></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step info">256 个整数索引<span>词汇表大小 8192</span></div>
+        </div>
+        <div class="callout info" style="margin:0;">
+          <p>码本（Codebook）是一个大小为 K×D 的可学习矩阵（例如 K=8192 个条目，每个 D=256 维）。量化操作将每个连续向量替换为码本中与其欧式距离最近的条目的索引，从而将图像变成长度为 16×16=256 的整数序列。</p>
+        </div>
+      </div>
+    </div>
+
+    <p class="body-text">VQ-VAE 的训练目标是让解码器能从这串索引<strong>无损地还原出原始图像</strong>。一旦训练完成，编码器和解码器就"冻结"了——后续自回归模型只需要学习这 256 个整数索引构成的序列如何生成，不再直接面对像素。</p>
+
+    <div class="diagram">
+      <div class="diagram-header">
+        <span class="diagram-dot"></span>
+        <span class="diagram-label">VQ-VAE vs 扩散模型 VAE 的关键区别</span>
+      </div>
+      <div class="diagram-body">
+        <table class="tradeoff-table">
+          <thead>
+            <tr>
+              <th>维度</th>
+              <th>VQ-VAE（自回归用）</th>
+              <th>连续 VAE（扩散模型用）</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>潜空间类型</td>
+              <td><strong>离散</strong>整数索引</td>
+              <td><strong>连续</strong>实数向量</td>
+            </tr>
+            <tr>
+              <td>量化误差</td>
+              <td>有，但码本够大可以控制</td>
+              <td>无，信息保留更完整</td>
+            </tr>
+            <tr>
+              <td>下游建模</td>
+              <td>适合语言模型（softmax 分类）</td>
+              <td>适合扩散模型（连续去噪）</td>
+            </tr>
+            <tr>
+              <td>文字渲染能力</td>
+              <td>强——字符可对应固定 Token</td>
+              <td>弱——连续空间难以精确复现字形</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Section 4 -->
+    <p class="section-label" id="s4">Transformer 骨干</p>
+    <h2 class="section-heading">GPT 式 Transformer：序列建模的最强引擎</h2>
+
+    <p class="body-text">把图像变成 Token 序列之后，自回归图像模型的骨干网络和语言模型用的是同一套架构：<strong>仅解码器（Decoder-only）的 Transformer</strong>，也就是 GPT 的结构。</p>
+
+    <p class="body-text">核心机制是<strong>因果自注意力（Causal Self-Attention）</strong>：通过在注意力矩阵上施加下三角掩码（Causal Mask），确保位置 i 的 Token 只能看到位置 1 到 i 的 Token，永远无法看到未来。这样在训练时，所有位置的预测可以并行计算；在推理时，则逐个生成每个 Token。</p>
+
+    <div class="diagram">
+      <div class="diagram-header">
+        <span class="diagram-dot"></span>
+        <span class="diagram-label">Decoder-only Transformer 处理图像 Token 序列</span>
+      </div>
+      <div class="diagram-body">
+        <div class="flow-chain" style="margin-bottom:12px;">
+          <div class="flow-step">Token 序列<span>[tok₁, tok₂ … tokₙ]</span></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step accent">词嵌入 + 位置编码<span>2D 位置感知</span></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step danger">因果自注意力层 × L<span>Causal Mask 屏蔽未来</span></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step info">线性 + Softmax<span>输出词汇表概率</span></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">采样下一个 Token<span>argmax / top-k / top-p</span></div>
+        </div>
+        <div class="callout success" style="margin:0;">
+          <p>与语言模型的最大区别在于位置编码：图像 Token 是二维排列的（行 × 列），需要引入 2D 感知的位置编码（如 2D RoPE 或行列分离编码），而非语言模型的线性位置编码，才能让模型理解空间结构。</p>
+        </div>
+      </div>
+    </div>
+
+    <p class="body-text">由于架构与语言模型完全一致，自回归图像模型天然可以和文本 Token <strong>混合训练</strong>——只需把文本 Token 和图像 Token 拼接成同一条序列，就可以在一个模型里同时学会"读文字"和"画图像"，这正是 GPT-4o 等统一多模态模型的技术基础。这条路线的集大成者是 OpenAI 于 2025 年发布的 <strong>GPT Image 2</strong>——它将超大规模码本与千亿级 Transformer 结合，首次让在图像中无差错书写任意文字成为常规能力，被业界视为当前自回归图像生成的天花板。</p>
+
+    <div class="pull-quote">
+      自回归模型的终极野心：<br>用一个模型、一套权重，<br>同时理解文字、生成图像。
+    </div>
+
+    <!-- Section 5 -->
+    <p class="section-label" id="s5">文字控制</p>
+    <h2 class="section-heading">Cross-Attention 与条件前缀：文字如何"指挥"图像</h2>
+
+    <p class="body-text">让自回归模型响应文字描述，主要有两种方案，各有优劣：</p>
+
+    <div class="diagram">
+      <div class="diagram-header">
+        <span class="diagram-dot"></span>
+        <span class="diagram-label">两种文字条件注入方式对比</span>
+      </div>
+      <div class="diagram-body">
+        <div class="reasons-grid" style="margin-bottom:14px;">
+          <div class="reason-item">
+            <span class="reason-icon">📎</span>
+            <p class="reason-title">方案一：条件前缀（Prefix）</p>
+            <p class="reason-desc">将文字 Token 直接<strong>拼在图像 Token 序列前面</strong>，让因果注意力机制自然地让图像 Token 关注到文字 Token。结构最简单，适合统一模型（如 LlamaGen、GPT-4o）。</p>
+          </div>
+          <div class="reason-item">
+            <span class="reason-icon">🔀</span>
+            <p class="reason-title">方案二：交叉注意力（Cross-Attention）</p>
+            <p class="reason-desc">保持图像 Token 序列独立，通过<strong>额外的 Cross-Attention 层</strong>让每个图像 Token 去"查询"文字编码器的输出。与扩散模型的文字注入方式相同，条件信号更独立。</p>
+          </div>
+        </div>
+        <div class="flow-chain">
+          <div class="flow-step info">文字 Token<span>"一只橘猫在草地上"</span></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step accent">文字编码器<span>CLIP / T5</span></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">文字嵌入序列<span>语义向量</span></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step danger">拼接 / Cross-Attn<span>注入图像生成流</span></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step info">条件化 Token 预测<span>每步都受文字约束</span></div>
+        </div>
+      </div>
+    </div>
+
+    <p class="body-text">条件前缀方案的优雅之处在于：文字和图像共享同一个注意力空间，模型可以在生成每个图像 Token 时，对任意位置的文字 Token 施加注意力——这让模型能自然地对齐"一只"对应前景主体 Token、"草地"对应背景 Token，实现精细的空间语义对齐。</p>
+
+    <!-- Section 6 -->
+    <p class="section-label" id="s6">训练目标</p>
+    <h2 class="section-heading">交叉熵损失：最简单也最有效的目标函数</h2>
+
+    <p class="body-text">自回归模型的训练目标极为简洁：给定前缀 Token，最大化下一个 Token 的预测概率。损失函数采用标准的<strong>交叉熵（Cross-Entropy）</strong>：</p>
+
+    <div class="math-block">
+      <div class="formula">
+        ℒ = − ∑<sub>i=1</sub><sup>N</sup> log p<sub>θ</sub>(x<sub>i</sub> | x<sub>1</sub>, …, x<sub>i−1</sub>)
+      </div>
+      <div class="formula-label">最小化负对数似然：让模型对每个位置的真实 Token 赋予最高概率</div>
+    </div>
+
+    <p class="body-text">这个损失函数有几个非常好的性质：首先，<strong>训练完全并行</strong>——通过 Causal Mask，所有位置的预测可以一次前向计算完成，无需像推理时那样逐步生成；其次，<strong>无需额外标注</strong>——只要有图像-文字对，图像 Token 序列本身就是训练目标，天然自监督；最后，<strong>文字和图像可以混合训练</strong>，用同一个损失函数，同一套权重，模型自然学会两种模态。</p>
+
+    <div class="diagram">
+      <div class="diagram-header">
+        <span class="diagram-dot"></span>
+        <span class="diagram-label">一个训练步骤的完整流程</span>
+      </div>
+      <div class="diagram-body">
+        <div class="flow-chain">
+          <div class="flow-step">采样图像-文字对<span>来自训练集</span></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step accent">VQ-VAE 编码图像<span>得到 Token 序列</span></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">拼接文字前缀<span>[text | img_tokens]</span></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step danger">Transformer 前向<span>并行预测所有位置</span></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step info">交叉熵损失<span>仅对图像位置计算</span></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">反向传播更新<span>Transformer 权重</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout info">
+      <p>训练时仅在图像 Token 位置计算损失（文字位置不参与，因为文字是"已知条件"）；推理时则从 BOS（序列起始符）开始，逐个采样图像 Token，直到生成 EOS（序列结束符）或达到预设长度。</p>
+    </div>
+
+    <!-- Section 7 -->
+    <p class="section-label" id="s7">采样策略</p>
+    <h2 class="section-heading">温度、Top-k、Top-p：控制生成的"随机性"</h2>
+
+    <p class="body-text">每一步推理，Transformer 输出一个长度为 K（码本大小）的概率分布，模型需要从中采样一个 Token。采样策略直接决定生成图像的<strong>多样性与质量</strong>之间的权衡。</p>
+
+    <div class="diagram">
+      <div class="diagram-header">
+        <span class="diagram-dot"></span>
+        <span class="diagram-label">三种主流采样策略</span>
+      </div>
+      <div class="diagram-body">
+        <div class="reasons-grid" style="grid-template-columns:1fr 1fr 1fr;">
+          <div class="reason-item">
+            <span class="reason-icon">🌡️</span>
+            <p class="reason-title">Temperature 缩放</p>
+            <p class="reason-desc">将 logits 除以温度 T 后再 softmax。<strong>T &lt; 1</strong>：概率更集中，图像更清晰但多样性低；<strong>T &gt; 1</strong>：概率更均匀，多样但可能有噪声。</p>
+          </div>
+          <div class="reason-item">
+            <span class="reason-icon">🔝</span>
+            <p class="reason-title">Top-k 采样</p>
+            <p class="reason-desc">只保留概率最高的 k 个 Token，其余置零后重新归一化。k 越小生成越保守，k=1 退化为贪心解码（argmax），质量高但完全确定性。</p>
+          </div>
+          <div class="reason-item">
+            <span class="reason-icon">📊</span>
+            <p class="reason-title">Top-p（核采样）</p>
+            <p class="reason-desc">保留累积概率超过 p（如 0.95）的最小 Token 集合。能动态调整候选数：分布尖锐时候选少，分布平坦时候选多，比 Top-k 更自适应。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="code-block"><span class="comment"># 采样策略核心代码（伪代码）</span>
+logits = transformer(tokens, text_cond)  <span class="comment"># 形状 [vocab_size]</span>
+
+<span class="comment"># 1. Temperature 缩放</span>
+logits = logits / <span class="highlight">temperature</span>             <span class="comment"># temperature=0.8 更保守</span>
+
+<span class="comment"># 2. Top-k 过滤</span>
+top_k_indices = argtopk(logits, k=<span class="blue">2048</span>)
+logits[~top_k_indices] = -inf
+
+<span class="comment"># 3. Top-p 核采样</span>
+probs = softmax(logits)
+sorted_probs, sorted_idx = sort(probs, descending=True)
+cumprobs = cumsum(sorted_probs)
+cutoff = sorted_idx[cumprobs > <span class="green">0.95</span>][0]   <span class="comment"># 找到截断点</span>
+logits[sorted_idx[cutoff:]] = -inf
+
+<span class="comment"># 4. 采样</span>
+next_token = multinomial(softmax(logits))  <span class="comment"># 按概率随机采样</span></div>
+
+    <p class="body-text">实际工程中，三种策略通常组合使用：先做 Top-k 截断，再做 Top-p 过滤，最后用温度调节尖锐度，然后采样。典型设置：T=1.0、k=2048、p=0.95，在质量与多样性之间取得良好平衡。</p>
+
+    <!-- Section 8 -->
+    <p class="section-label" id="s8">模型谱系</p>
+    <h2 class="section-heading">从 PixelCNN 到 GPT-4o：自回归图像模型的发展脉络</h2>
+
+    <div class="diagram">
+      <div class="diagram-header">
+        <span class="diagram-dot"></span>
+        <span class="diagram-label">自回归图像模型重要里程碑（2016–2025）</span>
+      </div>
+      <div class="diagram-body">
+        <div class="timeline">
+          <div class="timeline-item">
+            <p class="timeline-label">2016</p>
+            <p class="timeline-title">PixelCNN / PixelRNN（van den Oord et al., DeepMind）</p>
+            <p class="timeline-desc">自回归图像生成奠基之作，直接在像素空间建模，证明了逐像素预测可以生成合理图像。受限于 CNN 感受野，生成质量和分辨率有限，但开创了思路。</p>
+          </div>
+          <div class="timeline-item">
+            <p class="timeline-label">2019</p>
+            <p class="timeline-title">VQ-VAE-2（DeepMind）</p>
+            <p class="timeline-desc">引入多尺度 VQ-VAE（粗粒度 + 细粒度码本），配合 PixelSnail 先验，首次在 ImageNet 256×256 上生成媲美 BigGAN 的图像质量，标志着自回归路线进入实用阶段。</p>
+          </div>
+          <div class="timeline-item">
+            <p class="timeline-label">2021</p>
+            <p class="timeline-title">DALL·E 1 · VQGAN + CLIP · ImageGPT</p>
+            <p class="timeline-desc">OpenAI 的 DALL·E 1 首次实现大规模文图自回归生成；VQGAN 优化了码本训练；ImageGPT 验证了 GPT-2 架构直接生成像素的可行性，但分辨率受限。</p>
+          </div>
+          <div class="timeline-item">
+            <p class="timeline-label">2022–2023</p>
+            <p class="timeline-title">PARTI · LlamaGen · RQ-Transformer</p>
+            <p class="timeline-desc">Google 的 PARTI（20B 参数）将文图生成质量推向新高；LlamaGen 证明标准 LLaMA 架构可直接用于图像生成；RQ-Transformer 引入残差量化压缩序列长度。</p>
+          </div>
+          <div class="timeline-item">
+            <p class="timeline-label">2024</p>
+            <p class="timeline-title">GPT-4o · Janus · Show-o · 统一多模态模型全面爆发</p>
+            <p class="timeline-desc">OpenAI GPT-4o 将文字理解与图像生成统一到同一个自回归模型；Janus、Show-o 等统一模型验证了"一个模型处理所有模态"的可行性；自回归路线在文字渲染上的优势被广泛认可。</p>
+          </div>
+          <div class="timeline-item">
+            <p class="timeline-label">2025</p>
+            <p class="timeline-title">GPT Image 2（OpenAI）— 当前自回归图像生成天花板</p>
+            <p class="timeline-desc">OpenAI 发布 GPT Image 2，在自回归架构基础上将文字渲染、精确指令执行和真实感质量同时推向业界顶峰。采用大规模 VQ-VAE 码本（数万条目）结合超大 Transformer，首次让"在图像中无差错书写任意文字"成为常规能力；同时支持对话式迭代编辑，用户可通过多轮对话精细修改画面细节，是自回归路线规模化扩展的集大成之作。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="diagram">
+      <div class="diagram-header">
+        <span class="diagram-dot"></span>
+        <span class="diagram-label">主流自回归图像模型综合对比</span>
+      </div>
+      <div class="diagram-body">
+        <table class="tradeoff-table">
+          <thead>
+            <tr>
+              <th>模型</th>
+              <th>图像质量</th>
+              <th>文字渲染</th>
+              <th>开源</th>
+              <th>最适合</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>DALL·E 3</td>
+              <td>优秀</td>
+              <td>优秀 <span class="badge good">大幅领先</span></td>
+              <td><span class="badge bad">不开源</span></td>
+              <td>文字精确渲染、复杂构图</td>
+            </tr>
+            <tr>
+              <td>GPT Image 2</td>
+              <td>卓越 <span class="badge good">业界顶级</span></td>
+              <td>卓越 <span class="badge good">无差错书写</span></td>
+              <td><span class="badge bad">不开源</span></td>
+              <td>文字渲染、对话式迭代编辑</td>
+            </tr>
+            <tr>
+              <td>GPT-4o 图像生成</td>
+              <td>卓越 <span class="badge good">细节极强</span></td>
+              <td>卓越 <span class="badge good">业界顶级</span></td>
+              <td><span class="badge bad">不开源</span></td>
+              <td>统一文图、精确指令执行</td>
+            </tr>
+            <tr>
+              <td>LlamaGen</td>
+              <td>良好 <span class="badge mid">持续提升</span></td>
+              <td>良好</td>
+              <td><span class="badge good">完全开源</span></td>
+              <td>研究复现、自回归基线</td>
+            </tr>
+            <tr>
+              <td>PARTI（Google）</td>
+              <td>优秀 <span class="badge good">高保真</span></td>
+              <td>优秀</td>
+              <td><span class="badge bad">不开源</span></td>
+              <td>复杂场景理解与生成</td>
+            </tr>
+            <tr>
+              <td>Janus / Show-o</td>
+              <td>良好</td>
+              <td>良好 <span class="badge mid">改善中</span></td>
+              <td><span class="badge good">部分开源</span></td>
+              <td>统一理解+生成研究</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Section 9 -->
+    <p class="section-label" id="s9">优劣与边界</p>
+    <h2 class="section-heading">自回归模型的优势、缺陷与未来边界</h2>
+
+    <p class="body-text">自回归模型与扩散模型是当前图像生成的两条主线，各有其不可替代的优势和结构性缺陷。</p>
+
+    <div class="diagram">
+      <div class="diagram-header">
+        <span class="diagram-dot"></span>
+        <span class="diagram-label">自回归图像模型的核心优劣势</span>
+      </div>
+      <div class="diagram-body">
+        <div class="reasons-grid">
+          <div class="reason-item">
+            <span class="reason-icon">✅</span>
+            <p class="reason-title">文字渲染是天然优势</p>
+            <p class="reason-desc">离散 Token 建模让字母可以对应固定的 Token 模式，模型有清晰的"字符"概念。相比扩散模型在连续空间"画字母"，自回归模型渲染文字更精确可靠。</p>
+          </div>
+          <div class="reason-item">
+            <span class="reason-icon">✅</span>
+            <p class="reason-title">统一建模，天然多模态</p>
+            <p class="reason-desc">文字和图像 Token 共享同一序列空间和同一套权重，模型可以同时理解、编辑、生成多种模态，是构建通用多模态 AI 助手的最自然架构。</p>
+          </div>
+          <div class="reason-item">
+            <span class="reason-icon">✅</span>
+            <p class="reason-title">精确指令执行能力强</p>
+            <p class="reason-desc">借助语言模型的强大推理能力，在"精确空间布局"（左边一只猫、右边一条狗）等复杂指令上表现明显优于扩散模型，因为文字理解和图像生成是同一个模型。</p>
+          </div>
+          <div class="reason-item">
+            <span class="reason-icon">✅</span>
+            <p class="reason-title">可伸缩性（Scalability）极强</p>
+            <p class="reason-desc">与语言模型共享架构，可直接受益于 LLM Scaling Law 的经验积累——加大模型、加大数据，质量稳定提升，参数效率随规模增大而提高。</p>
+          </div>
+          <div class="reason-item">
+            <span class="reason-icon">❌</span>
+            <p class="reason-title">推理速度是最大瓶颈</p>
+            <p class="reason-desc">生成一张 256×256 的图像需要顺序预测 256 个 Token，每步都要跑一次完整 Transformer 前向计算，无法并行化。在速度上远慢于扩散模型的批量去噪。</p>
+          </div>
+          <div class="reason-item">
+            <span class="reason-icon">❌</span>
+            <p class="reason-title">图像细节质量略逊</p>
+            <p class="reason-desc">量化误差（VQ-VAE 码本限制）导致高频细节（纹理、毛发、光影）略逊于扩散模型的连续潜空间。码本越大可以缓解，但也增加了序列长度和计算量。</p>
+          </div>
+          <div class="reason-item">
+            <span class="reason-icon">❌</span>
+            <p class="reason-title">序列过长，上下文窗口压力大</p>
+            <p class="reason-desc">高分辨率图像（1024×1024）经过 VQ-VAE 压缩后仍可能有 4096 个 Token，超出许多模型的上下文窗口，且注意力计算复杂度为 O(N²)，显存压力极大。</p>
+          </div>
+          <div class="reason-item">
+            <span class="reason-icon">❌</span>
+            <p class="reason-title">错误累积（Error Accumulation）</p>
+            <p class="reason-desc">逐 Token 生成时，早期的预测偏差会影响所有后续 Token——一步错步步错。相比扩散模型每步都在全局优化，自回归的局部贪心预测更容易出现语义偏移。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout success">
+      <p>核心结论：自回归模型是目前文字渲染能力最强、指令执行最精确、多模态统一潜力最大的图像生成架构。其离散 Token 建模方式与大语言模型天然融合，是构建通用多模态助手的首选路径。随着 KV Cache 优化、推测解码（Speculative Decoding）和更大码本的进步，推理速度瓶颈正在被逐步突破——自回归与扩散的融合方案（如 MAR、MAGE）也已出现，两条路线相互借鉴、加速收敛。</p>
+    </div>
+
+    <div class="tag-row">
+      <a class="tag" href="#">自回归模型</a>
+      <a class="tag" href="#">VQ-VAE</a>
+      <a class="tag" href="#">Transformer</a>
+      <a class="tag" href="#">GPT Image 2</a>
+      <a class="tag" href="#">GPT-4o</a>
+      <a class="tag" href="#">LlamaGen</a>
+      <a class="tag" href="#">图像生成</a>
+      <a class="tag" href="#">链式法则</a>
+      <a class="tag" href="#">多模态</a>
+    </div>
+
+  </article>
+
+  <aside class="sidebar">
+    <p class="toc-label">目录</p>
+    <ul class="toc-list">
+      <li><a href="#s1" class="toc-link">核心直觉：像写文章一样画图</a></li>
+      <li><a href="#s2" class="toc-link">数学基础：链式法则</a></li>
+      <li><a href="#s3" class="toc-link">VQ-VAE：图像离散化</a></li>
+      <li><a href="#s4" class="toc-link">Transformer 骨干</a></li>
+      <li><a href="#s5" class="toc-link">文字控制：Cross-Attention</a></li>
+      <li><a href="#s6" class="toc-link">训练目标：交叉熵损失</a></li>
+      <li><a href="#s7" class="toc-link">采样策略</a></li>
+      <li><a href="#s8" class="toc-link">模型发展脉络</a></li>
+      <li><a href="#s9" class="toc-link">优劣与边界</a></li>
+    </ul>
+  </aside>
+</div>
+
+<footer class="site-footer">
+  <a href="../index.html" style="color:inherit;text-decoration:none;display:flex;align-items:center;gap:6px;">← 返回首页</a>
+  <span>聚合叉的博客</span>
+</footer>
+
+<script>
+// ── TOC active state ──
+(function () {
+  const links = document.querySelectorAll('.toc-link');
+  const sections = Array.from(links).map(l => document.querySelector(l.getAttribute('href')));
+  function onScroll() {
+    let active = 0;
+    sections.forEach((s, i) => {
+      if (s && s.getBoundingClientRect().top < 120) active = i;
+    });
+    links.forEach((l, i) => l.classList.toggle('active', i === active));
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+})();
+
+// ── Autoregressive Token Animation ──
+const ALL_TOKENS = [
+  'tok_0042','tok_1837','tok_0291','tok_3104',
+  'tok_0756','tok_2418','tok_0983','tok_1562',
+  'tok_3391','tok_0617','tok_2284','tok_1049',
+  'tok_0788','tok_3702','tok_1233','tok_2956',
+];
+let arTimer = null;
+let arIdx = 0;
+
+function startARDemo() {
+  if (arTimer) { clearInterval(arTimer); arTimer = null; }
+  arIdx = 0;
+  const strip = document.getElementById('tokenStripDemo');
+  const btn = document.getElementById('arBtn');
+  btn.textContent = '⏸ 暂停';
+  btn.onclick = pauseARDemo;
+
+  function render() {
+    if (arIdx >= ALL_TOKENS.length) {
+      clearInterval(arTimer);
+      arTimer = null;
+      btn.textContent = '▶ 重播';
+      btn.onclick = startARDemo;
+      return;
+    }
+    let html = '';
+    for (let i = 0; i <= arIdx && i < ALL_TOKENS.length; i++) {
+      if (i < arIdx) {
+        html += `<div class="token-box generated">${ALL_TOKENS[i]}</div>`;
+      } else {
+        html += `<div class="token-box predicted">${ALL_TOKENS[i]}</div>`;
+      }
+    }
+    const remaining = ALL_TOKENS.length - arIdx - 1;
+    for (let r = 0; r < Math.min(remaining, 3); r++) {
+      html += `<div class="token-box masked">···</div>`;
+    }
+    strip.innerHTML = html;
+    arIdx++;
+  }
+
+  render();
+  arTimer = setInterval(render, 420);
+}
+
+function pauseARDemo() {
+  if (arTimer) { clearInterval(arTimer); arTimer = null; }
+  const btn = document.getElementById('arBtn');
+  btn.textContent = '▶ 继续';
+  btn.onclick = resumeARDemo;
+}
+
+function resumeARDemo() {
+  const btn = document.getElementById('arBtn');
+  btn.textContent = '⏸ 暂停';
+  btn.onclick = pauseARDemo;
+  const strip = document.getElementById('tokenStripDemo');
+  arTimer = setInterval(function () {
+    if (arIdx >= ALL_TOKENS.length) {
+      clearInterval(arTimer); arTimer = null;
+      btn.textContent = '▶ 重播'; btn.onclick = startARDemo;
+      return;
+    }
+    let html = '';
+    for (let i = 0; i <= arIdx && i < ALL_TOKENS.length; i++) {
+      if (i < arIdx) html += `<div class="token-box generated">${ALL_TOKENS[i]}</div>`;
+      else html += `<div class="token-box predicted">${ALL_TOKENS[i]}</div>`;
+    }
+    const remaining = ALL_TOKENS.length - arIdx - 1;
+    for (let r = 0; r < Math.min(remaining, 3); r++) html += `<div class="token-box masked">···</div>`;
+    strip.innerHTML = html;
+    arIdx++;
+  }, 420);
+}
+</script>
+</body>
+</html>
