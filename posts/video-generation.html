@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>视频生成模型：从扩散噪声到影视级画面</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #F7F5F0;
+    --bg-card: #FFFFFF;
+    --bg-code: #F0EDE8;
+    --text-primary: #1A1814;
+    --text-secondary: #5C5850;
+    --text-tertiary: #9A948A;
+    --accent: #C4622A;
+    --accent-light: #FAE8DC;
+    --accent-mid: #E8855A;
+    --info: #185FA5;
+    --info-light: #E6F1FB;
+    --danger: #993C1D;
+    --danger-light: #FAECE7;
+    --success: #0F6E56;
+    --success-light: #E1F5EE;
+    --border: rgba(60,50,40,0.1);
+    --border-strong: rgba(60,50,40,0.2);
+    --serif: 'Noto Serif SC', Georgia, serif;
+    --sans: 'Noto Sans SC', system-ui, sans-serif;
+    --mono: 'JetBrains Mono', monospace;
+  }
+
+  html { scroll-behavior: smooth; }
+  body { background: var(--bg); color: var(--text-primary); font-family: var(--sans); font-weight: 400; line-height: 1.85; min-height: 100vh; }
+
+  .site-header { border-bottom: 0.5px solid var(--border); padding: 18px 0; position: sticky; top: 0; background: rgba(247,245,240,0.9); backdrop-filter: blur(12px); z-index: 100; }
+  .header-inner { max-width: 1020px; margin: 0 auto; padding: 0 32px; display: flex; align-items: center; justify-content: space-between; }
+  .site-name { font-family: var(--serif); font-size: 15px; font-weight: 600; color: var(--text-primary); letter-spacing: 0.02em; }
+  .header-tag { font-size: 11px; color: var(--text-tertiary); letter-spacing: 0.15em; text-transform: uppercase; font-weight: 400; }
+
+  .hero { max-width: 1020px; margin: 0 auto; padding: 72px 32px 48px; border-bottom: 0.5px solid var(--border); }
+  .kicker { font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent); font-weight: 500; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+  .kicker::after { content: ''; display: block; height: 1px; width: 40px; background: var(--accent-mid); opacity: 0.5; }
+  .headline { font-family: var(--serif); font-size: 42px; font-weight: 700; line-height: 1.25; color: var(--text-primary); margin-bottom: 20px; letter-spacing: -0.01em; }
+  .headline em { font-style: normal; color: var(--accent); }
+  .deck { font-size: 16px; color: var(--text-secondary); font-weight: 400; line-height: 1.75; max-width: 560px; margin-bottom: 32px; }
+  .meta-row { display: flex; align-items: center; gap: 20px; font-size: 12px; color: var(--text-tertiary); }
+  .meta-row span { display: flex; align-items: center; gap: 5px; }
+
+  .content-wrap { max-width: 1020px; margin: 0 auto; padding: 0 32px; display: grid; grid-template-columns: 1fr 260px; gap: 0 56px; align-items: start; }
+  .article-body { padding: 48px 0 80px; min-width: 0; }
+  .sidebar { padding: 48px 0 80px; position: sticky; top: 72px; }
+  .toc-label { font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-tertiary); font-weight: 500; margin-bottom: 14px; }
+  .toc-list { list-style: none; border-left: 1px solid var(--border-strong); padding-left: 14px; }
+  .toc-list li { margin-bottom: 8px; }
+  .toc-list a { font-size: 12px; color: var(--text-tertiary); text-decoration: none; font-weight: 400; line-height: 1.5; transition: color 0.2s; display: block; }
+  .toc-list a:hover { color: var(--accent); }
+  .toc-list a.active { color: var(--accent); font-weight: 500; }
+
+  .section-label { font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--text-tertiary); font-weight: 500; margin: 52px 0 10px; }
+  .section-heading { font-family: var(--serif); font-size: 22px; font-weight: 600; color: var(--text-primary); margin-bottom: 18px; line-height: 1.4; }
+  .body-text { font-size: 15px; color: var(--text-primary); margin-bottom: 18px; font-weight: 400; line-height: 1.9; }
+  .body-text strong { font-weight: 500; color: var(--text-primary); }
+
+  .pull-quote { font-family: var(--serif); font-size: 20px; font-weight: 600; color: var(--text-primary); line-height: 1.6; padding: 32px 0; margin: 36px 0; border-top: 1.5px solid var(--accent); border-bottom: 0.5px solid var(--border); position: relative; }
+  .pull-quote::before { content: '\201C'; font-family: var(--serif); font-size: 72px; color: var(--accent); opacity: 0.15; position: absolute; top: 10px; left: -8px; line-height: 1; }
+
+  .callout { border-left: 2px solid var(--accent); padding: 16px 20px; background: var(--accent-light); border-radius: 0 8px 8px 0; margin: 28px 0; }
+  .callout p { font-size: 14px; color: var(--danger); font-weight: 400; line-height: 1.75; margin: 0; }
+  .callout.info { border-color: var(--info); background: var(--info-light); }
+  .callout.info p { color: var(--info); }
+  .callout.success { border-color: var(--success); background: var(--success-light); }
+  .callout.success p { color: var(--success); }
+
+  .diagram { border: 0.5px solid var(--border-strong); border-radius: 12px; overflow: hidden; margin: 28px 0; background: var(--bg-card); }
+  .diagram-header { padding: 12px 18px; border-bottom: 0.5px solid var(--border); display: flex; align-items: center; gap: 8px; }
+  .diagram-label { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-tertiary); font-weight: 500; }
+  .diagram-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
+  .diagram-body { padding: 20px 18px; }
+
+  .flow-chain { display: flex; align-items: stretch; gap: 0; margin: 16px 0; }
+  .flow-step { flex: 1; background: var(--bg); border: 0.5px solid var(--border); border-radius: 8px; padding: 10px 8px; text-align: center; font-size: 11px; color: var(--text-secondary); line-height: 1.45; min-width: 0; font-weight: 400; }
+  .flow-step.accent { background: var(--accent-light); border-color: rgba(196,98,42,0.3); color: var(--accent); font-weight: 500; }
+  .flow-step.info { background: var(--info-light); border-color: rgba(24,95,165,0.25); color: var(--info); font-weight: 500; }
+  .flow-step.danger { background: var(--danger-light); border-color: rgba(153,60,29,0.25); color: var(--danger); font-weight: 500; }
+  .flow-step span { display: block; font-size: 10px; color: var(--text-tertiary); margin-top: 3px; font-weight: 400; }
+  .flow-step.accent span { color: rgba(196,98,42,0.65); }
+  .flow-step.info span { color: rgba(24,95,165,0.6); }
+  .flow-step.danger span { color: rgba(153,60,29,0.6); }
+  .flow-arrow { display: flex; align-items: center; color: var(--text-tertiary); font-size: 13px; padding: 0 4px; flex-shrink: 0; }
+
+  .reasons-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .reason-item { background: var(--bg); border: 0.5px solid var(--border); border-radius: 8px; padding: 16px; }
+  .reason-icon { font-size: 20px; margin-bottom: 8px; display: block; }
+  .reason-title { font-size: 13px; font-weight: 500; color: var(--text-primary); margin-bottom: 6px; }
+  .reason-desc { font-size: 12px; color: var(--text-secondary); line-height: 1.65; font-weight: 400; }
+
+  .compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .compare-card { background: var(--bg); border: 0.5px solid var(--border); border-radius: 8px; padding: 16px; }
+  .compare-card-title { font-size: 12px; font-weight: 500; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+  .compare-card-title.blue { color: var(--info); }
+  .compare-card-title.orange { color: var(--accent); }
+  .card-desc { font-size: 12px; color: var(--text-secondary); line-height: 1.65; font-weight: 400; }
+
+  .tradeoff-table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 16px 0; }
+  .tradeoff-table th { text-align: left; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-tertiary); font-weight: 500; padding: 8px 12px; border-bottom: 1px solid var(--border-strong); }
+  .tradeoff-table td { padding: 10px 12px; border-bottom: 0.5px solid var(--border); color: var(--text-primary); font-weight: 400; vertical-align: top; line-height: 1.6; }
+  .tradeoff-table tr:last-child td { border-bottom: none; }
+  .tradeoff-table td:first-child { font-weight: 500; color: var(--text-secondary); white-space: nowrap; width: 120px; }
+
+  .badge { display: inline-block; font-size: 10px; padding: 2px 7px; border-radius: 20px; font-weight: 500; margin-left: 4px; }
+  .badge.good { background: var(--success-light); color: var(--success); }
+  .badge.bad  { background: var(--danger-light);  color: var(--danger);  }
+  .badge.mid  { background: var(--accent-light);  color: var(--accent);  }
+
+  .code-block { background: var(--bg-code); border: 0.5px solid var(--border); border-radius: 8px; padding: 16px 18px; margin: 16px 0; font-family: var(--mono); font-size: 12px; line-height: 1.75; color: var(--text-primary); overflow-x: auto; white-space: pre; }
+  .code-block .comment { color: var(--text-tertiary); }
+  .code-block .highlight { color: var(--accent); font-weight: 500; }
+  .code-block .green { color: var(--success); }
+  .code-block .blue { color: var(--info); }
+
+  .math-block { background: var(--bg-code); border: 0.5px solid var(--border); border-radius: 8px; padding: 18px 22px; margin: 16px 0; text-align: center; }
+  .math-block .formula { font-family: var(--serif); font-size: 15px; color: var(--text-primary); letter-spacing: 0.03em; line-height: 2; }
+  .math-block .formula-label { font-size: 11px; color: var(--text-tertiary); margin-top: 6px; }
+
+  .timeline { position: relative; padding-left: 28px; margin: 16px 0; }
+  .timeline::before { content: ''; position: absolute; left: 7px; top: 6px; bottom: 6px; width: 1.5px; background: var(--border-strong); }
+  .timeline-item { position: relative; margin-bottom: 20px; }
+  .timeline-item:last-child { margin-bottom: 0; }
+  .timeline-item::before { content: ''; position: absolute; left: -23px; top: 6px; width: 9px; height: 9px; border-radius: 50%; background: var(--accent); border: 2px solid var(--bg-card); box-shadow: 0 0 0 1.5px var(--accent); }
+  .timeline-label { font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); font-weight: 500; margin-bottom: 4px; }
+  .timeline-title { font-size: 14px; font-weight: 500; color: var(--text-primary); margin-bottom: 4px; }
+  .timeline-desc { font-size: 12px; color: var(--text-secondary); line-height: 1.65; }
+
+  /* Model card grid */
+  .model-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 20px 0; }
+  .model-card { background: var(--bg-card); border: 0.5px solid var(--border-strong); border-radius: 10px; padding: 18px; transition: border-color 0.18s; }
+  .model-card:hover { border-color: var(--accent-mid); }
+  .model-card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+  .model-card-icon { font-size: 22px; flex-shrink: 0; }
+  .model-card-name { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+  .model-card-org { font-size: 11px; color: var(--text-tertiary); margin-top: 1px; }
+  .model-card-desc { font-size: 12px; color: var(--text-secondary); line-height: 1.7; margin-bottom: 12px; }
+  .model-card-tags { display: flex; gap: 5px; flex-wrap: wrap; }
+  .model-tag { font-size: 10px; padding: 2px 8px; border-radius: 20px; border: 0.5px solid var(--border-strong); color: var(--text-secondary); font-weight: 400; }
+  .model-tag.hot { border-color: rgba(196,98,42,0.4); color: var(--accent); background: var(--accent-light); }
+
+  /* Noise strip visualization */
+  .noise-strip { display: flex; gap: 3px; align-items: center; margin: 14px 0 8px; }
+  .noise-frame { flex: 1; border-radius: 6px; overflow: hidden; border: 0.5px solid var(--border); }
+  .noise-bar { height: 52px; width: 100%; display: flex; }
+  .noise-bar div { flex: 1; }
+  .noise-label { text-align: center; font-size: 10px; color: var(--text-tertiary); padding: 5px 4px 4px; background: var(--bg); border-top: 0.5px solid var(--border); }
+  .noise-arrow { font-size: 18px; color: var(--text-tertiary); flex-shrink: 0; padding: 0 2px; padding-bottom: 20px; }
+
+  .tag-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 48px; padding-top: 24px; border-top: 0.5px solid var(--border); }
+  .tag { font-size: 11px; padding: 4px 12px; border-radius: 20px; border: 0.5px solid var(--border-strong); color: var(--text-secondary); font-weight: 400; text-decoration: none; transition: all 0.2s; }
+  .tag:hover { border-color: var(--accent); color: var(--accent); }
+
+  .site-footer { border-top: 0.5px solid var(--border); padding: 28px 32px; max-width: 1020px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: var(--text-tertiary); }
+
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+  .hero { animation: fadeUp 0.6s ease both; }
+  .article-body { animation: fadeUp 0.6s 0.1s ease both; }
+  .sidebar { animation: fadeUp 0.6s 0.15s ease both; }
+
+  @media (max-width: 680px) {
+    .content-wrap { grid-template-columns: 1fr; }
+    .sidebar { display: none; }
+    .headline { font-size: 28px; }
+    .compare-grid, .reasons-grid, .model-grid { grid-template-columns: 1fr; }
+    .hero { padding: 40px 20px 32px; }
+    .content-wrap { padding: 0 20px; }
+    .header-inner { padding: 0 20px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <a class="site-name" href="../index.html" style="text-decoration:none;color:inherit;">聚合叉的博客</a>
+    <span class="header-tag">视频生成 · AI 技术</span>
+  </div>
+</header>
+
+<section class="hero">
+  <p class="kicker">原理深度科普</p>
+  <h1 class="headline">视频生成模型：<br>从<em>扩散噪声</em>到影视级画面</h1>
+  <p class="deck">一帧帧逼真的画面背后，是扩散模型、Transformer 架构与海量数据的协同作用。本文带你理解现代视频生成模型的工作原理，并深入了解 Seedance 2.0、Kling 3.0、Veo 3.1、Runway Gen-4.5 等 2025–2026 顶尖产品的技术全景。</p>
+  <div class="meta-row">
+    <span>2026-05-28</span>
+    <span>阅读约 14 分钟</span>
+    <span>视频生成 · 扩散模型 · DiT · Seedance 2.0 · Kling 3.0 · Veo 3.1</span>
+  </div>
+</section>
+
+<div class="content-wrap">
+  <article class="article-body">
+
+    <p class="body-text">当你看到 AI 生成的一段行云流水的赛车超车视频，或者一段水下鲸鱼缓缓游弋的慢镜头，你可能很难意识到——几年前，这类画面的生成几乎是不可能完成的任务。</p>
+
+    <p class="body-text">视频生成远比图像生成复杂：它不仅要保证每一帧的视觉质量，还要维持帧与帧之间的<strong>时间一致性</strong>——物体的运动轨迹、光线的变化、镜头的移动，都必须符合现实世界的物理逻辑。本文将系统拆解现代视频生成模型的技术原理，并深入了解当前的顶尖产品。</p>
+
+    <!-- Section 1 -->
+    <p class="section-label" id="s1">基础原理</p>
+    <h2 class="section-heading">视频生成的核心挑战</h2>
+
+    <p class="body-text">生成一张 512×512 的图像，模型需要处理约 26 万个像素点。而生成一段 5 秒钟、分辨率 1080p 的视频（24fps），则需要处理约 <strong>3.5 亿个像素点</strong>——是图像的 1300 倍以上。这还只是原始数据量的问题。</p>
+
+    <div class="reasons-grid">
+      <div class="reason-item">
+        <span class="reason-icon">🎞️</span>
+        <div class="reason-title">时间一致性</div>
+        <div class="reason-desc">同一个物体在相邻帧之间必须保持外观、位置、光影的连续性，稍有偏差就会产生"鬼影"或"闪烁"。</div>
+      </div>
+      <div class="reason-item">
+        <span class="reason-icon">🏃</span>
+        <div class="reason-title">运动建模</div>
+        <div class="reason-desc">流体、布料、人体动作等复杂运动需要模型理解底层物理规律，而非仅凭统计学习"看起来合理"。</div>
+      </div>
+      <div class="reason-item">
+        <span class="reason-icon">🎬</span>
+        <div class="reason-title">长程依赖</div>
+        <div class="reason-desc">一段 10 秒的视频中，场景开头的光线状态、人物位置必须影响到最后一帧，模型需要"记住"全局语境。</div>
+      </div>
+      <div class="reason-item">
+        <span class="reason-icon">📐</span>
+        <div class="reason-title">计算开销</div>
+        <div class="reason-desc">时序维度的引入使注意力计算量以视频长度的平方级别增长，推理一段视频的成本极高。</div>
+      </div>
+    </div>
+
+    <!-- Section 2 -->
+    <p class="section-label" id="s2">技术架构</p>
+    <h2 class="section-heading">扩散模型 + Transformer：现代视频生成的双核驱动</h2>
+
+    <p class="body-text">当前主流的视频生成模型，几乎都建立在<strong>扩散模型（Diffusion Model）</strong>与<strong>Transformer 架构</strong>的融合之上。这一组合被称为 <strong>DiT（Diffusion Transformer）</strong>，由 OpenAI 于 2022 年提出，并在 Sora 中被大规模验证。</p>
+
+    <div class="diagram">
+      <div class="diagram-header">
+        <span class="diagram-dot"></span>
+        <span class="diagram-label">视频扩散模型的核心工作流程</span>
+      </div>
+      <div class="diagram-body">
+        <div class="flow-chain">
+          <div class="flow-step danger">
+            纯噪声视频
+            <span>x<sub>T</sub> ~ N(0, I)</span>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">
+            去噪步骤 T
+            <span>DiT 预测噪声</span>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">
+            去噪步骤 …
+            <span>迭代细化</span>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step accent">
+            清晰视频
+            <span>x<sub>0</sub></span>
+          </div>
+        </div>
+
+        <div class="noise-strip">
+          <div class="noise-frame">
+            <div class="noise-bar">
+              <div style="background:#c4622a;opacity:0.9"></div><div style="background:#9a4a1f;opacity:0.85"></div><div style="background:#e8855a;opacity:0.8"></div><div style="background:#c4622a;opacity:0.95"></div><div style="background:#7a3a15;opacity:0.9"></div>
+            </div>
+            <div class="noise-label">T（纯噪声）</div>
+          </div>
+          <div class="noise-arrow">→</div>
+          <div class="noise-frame">
+            <div class="noise-bar">
+              <div style="background:#c4622a;opacity:0.5"></div><div style="background:#9a8070;opacity:0.6"></div><div style="background:#b0905a;opacity:0.55"></div><div style="background:#c4a080;opacity:0.5"></div><div style="background:#8a6a50;opacity:0.6"></div>
+            </div>
+            <div class="noise-label">T/2（半去噪）</div>
+          </div>
+          <div class="noise-arrow">→</div>
+          <div class="noise-frame">
+            <div class="noise-bar">
+              <div style="background:#7aa8c4;opacity:0.9"></div><div style="background:#a0c0a0;opacity:0.85"></div><div style="background:#c4b080;opacity:0.9"></div><div style="background:#90a890;opacity:0.85"></div><div style="background:#6090b0;opacity:0.9"></div>
+            </div>
+            <div class="noise-label">0（清晰画面）</div>
+          </div>
+        </div>
+
+        <p class="body-text" style="font-size:13px;color:var(--text-secondary);margin-bottom:0;">扩散模型从纯随机噪声出发，通过数十次去噪迭代（每次由 DiT 预测并减去噪声），逐渐"显影"出清晰的视频帧序列。训练阶段则是逆过程：向真实视频逐步加噪，让模型学会预测各噪声等级下的噪声分布。</p>
+      </div>
+    </div>
+
+    <h2 class="section-heading" style="margin-top:0;font-size:18px;">时空注意力：让帧与帧"交流"</h2>
+
+    <p class="body-text">与图像生成的 DiT 不同，视频 DiT 在注意力机制上增加了<strong>时间维度</strong>。主流做法有两种：</p>
+
+    <div class="compare-grid">
+      <div class="compare-card">
+        <div class="compare-card-title blue">🕒 分离式时序注意力</div>
+        <div class="card-desc">先在空间维度做注意力（帧内），再在时间维度做注意力（帧间）。计算量更小，但时空耦合能力有限。代表：早期 Make-A-Video。</div>
+      </div>
+      <div class="compare-card">
+        <div class="compare-card-title orange">🌐 联合时空注意力</div>
+        <div class="card-desc">将视频展平为"时空 Token"序列，一次性进行全局注意力。时空建模能力更强，但计算开销更大。代表：Sora、Wan、Seedance。</div>
+      </div>
+    </div>
+
+    <div class="math-block">
+      <div class="formula">
+        z = Attention(Q, K, V)&nbsp;&nbsp;其中 Q,K,V ∈ ℝ<sup>(T·H·W) × d</sup>
+      </div>
+      <div class="formula-label">联合时空注意力：将 T 帧、H×W 空间分辨率的 Token 全部展平为序列，进行全局自注意力计算</div>
+    </div>
+
+    <h2 class="section-heading" style="margin-top:32px;font-size:18px;">潜在空间压缩：让计算更高效</h2>
+
+    <p class="body-text">直接在像素空间进行扩散计算代价巨大。因此现代视频生成模型普遍采用<strong>视频 VAE（变分自编码器）</strong>对视频进行时空压缩，在压缩后的<strong>潜在空间（Latent Space）</strong>运行扩散过程，再解码回像素。</p>
+
+    <div class="flow-chain">
+      <div class="flow-step info">
+        原始视频
+        <span>1080p · T帧 · 像素空间</span>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step accent">
+        视频 VAE 编码器
+        <span>时空下采样</span>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step accent">
+        潜在空间扩散
+        <span>DiT 去噪</span>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step accent">
+        VAE 解码器
+        <span>还原到像素</span>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step info">
+        生成视频
+        <span>高清像素序列</span>
+      </div>
+    </div>
+
+    <p class="body-text">典型的视频 VAE 会在空间维度进行 8× 下采样，在时间维度进行 4× 下采样，使得扩散过程在约 <strong>1/256</strong> 的数据量上运行，极大提升效率。</p>
+
+    <h2 class="section-heading" style="margin-top:32px;font-size:18px;">Flow Matching：取代随机游走的直线轨迹</h2>
+
+    <p class="body-text">经典扩散模型的去噪轨迹是"随机游走"——每一步只往大致正确的方向走一小步，需要 50–1000 步才能收敛。2024 年后，<strong>Flow Matching（流匹配）</strong>逐渐成为主流，Wan 2.x、Runway Gen-4 等均已切换至此范式。</p>
+
+    <div class="compare-grid">
+      <div class="compare-card">
+        <div class="compare-card-title blue">🌀 扩散模型（DDPM/DDIM）</div>
+        <div class="card-desc">噪声→数据的轨迹弯曲且随机，每步预测"当前噪声量"。推理需 20–50 步，生成一段视频往往要数分钟。</div>
+      </div>
+      <div class="compare-card">
+        <div class="compare-card-title orange">⚡ Flow Matching</div>
+        <div class="card-desc">直接学习从噪声到数据的最短路径（ODE 直线流）。推理仅需 4–8 步，速度提升 5–10×，是当前商业模型出片快的核心原因。</div>
+      </div>
+    </div>
+
+    <div class="callout info">
+      <p>文本条件（Prompt）通过 Text Encoder（通常是大型语言模型如 T5 或 CLIP）编码为向量，再通过 Cross-Attention 或 Adaptive LayerNorm 注入 DiT 的每一层，引导视频生成的内容与风格。Flow Matching 模型同样使用这一注入机制，两者并不冲突。</p>
+    </div>
+
+    <!-- Section 3 -->
+    <p class="section-label" id="s3">关键技术</p>
+    <h2 class="section-heading">四个让视频生成真正跑起来的核心机制</h2>
+
+    <p class="body-text">架构和数据之外，还有几个具体的工程设计决定了模型能否真正生成高质量视频。这些机制在论文里往往一笔带过，但每一个拿掉都会让效果大幅退步。</p>
+
+    <!-- 1. 3D Causal VAE -->
+    <h2 class="section-heading" style="font-size:18px;margin-top:8px;">① 3D 因果 VAE：视频的压缩方式与图像完全不同</h2>
+
+    <p class="body-text">图像生成模型用 2D VAE 把一张图压缩到潜在空间；但视频多了时间轴，如果用帧独立压缩，相邻帧之间的潜在向量就失去关联，模型根本学不到运动。</p>
+
+    <p class="body-text">视频 DiT 用的是 <strong>3D 因果 VAE</strong>，它在空间（H×W）和时间（T）三个维度同时做卷积，一次把整段视频压缩成一个时空连贯的潜在张量。"因果"指的是编码器只能看到当前帧及之前的帧，不能看未来——这样在流式生成时，模型可以边生成边输出，而不必等整段视频完成。</p>
+
+    <div class="diagram">
+      <div class="diagram-header">
+        <span class="diagram-dot"></span>
+        <span class="diagram-label">2D VAE vs 3D 因果 VAE</span>
+      </div>
+      <div class="diagram-body">
+        <div class="compare-grid">
+          <div class="compare-card">
+            <div class="compare-card-title blue">🖼️ 2D VAE（图像）</div>
+            <div class="card-desc">对每帧独立编码，输出 <code>N × C × H' × W'</code>。帧间无任何显式关联，运动信息完全丢失，不适合视频任务。</div>
+          </div>
+          <div class="compare-card">
+            <div class="compare-card-title orange">🎬 3D 因果 VAE（视频）</div>
+            <div class="card-desc">对整段视频做时空卷积，输出 <code>C × T' × H' × W'</code>。时间维度 4× 压缩，空间 8× 压缩，帧间运动被编码进潜在向量之中。</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. RoPE -->
+    <h2 class="section-heading" style="font-size:18px;">② RoPE 时空位置编码：告诉模型"这个 Token 在第几帧、哪个位置"</h2>
+
+    <p class="body-text">DiT 把视频切成大量 Token 后，模型需要知道每个 Token 在时间和空间上的坐标，才能建立正确的因果关系。早期方案是给每个 Token 加一个固定的位置向量，但这样无法泛化到训练时没见过的分辨率或时长。</p>
+
+    <p class="body-text">现代视频 DiT 普遍采用 <strong>RoPE（旋转位置编码）</strong>的 3D 扩展版本：将 Token 的时间坐标 <em>t</em>、垂直坐标 <em>y</em>、水平坐标 <em>x</em> 分别编码为旋转角，嵌入进注意力计算的 Q/K 向量中。它的关键优势在于编码的是<strong>相对位置关系</strong>而非绝对序号，所以训练时只见过 5 秒视频的模型，推理时可以直接外推到 15 秒，无需重新训练。</p>
+
+    <div class="math-block">
+      <div class="formula">
+        RoPE<sub>3D</sub>(q, t, y, x) = q · e<sup>i(θ<sub>t</sub>·t + θ<sub>y</sub>·y + θ<sub>x</sub>·x)</sup>
+      </div>
+      <div class="formula-label">时间、垂直、水平三个维度各自独立编码旋转角，合并注入 Query 向量；Key 向量同理，注意力计算自然感知相对时空距离</div>
+    </div>
+
+    <!-- 3. CFG -->
+    <h2 class="section-heading" style="font-size:18px;">③ CFG：提示词对生成结果的"控制力度"旋钮</h2>
+
+    <p class="body-text">扩散模型在推理时有一个关键参数叫 <strong>Classifier-Free Guidance（CFG，无分类器引导）</strong>，它决定了文本提示词对最终生成结果的影响强度。</p>
+
+    <p class="body-text">原理是：模型在每个去噪步骤同时做两次预测——一次有提示词条件，一次无条件（空文本）。然后把两者的预测差值放大 <em>w</em> 倍，叠加到无条件预测上作为最终方向。</p>
+
+    <div class="math-block">
+      <div class="formula">
+        ε̃ = ε<sub>uncond</sub> + w · (ε<sub>cond</sub> − ε<sub>uncond</sub>)
+      </div>
+      <div class="formula-label">w 即 guidance scale：w=1 等于无引导；w=7 是常用默认值；w 过高（>15）会导致画面过饱和、细节崩坏</div>
+    </div>
+
+    <div class="compare-grid" style="margin-top:16px;">
+      <div class="compare-card">
+        <div class="compare-card-title blue">w 偏低（1–4）</div>
+        <div class="card-desc">生成结果更随机、更"自由"，多样性高，但可能偏离提示词。适合探索性创作，不适合精确指令遵循。</div>
+      </div>
+      <div class="compare-card">
+        <div class="compare-card-title orange">w 偏高（8–15）</div>
+        <div class="card-desc">提示词遵循度高，画面更"紧绷"，颜色饱和、对比强。过高时（>15）会出现典型的 AI 过生成感：过度锐化、颜色失真、细节崩坏。</div>
+      </div>
+    </div>
+
+    <!-- 4. 多阶段训练 -->
+    <h2 class="section-heading" style="font-size:18px;margin-top:32px;">④ 多阶段训练：先学看图，再学看视频</h2>
+
+    <p class="body-text">从零开始在视频数据上训练一个大模型，成本极高且收敛慢。当前主流做法是<strong>多阶段训练</strong>：先在大规模图像数据上预训练，让模型充分学习视觉语义和空间关系；再迁移到视频数据上，专门训练时序运动能力。</p>
+
+    <div class="timeline" style="margin-top:16px;">
+      <div class="timeline-item">
+        <div class="timeline-label">阶段一</div>
+        <div class="timeline-title">图像预训练（低分辨率）</div>
+        <div class="timeline-desc">在数十亿张图像上训练，模型学会物体语义、光线、构图、风格等静态视觉知识。这一阶段成本相对低，但为后续视频训练打下扎实基础。</div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-label">阶段二</div>
+        <div class="timeline-title">视频预训练（低分辨率）</div>
+        <div class="timeline-desc">引入时序数据，模型开始学习运动规律、帧间一致性。分辨率保持较低（如 256p），以控制计算成本，重点让模型理解"时间"这个维度。</div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-label">阶段三</div>
+        <div class="timeline-title">高分辨率微调</div>
+        <div class="timeline-desc">在高质量、高分辨率视频（720p/1080p）上继续训练，让模型掌握细节还原和高频纹理。数据量比前两阶段小得多，但质量要求极高。</div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-label">阶段四</div>
+        <div class="timeline-title">对齐微调（RLHF / DPO）</div>
+        <div class="timeline-desc">通过人类偏好反馈或直接偏好优化，让模型输出更符合用户直觉——更好的指令遵循、更自然的运动、更符合审美的构图。这是"能用"和"好用"之间的最后一公里。</div>
+      </div>
+    </div>
+
+    <p class="pull-quote">一个真正优秀的视频生成模型，不只是"能生成视频"，而是能精准把镜头语言、物体交互、时序逻辑都翻译进像素。</p>
+
+    <!-- Section 3.5: 训练数据 -->
+    <p class="section-label" id="s35">训练数据</p>
+    <h2 class="section-heading">模型的"原材料"：数据从哪来、怎么筛</h2>
+
+    <p class="body-text">架构和算法决定模型的上限，但真正拉开差距的往往是数据。一个视频生成模型的能力边界，在很大程度上由它见过什么样的视频、多少、标注得多精细来决定。</p>
+
+    <h2 class="section-heading" style="margin-top:0;font-size:18px;">数据从哪里来</h2>
+
+    <p class="body-text">训练数据通常来自三个渠道，各有取舍：</p>
+
+    <div class="reasons-grid" style="margin-bottom: 24px;">
+      <div class="reason-item">
+        <span class="reason-icon">🌐</span>
+        <div class="reason-title">互联网公开视频</div>
+        <div class="reason-desc">YouTube、Vimeo、开放影视库是最大的来源。规模可达数十亿片段，覆盖场景极广，但版权归属复杂，质量参差不齐，需要大量过滤。</div>
+      </div>
+      <div class="reason-item">
+        <span class="reason-icon">🤝</span>
+        <div class="reason-title">授权商业内容</div>
+        <div class="reason-desc">与版权方（影视公司、图库机构、内容平台）签订授权协议，获取专业级拍摄素材。质量可控，但成本高昂，且素材风格往往偏向特定类型。</div>
+      </div>
+      <div class="reason-item">
+        <span class="reason-icon">🏭</span>
+        <div class="reason-title">合成数据</div>
+        <div class="reason-desc">用 3D 引擎（如 Blender、Unreal Engine）或已有生成模型批量生成训练素材。物理标签准确（深度图、法线图、光流），可针对性补充真实数据稀缺的场景，但分布与真实世界存在偏差。</div>
+      </div>
+      <div class="reason-item">
+        <span class="reason-icon">📷</span>
+        <div class="reason-title">自采专项数据</div>
+        <div class="reason-desc">针对模型薄弱项（手部动作、流体、人脸特写等）定向拍摄，精准填补缺口。质量最高，但覆盖范围有限，通常作为补充而非主力来源。</div>
+      </div>
+    </div>
+
+    <h2 class="section-heading" style="font-size:18px;">数据质量标准：过滤掉什么</h2>
+
+    <p class="body-text">原始抓取的互联网视频大多不能直接用于训练。一条典型的数据清洗流水线会经过以下几道筛选：</p>
+
+    <div class="diagram">
+      <div class="diagram-header">
+        <span class="diagram-dot"></span>
+        <span class="diagram-label">视频训练数据清洗流水线</span>
+      </div>
+      <div class="diagram-body">
+        <div class="flow-chain">
+          <div class="flow-step danger">
+            原始视频
+            <span>互联网抓取</span>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">
+            技术过滤
+            <span>分辨率 / 帧率 / 编码</span>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">
+            运动质量
+            <span>光流 / 抖动检测</span>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">
+            美学评分
+            <span>构图 / 曝光 / 清晰度</span>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step accent">
+            可用片段
+            <span>进入标注流程</span>
+          </div>
+        </div>
+
+        <table class="tradeoff-table" style="margin-top:18px;">
+          <thead>
+            <tr>
+              <th>过滤维度</th>
+              <th>具体标准（典型阈值）</th>
+              <th>目的</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>分辨率</td>
+              <td>≥ 720p，主流要求 1080p+</td>
+              <td>保证像素级细节学习</td>
+            </tr>
+            <tr>
+              <td>帧率</td>
+              <td>≥ 24fps，剔除幻灯片式低帧内容</td>
+              <td>确保运动连续性可学习</td>
+            </tr>
+            <tr>
+              <td>运动量</td>
+              <td>光流强度在合理区间，过静（静态图）或过动（剧烈抖动）均剔除</td>
+              <td>避免模型学到无效运动模式</td>
+            </tr>
+            <tr>
+              <td>美学评分</td>
+              <td>用预训练美学模型打分，过滤低质量构图、过曝/欠曝画面</td>
+              <td>提升生成视频的视觉质量下限</td>
+            </tr>
+            <tr>
+              <td>内容安全</td>
+              <td>暴力、成人内容、水印、压缩噪声等自动识别并剔除</td>
+              <td>合规性 + 避免模型学到视觉噪声</td>
+            </tr>
+            <tr>
+              <td>片段时长</td>
+              <td>切分为 2–30 秒的片段，过长视频分镜切割</td>
+              <td>匹配模型生成时长，保证语义完整</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <p class="body-text">经过上述过滤，原始数据量通常会缩水 <strong>60%–90%</strong>。这也是为什么"数据规模"不能简单等同于"抓取量"——真正进入训练的高质量片段往往只是冰山一角。</p>
+
+    <h2 class="section-heading" style="font-size:18px;">标注：从视频到可训练样本</h2>
+
+    <p class="body-text">通过技术过滤的视频还需要配上精确的文字描述，才能让模型学会"文本→画面"的对应关系。这个标注流程是现代视频生成模型质量差异的核心战场之一。</p>
+
+    <div class="diagram">
+      <div class="diagram-header">
+        <span class="diagram-dot"></span>
+        <span class="diagram-label">标注流水线：从原始片段到训练样本</span>
+      </div>
+      <div class="diagram-body">
+        <div class="flow-chain">
+          <div class="flow-step info">
+            清洗后视频片段
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step accent">
+            VLM 自动描述
+            <span>GPT-4V / Qwen-VL</span>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step accent">
+            人工审核 / 修正
+            <span>高优先级样本</span>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step accent">
+            Prompt 重写
+            <span>多样化表达</span>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step info">
+            训练样本
+            <span>视频 + 密集标注</span>
+          </div>
+        </div>
+
+        <p class="body-text" style="font-size:13px;color:var(--text-secondary);margin: 16px 0 0;">密集标注的典型描述会覆盖：<strong>主体动作</strong>（"一只金毛犬在草地上奔跑，四肢交替抬起"）、<strong>镜头运动</strong>（"缓慢推进的跟焦镜头"）、<strong>光线与色调</strong>（"黄昏暖光，长阴影"）、<strong>背景细节</strong>（"远处模糊的城市轮廓"）——而非简单的"一只狗在跑"。标注越密集，模型对提示词的遵循能力就越强。</p>
+      </div>
+    </div>
+
+    <h2 class="section-heading" style="font-size:18px;">数据规模：多少才够</h2>
+
+    <p class="body-text">公开披露的数据规模极为有限，但从研究论文和行业信息来看，主流旗舰模型的训练数据大致在以下量级：</p>
+
+    <div class="compare-grid">
+      <div class="compare-card">
+        <div class="compare-card-title blue">📦 视频片段数量</div>
+        <div class="card-desc">通常在 <strong>数亿到数十亿</strong> 片段量级，覆盖时长数百万小时。Meta 的 MovieGen 论文披露使用了约 100M 个视频片段；更大规模的商业模型普遍不公开数字。</div>
+      </div>
+      <div class="compare-card">
+        <div class="compare-card-title orange">⚖️ 质量 vs 数量</div>
+        <div class="card-desc">研究表明，<strong>用 10% 的高质量数据替换低质量数据，效果往往优于简单扩大数据量 10 倍</strong>。这也是为什么数据清洗和标注投入与模型研发投入同等重要。</div>
+      </div>
+    </div>
+
+    <div class="callout">
+      <p>⚖️ <strong>版权争议仍是行业悬而未决的问题。</strong>2026 年 2 月，美国电影协会（MPA）联合迪士尼、派拉蒙、索尼、环球、奈飞等主要制片公司，就 Seedance 2.0 训练数据问题向字节跳动发出律师函；此前 Getty Images、多位摄影师也曾对图像生成模型提起类似诉讼。各大实验室对于训练数据的具体来源几乎都不公开，"合理使用"边界的法律厘清预计仍需数年。</p>
+    </div>
+
+    <!-- Section 4 -->
+    <p class="section-label" id="s4">主流模型</p>
+    <h2 class="section-heading">2025–2026：顶尖视频生成模型全景</h2>
+
+    <p class="body-text">过去两年，视频生成领域进入了"百花齐放"的阶段。国内外多家公司相继推出旗舰级模型，在画质、运动流畅度、原生音频、多镜头叙事等维度持续迭代。截至 2026 年 5 月，原生 4K 分辨率、音画同步生成已成标配，竞争焦点已转向角色一致性、物理精准度与创作控制力。</p>
+
+    <!-- Timeline -->
+    <div class="timeline">
+      <div class="timeline-item" style="opacity:0.5;">
+        <div class="timeline-label" style="color:var(--text-tertiary);">2024 · 02 · 历史节点</div>
+        <div class="timeline-title" style="color:var(--text-secondary);">OpenAI Sora（已停服）</div>
+        <div class="timeline-desc">以"世界模拟器"定位震惊业界，展示 60 秒 1080p 高质量视频，首次规模化验证视频 DiT + Spacetime Patch 技术路线，深刻定义了整个行业的架构方向。2026 年 4 月 26 日正式停服，API 于同年 9 月关闭。</div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-label">2025 · 05</div>
+        <div class="timeline-title">Google Veo 3 <span class="badge mid">原生音频</span></div>
+        <div class="timeline-desc">Google DeepMind 于 Google I/O 2025 发布，首次实现视频与音频的联合生成——对白、音效、环境音在一次推理中同步产出，无需后期配音。支持 4K、多纵横比，可精确理解"低角度跟拍""浅景深"等专业摄影指令。同年 10 月迭代为 Veo 3.1，音频质量升至 48kHz 立体声，全球 159 个国家开放 Gemini 接入。</div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-label">2025 · 07</div>
+        <div class="timeline-title">阿里 Wan 2.2 <span class="badge good">开源</span></div>
+        <div class="timeline-desc">阿里通义实验室发布，Apache-2.0 开源协议，采用混合专家架构（MoE，270 亿参数、每步激活 140 亿）。消费级 GPU 可本地部署（5B 版本约需 12 GB 显存），在开源阵营中综合能力领先。同年 12 月升级为 Wan 2.6，新增多镜头生成与原生音画同步，2026 年 4 月 Wan 2.7 进一步支持首尾帧控制与 5000 字提示词。</div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-label">2025 · 09</div>
+        <div class="timeline-title">Luma Ray3 <span class="badge mid">HDR</span></div>
+        <div class="timeline-desc">Luma AI 发布，业界首个原生 16-bit HDR 视频生成模型，输出 EXR 格式帧序列，可直接进入专业调色流程（ACES 兼容）。Draft Mode 以 1/5 成本和 5 倍速度完成快速打样，Modify 功能支持最长 18 秒视频编辑。定位专业后期制作管线。起步价 $7.99/月。</div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-label">2025 · 12</div>
+        <div class="timeline-title">Runway Gen-4.5 <span class="badge mid">精准控制</span></div>
+        <div class="timeline-desc">Runway 旗舰模型，发布即以 Elo 1247 登顶 Artificial Analysis 排行榜。核心优势在于创作控制力：Motion Brush 可在画面中绘制精确的运动区域，Act-Two 支持动捕驱动角色，Aleph 功能实现视频内编辑。配合 GWM-1 世界模型，是影视广告行业专业级工作流的首选。最长支持 60 秒 4K 输出，起步价 $12/月。</div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-label">2026 · 02</div>
+        <div class="timeline-title">快手 Kling 3.0 <span class="badge good">性价比最优</span></div>
+        <div class="timeline-desc">Kling 系列里程碑版本，原生 4K 60fps 输出，单价约 $0.075/秒，是同等画质中成本最低的商业模型。Omni 架构将视频生成、音频、图像与剪辑统一为单一模型，支持 5 语种唇动同步（含中英日韩等）和最多 6 镜头故事板。在 Artificial Analysis 前十中占据 4 席，是高产量社交内容的主流选择。</div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-label">2026 · 02</div>
+        <div class="timeline-title">字节 Seedance 2.0 <span class="badge good">榜单第一</span></div>
+        <div class="timeline-desc">字节跳动 Seed 团队发布，发布当周即以 T2V Elo 1269、I2V Elo 1351 登顶 Artificial Analysis 双榜，至今（2026 年 5 月）仍保持领先。核心突破是 Omni 多模态参考系统：单次生成可接入最多 9 张参考图、3 段视频、3 段音频，实现"导演级"多镜头叙事。支持最长 15 秒 1080p，原生音画联合生成。通过剪映"即梦"和 CapCut 面向用户开放。</div>
+      </div>
+    </div>
+
+    <!-- Model comparison table -->
+    <div class="diagram" style="margin-top:28px;">
+      <div class="diagram-header">
+        <span class="diagram-dot"></span>
+        <span class="diagram-label">2026 主流模型横向对比（数据截至 2026-05）</span>
+      </div>
+      <div class="diagram-body" style="padding:0;">
+        <table class="tradeoff-table" style="width:100%;">
+          <thead>
+            <tr>
+              <th>模型</th>
+              <th>最高分辨率</th>
+              <th>原生音频</th>
+              <th>最长时长</th>
+              <th>核心优势</th>
+              <th>开源</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Seedance 2.0</td>
+              <td>1080p</td>
+              <td><span class="badge good">✓</span></td>
+              <td>15 秒</td>
+              <td>综合榜首 · 多参考叙事</td>
+              <td>—</td>
+            </tr>
+            <tr>
+              <td>Kling 3.0</td>
+              <td>4K 60fps</td>
+              <td><span class="badge good">✓</span></td>
+              <td>15 秒</td>
+              <td>性价比 · 多语种唇同步</td>
+              <td>—</td>
+            </tr>
+            <tr>
+              <td>Veo 3.1</td>
+              <td>4K</td>
+              <td><span class="badge good">✓ 48kHz</span></td>
+              <td>60 秒+</td>
+              <td>音频质量最优 · Google 生态</td>
+              <td>—</td>
+            </tr>
+            <tr>
+              <td>Runway Gen-4.5</td>
+              <td>4K</td>
+              <td><span class="badge good">✓</span></td>
+              <td>60 秒</td>
+              <td>创作控制力 · 专业工作流</td>
+              <td>—</td>
+            </tr>
+            <tr>
+              <td>Luma Ray3</td>
+              <td>1080p HDR</td>
+              <td>—</td>
+              <td>18 秒</td>
+              <td>原生 HDR · 调色友好</td>
+              <td>—</td>
+            </tr>
+            <tr>
+              <td>Wan 2.6 / 2.7</td>
+              <td>1080p</td>
+              <td><span class="badge good">✓</span></td>
+              <td>15 秒</td>
+              <td>开源最强 · 可本地部署</td>
+              <td><span class="badge good">✓</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="callout info">
+      <p>⚠️ <strong>OpenAI Sora 已于 2026 年 4 月 26 日正式停止服务</strong>，API 将于同年 9 月 24 日关闭。Sora 开创了视频 DiT 与 Spacetime Patch 范式，深刻影响了整个行业，但在速度与成本上长期处于劣势，最终退出市场。如有在用 Sora 的管线，需尽快迁移。</p>
+    </div>
+
+
+
+    <!-- Section 6 -->
+    <p class="section-label" id="s6">技术前沿</p>
+    <h2 class="section-heading">2026 年：仍未攻克的核心难题</h2>
+
+    <p class="body-text">尽管 Flow Matching 让出片速度从"数分钟"压缩到"十几秒"，原生音频联合生成已成标配，但距离"完美"仍有几道关键技术鸿沟——而且随着视频质量整体提升，这些问题反而变得更显眼：</p>
+
+    <div class="reasons-grid" style="margin-bottom:20px;">
+      <div class="reason-item">
+        <span class="reason-icon">🖐️</span>
+        <div class="reason-title">细节一致性崩溃</div>
+        <div class="reason-desc">手指数量、屏幕上的文字、复杂花纹在帧间依然容易产生无法解释的变化。画质越高，这类穿帮越明显，是当前所有模型的共同痛点。</div>
+      </div>
+      <div class="reason-item">
+        <span class="reason-icon">⚛️</span>
+        <div class="reason-title">物理规律违背</div>
+        <div class="reason-desc">液体倒流、穿墙、重力方向错误等物理异常仍时有出现。模型对物理规律的理解本质上仍是统计拟合，而非真正的物理仿真。</div>
+      </div>
+      <div class="reason-item">
+        <span class="reason-icon">🧠</span>
+        <div class="reason-title">长视频语义漂移</div>
+        <div class="reason-desc">生成超过 30 秒的视频时，人物外观、场景风格、光线设定容易"忘掉"初始设定。Veo 3.1 通过 Scene Extension 链式生成缓解了问题，但根本上尚未解决。</div>
+      </div>
+      <div class="reason-item">
+        <span class="reason-icon">🎙️</span>
+        <div class="reason-title">多语种音频质量参差</div>
+        <div class="reason-desc">原生音频联合生成已是标配，但非英语语种（尤其粤语、小语种）的发音准确性和唇形匹配质量明显低于英语，是国际化产品的显著短板。</div>
+      </div>
+    </div>
+
+    <p class="body-text">与此同时，2025–2026 年也有几个方向取得了实质性突破，正在重塑行业预期：</p>
+
+    <div class="reasons-grid" style="margin-bottom:20px;">
+      <div class="reason-item">
+        <span class="reason-icon">⚡</span>
+        <div class="reason-title">推理速度：秒级出片已实现</div>
+        <div class="reason-desc">Flow Matching + 一致性蒸馏的组合，将主流商业模型的平均出片时间从 2024 年的"数分钟"压缩至 5–15 秒（720p/5s），实时或准实时应用开始变得可行。</div>
+      </div>
+      <div class="reason-item">
+        <span class="reason-icon">🌍</span>
+        <div class="reason-title">世界模型：从"生成"到"理解"</div>
+        <div class="reason-desc">Runway GWM-1 等世界模型开始将视频生成器升维为可交互的物理环境模拟器，应用方向延伸至游戏引擎、机器人训练数据生成，是下一个竞争赛道。</div>
+      </div>
+      <div class="reason-item">
+        <span class="reason-icon">🎵</span>
+        <div class="reason-title">音画联合生成已成标配</div>
+        <div class="reason-desc">2025 年初音频生成还需单独流程，到 2026 年 2 月，主要商业模型中已有超过半数支持原生音画同步。Veo 3.1 的 48kHz 立体声对白生成是当前音质天花板。</div>
+      </div>
+      <div class="reason-item">
+        <span class="reason-icon">🔓</span>
+        <div class="reason-title">开源追平商业的速度加快</div>
+        <div class="reason-desc">Wan 2.7 在多项基准上已接近商业闭源模型，且可本地部署。开源模型从"能用"到"好用"的迭代周期已缩短到数月，正在压缩闭源模型的护城河。</div>
+      </div>
+    </div>
+
+    <div class="callout">
+      <p>当前最具争议的前沿问题是：视频生成模型能否成为真正的<strong>物理世界模拟器</strong>？理论上，如果模型在足够多的真实世界视频上训练，它应该能隐式学到重力、碰撞、流体等规律——但目前看来，规模扩展并不能线性解决物理一致性问题，可能需要显式的物理约束模块介入。</p>
+    </div>
+
+    <div class="tag-row">
+      <span class="tag">视频生成</span>
+      <span class="tag">扩散模型</span>
+      <span class="tag">DiT</span>
+      <span class="tag">Seedance 2.0</span>
+      <span class="tag">Kling 3.0</span>
+      <span class="tag">Veo 3.1</span>
+      <span class="tag">Runway Gen-4.5</span>
+      <span class="tag">Luma Ray3</span>
+      <span class="tag">Wan 2.7</span>
+      <span class="tag">T2V</span>
+      <span class="tag">I2V</span>
+      <span class="tag">原生音频</span>
+    </div>
+
+  </article>
+
+  <aside class="sidebar">
+    <p class="toc-label">目录</p>
+    <ul class="toc-list">
+      <li><a href="#s1">核心挑战</a></li>
+      <li><a href="#s2">技术架构</a></li>
+      <li><a href="#s3">关键技术</a></li>
+      <li><a href="#s35">训练数据</a></li>
+      <li><a href="#s4">主流模型</a></li>
+      <li><a href="#s6">技术前沿</a></li>
+    </ul>
+  </aside>
+</div>
+
+<footer class="site-footer">
+  <span>聚合叉的博客</span>
+  <span>视频生成 · AI 技术笔记</span>
+</footer>
+
+<script>
+  // TOC active highlight
+  const tocLinks = document.querySelectorAll('.toc-list a');
+  const sections = Array.from(tocLinks).map(l => document.getElementById(l.getAttribute('href').replace('#','')));
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        tocLinks.forEach(l => l.classList.remove('active'));
+        const link = document.querySelector(`.toc-list a[href="#${e.target.id}"]`);
+        if (link) link.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -65% 0px' });
+  sections.forEach(s => s && obs.observe(s));
+</script>
+</body>
+</html>
