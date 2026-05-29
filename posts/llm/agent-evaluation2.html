@@ -1,0 +1,1336 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>多模态评测集构建指南：以电商信息流素材生成为例</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #F7F5F0;
+    --bg-card: #FFFFFF;
+    --bg-code: #F0EDE8;
+    --text-primary: #1A1814;
+    --text-secondary: #5C5850;
+    --text-tertiary: #9A948A;
+    --accent: #C4622A;
+    --accent-light: #FAE8DC;
+    --accent-mid: #E8855A;
+    --info: #185FA5;
+    --info-light: #E6F1FB;
+    --danger: #993C1D;
+    --danger-light: #FAECE7;
+    --success: #0F6E56;
+    --success-light: #E1F5EE;
+    --warn: #7A5C00;
+    --warn-light: #FFF8E1;
+    --border: rgba(60,50,40,0.1);
+    --border-strong: rgba(60,50,40,0.2);
+    --serif: 'Noto Serif SC', Georgia, serif;
+    --sans: 'Noto Sans SC', system-ui, sans-serif;
+    --mono: 'JetBrains Mono', monospace;
+  }
+
+  html { scroll-behavior: smooth; }
+  body { background: var(--bg); color: var(--text-primary); font-family: var(--sans); font-weight: 400; line-height: 1.85; min-height: 100vh; }
+
+  /* ── Header ── */
+  .site-header { border-bottom: 0.5px solid var(--border); padding: 18px 0; position: sticky; top: 0; background: rgba(247,245,240,0.9); backdrop-filter: blur(12px); z-index: 100; }
+  .header-inner { max-width: 1020px; margin: 0 auto; padding: 0 32px; display: flex; align-items: center; justify-content: space-between; }
+  .site-name { font-family: var(--serif); font-size: 15px; font-weight: 600; color: var(--text-primary); letter-spacing: 0.02em; text-decoration: none; }
+  .header-tag { font-size: 11px; color: var(--text-tertiary); letter-spacing: 0.15em; text-transform: uppercase; font-weight: 400; }
+
+  /* ── Hero ── */
+  .hero { max-width: 1020px; margin: 0 auto; padding: 72px 32px 48px; border-bottom: 0.5px solid var(--border); animation: fadeUp 0.6s ease both; }
+  .kicker { font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent); font-weight: 500; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+  .kicker::after { content: ''; display: block; height: 1px; width: 40px; background: var(--accent-mid); opacity: 0.5; }
+  .headline { font-family: var(--serif); font-size: 38px; font-weight: 700; line-height: 1.25; color: var(--text-primary); margin-bottom: 20px; letter-spacing: -0.01em; }
+  .headline em { font-style: normal; color: var(--accent); }
+  .deck { font-size: 16px; color: var(--text-secondary); font-weight: 400; line-height: 1.75; max-width: 600px; margin-bottom: 32px; }
+  .meta-row { display: flex; align-items: center; gap: 20px; font-size: 12px; color: var(--text-tertiary); flex-wrap: wrap; }
+
+  /* ── Layout ── */
+  .content-wrap { max-width: 1020px; margin: 0 auto; padding: 0 32px; display: grid; grid-template-columns: 1fr 260px; gap: 0 56px; align-items: start; }
+  .article-body { padding: 48px 0 80px; min-width: 0; animation: fadeUp 0.6s 0.1s ease both; }
+  .sidebar { padding: 48px 0 80px; position: sticky; top: 72px; animation: fadeUp 0.6s 0.15s ease both; }
+  .toc-label { font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-tertiary); font-weight: 500; margin-bottom: 14px; }
+  .toc-list { list-style: none; border-left: 1px solid var(--border-strong); padding-left: 14px; }
+  .toc-list li { margin-bottom: 8px; }
+  .toc-list a { font-size: 12px; color: var(--text-tertiary); text-decoration: none; font-weight: 400; line-height: 1.5; transition: color 0.2s; display: block; }
+  .toc-list a:hover { color: var(--accent); }
+  .toc-list a.active { color: var(--accent); font-weight: 500; }
+
+  /* ── Typography ── */
+  .section-label { font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--text-tertiary); font-weight: 500; margin: 52px 0 10px; }
+  .section-heading { font-family: var(--serif); font-size: 22px; font-weight: 600; color: var(--text-primary); margin-bottom: 18px; line-height: 1.4; }
+  .body-text { font-size: 15px; color: var(--text-primary); margin-bottom: 18px; font-weight: 400; line-height: 1.9; }
+  .body-text strong { font-weight: 500; }
+
+  /* ── Pull quote ── */
+  .pull-quote { font-family: var(--serif); font-size: 19px; font-weight: 600; color: var(--text-primary); line-height: 1.6; padding: 32px 0; margin: 36px 0; border-top: 1.5px solid var(--accent); border-bottom: 0.5px solid var(--border); position: relative; }
+  .pull-quote::before { content: '\201C'; font-family: var(--serif); font-size: 72px; color: var(--accent); opacity: 0.15; position: absolute; top: 10px; left: -8px; line-height: 1; }
+
+  /* ── Callout ── */
+  .callout { border-left: 2px solid var(--accent); padding: 16px 20px; background: var(--accent-light); border-radius: 0 8px 8px 0; margin: 28px 0; }
+  .callout p { font-size: 14px; color: var(--danger); font-weight: 400; line-height: 1.75; margin: 0; }
+  .callout.info { border-color: var(--info); background: var(--info-light); }
+  .callout.info p { color: var(--info); }
+  .callout.success { border-color: var(--success); background: var(--success-light); }
+  .callout.success p { color: var(--success); }
+  .callout.warn { border-color: var(--warn); background: var(--warn-light); }
+  .callout.warn p { color: var(--warn); }
+
+  /* ── Diagram ── */
+  .diagram { border: 0.5px solid var(--border-strong); border-radius: 12px; overflow: hidden; margin: 28px 0; background: var(--bg-card); }
+  .diagram-header { padding: 12px 18px; border-bottom: 0.5px solid var(--border); display: flex; align-items: center; gap: 8px; }
+  .diagram-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
+  .diagram-label { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-tertiary); font-weight: 500; }
+  .diagram-body { padding: 20px 18px; }
+
+  /* ── Flow chain ── */
+  .flow-chain { display: flex; align-items: stretch; margin: 14px 0; }
+  .flow-step { flex: 1; background: var(--bg); border: 0.5px solid var(--border); border-radius: 8px; padding: 10px 8px; text-align: center; font-size: 11px; color: var(--text-secondary); line-height: 1.45; min-width: 0; font-weight: 400; }
+  .flow-step span { display: block; font-size: 10px; color: var(--text-tertiary); margin-top: 3px; }
+  .flow-step.accent { background: var(--accent-light); border-color: rgba(196,98,42,0.25); color: var(--danger); font-weight: 500; }
+  .flow-step.info { background: var(--info-light); border-color: rgba(24,95,165,0.2); color: var(--info); font-weight: 500; }
+  .flow-step.success { background: var(--success-light); border-color: rgba(15,110,86,0.2); color: var(--success); font-weight: 500; }
+  .flow-step.warn { background: var(--warn-light); border-color: rgba(122,92,0,0.2); color: var(--warn); font-weight: 500; }
+  .flow-step.accent span { color: rgba(153,60,29,0.55); }
+  .flow-step.info span { color: rgba(24,95,165,0.5); }
+  .flow-step.success span { color: rgba(15,110,86,0.5); }
+  .flow-step.warn span { color: rgba(122,92,0,0.5); }
+  .flow-arrow { display: flex; align-items: center; color: var(--text-tertiary); font-size: 13px; padding: 0 4px; flex-shrink: 0; }
+
+  /* ── Reasons grid ── */
+  .reasons-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .reasons-grid.col3 { grid-template-columns: 1fr 1fr 1fr; }
+  .reason-item { background: var(--bg); border: 0.5px solid var(--border); border-radius: 8px; padding: 16px; }
+  .reason-item.accent-border { border-color: rgba(196,98,42,0.3); }
+  .reason-item.info-border { border-color: rgba(24,95,165,0.3); }
+  .reason-item.success-border { border-color: rgba(15,110,86,0.3); }
+  .reason-icon { font-size: 20px; margin-bottom: 8px; display: block; }
+  .reason-title { font-size: 13px; font-weight: 500; color: var(--text-primary); margin-bottom: 6px; }
+  .reason-desc { font-size: 12px; color: var(--text-secondary); line-height: 1.65; }
+
+  /* ── Code block ── */
+  .code-block { background: var(--bg-code); border: 0.5px solid var(--border); border-radius: 8px; padding: 16px 18px; margin: 14px 0; font-family: var(--mono); font-size: 12px; line-height: 1.75; color: var(--text-primary); overflow-x: auto; white-space: pre; }
+  .code-block .comment { color: var(--text-tertiary); }
+  .code-block .hl { color: var(--accent); font-weight: 500; }
+  .code-block .green { color: var(--success); }
+  .code-block .blue { color: var(--info); }
+  .code-block .kw { color: #7B4CA0; font-weight: 500; }
+  .code-block .str { color: var(--success); }
+  .code-block .num { color: var(--info); }
+
+  /* ── Table ── */
+  .tradeoff-table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 12px 0; }
+  .tradeoff-table th { text-align: left; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-tertiary); font-weight: 500; padding: 8px 12px; border-bottom: 1px solid var(--border-strong); }
+  .tradeoff-table td { padding: 10px 12px; border-bottom: 0.5px solid var(--border); color: var(--text-primary); font-weight: 400; vertical-align: top; line-height: 1.65; }
+  .tradeoff-table tr:last-child td { border-bottom: none; }
+  .tradeoff-table td:first-child { font-weight: 500; color: var(--text-secondary); }
+  .tradeoff-table tr:hover td { background: rgba(247,245,240,0.6); }
+
+  .badge { display: inline-block; font-size: 10px; padding: 2px 7px; border-radius: 20px; font-weight: 500; margin-left: 4px; white-space: nowrap; }
+  .badge.good { background: var(--success-light); color: var(--success); }
+  .badge.bad { background: var(--danger-light); color: var(--danger); }
+  .badge.mid { background: var(--accent-light); color: var(--accent); }
+  .badge.info { background: var(--info-light); color: var(--info); }
+  .badge.warn { background: var(--warn-light); color: var(--warn); }
+
+  /* ── Pipeline stage block ── */
+  .stage-block { border: 0.5px solid var(--border-strong); border-radius: 12px; overflow: hidden; margin: 32px 0; background: var(--bg-card); }
+  .stage-header { padding: 14px 20px; display: flex; align-items: center; gap: 12px; border-bottom: 0.5px solid var(--border); }
+  .stage-num { width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; }
+  .stage-num.s1 { background: var(--accent-light); color: var(--accent); }
+  .stage-num.s2 { background: var(--info-light); color: var(--info); }
+  .stage-num.s3 { background: var(--warn-light); color: var(--warn); }
+  .stage-num.s4 { background: var(--success-light); color: var(--success); }
+  .stage-num.s5 { background: #EDE6F5; color: #6B3FA0; }
+  .stage-title { font-family: var(--serif); font-size: 16px; font-weight: 600; color: var(--text-primary); }
+  .stage-subtitle { font-size: 12px; color: var(--text-tertiary); margin-left: auto; font-weight: 400; letter-spacing: 0.04em; }
+  .stage-body { padding: 20px; }
+  .stage-body .metric-list { display: flex; flex-direction: column; gap: 10px; }
+
+  /* ── Metric row inside stage ── */
+  .metric-item { background: var(--bg); border: 0.5px solid var(--border); border-radius: 8px; padding: 14px 16px; display: grid; grid-template-columns: 180px 1fr 80px; align-items: start; gap: 14px; }
+  .metric-name { font-size: 13px; font-weight: 500; color: var(--text-primary); line-height: 1.4; }
+  .metric-name .sub { display: block; font-size: 11px; font-weight: 400; color: var(--text-tertiary); margin-top: 2px; }
+  .metric-detail { font-size: 12px; color: var(--text-secondary); line-height: 1.65; }
+  .metric-method { font-size: 11px; text-align: right; line-height: 1.4; }
+  .method-tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 500; letter-spacing: 0.04em; }
+  .mt-auto { background: var(--success-light); color: var(--success); }
+  .mt-llm  { background: var(--info-light); color: var(--info); }
+  .mt-human { background: var(--accent-light); color: var(--accent); }
+  .mt-vision { background: #EDE6F5; color: #6B3FA0; }
+  .mt-hybrid { background: var(--warn-light); color: var(--warn); }
+
+  /* ── Dimension card ── */
+  .dim-card { background: var(--bg-card); border: 0.5px solid var(--border-strong); border-radius: 10px; overflow: hidden; margin: 14px 0; }
+  .dim-card-header { padding: 10px 16px; background: var(--bg-code); border-bottom: 0.5px solid var(--border); font-size: 11px; color: var(--text-tertiary); letter-spacing: 0.1em; text-transform: uppercase; font-weight: 500; display: flex; align-items: center; gap: 8px; }
+  .dim-card-body { padding: 16px; }
+
+  /* ── Score matrix ── */
+  .score-matrix { display: grid; gap: 0; border: 0.5px solid var(--border-strong); border-radius: 8px; overflow: hidden; }
+  .score-matrix-head { display: grid; grid-template-columns: 160px repeat(5, 1fr); background: var(--bg-code); border-bottom: 0.5px solid var(--border); }
+  .score-matrix-row { display: grid; grid-template-columns: 160px repeat(5, 1fr); border-bottom: 0.5px solid var(--border); }
+  .score-matrix-row:last-child { border-bottom: none; }
+  .sm-cell { padding: 9px 10px; font-size: 11px; color: var(--text-secondary); line-height: 1.4; border-right: 0.5px solid var(--border); }
+  .sm-cell:last-child { border-right: none; }
+  .sm-head { padding: 8px 10px; font-size: 10px; font-weight: 500; color: var(--text-tertiary); letter-spacing: 0.06em; text-transform: uppercase; border-right: 0.5px solid var(--border); }
+  .sm-head:last-child { border-right: none; }
+  .sm-cell.label { font-weight: 500; color: var(--text-primary); background: rgba(247,245,240,0.5); }
+  .dot-full  { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: var(--accent); }
+  .dot-half  { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: var(--info); }
+  .dot-low   { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: var(--border-strong); }
+  .sm-val { display: flex; align-items: center; gap: 4px; }
+
+  /* ── Consistency visual ── */
+  .consistency-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 12px 0; }
+  .cons-frame { background: var(--bg); border: 0.5px solid var(--border); border-radius: 8px; overflow: hidden; }
+  .cons-frame-top { height: 72px; display: flex; align-items: center; justify-content: center; font-size: 22px; background: linear-gradient(135deg, var(--bg-code) 0%, var(--bg) 100%); }
+  .cons-frame-label { padding: 6px 10px; font-size: 10px; color: var(--text-tertiary); font-weight: 500; letter-spacing: 0.06em; }
+  .cons-frame-score { padding: 0 10px 8px; font-family: var(--mono); font-size: 14px; font-weight: 500; }
+  .score-ok { color: var(--success); }
+  .score-mid { color: var(--warn); }
+  .score-bad { color: var(--danger); }
+
+  /* ── Full pipeline overview ── */
+  .pipeline-overview { display: flex; flex-direction: column; gap: 0; border: 0.5px solid var(--border-strong); border-radius: 12px; overflow: hidden; }
+  .po-row { display: grid; grid-template-columns: 120px 1fr 120px; align-items: center; border-bottom: 0.5px solid var(--border); }
+  .po-row:last-child { border-bottom: none; }
+  .po-stage { padding: 12px 16px; font-size: 12px; font-weight: 500; color: var(--text-primary); display: flex; align-items: center; gap: 8px; border-right: 0.5px solid var(--border); }
+  .po-metrics { padding: 12px 16px; font-size: 12px; color: var(--text-secondary); line-height: 1.6; }
+  .po-weight { padding: 12px 16px; text-align: right; font-family: var(--mono); font-size: 13px; font-weight: 500; border-left: 0.5px solid var(--border); }
+  .po-head { background: var(--bg-code); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-tertiary); font-weight: 500; padding: 8px 16px; }
+  .po-head-row { display: grid; grid-template-columns: 120px 1fr 120px; border-bottom: 1px solid var(--border-strong); }
+
+  /* ── Callout tag ── */
+  .card-desc { font-size: 12px; color: var(--text-secondary); line-height: 1.65; }
+
+  /* ── Tags ── */
+  .tag-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 48px; padding-top: 24px; border-top: 0.5px solid var(--border); }
+  .tag { font-size: 11px; padding: 4px 12px; border-radius: 20px; border: 0.5px solid var(--border-strong); color: var(--text-secondary); font-weight: 400; text-decoration: none; transition: all 0.2s; }
+  .tag:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* ── Footer ── */
+  .site-footer { border-top: 0.5px solid var(--border); padding: 28px 32px; max-width: 1020px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: var(--text-tertiary); }
+
+  /* ── Animation ── */
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* ── Responsive ── */
+  @media (max-width: 680px) {
+    .content-wrap { grid-template-columns: 1fr; }
+    .sidebar { display: none; }
+    .headline { font-size: 24px; }
+    .reasons-grid, .reasons-grid.col3 { grid-template-columns: 1fr; }
+    .metric-item { grid-template-columns: 1fr; }
+    .score-matrix-head, .score-matrix-row { grid-template-columns: 100px repeat(5, 1fr); }
+    .consistency-grid { grid-template-columns: 1fr 1fr; }
+    .po-head-row, .po-row { grid-template-columns: 80px 1fr 70px; }
+    .hero { padding: 40px 20px 32px; }
+    .content-wrap { padding: 0 20px; }
+    .header-inner { padding: 0 20px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <a class="site-name" href="../index.html">聚合叉的博客</a>
+    <span class="header-tag">Agent 评测 · 多模态</span>
+  </div>
+</header>
+
+<section class="hero">
+  <p class="kicker">评测体系 · 深入篇</p>
+  <h1 class="headline">多模态评测集构建指南<br><em>以电商信息流素材生成为例</em></h1>
+  <p class="deck">文本域和视觉域的评测集，构建逻辑截然不同。本篇先讲通用方法论——如何为文本输出和视频输出分别建立有效的评测集——再以「用户输入→创意分析→脚本→分镜→视频」这条电商信息流工作流为例，把方法论落进真实场景。</p>
+  <div class="meta-row">
+    <span>🗂 Agent 系列 · 评测深入篇</span>
+    <span>⏱ 阅读约 20 分钟</span>
+    <span>🎬 电商信息流素材生成场景</span>
+  </div>
+</section>
+
+<div class="content-wrap">
+<article class="article-body">
+
+  <!-- Section 1 -->
+  <p class="section-label" id="s1">文本域评测集</p>
+  <h2 class="section-heading">通用方法论：如何构建文本域评测集</h2>
+
+  <p class="body-text">文本域的评测集构建，是整个多模态体系的地基。文本输出相对可解释、可对比，但"什么是好的文本输出"往往没有唯一答案——这是文本评测集设计的核心挑战。</p>
+
+  <div class="diagram">
+    <div class="diagram-header">
+      <span class="diagram-dot"></span>
+      <span class="diagram-label">文本域评测集的四类构成</span>
+    </div>
+    <div class="diagram-body">
+      <div class="reasons-grid">
+        <div class="reason-item success-border">
+          <span class="reason-icon">🥇</span>
+          <p class="reason-title">黄金用例（Golden Set）</p>
+          <p class="reason-desc">人工精标的输入-输出对，每条都有明确的"为什么这是好输出"注释。是回归测试的锚点。数量不需多，20-50 条高质量黄金用例胜过 500 条随机样本。</p>
+        </div>
+        <div class="reason-item info-border">
+          <span class="reason-icon">⚡</span>
+          <p class="reason-title">对比用例（Contrastive Set）</p>
+          <p class="reason-desc">每条包含同一输入的"好版本"与"坏版本"，坏版本对应特定失败模式（幻觉、格式错误、风格偏离）。专门用于训练和校准 LLM-judge 的判别能力。</p>
+        </div>
+        <div class="reason-item accent-border">
+          <span class="reason-icon">🎯</span>
+          <p class="reason-title">边界用例（Edge Set）</p>
+          <p class="reason-desc">歧义输入、极短/极长输入、多语言混合、矛盾约束（"要简洁但要覆盖所有卖点"）。专门测试模型的降级能力和不确定性处理。</p>
+        </div>
+        <div class="reason-item" style="border-color:rgba(107,63,160,0.3);">
+          <span class="reason-icon">🔁</span>
+          <p class="reason-title">线上反哺用例（Production Set）</p>
+          <p class="reason-desc">从真实用户请求中采样，经过脱敏和标注后纳入测试集。是测试集保持与真实分布同步的唯一可靠手段，每月至少补充一次。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <p class="body-text">文本域评测集的核心设计原则，是<strong>每条用例必须绑定明确的评测维度和通过标准</strong>。一条用例如果只有输入和期望输出，没有说明"为什么这个输出是对的"，那它在后续维护时会迅速腐烂——换了评测模型或换了人工标注员，可能得出完全不同的结论。</p>
+
+  <div class="diagram">
+    <div class="diagram-header">
+      <span class="diagram-dot"></span>
+      <span class="diagram-label">文本域用例的标准格式</span>
+    </div>
+    <div class="diagram-body">
+      <div class="code-block" style="margin:0;"><span class="comment"># 文本域测试用例标准格式（以脚本生成为例）</span>
+{
+  <span class="str">"id"</span>: <span class="str">"script_001"</span>,
+  <span class="str">"input"</span>: {
+    <span class="str">"product"</span>: <span class="str">"某面霜，SPF30+，72h 保湿，主打敏感肌"</span>,
+    <span class="str">"target_audience"</span>: <span class="str">"25-35 岁都市女性"</span>,
+    <span class="str">"duration"</span>: <span class="num">30</span>,            <span class="comment"># 目标视频时长（秒）</span>
+    <span class="str">"platform"</span>: <span class="str">"抖音"</span>
+  },
+  <span class="str">"expected_output"</span>: { <span class="str">"reference"</span>: <span class="str">"..."</span> },  <span class="comment"># 参考输出（非唯一正解）</span>
+
+  <span class="str">"pass_criteria"</span>: [                   <span class="comment"># ← 这是关键：明确通过标准</span>
+    { <span class="str">"dim"</span>: <span class="str">"fact_accuracy"</span>,   <span class="str">"rule"</span>: <span class="str">"所有功效声明必须在输入中有来源"</span>,   <span class="str">"method"</span>: <span class="str">"NLI"</span> },
+    { <span class="str">"dim"</span>: <span class="str">"compliance"</span>,      <span class="str">"rule"</span>: <span class="str">"不含平台违禁词"</span>,                  <span class="str">"method"</span>: <span class="str">"rule"</span> },
+    { <span class="str">"dim"</span>: <span class="str">"length"</span>,          <span class="str">"rule"</span>: <span class="str">"字数在 100-130 之间（30s 语速）"</span>,  <span class="str">"method"</span>: <span class="str">"rule"</span> },
+    { <span class="str">"dim"</span>: <span class="str">"narrative_arc"</span>,   <span class="str">"rule"</span>: <span class="str">"包含钩子/痛点/解决方案/CTA四段"</span>, <span class="str">"method"</span>: <span class="str">"llm_judge"</span> }
+  ],
+
+  <span class="str">"failure_modes"</span>: [               <span class="comment"># 已知失败模式，方便快速定位</span>
+    <span class="str">"夸大功效（如'根治敏感'）"</span>,
+    <span class="str">"遗漏 SPF 卖点"</span>,
+    <span class="str">"CTA 缺失或出现在开头"</span>
+  ]
+}</div>
+    </div>
+  </div>
+
+  <div class="diagram">
+    <div class="diagram-header">
+      <span class="diagram-dot"></span>
+      <span class="diagram-label">文本域核心评测维度与推荐方法</span>
+    </div>
+    <div class="diagram-body">
+      <table class="tradeoff-table">
+        <thead>
+          <tr><th>评测维度</th><th>衡量内容</th><th>推荐方法</th><th>自动化程度</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>事实准确性</td>
+            <td>声明是否可在输入文档中找到依据</td>
+            <td>NLI 模型（蕴含关系检测）</td>
+            <td><span class="badge good">全自动</span></td>
+          </tr>
+          <tr>
+            <td>格式与结构</td>
+            <td>输出是否满足 Schema 约束</td>
+            <td>JSON Schema / 正则</td>
+            <td><span class="badge good">全自动</span></td>
+          </tr>
+          <tr>
+            <td>合规检测</td>
+            <td>违禁词、敏感声明</td>
+            <td>规则字典 + 关键词匹配</td>
+            <td><span class="badge good">全自动</span></td>
+          </tr>
+          <tr>
+            <td>语义相关性</td>
+            <td>输出是否贴合输入意图</td>
+            <td>Embedding 余弦相似度</td>
+            <td><span class="badge good">全自动</span></td>
+          </tr>
+          <tr>
+            <td>叙事质量</td>
+            <td>逻辑结构、情感节奏、说服力</td>
+            <td>LLM-as-Judge（需校准）</td>
+            <td><span class="badge info">半自动</span></td>
+          </tr>
+          <tr>
+            <td>风格 / 调性</td>
+            <td>是否符合品牌语气规范</td>
+            <td>LLM-judge + 品牌规范注入</td>
+            <td><span class="badge info">半自动</span></td>
+          </tr>
+          <tr>
+            <td>创意新颖度</td>
+            <td>相似输入下输出的多样性</td>
+            <td>Embedding 多样性 + 人工抽查</td>
+            <td><span class="badge mid">人工辅助</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="callout info">
+    <p>💡 文本评测集的规模建议：黄金集 30-80 条（精），边界集 50-100 条（广），对比集 50-100 对（深），线上反哺集每月 30-50 条（新）。总量控制在 300 条以内，优先保证每条用例的质量和标注的准确性。测试集越大不一定越好——维护成本会把你拖垮。</p>
+  </div>
+
+  <!-- Section 2 -->
+  <p class="section-label" id="s2">视觉域评测集</p>
+  <h2 class="section-heading">通用方法论：如何构建视觉域评测集</h2>
+
+  <p class="body-text">视觉域的评测集构建，比文本域难一个量级。难点不只在于"好的视觉"更难定义，而在于<strong>标注成本极高、自动化工具覆盖有限、且评测结果依赖评估者的领域专业度</strong>。</p>
+
+  <div class="diagram">
+    <div class="diagram-header">
+      <span class="diagram-dot"></span>
+      <span class="diagram-label">视觉域评测的三类任务</span>
+    </div>
+    <div class="diagram-body">
+      <div class="reasons-grid col3">
+        <div class="reason-item">
+          <span class="reason-icon">🖼️</span>
+          <p class="reason-title">单帧评测</p>
+          <p class="reason-desc">对静态帧（图片或视频截帧）做评测。工具链相对成熟：美感打分模型、目标检测、OCR、色差计算。是视觉评测的入门级。</p>
+        </div>
+        <div class="reason-item">
+          <span class="reason-icon">🎞️</span>
+          <p class="reason-title">时序评测</p>
+          <p class="reason-desc">跨帧的一致性、流畅度、节奏感。需要视频级别的工具：光流分析、帧间特征相似度、动作识别。这是区分视频评测与图片评测的核心维度。</p>
+        </div>
+        <div class="reason-item">
+          <span class="reason-icon">🔀</span>
+          <p class="reason-title">跨模态对齐评测</p>
+          <p class="reason-desc">视觉输出与文本描述（分镜/脚本）的对齐程度。需要 VQA 模型或 CLIP 类模型。是多模态流水线特有的维度，纯视觉工具无法覆盖。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <p class="body-text">视觉域评测集的构建，最关键的一步是建立<strong>参考素材库（Reference Asset Library）</strong>——它是所有客观指标的计算基准。没有可靠的参考，颜色还原率、质地相似度这些指标就无从计算。</p>
+
+  <div class="diagram">
+    <div class="diagram-header">
+      <span class="diagram-dot"></span>
+      <span class="diagram-label">参考素材库的构建规范</span>
+    </div>
+    <div class="diagram-body">
+      <div class="reasons-grid">
+        <div class="reason-item success-border">
+          <span class="reason-icon">📸</span>
+          <p class="reason-title">产品参考图（静态）</p>
+          <p class="reason-desc">标准光源下的产品棚拍，覆盖正面、侧面、包装细节。必须是未经修图的原始文件（RAW 或无损 TIFF），用于颜色基准提取。宣传图不可用作基准。</p>
+        </div>
+        <div class="reason-item info-border">
+          <span class="reason-icon">🎬</span>
+          <p class="reason-title">产品参考视频（动态）</p>
+          <p class="reason-desc">专业拍摄的质地展示视频：挤出、涂抹、流动、成型等关键动作的慢动作素材。这是质地真实性评测的唯一可信基准。</p>
+        </div>
+        <div class="reason-item accent-border">
+          <span class="reason-icon">🏷️</span>
+          <p class="reason-title">标注元数据</p>
+          <p class="reason-desc">每个参考素材附带结构化标注：色号（L*a*b* 值）、质地类型、光泽等级、品类标签。是自动化评测能够运行的前提。</p>
+        </div>
+        <div class="reason-item" style="border-color:rgba(107,63,160,0.3);">
+          <span class="reason-icon">❌</span>
+          <p class="reason-title">负样本库（Failure Cases）</p>
+          <p class="reason-desc">已知的生成失败案例：颜色偏差超标、logo 变形、质地失真、人脸不一致。用于校准自动化阈值，也是 LLM-judge 的训练数据。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="diagram">
+    <div class="diagram-header">
+      <span class="diagram-dot"></span>
+      <span class="diagram-label">视觉域核心评测维度与工具链</span>
+    </div>
+    <div class="diagram-body">
+      <table class="tradeoff-table">
+        <thead>
+          <tr><th>评测维度</th><th>工具 / 方法</th><th>输出指标</th><th>自动化程度</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>颜色准确性</td>
+            <td>L*a*b* 色差（ΔE 计算）</td>
+            <td>ΔE 值（&lt;3 合格，&gt;5 警告）</td>
+            <td><span class="badge good">全自动</span></td>
+          </tr>
+          <tr>
+            <td>Logo / 文字识别</td>
+            <td>OCR + 字符串匹配</td>
+            <td>识别准确率 / 变形检测</td>
+            <td><span class="badge good">全自动</span></td>
+          </tr>
+          <tr>
+            <td>帧间产品一致性</td>
+            <td>DINO-v2 特征余弦相似度</td>
+            <td>帧对相似度（阈值 0.85）</td>
+            <td><span class="badge good">全自动</span></td>
+          </tr>
+          <tr>
+            <td>人物面部一致性</td>
+            <td>InsightFace 人脸 embedding</td>
+            <td>帧对相似度（阈值 0.70）</td>
+            <td><span class="badge good">全自动</span></td>
+          </tr>
+          <tr>
+            <td>整体美感</td>
+            <td>LAION Aesthetics / 自训练打分模型</td>
+            <td>美感分（1-10）</td>
+            <td><span class="badge info">半自动</span></td>
+          </tr>
+          <tr>
+            <td>文本-视觉对齐</td>
+            <td>CLIP 相似度 / VQA 模型</td>
+            <td>对齐分（0-1）</td>
+            <td><span class="badge info">半自动</span></td>
+          </tr>
+          <tr>
+            <td>质地真实性</td>
+            <td>光流分析 + 亮度分布 + 人工评分</td>
+            <td>光泽度 / 流动性 / 主观分</td>
+            <td><span class="badge mid">人工辅助</span></td>
+          </tr>
+          <tr>
+            <td>使用场景合理性</td>
+            <td>场景分类模型 + 人工审核</td>
+            <td>场景分类准确率 / 合理性分</td>
+            <td><span class="badge mid">人工辅助</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="callout">
+    <p>⚠️ 视觉评测集的最大陷阱：用品牌方提供的精修宣传图作为颜色和质地的参考基准。精修图往往经过颜色校正和质地美化，会导致你的评测标准比真实产品更高——用 AI 生成的画面去接近一个本身就"失真"的参考，是个死局。必须用专业实拍作为基准。</p>
+  </div>
+
+  <div class="pull-quote">
+    文本评测集衡量"说对了没有"，<br>视觉评测集衡量"看真实了没有"——<br><span style="font-size:14px;font-weight:400;opacity:0.5;font-family:var(--sans);">两者都要，且构建逻辑完全不同。</span>
+  </div>
+
+  <!-- Section 3 - transition to example -->
+  <p class="section-label" id="s3">场景落地</p>
+  <h2 class="section-heading">以电商信息流为例：把方法论装进五节点流水线</h2>
+
+  <p class="body-text">方法论讲完了，现在进入具体场景。电商信息流素材生成是一条横跨文本域和视觉域的五节点工作流——前三步（输入解析、创意分析、脚本生成）在文本域，后两步（分镜生成、视频生成）进入视觉域。</p>
+
+  <div class="diagram">
+    <div class="diagram-header">
+      <span class="diagram-dot"></span>
+      <span class="diagram-label">五节点工作流与模态分布</span>
+    </div>
+    <div class="diagram-body">
+      <div class="flow-chain">
+        <div class="flow-step accent">① 用户输入<span>产品信息、受众、诉求</span></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step info">② 创意分析<span>卖点拆解 · 钩子设计</span></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step warn">③ 脚本生成<span>台词 · 节奏 · 情感弧</span></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step success">④ 分镜生成<span>画面描述 · 运镜 · 转场</span></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step" style="background:#EDE6F5;border-color:rgba(107,63,160,0.2);color:#6B3FA0;font-weight:500;">⑤ 视频生成<span style="color:rgba(107,63,160,0.5);">画面 · 音频 · 合成</span></div>
+      </div>
+      <p class="card-desc" style="margin-top:14px;">①②③ 适用文本域评测集方法论；④ 是跨模态桥梁节点（文本描述 → 视觉意图），需要同时运用两套方法；⑤ 适用视觉域评测集方法论，且复杂度最高——视频里那管膏体的质地，是检验整个系统的最终裁判。</p>
+    </div>
+  </div>
+
+  <div class="callout info">
+    <p>💡 本篇是《Agent 开发中的评测体系》的深入篇，前两节是通用方法论，后面各节是具体场景落地。如果你还没读过基础篇，建议先了解四层金字塔和六类核心指标的概念框架。</p>
+  </div>
+
+  <!-- Section 4 -->
+  <p class="section-label" id="s4">评测全景矩阵</p>
+  <h2 class="section-heading">五个节点，每个节点测什么</h2>
+
+  <p class="body-text">下表是整条流水线的评测矩阵——行是节点，列是评测维度，权重反映了该维度在该节点的重要程度。</p>
+
+  <div class="diagram">
+    <div class="diagram-header">
+      <span class="diagram-dot"></span>
+      <span class="diagram-label">流水线评测矩阵（● 关键 ◑ 重要 ○ 次要）</span>
+    </div>
+    <div class="diagram-body">
+      <div class="score-matrix">
+        <div class="score-matrix-head">
+          <div class="sm-head">节点</div>
+          <div class="sm-head">准确性</div>
+          <div class="sm-head">品牌合规</div>
+          <div class="sm-head">视觉质量</div>
+          <div class="sm-head">产品一致性</div>
+          <div class="sm-head">人物一致性</div>
+        </div>
+        <div class="score-matrix-row">
+          <div class="sm-cell label">① 用户输入解析</div>
+          <div class="sm-cell"><span class="sm-val"><span class="dot-full"></span> 关键</span></div>
+          <div class="sm-cell"><span class="sm-val"><span class="dot-half"></span> 重要</span></div>
+          <div class="sm-cell"><span class="sm-val"><span class="dot-low"></span> 不适用</span></div>
+          <div class="sm-cell"><span class="sm-val"><span class="dot-low"></span> 不适用</span></div>
+          <div class="sm-cell"><span class="sm-val"><span class="dot-low"></span> 不适用</span></div>
+        </div>
+        <div class="score-matrix-row">
+          <div class="sm-cell label">② 创意分析</div>
+          <div class="sm-cell"><span class="sm-val"><span class="dot-full"></span> 关键</span></div>
+          <div class="sm-cell"><span class="sm-val"><span class="dot-full"></span> 关键</span></div>
+          <div class="sm-cell"><span class="sm-val"><span class="dot-low"></span> 不适用</span></div>
+          <div class="sm-cell"><span class="sm-val"><span class="dot-half"></span> 重要</span></div>
+          <div class="sm-cell"><span class="sm-val"><span class="dot-low"></span> 不适用</span></div>
+        </div>
+        <div class="score-matrix-row">
+          <div class="sm-cell label">③ 脚本生成</div>
+          <div class="sm-cell"><span class="sm-val"><span class="dot-full"></span> 关键</span></div>
+          <div class="sm-cell"><span class="sm-val"><span class="dot-full"></span> 关键</span></div>
+          <div class="sm-cell"><span class="sm-val"><span class="dot-low"></span> 不适用</span></div>
+          <div class="sm-cell"><span class="sm-val"><span class="dot-half"></span> 重要</span></div>
+          <div class="sm-cell"><span class="sm-val"><span class="dot-low"></span> 不适用</span></div>
+        </div>
+        <div class="score-matrix-row">
+          <div class="sm-cell label">④ 分镜生成</div>
+          <div class="sm-cell"><span class="sm-val"><span class="dot-half"></span> 重要</span></div>
+          <div class="sm-cell"><span class="sm-val"><span class="dot-half"></span> 重要</span></div>
+          <div class="sm-cell"><span class="sm-val"><span class="dot-full"></span> 关键</span></div>
+          <div class="sm-cell"><span class="sm-val"><span class="dot-full"></span> 关键</span></div>
+          <div class="sm-cell"><span class="sm-val"><span class="dot-full"></span> 关键</span></div>
+        </div>
+        <div class="score-matrix-row">
+          <div class="sm-cell label">⑤ 视频生成</div>
+          <div class="sm-cell"><span class="sm-val"><span class="dot-half"></span> 重要</span></div>
+          <div class="sm-cell"><span class="sm-val"><span class="dot-full"></span> 关键</span></div>
+          <div class="sm-cell"><span class="sm-val"><span class="dot-full"></span> 关键</span></div>
+          <div class="sm-cell"><span class="sm-val"><span class="dot-full"></span> 关键</span></div>
+          <div class="sm-cell"><span class="sm-val"><span class="dot-full"></span> 关键</span></div>
+        </div>
+      </div>
+      <p class="card-desc" style="margin-top:12px">产品一致性和人物一致性从分镜阶段就开始追踪——视觉描述写错了，后续视频生成再好也无法纠正。</p>
+    </div>
+  </div>
+
+  <!-- Section 5 -->
+  <p class="section-label" id="s5">逐节点评测</p>
+  <h2 class="section-heading">逐节点拆解：测什么、怎么测</h2>
+
+  <!-- Stage 1 -->
+  <div class="stage-block">
+    <div class="stage-header">
+      <div class="stage-num s1">①</div>
+      <div class="stage-title">用户输入解析</div>
+      <div class="stage-subtitle">文本域 · 信息提取</div>
+    </div>
+    <div class="stage-body">
+      <p class="card-desc" style="margin-bottom:16px">用户输入通常是非结构化的：一段产品描述、一些关键词、甚至只是竞品链接。这一步的核心任务是把模糊输入转化为后续节点可消费的结构化信息。评测重点是<strong>提取准确性</strong>和<strong>信息完整度</strong>。</p>
+      <div class="metric-list">
+        <div class="metric-item">
+          <div class="metric-name">核心卖点提取召回率<span class="sub">从原始输入里挖出多少卖点</span></div>
+          <div class="metric-detail">对照人工标注的"黄金卖点列表"，计算 LLM 提取的召回率。关注遗漏率——漏掉一个差异化卖点可能导致整条素材失去核心价值。</div>
+          <div class="metric-method"><span class="method-tag mt-auto">规则+人标</span></div>
+        </div>
+        <div class="metric-item">
+          <div class="metric-name">受众定位准确率<span class="sub">目标人群画像是否匹配</span></div>
+          <div class="metric-detail">验证 Agent 识别的目标受众（年龄段、消费能力、使用场景）是否与品牌方提供的定向信息一致。用枚举型指标衡量，结构化输出便于自动化校验。</div>
+          <div class="metric-method"><span class="method-tag mt-auto">自动</span></div>
+        </div>
+        <div class="metric-item">
+          <div class="metric-name">产品属性结构化完整度<span class="sub">颜色、规格、成分等关键属性</span></div>
+          <div class="metric-detail">对于美妆、食品等强属性类目，产品的具体参数（颜色号、SPF 值、成分表关键词）必须被准确提取，后续视觉生成会直接依赖这些信息。</div>
+          <div class="metric-method"><span class="method-tag mt-auto">Schema 校验</span></div>
+        </div>
+        <div class="metric-item">
+          <div class="metric-name">歧义识别率<span class="sub">面对模糊输入时是否主动澄清</span></div>
+          <div class="metric-detail">当输入信息不足以支撑后续生成时（如"做个好看的视频"），Agent 是否能识别歧义并向用户提问，而不是基于假设强行推进。</div>
+          <div class="metric-method"><span class="method-tag mt-llm">LLM-judge</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stage 2 -->
+  <div class="stage-block">
+    <div class="stage-header">
+      <div class="stage-num s2">②</div>
+      <div class="stage-title">创意分析</div>
+      <div class="stage-subtitle">文本域 · 策略生成</div>
+    </div>
+    <div class="stage-body">
+      <p class="card-desc" style="margin-bottom:16px">创意分析是整条流水线的"策略大脑"——它决定了视频的情感基调、叙事角度和钩子形式。这一步的质量决定了最终素材能否吸引目标受众。评测难点在于"好的创意"本身就是主观判断，需要 LLM-judge 和人工评审结合。</p>
+      <div class="metric-list">
+        <div class="metric-item">
+          <div class="metric-name">卖点与钩子的匹配度<span class="sub">钩子是否真正服务于核心卖点</span></div>
+          <div class="metric-detail">分析钩子设计（开头 3 秒的吸引力设计）是否与产品的差异化卖点直接相关，而非通用套路。用 LLM-judge 打分，要求给出具体理由。</div>
+          <div class="metric-method"><span class="method-tag mt-llm">LLM-judge</span></div>
+        </div>
+        <div class="metric-item">
+          <div class="metric-name">受众共鸣度<span class="sub">创意角度是否击中目标人群痛点</span></div>
+          <div class="metric-detail">对照目标受众画像，评估创意策略的情感共鸣预期。例如面向宝妈群体的护肤品，创意角度应聚焦时间效率和安全性，而非"精英生活方式"叙事。</div>
+          <div class="metric-method"><span class="method-tag mt-human">人工审核</span></div>
+        </div>
+        <div class="metric-item">
+          <div class="metric-name">品牌调性一致性<span class="sub">是否符合品牌 ToneOfVoice 规范</span></div>
+          <div class="metric-detail">对于有明确品牌手册的品牌方，验证创意分析的情感基调、用词倾向、禁忌表达是否合规。可以把品牌规范文档作为 judge prompt 的 context 注入。</div>
+          <div class="metric-method"><span class="method-tag mt-llm">LLM + 规则</span></div>
+        </div>
+        <div class="metric-item">
+          <div class="metric-name">差异化程度<span class="sub">相似输入下的创意多样性</span></div>
+          <div class="metric-detail">对同一产品生成多次创意分析，计算输出的语义多样性（embedding 距离）。过低的多样性意味着 Agent 在走"安全路线"，无法提供真正的创意价值。</div>
+          <div class="metric-method"><span class="method-tag mt-auto">Embedding 距离</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stage 3 -->
+  <div class="stage-block">
+    <div class="stage-header">
+      <div class="stage-num s3">③</div>
+      <div class="stage-title">脚本生成</div>
+      <div class="stage-subtitle">文本域 · 核心内容</div>
+    </div>
+    <div class="stage-body">
+      <p class="card-desc" style="margin-bottom:16px">脚本是视频的骨架，也是文本域最复杂的评测对象。它需要同时满足：<strong>信息准确</strong>（不能有虚假产品声明）、<strong>情感节奏</strong>（开头钩子 → 中段建立需求 → 结尾行动号召）、<strong>平台规范</strong>（无违禁词、符合投放平台的内容政策）。</p>
+      <div class="metric-list">
+        <div class="metric-item">
+          <div class="metric-name">事实准确性<span class="sub">台词中的产品声明是否属实</span></div>
+          <div class="metric-detail">这是电商场景的红线指标。每一个功效声明（"72小时保湿"、"SPF50+"）都必须能在用户输入的产品信息中找到来源。用 NLI 模型检测声明与产品文档的蕴含关系。</div>
+          <div class="metric-method"><span class="method-tag mt-auto">NLI 模型</span></div>
+        </div>
+        <div class="metric-item">
+          <div class="metric-name">叙事节奏结构分<span class="sub">情感弧线是否符合信息流逻辑</span></div>
+          <div class="metric-detail">按"钩子（0-3s）→ 建立痛点（3-8s）→ 产品解决方案（8-20s）→ 社会证明（20-25s）→ CTA（25-30s）"的结构框架，检验脚本各段是否到位。</div>
+          <div class="metric-method"><span class="method-tag mt-llm">LLM-judge</span></div>
+        </div>
+        <div class="metric-item">
+          <div class="metric-name">违禁词 / 违规声明检测<span class="sub">平台合规是上线前置条件</span></div>
+          <div class="metric-detail">维护平台违禁词表（极限用词、医疗声明、虚假对比等），做全文扫描。分平台维护：抖音、小红书、天猫的违规边界不同。这是唯一需要 100% 通过才能继续的检查点。</div>
+          <div class="metric-method"><span class="method-tag mt-auto">规则字典</span></div>
+        </div>
+        <div class="metric-item">
+          <div class="metric-name">时长适配度<span class="sub">台词密度是否匹配目标视频时长</span></div>
+          <div class="metric-detail">根据目标视频时长（15s / 30s / 60s）和正常语速（每分钟约 240 字），估算台词字数是否合理。过长或过短都会导致后续视频生成的画音比例失调。</div>
+          <div class="metric-method"><span class="method-tag mt-auto">字数计算</span></div>
+        </div>
+        <div class="metric-item">
+          <div class="metric-name">与创意分析的一致性<span class="sub">脚本是否忠实执行了上游策略</span></div>
+          <div class="metric-detail">跨节点一致性检验：脚本的情感基调、主打卖点、钩子形式是否与创意分析阶段的策略决策保持一致。用 LLM 对比两个输出的语义对齐度。</div>
+          <div class="metric-method"><span class="method-tag mt-llm">LLM 对比</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stage 4 -->
+  <div class="stage-block">
+    <div class="stage-header">
+      <div class="stage-num s4">④</div>
+      <div class="stage-title">分镜生成</div>
+      <div class="stage-subtitle">文本→视觉 · 跨模态桥梁</div>
+    </div>
+    <div class="stage-body">
+      <p class="card-desc" style="margin-bottom:16px">分镜是这条流水线里最关键的跨模态节点：它以文字形式描述视觉画面。分镜的质量直接决定视频生成的上限——一个描述不清产品色号的分镜，无论视频模型多强，都无法还原真实的产品颜色。</p>
+      <div class="metric-list">
+        <div class="metric-item">
+          <div class="metric-name">视觉可实现性<span class="sub">描述是否能被视频模型理解并执行</span></div>
+          <div class="metric-detail">检测过于抽象或矛盾的视觉描述（"同时展示产品的内外部"、"镜头从无限远处拉近到分子级别"）。可用专门训练的分类器，或对视频生成结果的还原度做反向验证。</div>
+          <div class="metric-method"><span class="method-tag mt-hybrid">混合</span></div>
+        </div>
+        <div class="metric-item">
+          <div class="metric-name">产品视觉规格完整度<span class="sub">关键视觉属性是否写入分镜描述</span></div>
+          <div class="metric-detail">强制检查清单：产品颜色（精确到色号）、包装形态、关键 logo 位置、使用场景道具是否都出现在分镜文本中。缺失的视觉规格是后续产品一致性问题的直接根因。</div>
+          <div class="metric-method"><span class="method-tag mt-auto">规则核查</span></div>
+        </div>
+        <div class="metric-item">
+          <div class="metric-name">分镜节奏与脚本节奏对齐<span class="sub">画面切换节奏是否匹配台词节拍</span></div>
+          <div class="metric-detail">校验每个分镜的估计时长之和是否等于脚本台词时长，以及高强度情感时刻（CTA、痛点场景）是否配有相应的特写 / 强调镜头。</div>
+          <div class="metric-method"><span class="method-tag mt-llm">LLM-judge</span></div>
+        </div>
+        <div class="metric-item">
+          <div class="metric-name">人物/模特描述一致性<span class="sub">同一视频内角色形象是否统一</span></div>
+          <div class="metric-detail">若视频包含人物，检查各分镜中对同一人物的描述是否一致（肤色、发型、年龄段、服装风格）。前后不一致的描述会导致视频生成中出现"换人"现象。</div>
+          <div class="metric-method"><span class="method-tag mt-auto">字符串一致性</span></div>
+        </div>
+        <div class="metric-item">
+          <div class="metric-name">运镜合理性<span class="sub">镜头语言是否符合产品品类惯例</span></div>
+          <div class="metric-detail">美妆类产品的惯用镜头（微距特写质地、45°侧拍涂抹过程），与食品类（俯拍摆盘、浇淋慢镜）截然不同。按品类维护镜头语言规范，LLM 对照打分。</div>
+          <div class="metric-method"><span class="method-tag mt-llm">LLM + 规范</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stage 5 -->
+  <div class="stage-block">
+    <div class="stage-header">
+      <div class="stage-num s5">⑤</div>
+      <div class="stage-title">视频生成</div>
+      <div class="stage-subtitle">视觉域 · 最终输出</div>
+    </div>
+    <div class="stage-body">
+      <p class="card-desc" style="margin-bottom:16px">这是整条流水线评测复杂度最高的环节。视频是多维度信息的叠加体——画面美感、声音节奏、产品真实性、人物一致性缺一不可。这里的大多数指标都需要计算机视觉模型或专业人工评审。</p>
+      <div class="metric-list">
+
+        <div class="metric-item">
+          <div class="metric-name">整体画面美感<span class="sub">视觉吸引力 · 构图 · 色彩</span></div>
+          <div class="metric-detail">用训练在人类审美偏好数据上的打分模型（如 LAION Aesthetics Score 或自训练模型）对关键帧打分，取均值。同时关注方差——帧间美感落差过大会导致视觉体验割裂。</div>
+          <div class="metric-method"><span class="method-tag mt-vision">Vision 模型</span></div>
+        </div>
+
+        <div class="metric-item">
+          <div class="metric-name">产品颜色还原准确率<span class="sub">生成的产品颜色是否与真实色号一致</span></div>
+          <div class="metric-detail">从真实产品图片提取参考颜色（L*a*b* 色彩空间），在生成视频的产品区域做 ROI 采样，计算 ΔE 色差值。ΔE &lt; 3 为可接受，ΔE &gt; 5 需要人工确认。</div>
+          <div class="metric-method"><span class="method-tag mt-vision">CV + 色差算法</span></div>
+        </div>
+
+        <div class="metric-item">
+          <div class="metric-name">产品质地真实性<span class="sub">膏体、粉质、液体的物理特性还原</span></div>
+          <div class="metric-detail">电商场景最难评测的维度。详见下一节的专项拆解。核心手段是：参考真实产品的物理属性（粘稠度、光泽度、流动性），与生成视频中的质地表现做多维度对比。</div>
+          <div class="metric-method"><span class="method-tag mt-hybrid">Vision + 人工</span></div>
+        </div>
+
+        <div class="metric-item">
+          <div class="metric-name">产品 logo / 包装准确率<span class="sub">品牌标识是否清晰且准确</span></div>
+          <div class="metric-detail">检测视频中产品包装的 logo 是否可辨识、是否变形、是否出现拼写错误（AI 生成最常见的失败模式）。用 OCR + logo 相似度模型双重验证。</div>
+          <div class="metric-method"><span class="method-tag mt-vision">OCR + 相似度</span></div>
+        </div>
+
+        <div class="metric-item">
+          <div class="metric-name">帧间产品一致性<span class="sub">同一产品在视频中各帧的外观稳定性</span></div>
+          <div class="metric-detail">提取所有包含产品的帧，计算产品区域的 DINO-v2 特征向量，计算帧间余弦相似度。低于阈值（如 0.85）的帧对标记为一致性失败，可能表现为产品"跳变"或"变形"。</div>
+          <div class="metric-method"><span class="method-tag mt-vision">DINO-v2 相似度</span></div>
+        </div>
+
+        <div class="metric-item">
+          <div class="metric-name">人物面部一致性<span class="sub">模特在视频各帧中是否为同一人</span></div>
+          <div class="metric-detail">用人脸识别模型（如 InsightFace）对所有含人脸的帧提取 embedding，计算帧间余弦相似度。阈值建议 0.7（同一人）。检测到"换人帧"时精确记录时间戳，便于定位。</div>
+          <div class="metric-method"><span class="method-tag mt-vision">人脸识别</span></div>
+        </div>
+
+        <div class="metric-item">
+          <div class="metric-name">音画同步度<span class="sub">台词时序与画面动作是否对齐</span></div>
+          <div class="metric-detail">提取 ASR 识别的台词时间轴，与分镜设计的时长分配对比，计算关键节点（CTA 时刻、产品展示切入点）的时序误差。误差超过 1.5 秒需要人工核查。</div>
+          <div class="metric-method"><span class="method-tag mt-auto">ASR + 时序对比</span></div>
+        </div>
+
+        <div class="metric-item">
+          <div class="metric-name">使用场景真实感<span class="sub">使用场景是否符合产品使用逻辑</span></div>
+          <div class="metric-detail">验证视频中的使用场景是否合理（洁面产品出现在浴室、防晒产品出现在户外），以及使用动作是否符合产品使用方式（洗发水的揉搓方式、眼影的涂抹路径）。</div>
+          <div class="metric-method"><span class="method-tag mt-human">人工审核</span></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 6 -->
+  <p class="section-label" id="s6">质地评测专项</p>
+  <h2 class="section-heading">最难的那道题：产品质地真实性评测</h2>
+
+  <p class="body-text">质地评测是整个评测体系里最复杂、最无法完全自动化的维度——也是电商场景中最影响购买决策的视觉信号。消费者对"这个膏体看起来是不是滋润的"、"这个粉是细腻还是粗糙的"极度敏感，任何失真都会损害品牌可信度。</p>
+
+  <div class="diagram">
+    <div class="diagram-header">
+      <span class="diagram-dot"></span>
+      <span class="diagram-label">按产品品类的质地属性分类</span>
+    </div>
+    <div class="diagram-body">
+      <div class="reasons-grid">
+        <div class="reason-item accent-border">
+          <span class="reason-icon">💄</span>
+          <p class="reason-title">膏体类（唇膏 · 面霜 · 眼霜）</p>
+          <p class="reason-desc">关键属性：光泽度（哑光/亮面/果冻质感）、拉丝性、流动性、挤出时的形变方式。参考标准：产品实拍的慢动作镜头。</p>
+        </div>
+        <div class="reason-item info-border">
+          <span class="reason-icon">✨</span>
+          <p class="reason-title">粉质类（腮红 · 眼影 · 粉底）</p>
+          <p class="reason-desc">关键属性：粉质细腻度、哑光/珠光分布、落粉量。错误案例：珠光眼影被生成为纯哑光质地，会让消费者认为产品无光泽感。</p>
+        </div>
+        <div class="reason-item success-border">
+          <span class="reason-icon">💧</span>
+          <p class="reason-title">液体类（精华 · 水乳 · 安瓶）</p>
+          <p class="reason-desc">关键属性：流动性（稀薄/粘稠/凝胶状）、透明度、滴落时的表面张力表现。高粘度精华被生成成水样流动是常见失真。</p>
+        </div>
+        <div class="reason-item" style="border-color:rgba(107,63,160,0.3);">
+          <span class="reason-icon">🫧</span>
+          <p class="reason-title">泡沫 / 乳化类（洗面奶 · 沐浴露）</p>
+          <p class="reason-desc">关键属性：起泡丰富度、泡沫细腻程度、乳化后的颜色变化。丰富蓬松的泡沫传递"清洁力强"的信号，这一点消费者高度感知。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <p class="body-text">质地评测的方法论需要分两层：<strong>客观层</strong>（可量化的物理特征）和<strong>主观层</strong>（人类感知的"质感"印象）。两层评测缺一不可——客观指标覆盖不了"看起来高级"这样的主观感受，而主观评估又无法规模化。</p>
+
+  <div class="diagram">
+    <div class="diagram-header">
+      <span class="diagram-dot"></span>
+      <span class="diagram-label">质地评测两层方法论</span>
+    </div>
+    <div class="diagram-body">
+      <div class="reasons-grid">
+        <div class="reason-item">
+          <span class="reason-icon">🔬</span>
+          <p class="reason-title">客观层：计算机视觉指标</p>
+          <p class="reason-desc" style="font-size:12px;line-height:1.7;">
+            <strong>光泽度：</strong>提取产品区域的高光分布，计算高光像素比例和亮度分布<br>
+            <strong>流动性：</strong>在包含质地倾倒/挤出的片段中，用光流算法估计质地运动速度<br>
+            <strong>细腻度：</strong>对产品特写帧做频率分析，粗颗粒粉质的高频成分明显更高<br>
+            <strong>透明度：</strong>检测产品区域的透射率（背景是否透过产品可见）
+          </p>
+        </div>
+        <div class="reason-item">
+          <span class="reason-icon">👁️</span>
+          <p class="reason-title">主观层：专业人工评分</p>
+          <p class="reason-desc" style="font-size:12px;line-height:1.7;">
+            <strong>质感还原分（1-5）：</strong>对照真实产品实拍，评估质地视觉还原程度<br>
+            <strong>品类认知分（1-5）：</strong>仅看视频，判断这个质地属于哪个产品品类<br>
+            <strong>购买意愿影响：</strong>该质地表现是否会促进或阻碍购买决策<br>
+            <strong>建立打分者资质：</strong>要求评分者具有美妆行业背景或受过专项培训
+          </p>
+        </div>
+      </div>
+
+      <div class="code-block" style="margin-top:16px;"><span class="comment"># 质地评测：光泽度 + 流动性计算示例</span>
+<span class="kw">import</span> cv2
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+
+<span class="kw">def</span> <span class="blue">measure_glossiness</span>(frame, product_mask):
+    <span class="str">"""
+    计算产品区域的光泽度分数
+    参数：产品区域 mask（二值图）
+    返回：0-1 光泽度分数（越高越亮面/越有光泽）
+    """</span>
+    roi = cv2.bitwise_and(frame, frame, mask=product_mask)
+    hsv = cv2.cvtColor(roi, cv2.COLOR_BGR2HSV)
+    v_channel = hsv[:,:,<span class="num">2</span>]          <span class="comment"># 亮度通道</span>
+
+    <span class="comment"># 高光像素（亮度 > 220）的比例</span>
+    highlight_ratio = np.sum(v_channel[product_mask > <span class="num">0</span>] > <span class="num">220</span>)
+    highlight_ratio /= np.sum(product_mask > <span class="num">0</span>)
+
+    <span class="comment"># 亮度方差（反映高光集中度）</span>
+    brightness_std = np.std(v_channel[product_mask > <span class="num">0</span>])
+
+    glossiness = <span class="num">0.6</span> * highlight_ratio + <span class="num">0.4</span> * (brightness_std / <span class="num">255</span>)
+    <span class="kw">return</span> float(glossiness)
+
+<span class="kw">def</span> <span class="blue">measure_flow_velocity</span>(frame1, frame2, product_mask):
+    <span class="str">"""用 Farneback 光流估计质地流动速度"""</span>
+    gray1 = cv2.cvtColor(frame1, cv2.COLOR_BGR2GRAY)
+    gray2 = cv2.cvtColor(frame2, cv2.COLOR_BGR2GRAY)
+    flow = cv2.calcOpticalFlowFarneback(gray1, gray2, <span class="kw">None</span>,
+                                        <span class="num">0.5</span>, <span class="num">3</span>, <span class="num">15</span>, <span class="num">3</span>, <span class="num">5</span>, <span class="num">1.2</span>, <span class="num">0</span>)
+    magnitude, _ = cv2.cartToPolar(flow[...,<span class="num">0</span>], flow[...,<span class="num">1</span>])
+    roi_magnitude = magnitude[product_mask > <span class="num">0</span>]
+    <span class="kw">return</span> float(np.mean(roi_magnitude))  <span class="comment"># 像素/帧，越高越稀薄</span></div>
+    </div>
+  </div>
+
+  <div class="callout warn">
+    <p>⚠️ 质地评测的基准参考必须来自真实产品的专业实拍视频，而不是品牌的宣传图——后者往往经过修图处理，会引入错误的"黄金标准"。建议在评测集建立之初，专门制作标准参考素材库。</p>
+  </div>
+
+  <!-- Section 7 -->
+  <p class="section-label" id="s7">视频一致性</p>
+  <h2 class="section-heading">一致性评测：同一视频内的跨帧稳定性</h2>
+
+  <p class="body-text">一致性评测是视频评测与图片评测最大的区别所在。图片是单帧，视频是时序。<strong>一个在单帧内完美的产品画面，可能在帧与帧之间出现"抖动"</strong>——颜色微变、logo 形态漂移、人物面部风格切换——这些在单帧评测中完全察觉不到，却在实际播放时极其明显。</p>
+
+  <div class="diagram">
+    <div class="diagram-header">
+      <span class="diagram-dot"></span>
+      <span class="diagram-label">一致性失败的典型表现形式</span>
+    </div>
+    <div class="diagram-body">
+      <div class="consistency-grid">
+        <div class="cons-frame">
+          <div class="cons-frame-top">💄</div>
+          <div class="cons-frame-label">产品颜色跳变</div>
+          <div class="cons-frame-score score-bad">ΔE = 7.2 ✗</div>
+        </div>
+        <div class="cons-frame">
+          <div class="cons-frame-top">👤</div>
+          <div class="cons-frame-label">人脸相似度跌落</div>
+          <div class="cons-frame-score score-bad">sim = 0.51 ✗</div>
+        </div>
+        <div class="cons-frame">
+          <div class="cons-frame-top">🏷️</div>
+          <div class="cons-frame-label">logo 形变 / 文字错误</div>
+          <div class="cons-frame-score score-bad">OCR mismatch ✗</div>
+        </div>
+        <div class="cons-frame">
+          <div class="cons-frame-top">🌊</div>
+          <div class="cons-frame-label">质地物理状态突变</div>
+          <div class="cons-frame-score score-bad">flow Δ > 3σ ✗</div>
+        </div>
+      </div>
+      <div class="consistency-grid" style="margin-top:8px;">
+        <div class="cons-frame">
+          <div class="cons-frame-top">💄</div>
+          <div class="cons-frame-label">颜色稳定（通过）</div>
+          <div class="cons-frame-score score-ok">ΔE = 1.8 ✓</div>
+        </div>
+        <div class="cons-frame">
+          <div class="cons-frame-top">👤</div>
+          <div class="cons-frame-label">人脸一致（通过）</div>
+          <div class="cons-frame-score score-ok">sim = 0.91 ✓</div>
+        </div>
+        <div class="cons-frame">
+          <div class="cons-frame-top">🏷️</div>
+          <div class="cons-frame-label">logo 稳定（通过）</div>
+          <div class="cons-frame-score score-ok">OCR match ✓</div>
+        </div>
+        <div class="cons-frame">
+          <div class="cons-frame-top">🌊</div>
+          <div class="cons-frame-label">质地平滑（通过）</div>
+          <div class="cons-frame-score score-ok">flow stable ✓</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="diagram">
+    <div class="diagram-header">
+      <span class="diagram-dot"></span>
+      <span class="diagram-label">帧级一致性自动评测流水线</span>
+    </div>
+    <div class="diagram-body">
+      <div class="flow-chain">
+        <div class="flow-step info">视频解帧<span>每秒 N 帧采样</span></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">目标检测<span>产品 / 人脸 / logo 定位</span></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step accent">特征提取<span>DINO / InsightFace / OCR</span></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">帧间对比<span>余弦相似度 / ΔE</span></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step success">异常标记<span>低于阈值 → 时间戳</span></div>
+      </div>
+      <div class="code-block" style="margin-top:14px;"><span class="comment"># 帧间产品一致性检测（DINO-v2 特征）</span>
+<span class="kw">from</span> transformers <span class="kw">import</span> AutoModel
+<span class="kw">import</span> torch, cv2
+<span class="kw">from</span> sklearn.metrics.pairwise <span class="kw">import</span> cosine_similarity
+
+dino = AutoModel.from_pretrained(<span class="str">"facebook/dinov2-base"</span>)
+
+<span class="kw">def</span> <span class="blue">check_product_consistency</span>(video_path, product_detector):
+    cap = cv2.VideoCapture(video_path)
+    fps = cap.get(cv2.CAP_PROP_FPS)
+    embeddings, timestamps = [], []
+
+    frame_idx = <span class="num">0</span>
+    <span class="kw">while</span> cap.isOpened():
+        ret, frame = cap.read()
+        <span class="kw">if not</span> ret: <span class="kw">break</span>
+        <span class="kw">if</span> frame_idx % <span class="num">5</span> == <span class="num">0</span>:              <span class="comment"># 每 5 帧采一次</span>
+            box = product_detector(frame)
+            <span class="kw">if</span> box:
+                crop = frame[box.y1:box.y2, box.x1:box.x2]
+                emb = dino(preprocess(crop)).last_hidden_state.mean(<span class="num">1</span>)
+                embeddings.append(emb.detach().numpy())
+                timestamps.append(frame_idx / fps)
+        frame_idx += <span class="num">1</span>
+
+    <span class="comment"># 计算相邻帧对的余弦相似度</span>
+    failures = []
+    <span class="kw">for</span> i <span class="kw">in</span> range(len(embeddings) - <span class="num">1</span>):
+        sim = cosine_similarity(embeddings[i], embeddings[i+<span class="num">1</span>])[<span class="num">0</span>][<span class="num">0</span>]
+        <span class="kw">if</span> sim < <span class="num">0.85</span>:                     <span class="comment"># 一致性阈值</span>
+            failures.append({
+                <span class="str">"t_start"</span>: timestamps[i],
+                <span class="str">"t_end"</span>: timestamps[i+<span class="num">1</span>],
+                <span class="str">"similarity"</span>: sim
+            })
+    <span class="kw">return</span> failures</div>
+    </div>
+  </div>
+
+  <!-- Section 8 -->
+  <p class="section-label" id="s8">全链路整合</p>
+  <h2 class="section-heading">把五个节点串成一张评测报告</h2>
+
+  <p class="body-text">单节点评测是诊断工具，全链路评测才是决策工具。下面是一张综合评测报告的设计，把五个节点的关键指标汇总成一个可供产品团队快速决策的视图。</p>
+
+  <div class="diagram">
+    <div class="diagram-header">
+      <span class="diagram-dot"></span>
+      <span class="diagram-label">全链路评测报告模板（单次生成）</span>
+    </div>
+    <div class="diagram-body">
+      <div class="pipeline-overview">
+        <div class="po-head-row">
+          <div class="po-head">节点</div>
+          <div class="po-head">关键评测指标</div>
+          <div class="po-head">综合分</div>
+        </div>
+        <div class="po-row">
+          <div class="po-stage"><span style="color:var(--accent)">①</span> 输入解析</div>
+          <div class="po-metrics">卖点召回率 · 产品属性完整度 · 歧义识别</div>
+          <div class="po-weight" style="color:var(--success);">92 / 100</div>
+        </div>
+        <div class="po-row">
+          <div class="po-stage"><span style="color:var(--info)">②</span> 创意分析</div>
+          <div class="po-metrics">卖点匹配度 · 受众共鸣 · 品牌调性 · 差异化</div>
+          <div class="po-weight" style="color:var(--success);">85 / 100</div>
+        </div>
+        <div class="po-row">
+          <div class="po-stage"><span style="color:var(--warn)">③</span> 脚本生成</div>
+          <div class="po-metrics">事实准确性 · 违禁词 · 叙事节奏 · 时长适配</div>
+          <div class="po-weight" style="color:var(--warn);">78 / 100</div>
+        </div>
+        <div class="po-row">
+          <div class="po-stage"><span style="color:var(--success)">④</span> 分镜生成</div>
+          <div class="po-metrics">视觉可实现性 · 产品规格完整度 · 人物描述一致性</div>
+          <div class="po-weight" style="color:var(--success);">88 / 100</div>
+        </div>
+        <div class="po-row">
+          <div class="po-stage"><span style="color:#6B3FA0">⑤</span> 视频生成</div>
+          <div class="po-metrics">美感 · 颜色还原 · 质地真实性 · 帧间一致性</div>
+          <div class="po-weight" style="color:var(--danger);">61 / 100</div>
+        </div>
+      </div>
+      <div class="callout" style="margin-top:16px;margin-bottom:0;">
+        <p>⚠️ 视频生成节点得分 61/100（低于 70 的预警阈值）。失败原因：产品色号偏差（ΔE=6.8，超出阈值 5）；第 14-16 秒出现人脸一致性跌落（相似度 0.58）。建议：检查分镜中产品颜色描述，调整视频生成模型的 seed 策略。</p>
+      </div>
+    </div>
+  </div>
+
+  <p class="body-text">报告中，每个节点得分是该节点所有指标的加权平均。权重由业务重要性决定，例如在电商场景中，视频节点的"事实准确性"和"产品一致性"权重通常高于"美感"——一个准确但朴素的视频，比一个美丽但产品颜色错误的视频更有价值。</p>
+
+  <div class="diagram">
+    <div class="diagram-header">
+      <span class="diagram-dot"></span>
+      <span class="diagram-label">视频节点各维度的建议权重配置</span>
+    </div>
+    <div class="diagram-body">
+      <table class="tradeoff-table">
+        <thead>
+          <tr><th>评测维度</th><th>电商直播素材</th><th>品牌形象片</th><th>种草短视频</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>产品颜色还原</td>
+            <td>25% <span class="badge good">最高</span></td>
+            <td>15%</td>
+            <td>20%</td>
+          </tr>
+          <tr>
+            <td>质地真实性</td>
+            <td>20% <span class="badge good">关键</span></td>
+            <td>10%</td>
+            <td>25% <span class="badge good">最高</span></td>
+          </tr>
+          <tr>
+            <td>帧间产品一致性</td>
+            <td>20%</td>
+            <td>15%</td>
+            <td>15%</td>
+          </tr>
+          <tr>
+            <td>人物面部一致性</td>
+            <td>10%</td>
+            <td>25% <span class="badge good">最高</span></td>
+            <td>15%</td>
+          </tr>
+          <tr>
+            <td>整体画面美感</td>
+            <td>10%</td>
+            <td>25% <span class="badge good">最高</span></td>
+            <td>20%</td>
+          </tr>
+          <tr>
+            <td>Logo / 包装准确率</td>
+            <td>15%</td>
+            <td>10%</td>
+            <td>5%</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Section 9 -->
+  <p class="section-label" id="s9">跨节点问题</p>
+  <h2 class="section-heading">最难追踪的问题：跨节点误差传递</h2>
+
+  <p class="body-text">流水线评测中最隐蔽的问题，是<strong>上游节点的微小偏差，被下游放大成显著缺陷</strong>。一个在创意分析层"听起来不严重"的描述偏差，可能在视频层产生完全不可接受的结果。</p>
+
+  <div class="diagram">
+    <div class="diagram-header">
+      <span class="diagram-dot"></span>
+      <span class="diagram-label">误差传递案例：美妆色号偏差的放大链路</span>
+    </div>
+    <div class="diagram-body">
+      <div class="flow-chain">
+        <div class="flow-step accent">输入<span>#216 玫瑰棕</span></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">创意分析<span>"温柔大地色系"</span></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step warn">脚本<span>泛化为"自然棕调"</span></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step accent">分镜<span>"棕色系哑光眼影"</span></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step" style="background:var(--danger-light);border-color:rgba(153,60,29,0.3);color:var(--danger);font-weight:500;">视频<span style="color:rgba(153,60,29,0.5);">生成了标准棕色<br>ΔE=9.3 ✗</span></div>
+      </div>
+      <p class="card-desc" style="margin-top:12px;">真正的问题发生在第 3 步：脚本把精确色号泛化为"自然棕调"，导致分镜丢失了色号信息，最终视频无法还原真实颜色。但如果只看视频节点，你看到的是"颜色还原失败"，而真正的根因在脚本层。</p>
+      <div class="callout info" style="margin:14px 0 0 0;">
+        <p>💡 根因分析建议：建立"精确产品属性（色号、规格）的传递追踪"——从输入解析阶段就给关键属性打标记，追踪它们是否在每个下游节点的输出中被忠实保留。这是跨节点误差追踪的最有效手段。</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="pull-quote">
+    视频最后的缺陷，<br>往往埋在脚本里的一个模糊形容词里。<br><span style="font-size:14px;font-weight:400;opacity:0.5;font-family:var(--sans);">—— 评测流水线的核心洞察：溯源比修复更重要</span>
+  </div>
+
+  <!-- Section 10 -->
+  <p class="section-label" id="s10">评测实施</p>
+  <h2 class="section-heading">这套体系如何在团队中真正跑起来</h2>
+
+  <p class="body-text">评测体系设计得再完整，不落地就是零。以下是从评测设计到工程化实施的几个关键判断：</p>
+
+  <div class="diagram">
+    <div class="diagram-header">
+      <span class="diagram-dot"></span>
+      <span class="diagram-label">指标的自动化优先级分类</span>
+    </div>
+    <div class="diagram-body">
+      <div class="reasons-grid col3">
+        <div class="reason-item success-border">
+          <span class="reason-icon">🤖</span>
+          <p class="reason-title">全自动（Day 1 接入 CI）</p>
+          <p class="reason-desc">违禁词检测、Schema 校验、字数检查、颜色 ΔE、帧间相似度、OCR logo 匹配、ASR 时序对比。规则明确、无需人工。</p>
+        </div>
+        <div class="reason-item info-border">
+          <span class="reason-icon">🤝</span>
+          <p class="reason-title">半自动（LLM-judge 辅助）</p>
+          <p class="reason-desc">叙事节奏评分、品牌调性一致性、分镜可实现性、受众共鸣度、运镜合理性。LLM 打分 + 低分自动触发人工复核。</p>
+        </div>
+        <div class="reason-item accent-border">
+          <span class="reason-icon">👩‍💼</span>
+          <p class="reason-title">人工（定期抽样）</p>
+          <p class="reason-desc">质地主观感知分、使用场景真实感、购买意愿影响。每周抽 20-30 条人工评审，作为自动指标的校准基准。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="diagram">
+    <div class="diagram-header">
+      <span class="diagram-dot"></span>
+      <span class="diagram-label">评测覆盖密度建议（按成本与价值权衡）</span>
+    </div>
+    <div class="diagram-body">
+      <table class="tradeoff-table">
+        <thead>
+          <tr><th>触发时机</th><th>运行的评测层</th><th>目的</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>每次 Prompt 变更</td>
+            <td>文本节点（①②③）自动化指标全跑</td>
+            <td>快速验证改动无明显退步</td>
+          </tr>
+          <tr>
+            <td>每次模型版本升级</td>
+            <td>全节点自动化指标 + 视频节点 LLM-judge</td>
+            <td>全面回归，捕捉跨节点影响</td>
+          </tr>
+          <tr>
+            <td>每周定期</td>
+            <td>全节点 + 20-30 条人工评审</td>
+            <td>校准自动指标，发现漂移</td>
+          </tr>
+          <tr>
+            <td>新品类上线前</td>
+            <td>全节点 + 专项质地测试集 + 完整人工验收</td>
+            <td>验证系统对新品类的覆盖能力</td>
+          </tr>
+          <tr>
+            <td>线上问题反馈</td>
+            <td>转化为测试用例，复现后修复</td>
+            <td>线上 bug → 测试集补充</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="callout success">
+    <p>整条评测体系的最终目标，不是让所有指标都高——而是让团队对"我们知道什么、不知道什么"有清晰的认知。一个能精确告诉你"第 14 秒人脸一致性失败，根因是分镜第 3 幕缺少人物肤色约束"的评测系统，比一个给出"综合评分 75 分"的系统有价值得多。</p>
+  </div>
+
+  <div class="tag-row">
+    <a class="tag" href="#">多模态评测</a>
+    <a class="tag" href="#">视频质量评测</a>
+    <a class="tag" href="#">产品一致性</a>
+    <a class="tag" href="#">质地评测</a>
+    <a class="tag" href="#">人脸一致性</a>
+    <a class="tag" href="#">电商 AI</a>
+    <a class="tag" href="#">DINO-v2</a>
+    <a class="tag" href="#">色差 ΔE</a>
+    <a class="tag" href="#">流水线评测</a>
+    <a class="tag" href="#">LLM-as-Judge</a>
+  </div>
+
+</article>
+
+<aside class="sidebar">
+  <p class="toc-label">目录</p>
+  <ul class="toc-list">
+    <li><a href="#s1" class="toc-link">文本域评测集构建</a></li>
+    <li><a href="#s2" class="toc-link">视觉域评测集构建</a></li>
+    <li><a href="#s3" class="toc-link">场景落地：电商信息流</a></li>
+    <li><a href="#s4" class="toc-link">评测全景矩阵</a></li>
+    <li><a href="#s5" class="toc-link">逐节点评测</a></li>
+    <li><a href="#s6" class="toc-link">质地真实性专项</a></li>
+    <li><a href="#s7" class="toc-link">帧间一致性</a></li>
+    <li><a href="#s8" class="toc-link">全链路评测报告</a></li>
+    <li><a href="#s9" class="toc-link">跨节点误差传递</a></li>
+    <li><a href="#s10" class="toc-link">落地实施建议</a></li>
+  </ul>
+</aside>
+</div>
+
+<footer class="site-footer">
+  <a href="../index.html" style="color:inherit;text-decoration:none;display:flex;align-items:center;gap:6px;">← 返回首页</a>
+  <span>聚合叉的博客</span>
+</footer>
+
+<script>
+  (function () {
+    const sections = ['s1','s2','s3','s4','s5','s6','s7','s8','s9','s10'];
+    const links = document.querySelectorAll('.toc-link');
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          links.forEach(l => l.classList.remove('active'));
+          const a = document.querySelector(`.toc-link[href="#${entry.target.id}"]`);
+          if (a) a.classList.add('active');
+        }
+      });
+    }, { rootMargin: '-30% 0px -60% 0px' });
+    sections.forEach(id => { const el = document.getElementById(id); if (el) observer.observe(el); });
+  })();
+</script>
+</body>
+</html>

@@ -473,7 +473,8 @@ const DOCS = [
   { category: "文本", icon: `<span class="mdi mdi-text-box-outline"></span>`, articles: [] },
   { category: "LLM应用", icon: `<span class="mdi mdi-robot-outline"></span>`, articles: [
       { id: "ai-agent-intro", title: "AI Agent 概念入门", file: "posts/llm/ai-agent-intro.html", tags: ["AI", "Agent", "LLM"] },
-      { id: "agent-evaluation", title: "Agent 开发中的评测体系", file: "posts/llm/agent-evaluation.html", tags: ["AI", "Agent", "\u8bc4\u6d4b", "LLM"] }
+      { id: "agent-evaluation", title: "测评1：Agent 开发中的评测体系", file: "posts/llm/agent-evaluation.html", tags: ["AI", "Agent", "\u8bc4\u6d4b", "LLM"] },
+      { id: "agent-evaluation2", title: "测评2：多模态评测集构建实战", file: "posts/llm/agent-evaluation2.html", tags: ["AI", "Agent", "\u8bc4\u6d4b", "\u591a\u6a21\u6001", "LLM"] }
     ] },
   { category: "视频", icon: `<span class="mdi mdi-play-circle-outline"></span>`, articles: [
       { id: "video-generation", title: "视频生成模型：从扩散噪声到影视级画面", file: "posts/video/video-generation.html", tags: ["AI", "视频生成", "扩散模型", "DiT", "Seedance", "Kling"] },
@@ -683,6 +684,17 @@ async function loadArticle(id, file) {
     const bodyEl = doc.querySelector('.article-body');
     const tocEl  = doc.querySelector('.sidebar');
 
+    // 注入文章自有样式（避免多次加载叠加，用固定 id 替换）
+    const oldStyle = document.getElementById('article-injected-style');
+    if (oldStyle) oldStyle.remove();
+    const articleStyles = doc.querySelectorAll('style');
+    if (articleStyles.length) {
+      const styleEl = document.createElement('style');
+      styleEl.id = 'article-injected-style';
+      styleEl.textContent = Array.from(articleStyles).map(s => s.textContent).join('\n');
+      document.head.appendChild(styleEl);
+    }
+
     // Prev/next footer
     const idx  = FLAT.findIndex(a => a.id === id);
     const prev = FLAT[idx - 1] || null;
@@ -738,13 +750,17 @@ function initToc() {
   if (!links.length) return;
 
   // 拦截目录链接点击，阻止 hash 变更触发路由，改为手动滚动
+  const TOPBAR_H = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--topbar-h')) || 54;
   links.forEach(link => {
     link.addEventListener('click', e => {
       e.preventDefault();
       const targetId = link.getAttribute('href')?.replace('#', '');
       if (targetId) {
         const el = document.getElementById(targetId);
-        if (el) el.scrollIntoView({ behavior: 'smooth' });
+        if (el) {
+          const top = el.getBoundingClientRect().top + window.scrollY - TOPBAR_H - 16;
+          window.scrollTo({ top, behavior: 'smooth' });
+        }
       }
     });
   });

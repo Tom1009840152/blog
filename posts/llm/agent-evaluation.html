@@ -434,6 +434,7 @@
   }
   .pyramid-row {
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     border-radius: 6px;
@@ -450,9 +451,9 @@
     font-size: 10px;
     font-weight: 400;
     opacity: 0.75;
-    margin-top: 2px;
+    margin-top: 6px;
   }
-  .pyr-1 { width: 30%;  background: var(--danger); }
+  .pyr-1 { width: 36%;  background: var(--danger); }
   .pyr-2 { width: 50%;  background: var(--accent); }
   .pyr-3 { width: 70%;  background: #B08A40; }
   .pyr-4 { width: 90%;  background: var(--info); }
@@ -685,7 +686,7 @@
         <div class="pyramid-row pyr-3">组件评测<span>工具准确率 · 规划质量 · 记忆检索</span></div>
         <div class="pyramid-row pyr-4">基础能力评测<span>指令遵循 · 格式合规 · 幻觉率 · 边界识别</span></div>
       </div>
-      <p class="card-desc" style="margin-top:14px">底层测试快、便宜、可自动化，应当大量运行；顶层测试真实、有说服力，但昂贵，用于关键决策节点（如上线前）。</p>
+      <p class="card-desc" style="margin-top:14px">底层测试快、便宜、可自动化，应当大量运行；顶层测试真实、有说服力，但昂贵，用于关键决策节点。</p>
     </div>
   </div>
 
@@ -1338,7 +1339,7 @@ judge_prompt = <span class="str">"""
     </div>
   </div>
 
-  <div class="pull-quote">
+  <div class="pull-quote" style="border-bottom:none;">
     当一个指标变成目标，<br>它就不再是一个好指标了。<br><span style="font-size:14px;font-weight:400;opacity:0.55;font-family:var(--sans)">— Goodhart's Law，评测设计者最需要牢记的警告</span>
   </div>
 
