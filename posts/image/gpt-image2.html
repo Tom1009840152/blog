@@ -6,6 +6,7 @@
 <title>为什么 GPT Image 2 的画面总感觉"不够丝滑"？</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/@mdi/font@7.4.47/css/materialdesignicons.min.css" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -625,6 +626,7 @@
     <span>2026-05-27</span>
     <span>阅读约 5 分钟</span>
     <span>自回归模型 · VQ-VAE · 扩散模型</span>
+    <span>需要模型基础</span>
   </div>
 </section>
 
@@ -768,17 +770,17 @@
       <div class="diagram-body">
         <div class="reasons-grid" style="grid-template-columns: 1fr 1fr 1fr;">
           <div class="reason-item">
-            <span class="reason-icon">🔤</span>
+            <span class="reason-icon mdi mdi-format-text-variant-outline"></span>
             <p class="reason-title">① 量化精度损失（根源）</p>
             <p class="reason-desc">即上节所述：相邻图块被强制映射到不同词典词条，颜色过渡在编码阶段就已断裂，精度永久损失，是后两层问题的基础。</p>
           </div>
           <div class="reason-item">
-            <span class="reason-icon">📐</span>
+            <span class="reason-icon mdi mdi-ruler-square-compass"></span>
             <p class="reason-title">② 空间结构损失</p>
             <p class="reason-desc">图像是二维平面，强行展平为一维序列后，空间上紧邻的两个图像块在序列中可能相距很远，模型难以维护跨块的空间一致性。</p>
           </div>
           <div class="reason-item">
-            <span class="reason-icon">🧩</span>
+            <span class="reason-icon mdi mdi-puzzle-outline"></span>
             <p class="reason-title">③ 解码拼接误差</p>
             <p class="reason-desc">各 token 独立解码后拼合，交界处可能出现肉眼可见的"拼图缝隙"，在颜色渐变剧烈的区域尤为明显。</p>
           </div>
@@ -866,22 +868,22 @@
       <div class="diagram-body">
         <div class="reasons-grid">
           <div class="reason-item">
-            <span class="reason-icon">📚</span>
+            <span class="reason-icon mdi mdi-book-open-outline"></span>
             <p class="reason-title">扩大词典容量</p>
             <p class="reason-desc">从 8,192 扩展到 65,536 个视觉词，量化误差显著减小，代价是训练难度和推理延迟同步上升。</p>
           </div>
           <div class="reason-item">
-            <span class="reason-icon">🔬</span>
+            <span class="reason-icon mdi mdi-microscope"></span>
             <p class="reason-title">缩小 Token 粒度</p>
             <p class="reason-desc">每个 token 从 8×8 像素缩小到 4×4 像素，块状感减弱，但 token 数量从 1024 增加到 4096，速度更慢。</p>
           </div>
           <div class="reason-item">
-            <span class="reason-icon">⚡</span>
+            <span class="reason-icon mdi mdi-lightning-bolt-outline"></span>
             <p class="reason-title">混合架构后处理</p>
             <p class="reason-desc">自回归生成粗糙结构，再叠加扩散模型平滑细节。两步结合，各司其职，已有研究验证可行。</p>
           </div>
           <div class="reason-item">
-            <span class="reason-icon">🚀</span>
+            <span class="reason-icon mdi mdi-rocket-launch-outline"></span>
             <p class="reason-title">连续 Token（根本解法）</p>
             <p class="reason-desc">放弃离散量化，直接在连续空间做自回归，从根本上消除块状感。技术挑战最大，是研究前沿。</p>
           </div>

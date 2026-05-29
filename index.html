@@ -465,21 +465,25 @@ const DOCS = [
   {
     category: "图像", icon: `<span class="mdi mdi-image-outline"></span>`,
     articles: [
-      { id: "gpt-image2",           title: "为什么 GPT Image 2 画面不够丝滑？",    file: "posts/gpt-image2.html",           tags: ["AI", "图像生成", "自回归模型"] },
-      { id: "diffusion-model",      title: "扩散模型是怎么\u201c画画\u201d的？",    file: "posts/diffusion-model.html",      tags: ["AI", "图像生成", "扩散模型"] },
-      { id: "autoregressive-model", title: "自回归模型是怎么\u201c写出\u201d图像的？", file: "posts/autoregressive-model.html", tags: ["AI", "图像生成", "自回归模型"] }
+      { id: "gpt-image2",           title: "为什么 GPT Image 2 画面不够丝滑？",    file: "posts/image/gpt-image2.html",           tags: ["AI", "图像生成", "自回归模型"] },
+      { id: "diffusion-model",      title: "扩散模型是怎么\u201c画画\u201d的？",    file: "posts/image/diffusion-model.html",      tags: ["AI", "图像生成", "扩散模型"] },
+      { id: "autoregressive-model", title: "自回归模型是怎么\u201c写出\u201d图像的？", file: "posts/image/autoregressive-model.html", tags: ["AI", "图像生成", "自回归模型"] }
     ]
   },
   { category: "文本", icon: `<span class="mdi mdi-text-box-outline"></span>`, articles: [] },
-  { category: "Agent", icon: `<span class="mdi mdi-robot-outline"></span>`, articles: [
-      { id: "ai-agent-intro", title: "AI Agent\uff1a\u4ece\u201c\u56de\u7b54\u95ee\u9898\u201d\u5230\u201c\u5b8c\u6210\u4efb\u52a1\u201d", file: "posts/ai-agent-intro.html", tags: ["AI", "Agent", "LLM"] }
+  { category: "LLM应用", icon: `<span class="mdi mdi-robot-outline"></span>`, articles: [
+      { id: "ai-agent-intro", title: "AI Agent 概念入门", file: "posts/llm/ai-agent-intro.html", tags: ["AI", "Agent", "LLM"] },
+      { id: "agent-evaluation", title: "Agent 开发中的评测体系", file: "posts/llm/agent-evaluation.html", tags: ["AI", "Agent", "\u8bc4\u6d4b", "LLM"] }
     ] },
   { category: "视频", icon: `<span class="mdi mdi-play-circle-outline"></span>`, articles: [
-      { id: "video-generation", title: "视频生成模型：从扩散噪声到影视级画面", file: "posts/video-generation.html", tags: ["AI", "视频生成", "扩散模型", "DiT", "Seedance", "Kling"] },
-      { id: "world-model", title: "世界模型：不只是\u201c预测下一帧\u201d", file: "posts/world-model.html", tags: ["AI", "视频生成", "世界模型", "具身智能"] }
+      { id: "video-generation", title: "视频生成模型：从扩散噪声到影视级画面", file: "posts/video/video-generation.html", tags: ["AI", "视频生成", "扩散模型", "DiT", "Seedance", "Kling"] },
+      { id: "world-model", title: "世界模型：不只是\u201c预测下一帧\u201d", file: "posts/video/world-model.html", tags: ["AI", "视频生成", "世界模型", "具身智能"] }
     ] },
   { category: "美学&摄影", icon: `<span class="mdi mdi-camera-outline"></span>`, articles: [
-      { id: "visual-aesthetics", title: "画面语言：用视觉说话", file: "posts/visual-aesthetics.html", tags: ["美学", "摄影", "构图", "视觉语言"] }
+      { id: "visual-aesthetics", title: "画面语言：用视觉说话", file: "posts/aesthetics/visual-aesthetics.html", tags: ["美学", "摄影", "构图", "视觉语言"] }
+    ] },
+  { category: "从0开始学前端", icon: `<span class="mdi mdi-code-tags"></span>`, articles: [
+      { id: "frontend-intro", title: "前端开发入门：从 Python 到网页的第一步", file: "posts/frontend/frontend-intro.html", tags: ["前端开发", "HTML", "CSS", "JavaScript", "入门教程"] }
     ] }
 ];
 
@@ -524,8 +528,12 @@ function buildNav() {
   });
 
   root.innerHTML = html;
+  // 默认收起所有分类
+  document.querySelectorAll('.nav-group').forEach(group => {
+    group.classList.add('collapsed');
+  });
   document.querySelectorAll('.nav-group-body').forEach(el => {
-    el.style.maxHeight = el.scrollHeight + 'px';
+    el.style.maxHeight = '0';
   });
 }
 

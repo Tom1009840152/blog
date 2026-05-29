@@ -1,0 +1,1273 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>前端入门：给 Python 程序员的第一课</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #F7F5F0;
+    --bg-card: #FFFFFF;
+    --bg-code: #F0EDE8;
+    --text-primary: #1A1814;
+    --text-secondary: #5C5850;
+    --text-tertiary: #9A948A;
+    --accent: #C4622A;
+    --accent-light: #FAE8DC;
+    --accent-mid: #E8855A;
+    --info: #185FA5;
+    --info-light: #E6F1FB;
+    --danger: #993C1D;
+    --danger-light: #FAECE7;
+    --success: #0F6E56;
+    --success-light: #E1F5EE;
+    --border: rgba(60,50,40,0.1);
+    --border-strong: rgba(60,50,40,0.2);
+    --serif: 'Noto Serif SC', Georgia, serif;
+    --sans: 'Noto Sans SC', system-ui, sans-serif;
+    --mono: 'JetBrains Mono', monospace;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text-primary);
+    font-family: var(--sans);
+    font-weight: 400;
+    line-height: 1.85;
+    min-height: 100vh;
+  }
+
+  /* ── Header ── */
+  .site-header {
+    border-bottom: 0.5px solid var(--border);
+    padding: 18px 0;
+    position: sticky;
+    top: 0;
+    background: rgba(247,245,240,0.9);
+    backdrop-filter: blur(12px);
+    z-index: 100;
+  }
+
+  .header-inner {
+    max-width: 1020px;
+    margin: 0 auto;
+    padding: 0 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .site-name {
+    font-family: var(--serif);
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-primary);
+    letter-spacing: 0.02em;
+  }
+
+  .header-tag {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    font-weight: 400;
+  }
+
+  /* ── Hero ── */
+  .hero {
+    max-width: 1020px;
+    margin: 0 auto;
+    padding: 72px 32px 48px;
+    border-bottom: 0.5px solid var(--border);
+  }
+
+  .kicker {
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 500;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .kicker::after {
+    content: '';
+    display: block;
+    height: 1px;
+    width: 40px;
+    background: var(--accent-mid);
+    opacity: 0.5;
+  }
+
+  .headline {
+    font-family: var(--serif);
+    font-size: 42px;
+    font-weight: 700;
+    line-height: 1.25;
+    color: var(--text-primary);
+    margin-bottom: 20px;
+    letter-spacing: -0.01em;
+  }
+
+  .headline em {
+    font-style: normal;
+    color: var(--accent);
+  }
+
+  .deck {
+    font-size: 16px;
+    color: var(--text-secondary);
+    font-weight: 400;
+    line-height: 1.75;
+    max-width: 560px;
+    margin-bottom: 32px;
+  }
+
+  .meta-row {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    font-size: 12px;
+    color: var(--text-tertiary);
+  }
+
+  .meta-row span { display: flex; align-items: center; gap: 5px; }
+
+  /* ── Layout ── */
+  .content-wrap {
+    max-width: 1020px;
+    margin: 0 auto;
+    padding: 0 32px;
+    display: grid;
+    grid-template-columns: 1fr 260px;
+    gap: 0 56px;
+    align-items: start;
+  }
+
+  .article-body {
+    padding: 48px 0 80px;
+    min-width: 0;
+  }
+
+  /* ── Sidebar ── */
+  .sidebar {
+    padding: 48px 0 80px;
+    position: sticky;
+    top: 72px;
+  }
+
+  .toc-label {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-tertiary);
+    font-weight: 500;
+    margin-bottom: 14px;
+  }
+
+  .toc-list {
+    list-style: none;
+    border-left: 1px solid var(--border-strong);
+    padding-left: 14px;
+  }
+
+  .toc-list li { margin-bottom: 8px; }
+
+  .toc-list a {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    text-decoration: none;
+    font-weight: 400;
+    line-height: 1.5;
+    transition: color 0.2s;
+    display: block;
+  }
+
+  .toc-list a:hover { color: var(--accent); }
+  .toc-list a.active { color: var(--accent); font-weight: 500; }
+
+  /* ── Typography ── */
+  .section-label {
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--text-tertiary);
+    font-weight: 500;
+    margin: 52px 0 10px;
+  }
+
+  .section-heading {
+    font-family: var(--serif);
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 18px;
+    line-height: 1.4;
+  }
+
+  .body-text {
+    font-size: 15px;
+    color: var(--text-primary);
+    margin-bottom: 18px;
+    font-weight: 400;
+    line-height: 1.9;
+  }
+
+  .body-text strong { font-weight: 500; color: var(--text-primary); }
+
+  /* ── Pull quote ── */
+  .pull-quote {
+    font-family: var(--serif);
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text-primary);
+    line-height: 1.6;
+    padding: 32px 0;
+    margin: 36px 0;
+    border-top: 1.5px solid var(--accent);
+    border-bottom: 0.5px solid var(--border);
+    position: relative;
+  }
+
+  .pull-quote::before {
+    content: '\201C';
+    font-family: var(--serif);
+    font-size: 72px;
+    color: var(--accent);
+    opacity: 0.15;
+    position: absolute;
+    top: 10px;
+    left: -8px;
+    line-height: 1;
+  }
+
+  /* ── Callout ── */
+  .callout {
+    border-left: 2px solid var(--accent);
+    padding: 16px 20px;
+    background: var(--accent-light);
+    border-radius: 0 8px 8px 0;
+    margin: 28px 0;
+  }
+
+  .callout p {
+    font-size: 14px;
+    color: var(--danger);
+    font-weight: 400;
+    line-height: 1.75;
+    margin: 0;
+  }
+
+  .callout.info { border-color: var(--info); background: var(--info-light); }
+  .callout.info p { color: var(--info); }
+  .callout.success { border-color: var(--success); background: var(--success-light); }
+  .callout.success p { color: var(--success); }
+
+  /* ── Diagram blocks ── */
+  .diagram {
+    border: 0.5px solid var(--border-strong);
+    border-radius: 12px;
+    overflow: hidden;
+    margin: 28px 0;
+    background: var(--bg-card);
+  }
+
+  .diagram-header {
+    padding: 12px 18px;
+    border-bottom: 0.5px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .diagram-label {
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-tertiary);
+    font-weight: 500;
+  }
+
+  .diagram-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    flex-shrink: 0;
+  }
+
+  .diagram-body { padding: 20px 18px; }
+
+  /* ── Flow chain ── */
+  .flow-chain {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    margin: 16px 0;
+    flex-wrap: wrap;
+  }
+
+  .flow-step {
+    flex: 1;
+    background: var(--bg);
+    border: 0.5px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 8px;
+    text-align: center;
+    font-size: 11px;
+    color: var(--text-secondary);
+    line-height: 1.45;
+    min-width: 0;
+    font-weight: 400;
+  }
+
+  .flow-step.accent {
+    background: var(--accent-light);
+    border-color: rgba(196,98,42,0.25);
+    color: var(--accent);
+    font-weight: 500;
+  }
+
+  .flow-step.info {
+    background: var(--info-light);
+    border-color: rgba(24,95,165,0.2);
+    color: var(--info);
+    font-weight: 500;
+  }
+
+  .flow-step span {
+    display: block;
+    font-size: 10px;
+    color: var(--text-tertiary);
+    margin-top: 3px;
+    font-weight: 400;
+  }
+
+  .flow-step.accent span { color: rgba(196,98,42,0.6); }
+  .flow-step.info span { color: rgba(24,95,165,0.55); }
+
+  .flow-arrow {
+    display: flex;
+    align-items: center;
+    color: var(--text-tertiary);
+    font-size: 13px;
+    padding: 0 4px;
+    flex-shrink: 0;
+  }
+
+  /* ── Reasons / cards grid ── */
+  .reasons-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .reason-item {
+    background: var(--bg);
+    border: 0.5px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+  }
+
+  .reason-icon {
+    font-size: 20px;
+    margin-bottom: 8px;
+    display: block;
+  }
+
+  .reason-title {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-primary);
+    margin-bottom: 6px;
+  }
+
+  .reason-desc {
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.65;
+    font-weight: 400;
+  }
+
+  /* ── Compare grid ── */
+  .compare-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+  }
+
+  .compare-card {
+    background: var(--bg);
+    border: 0.5px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+  }
+
+  .compare-card-title {
+    font-size: 12px;
+    font-weight: 500;
+    margin-bottom: 10px;
+    color: var(--text-primary);
+    letter-spacing: 0.04em;
+  }
+
+  .compare-card-subtitle {
+    font-size: 10px;
+    color: var(--text-tertiary);
+    margin-bottom: 10px;
+    font-weight: 400;
+  }
+
+  /* ── Code block ── */
+  .code-block {
+    background: var(--bg-code);
+    border: 0.5px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 18px;
+    margin: 16px 0;
+    font-family: var(--mono);
+    font-size: 12px;
+    line-height: 1.75;
+    color: var(--text-primary);
+    overflow-x: auto;
+    white-space: pre;
+  }
+
+  .code-block .comment { color: var(--text-tertiary); }
+  .code-block .hl { color: var(--accent); font-weight: 500; }
+  .code-block .green { color: var(--success); }
+  .code-block .blue { color: var(--info); }
+  .code-block .kw { color: #7B4CA0; font-weight: 500; } /* keyword purple */
+  .code-block .str { color: var(--success); }
+
+  /* ── Table ── */
+  .tradeoff-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin: 16px 0;
+  }
+
+  .tradeoff-table th {
+    text-align: left;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-tertiary);
+    font-weight: 500;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border-strong);
+  }
+
+  .tradeoff-table td {
+    padding: 10px 12px;
+    border-bottom: 0.5px solid var(--border);
+    color: var(--text-primary);
+    font-weight: 400;
+    vertical-align: top;
+    line-height: 1.6;
+  }
+
+  .tradeoff-table tr:last-child td { border-bottom: none; }
+
+  .tradeoff-table td:first-child {
+    font-weight: 500;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    width: 130px;
+  }
+
+  .badge {
+    display: inline-block;
+    font-size: 10px;
+    padding: 2px 7px;
+    border-radius: 20px;
+    font-weight: 500;
+    margin-left: 4px;
+  }
+
+  .badge.good { background: var(--success-light); color: var(--success); }
+  .badge.bad { background: var(--danger-light); color: var(--danger); }
+  .badge.mid { background: var(--accent-light); color: var(--accent); }
+  .badge.info { background: var(--info-light); color: var(--info); }
+
+  /* ── Browser mockup ── */
+  .browser-mock {
+    border: 0.5px solid var(--border-strong);
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 16px 0;
+    background: #fff;
+    font-family: var(--mono);
+    font-size: 12px;
+  }
+
+  .browser-bar {
+    background: var(--bg);
+    border-bottom: 0.5px solid var(--border);
+    padding: 8px 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .browser-dots { display: flex; gap: 5px; }
+  .browser-dots span {
+    width: 9px; height: 9px; border-radius: 50%;
+    background: var(--border-strong);
+  }
+  .browser-dots span:nth-child(1) { background: #FF6057; }
+  .browser-dots span:nth-child(2) { background: #FFBD2E; }
+  .browser-dots span:nth-child(3) { background: #27C93F; }
+
+  .browser-url {
+    flex: 1;
+    background: #fff;
+    border: 0.5px solid var(--border);
+    border-radius: 5px;
+    padding: 3px 10px;
+    font-size: 11px;
+    color: var(--text-secondary);
+    font-family: var(--mono);
+  }
+
+  .browser-content { padding: 18px 20px; }
+
+  /* ── HTML preview inside browser ── */
+  .html-preview h1 { font-size: 18px; font-weight: 700; font-family: var(--serif); margin-bottom: 8px; color: var(--text-primary); }
+  .html-preview p { font-size: 13px; color: var(--text-secondary); margin-bottom: 8px; line-height: 1.6; }
+  .html-preview .btn-demo {
+    display: inline-block;
+    background: var(--accent);
+    color: #fff;
+    padding: 6px 16px;
+    border-radius: 5px;
+    font-size: 12px;
+    cursor: pointer;
+    font-family: var(--sans);
+    border: none;
+    font-weight: 500;
+    margin-top: 4px;
+  }
+  .html-preview .box-demo {
+    border: 1px solid var(--border-strong);
+    border-radius: 6px;
+    padding: 10px 14px;
+    margin: 8px 0;
+    font-size: 12px;
+    color: var(--text-secondary);
+    background: var(--bg);
+  }
+
+  /* ── Tag row ── */
+  .tag-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 48px;
+    padding-top: 28px;
+    border-top: 0.5px solid var(--border);
+  }
+
+  .tag {
+    display: inline-block;
+    font-size: 11px;
+    padding: 4px 12px;
+    border: 0.5px solid var(--border-strong);
+    border-radius: 20px;
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-weight: 400;
+    transition: all 0.2s;
+    letter-spacing: 0.04em;
+  }
+
+  .tag:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* ── Footer ── */
+  .site-footer {
+    border-top: 0.5px solid var(--border);
+    padding: 24px 32px;
+    max-width: 1020px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--text-tertiary);
+  }
+
+  /* ── Layer diagram ── */
+  .layer-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin: 16px 0;
+  }
+
+  .layer-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .layer-label {
+    width: 48px;
+    font-size: 10px;
+    color: var(--text-tertiary);
+    text-align: right;
+    flex-shrink: 0;
+    letter-spacing: 0.05em;
+  }
+
+  .layer-bar {
+    flex: 1;
+    border-radius: 6px;
+    padding: 9px 14px;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.35;
+  }
+
+  .layer-bar span {
+    display: block;
+    font-size: 10px;
+    font-weight: 400;
+    margin-top: 2px;
+    opacity: 0.65;
+  }
+
+  .layer-html { background: var(--accent-light); color: var(--danger); border: 0.5px solid rgba(196,98,42,0.2); }
+  .layer-css { background: var(--info-light); color: var(--info); border: 0.5px solid rgba(24,95,165,0.2); }
+  .layer-js { background: #FFF9E6; color: #8A6800; border: 0.5px solid rgba(138,104,0,0.2); }
+
+  /* ── Analogy box ── */
+  .analogy-box {
+    background: var(--bg-card);
+    border: 0.5px solid var(--border-strong);
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 22px 0;
+  }
+
+  .analogy-header {
+    padding: 10px 16px;
+    background: var(--bg-code);
+    border-bottom: 0.5px solid var(--border);
+    font-size: 11px;
+    color: var(--text-tertiary);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+
+  .analogy-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    border-bottom: 0.5px solid var(--border);
+  }
+
+  .analogy-row:last-child { border-bottom: none; }
+
+  .analogy-cell {
+    padding: 12px 16px;
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+  }
+
+  .analogy-cell:first-child {
+    border-right: 0.5px solid var(--border);
+    color: var(--info);
+    font-weight: 500;
+  }
+
+  .analogy-cell .sub {
+    display: block;
+    font-size: 11px;
+    font-weight: 400;
+    color: var(--text-tertiary);
+    margin-top: 2px;
+  }
+
+  /* ── card-desc ── */
+  .card-desc {
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.65;
+    font-weight: 400;
+  }
+
+  @media (max-width: 768px) {
+    .content-wrap { grid-template-columns: 1fr; }
+    .sidebar { display: none; }
+    .headline { font-size: 28px; }
+    .compare-grid { grid-template-columns: 1fr; }
+    .reasons-grid { grid-template-columns: 1fr; }
+    .flow-chain { flex-wrap: wrap; }
+    .analogy-row { grid-template-columns: 1fr; }
+    .analogy-cell:first-child { border-right: none; border-bottom: 0.5px solid var(--border); }
+  }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <span class="site-name">聚合叉的博客</span>
+    <span class="header-tag">Frontend · Beginner</span>
+  </div>
+</header>
+
+<div class="hero">
+  <p class="kicker">前端入门</p>
+  <h1 class="headline">网页是怎么跑起来的？<br><em>给 Python 程序员的第一课</em></h1>
+  <p class="deck">你已经会写 Python，但打开一个网页，不知道背后发生了什么。这篇文章用你熟悉的 Python 概念类比，带你从零理解前端的三层结构——HTML、CSS、JavaScript——以及浏览器是怎么把它们变成你眼中的页面的。</p>
+  <div class="meta-row">
+    <span>2026-05-29</span>
+    <span>🗂 前端系列 · 第一篇</span>
+    <span>阅读约 12 分钟</span>
+    <span>🐍 需要 Python 基础</span>
+  </div>
+</div>
+
+<div class="content-wrap">
+<article class="article-body">
+
+  <!-- Section 1 -->
+  <p class="section-label" id="s1">大局观</p>
+  <h2 class="section-heading">浏览器是一台特殊的 Python 解释器</h2>
+
+  <p class="body-text">在你接触 Python 时，最基本的模型是：你写代码 → Python 解释器执行 → 输出结果。浏览器干的事情非常类似，只不过它同时接收三种"语言"的文件，然后把它们渲染成你看到的网页。</p>
+
+  <p class="body-text">这三种语言，就是前端的三大支柱：<strong>HTML、CSS、JavaScript</strong>。它们不是竞争关系，而是职责分明的分工——结构、样式、行为。先建立这个分层模型，后面的一切都会更容易理解。</p>
+
+  <div class="diagram">
+    <div class="diagram-header">
+      <span class="diagram-dot"></span>
+      <span class="diagram-label">前端三层结构</span>
+    </div>
+    <div class="diagram-body">
+      <div class="layer-stack">
+        <div class="layer-row">
+          <span class="layer-label">行为</span>
+          <div class="layer-bar layer-js">JavaScript（JS）<span>点击按钮触发逻辑、动态更新内容、调用后端接口</span></div>
+        </div>
+        <div class="layer-row">
+          <span class="layer-label">样式</span>
+          <div class="layer-bar layer-css">CSS<span>颜色、字体、间距、布局、动画效果</span></div>
+        </div>
+        <div class="layer-row">
+          <span class="layer-label">结构</span>
+          <div class="layer-bar layer-html">HTML<span>页面的骨架：标题、段落、图片、链接、表单</span></div>
+        </div>
+      </div>
+      <p class="card-desc" style="margin-top:12px">把网页想象成一栋房子：HTML 是钢筋混凝土框架，CSS 是装修涂料和家具，JavaScript 是电路系统和自动化控制。</p>
+    </div>
+  </div>
+
+  <div class="callout info">
+    <p>一个极简的网页可以只有 HTML，没有 CSS 和 JavaScript——它长得很丑，但能用。反过来，没有 HTML 的 CSS/JS 毫无意义，因为没有东西可以被"样式化"或"操控"。</p>
+  </div>
+
+  <!-- Section 2 -->
+  <p class="section-label" id="s2">HTML</p>
+  <h2 class="section-heading">HTML：数据结构，不是编程语言</h2>
+
+  <p class="body-text">很多人第一次见到 HTML 会感到奇怪——它没有变量，没有循环，没有函数。这是因为 <strong>HTML 根本不是编程语言，它是标记语言（Markup Language）</strong>，用来描述内容的结构和语义。</p>
+
+  <p class="body-text">用 Python 类比：HTML 就像是一个 <code style="font-family:var(--mono);font-size:13px;background:var(--bg-code);padding:1px 5px;border-radius:3px;">dict</code>，只不过嵌套方式不是用花括号，而是用尖括号包裹的"标签对"来表达层级关系。</p>
+
+  <div class="diagram">
+    <div class="diagram-header">
+      <span class="diagram-dot"></span>
+      <span class="diagram-label">HTML 标签 vs Python 数据结构</span>
+    </div>
+    <div class="diagram-body">
+      <div class="analogy-box" style="margin:0;">
+        <div class="analogy-header">Python ←→ HTML 类比对照</div>
+        <div class="analogy-row">
+          <div class="analogy-cell">嵌套 dict / 树形结构<span class="sub">Python: {"body": {"h1": "标题", "p": "段落"}}</span></div>
+          <div class="analogy-cell">HTML DOM 树<span class="sub">&lt;body&gt;&lt;h1&gt;标题&lt;/h1&gt;&lt;p&gt;段落&lt;/p&gt;&lt;/body&gt;</span></div>
+        </div>
+        <div class="analogy-row">
+          <div class="analogy-cell">dict key<span class="sub">{"class": "card"}</span></div>
+          <div class="analogy-cell">HTML 属性<span class="sub">&lt;div class="card"&gt;</span></div>
+        </div>
+        <div class="analogy-row">
+          <div class="analogy-cell">dict value<span class="sub">{"text": "Hello"}</span></div>
+          <div class="analogy-cell">标签内容<span class="sub">&lt;p&gt;Hello&lt;/p&gt;</span></div>
+        </div>
+        <div class="analogy-row">
+          <div class="analogy-cell">列表 list<span class="sub">["项目A", "项目B", "项目C"]</span></div>
+          <div class="analogy-cell">HTML 列表<span class="sub">&lt;ul&gt;&lt;li&gt;项目A&lt;/li&gt;...&lt;/ul&gt;</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <p class="body-text">下面是一段最小可运行的 HTML。把它保存成 <code style="font-family:var(--mono);font-size:13px;background:var(--bg-code);padding:1px 5px;border-radius:3px;">index.html</code> 再用浏览器打开，就能看到效果：</p>
+
+  <div class="code-block"><span class="comment">&lt;!-- 这是 HTML 注释，类似 Python 的 # --&gt;</span>
+&lt;!DOCTYPE html&gt;           <span class="comment">&lt;!-- 告诉浏览器"这是现代 HTML" --&gt;</span>
+&lt;<span class="hl">html</span> lang="zh-CN"&gt;       <span class="comment">&lt;!-- 根节点，类似 Python 的顶层模块 --&gt;</span>
+  &lt;<span class="hl">head</span>&gt;                  <span class="comment">&lt;!-- 元信息区，不显示在页面上 --&gt;</span>
+    &lt;meta charset="UTF-8"&gt;
+    &lt;title&gt;<span class="str">我的第一个网页</span>&lt;/title&gt;
+  &lt;/<span class="hl">head</span>&gt;
+  &lt;<span class="hl">body</span>&gt;                  <span class="comment">&lt;!-- 可见内容区 --&gt;</span>
+    &lt;<span class="blue">h1</span>&gt;<span class="str">Hello, World!</span>&lt;/<span class="blue">h1</span>&gt;  <span class="comment">&lt;!-- 最大标题 --&gt;</span>
+    &lt;<span class="blue">p</span>&gt;<span class="str">这是一段正文。</span>&lt;/<span class="blue">p</span>&gt;   <span class="comment">&lt;!-- 段落 paragraph --&gt;</span>
+    &lt;<span class="blue">button</span>&gt;<span class="str">点我</span>&lt;/<span class="blue">button</span>&gt;  <span class="comment">&lt;!-- 按钮 --&gt;</span>
+  &lt;/<span class="hl">body</span>&gt;
+&lt;/<span class="hl">html</span>&gt;</div>
+
+  <p class="body-text">浏览器读到这段代码后，会在内存里建立一棵树——这棵树叫做 <strong>DOM（Document Object Model，文档对象模型）</strong>。DOM 是前端开发中最重要的概念之一：它是 HTML 在浏览器内存里的表示，JavaScript 通过操作 DOM 来动态修改页面。</p>
+
+  <div class="diagram">
+    <div class="diagram-header">
+      <span class="diagram-dot"></span>
+      <span class="diagram-label">DOM 树结构示意</span>
+    </div>
+    <div class="diagram-body">
+      <div class="code-block" style="margin:0;"><span class="comment"># Python 类比：DOM 就像一个可被程序操作的嵌套对象树</span>
+
+document = {
+    "html": {
+        "head": { "title": <span class="str">"我的网页"</span> },
+        "body": {
+            "h1":     { "text": <span class="str">"Hello, World!"</span> },
+            "p":      { "text": <span class="str">"这是一段正文。"</span> },
+            "button": { "text": <span class="str">"点我"</span> }
+        }
+    }
+}
+
+<span class="comment"># JavaScript 可以像 Python 操作字典一样操作这棵树：</span>
+<span class="comment"># document.querySelector("h1").textContent = "内容已更新！"</span></div>
+    </div>
+  </div>
+
+  <div class="callout">
+    <p>⚠️ HTML 的嵌套必须正确闭合，就像 Python 的缩进必须对齐。&lt;div&gt;里面开了&lt;p&gt;，就必须先关&lt;/p&gt;再关&lt;/div&gt;，顺序不能乱——否则浏览器会尽力"猜"你的意图，但结果往往出乎意料。</p>
+  </div>
+
+  <!-- Section 3 -->
+  <p class="section-label" id="s3">CSS</p>
+  <h2 class="section-heading">CSS：给 DOM 节点批量打补丁的规则引擎</h2>
+
+  <p class="body-text">光有 HTML，页面是这样的：黑字白底，Times New Roman 字体，没有任何布局——看起来像 1993 年的网页。CSS 负责给这些裸结构穿上"皮肤"。</p>
+
+  <p class="body-text">CSS 的工作原理是：<strong>选择器 + 属性声明</strong>。选择器告诉浏览器"选中哪些节点"，属性声明告诉浏览器"对这些节点做什么"。</p>
+
+  <div class="diagram">
+    <div class="diagram-header">
+      <span class="diagram-dot"></span>
+      <span class="diagram-label">CSS 语法结构</span>
+    </div>
+    <div class="diagram-body">
+      <div class="code-block" style="margin:0;"><span class="comment">/* CSS 基本语法 */</span>
+<span class="blue">选择器</span> {
+  <span class="hl">属性名</span>: <span class="str">属性值</span>;
+  <span class="hl">属性名</span>: <span class="str">属性值</span>;
+}
+
+<span class="comment">/* 实际例子 */</span>
+<span class="blue">h1</span> {                        <span class="comment">/* 选中所有 &lt;h1&gt; 标签 */</span>
+  <span class="hl">color</span>: <span class="str">#C4622A</span>;           <span class="comment">/* 字体颜色 */</span>
+  <span class="hl">font-size</span>: <span class="str">32px</span>;          <span class="comment">/* 字号 */</span>
+  <span class="hl">font-weight</span>: <span class="str">700</span>;         <span class="comment">/* 字重（粗细） */</span>
+}
+
+<span class="blue">.card</span> {                    <span class="comment">/* 选中所有 class="card" 的元素 */</span>
+  <span class="hl">background</span>: <span class="str">#FFFFFF</span>;
+  <span class="hl">border-radius</span>: <span class="str">8px</span>;
+  <span class="hl">padding</span>: <span class="str">16px</span>;
+}
+
+<span class="blue">#submit-btn</span> {             <span class="comment">/* 选中 id="submit-btn" 的唯一元素 */</span>
+  <span class="hl">background</span>: <span class="str">#C4622A</span>;
+  <span class="hl">color</span>: <span class="str">white</span>;
+}</div>
+    </div>
+  </div>
+
+  <p class="body-text">CSS 的选择器体系是初学者最容易卡壳的地方。用 Python 类比：选择器就像一个 <strong>filter 函数</strong>，它从整棵 DOM 树里筛选出符合条件的节点集合。</p>
+
+  <div class="diagram">
+    <div class="diagram-header">
+      <span class="diagram-dot"></span>
+      <span class="diagram-label">三种核心选择器</span>
+    </div>
+    <div class="diagram-body">
+      <div class="reasons-grid">
+        <div class="reason-item">
+          <span class="reason-icon">🏷️</span>
+          <p class="reason-title">标签选择器 <code style="font-size:11px;font-family:var(--mono)">h1 { }</code></p>
+          <p class="reason-desc">选中所有该类型标签。类比 Python：<code style="font-size:11px;font-family:var(--mono)">filter(lambda x: type(x)==H1, all_nodes)</code>。影响最广，优先级最低。</p>
+        </div>
+        <div class="reason-item">
+          <span class="reason-icon">🗂️</span>
+          <p class="reason-title">class 选择器 <code style="font-size:11px;font-family:var(--mono)">.card { }</code></p>
+          <p class="reason-desc">选中所有带此 class 的元素。一个元素可以有多个 class，就像 Python 对象可以有多个标签。最常用。</p>
+        </div>
+        <div class="reason-item">
+          <span class="reason-icon">🆔</span>
+          <p class="reason-title">ID 选择器 <code style="font-size:11px;font-family:var(--mono)">#nav { }</code></p>
+          <p class="reason-desc">选中唯一 ID 的元素。类比 Python dict 里通过唯一 key 查值。页面内 ID 不可重复，优先级最高。</p>
+        </div>
+        <div class="reason-item">
+          <span class="reason-icon">🔗</span>
+          <p class="reason-title">组合选择器 <code style="font-size:11px;font-family:var(--mono)">.card p { }</code></p>
+          <p class="reason-desc">选中 .card 内部的所有 &lt;p&gt;。类比嵌套 filter。CSS 的大部分精妙都在组合选择器上。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pull-quote">
+    CSS 的核心直觉：<br>你不是在"画"页面，而是在为 DOM 节点声明规则。浏览器负责执行。
+  </div>
+
+  <!-- Section 4 -->
+  <p class="section-label" id="s4">JavaScript</p>
+  <h2 class="section-heading">JavaScript：运行在浏览器里的 Python</h2>
+
+  <p class="body-text">JavaScript（简称 JS）是真正的编程语言——它有变量、函数、循环、条件，甚至面向对象和异步。如果说 HTML 是静态数据结构，JS 就是操控这个数据结构的程序。</p>
+
+  <p class="body-text">对 Python 程序员来说，JS 最大的学习曲线不是语法（两者非常相似），而是<strong>事件驱动的编程范式</strong>——你不主动调用函数，而是注册回调，等浏览器"有事发生"时自动触发。</p>
+
+  <div class="diagram">
+    <div class="diagram-header">
+      <span class="diagram-dot"></span>
+      <span class="diagram-label">Python vs JavaScript 语法速查</span>
+    </div>
+    <div class="diagram-body">
+      <div class="code-block" style="margin:0;"><span class="comment"># Python                          // JavaScript</span>
+
+x = 10                           <span class="comment">// let x = 10;  或  const x = 10;</span>
+
+<span class="kw">def</span> greet(name):                 <span class="comment">// function greet(name) {</span>
+    <span class="kw">return</span> <span class="str">f"Hello, {name}"</span>       <span class="comment">//     return `Hello, ${name}`;</span>
+                                 <span class="comment">// }</span>
+
+<span class="kw">for</span> i <span class="kw">in</span> range(3):              <span class="comment">// for (let i = 0; i &lt; 3; i++) {</span>
+    print(i)                     <span class="comment">//     console.log(i);</span>
+                                 <span class="comment">// }</span>
+
+<span class="kw">if</span> x > 5:                       <span class="comment">// if (x > 5) {</span>
+    print(<span class="str">"big"</span>)                <span class="comment">//     console.log("big");</span>
+                                 <span class="comment">// }</span>
+
+nums = [1, 2, 3]                 <span class="comment">// const nums = [1, 2, 3];</span>
+info = {<span class="str">"name"</span>: <span class="str">"Alice"</span>}        <span class="comment">// const info = { name: "Alice" };</span></div>
+    </div>
+  </div>
+
+  <p class="body-text">JS 最关键的能力是<strong>操控 DOM</strong>——读取或修改 HTML 元素的内容、样式、属性。这就是网页"动起来"的秘密：</p>
+
+  <div class="diagram">
+    <div class="diagram-header">
+      <span class="diagram-dot"></span>
+      <span class="diagram-label">JavaScript 操控 DOM：让页面动起来</span>
+    </div>
+    <div class="diagram-body">
+      <div class="code-block" style="margin:0 0 14px 0;"><span class="comment">// 1. 选中 DOM 节点（类比 Python 里从 dict 取值）</span>
+<span class="kw">const</span> btn = document.<span class="blue">querySelector</span>(<span class="str">"button"</span>);
+<span class="kw">const</span> title = document.<span class="blue">querySelector</span>(<span class="str">"#main-title"</span>);
+
+<span class="comment">// 2. 读取 / 修改内容</span>
+console.<span class="blue">log</span>(title.textContent);        <span class="comment">// 读取文字（类比 print）</span>
+title.textContent = <span class="str">"标题已更新！"</span>;     <span class="comment">// 修改文字</span>
+title.style.color = <span class="str">"#C4622A"</span>;        <span class="comment">// 修改 CSS 样式</span>
+
+<span class="comment">// 3. 事件监听（类比注册回调函数，等"事情发生"时自动执行）</span>
+btn.<span class="blue">addEventListener</span>(<span class="str">"click"</span>, <span class="kw">function</span>() {
+    title.textContent = <span class="str">"按钮被点击了！"</span>;
+});
+
+<span class="comment">// Python 类比：</span>
+<span class="comment"># btn.on_click = lambda: setattr(title, 'text', '按钮被点击了！')</span></div>
+      <div class="callout info" style="margin:0;">
+        <p>事件驱动是前端的核心范式：你不控制"什么时候"运行，而是告诉浏览器"发生 X 事件时，执行 Y 函数"。常见事件：click（点击）、input（输入）、scroll（滚动）、load（页面加载完毕）。</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 5 -->
+  <p class="section-label" id="s5">运行机制</p>
+  <h2 class="section-heading">从 URL 到像素：浏览器的完整流水线</h2>
+
+  <p class="body-text">你在地址栏输入一个 URL，按下回车，到页面显示出来，浏览器在幕后执行了一条流水线。理解这条流水线，是进阶前端的必修课。</p>
+
+  <div class="diagram">
+    <div class="diagram-header">
+      <span class="diagram-dot"></span>
+      <span class="diagram-label">浏览器渲染流水线（Critical Rendering Path）</span>
+    </div>
+    <div class="diagram-body">
+      <div class="flow-chain">
+        <div class="flow-step">① 请求<span>DNS 解析 + HTTP 下载 HTML 文件</span></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step accent">② 解析 HTML<span>建立 DOM 树</span></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step info">③ 解析 CSS<span>建立 CSSOM 树</span></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">④ 合并<span>DOM + CSSOM = Render Tree</span></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">⑤ 绘制<span>计算布局，像素上屏</span></div>
+      </div>
+      <p class="card-desc">JavaScript 可以在任意阶段打断流水线并修改 DOM/CSSOM，这就是为什么大量 JS 操作会让页面卡顿——每次修改都可能触发重新布局（Reflow）和重绘（Repaint）。</p>
+    </div>
+  </div>
+
+  <p class="body-text">一个容易忽视的细节：浏览器在解析 HTML 时遇到 <code style="font-family:var(--mono);font-size:13px;background:var(--bg-code);padding:1px 5px;border-radius:3px;">&lt;script&gt;</code> 标签，会<strong>暂停 HTML 解析</strong>，先去下载并执行 JS。这就是为什么传统做法把 <code style="font-family:var(--mono);font-size:13px;background:var(--bg-code);padding:1px 5px;border-radius:3px;">&lt;script&gt;</code> 放在 <code style="font-family:var(--mono);font-size:13px;background:var(--bg-code);padding:1px 5px;border-radius:3px;">&lt;/body&gt;</code> 之前，而不是 <code style="font-family:var(--mono);font-size:13px;background:var(--bg-code);padding:1px 5px;border-radius:3px;">&lt;head&gt;</code> 里。</p>
+
+  <div class="diagram">
+    <div class="diagram-header">
+      <span class="diagram-dot"></span>
+      <span class="diagram-label">三个文件的协作方式</span>
+    </div>
+    <div class="diagram-body">
+      <div class="code-block" style="margin:0;"><span class="comment">&lt;!-- index.html：把三者组合在一起 --&gt;</span>
+&lt;!DOCTYPE html&gt;
+&lt;<span class="hl">html</span>&gt;
+  &lt;<span class="hl">head</span>&gt;
+    &lt;title&gt;<span class="str">我的项目</span>&lt;/title&gt;
+    &lt;<span class="blue">link</span> rel="stylesheet" href=<span class="str">"style.css"</span>&gt;  <span class="comment">&lt;!-- 引入 CSS --&gt;</span>
+  &lt;/<span class="hl">head</span>&gt;
+  &lt;<span class="hl">body</span>&gt;
+    &lt;<span class="blue">h1</span> id="title"&gt;<span class="str">Hello!</span>&lt;/<span class="blue">h1</span>&gt;
+    &lt;<span class="blue">button</span> id="btn"&gt;<span class="str">点我变色</span>&lt;/<span class="blue">button</span>&gt;
+
+    &lt;<span class="blue">script</span> src=<span class="str">"app.js"</span>&gt;&lt;/<span class="blue">script</span>&gt;    <span class="comment">&lt;!-- 引入 JS，放最后 --&gt;</span>
+  &lt;/<span class="hl">body</span>&gt;
+&lt;/<span class="hl">html</span>&gt;</div>
+    </div>
+  </div>
+
+  <!-- Section 6 -->
+  <p class="section-label" id="s6">实战</p>
+  <h2 class="section-heading">五分钟跑起来：你的第一个交互页面</h2>
+
+  <p class="body-text">理论够了，现在动手。新建一个文件夹，创建三个文件，把以下代码分别粘进去，用浏览器打开 <code style="font-family:var(--mono);font-size:13px;background:var(--bg-code);padding:1px 5px;border-radius:3px;">index.html</code>，你会得到一个有样式、有交互的完整小页面。</p>
+
+  <div class="diagram">
+    <div class="diagram-header">
+      <span class="diagram-dot"></span>
+      <span class="diagram-label">index.html</span>
+    </div>
+    <div class="diagram-body">
+      <div class="code-block" style="margin:0;">&lt;!DOCTYPE html&gt;
+&lt;<span class="hl">html</span> lang="zh-CN"&gt;
+&lt;<span class="hl">head</span>&gt;
+  &lt;meta charset="UTF-8"&gt;
+  &lt;title&gt;<span class="str">计数器</span>&lt;/title&gt;
+  &lt;<span class="blue">link</span> rel="stylesheet" href=<span class="str">"style.css"</span>&gt;
+&lt;/<span class="hl">head</span>&gt;
+&lt;<span class="hl">body</span>&gt;
+  &lt;<span class="blue">div</span> class="card"&gt;
+    &lt;<span class="blue">h1</span>&gt;<span class="str">点击计数器</span>&lt;/<span class="blue">h1</span>&gt;
+    &lt;<span class="blue">p</span> id="count"&gt;<span class="str">0</span>&lt;/<span class="blue">p</span>&gt;
+    &lt;<span class="blue">button</span> id="btn"&gt;<span class="str">+ 点我</span>&lt;/<span class="blue">button</span>&gt;
+  &lt;/<span class="blue">div</span>&gt;
+  &lt;<span class="blue">script</span> src=<span class="str">"app.js"</span>&gt;&lt;/<span class="blue">script</span>&gt;
+&lt;/<span class="hl">body</span>&gt;
+&lt;/<span class="hl">html</span>&gt;</div>
+    </div>
+  </div>
+
+  <div class="diagram">
+    <div class="diagram-header">
+      <span class="diagram-dot"></span>
+      <span class="diagram-label">style.css</span>
+    </div>
+    <div class="diagram-body">
+      <div class="code-block" style="margin:0;"><span class="blue">body</span> {
+  <span class="hl">display</span>: <span class="str">flex</span>;
+  <span class="hl">justify-content</span>: <span class="str">center</span>;
+  <span class="hl">align-items</span>: <span class="str">center</span>;
+  <span class="hl">min-height</span>: <span class="str">100vh</span>;
+  <span class="hl">background</span>: <span class="str">#F7F5F0</span>;
+  <span class="hl">font-family</span>: <span class="str">sans-serif</span>;
+}
+
+<span class="blue">.card</span> {
+  <span class="hl">background</span>: <span class="str">white</span>;
+  <span class="hl">border-radius</span>: <span class="str">12px</span>;
+  <span class="hl">padding</span>: <span class="str">40px</span>;
+  <span class="hl">text-align</span>: <span class="str">center</span>;
+  <span class="hl">box-shadow</span>: <span class="str">0 4px 20px rgba(0,0,0,0.08)</span>;
+}
+
+<span class="blue">#count</span> {
+  <span class="hl">font-size</span>: <span class="str">64px</span>;
+  <span class="hl">font-weight</span>: <span class="str">700</span>;
+  <span class="hl">color</span>: <span class="str">#C4622A</span>;
+  <span class="hl">margin</span>: <span class="str">16px 0</span>;
+}
+
+<span class="blue">button</span> {
+  <span class="hl">background</span>: <span class="str">#C4622A</span>;
+  <span class="hl">color</span>: <span class="str">white</span>;
+  <span class="hl">border</span>: <span class="str">none</span>;
+  <span class="hl">padding</span>: <span class="str">12px 32px</span>;
+  <span class="hl">border-radius</span>: <span class="str">8px</span>;
+  <span class="hl">font-size</span>: <span class="str">16px</span>;
+  <span class="hl">cursor</span>: <span class="str">pointer</span>;
+}</div>
+    </div>
+  </div>
+
+  <div class="diagram">
+    <div class="diagram-header">
+      <span class="diagram-dot"></span>
+      <span class="diagram-label">app.js</span>
+    </div>
+    <div class="diagram-body">
+      <div class="code-block" style="margin:0;"><span class="comment">// 1. 选中 DOM 节点</span>
+<span class="kw">const</span> btn = document.<span class="blue">querySelector</span>(<span class="str">"#btn"</span>);
+<span class="kw">const</span> countEl = document.<span class="blue">querySelector</span>(<span class="str">"#count"</span>);
+
+<span class="comment">// 2. 定义状态（类比 Python 变量）</span>
+<span class="kw">let</span> count = 0;
+
+<span class="comment">// 3. 注册事件监听（类比 Python 回调）</span>
+btn.<span class="blue">addEventListener</span>(<span class="str">"click"</span>, <span class="kw">function</span>() {
+    count += 1;                           <span class="comment">// 更新状态</span>
+    countEl.textContent = count;          <span class="comment">// 更新 DOM</span>
+});
+
+<span class="comment">/*
+Python 思维对比：
+count = 0
+def on_click():
+    global count
+    count += 1
+    update_display(count)
+btn.bind("&lt;Button-1&gt;", on_click)   # tkinter 风格
+*/</span></div>
+    </div>
+  </div>
+
+  <div class="callout success">
+    <p>这就是前端最小闭环：HTML 定义结构 → CSS 定义样式 → JS 监听事件、修改状态、更新 DOM。无论多复杂的现代框架（React、Vue），本质都是这个循环的自动化升级版。</p>
+  </div>
+
+  <!-- Section 7 -->
+  <p class="section-label" id="s7">下一步</p>
+  <h2 class="section-heading">学完这篇之后，往哪走？</h2>
+
+  <p class="body-text">这篇文章覆盖了前端最核心的底层模型。真正的旅程从这里才开始。以下是一个渐进路径：</p>
+
+  <div class="diagram">
+    <div class="diagram-header">
+      <span class="diagram-dot"></span>
+      <span class="diagram-label">前端学习路径（从入门到工程化）</span>
+    </div>
+    <div class="diagram-body">
+      <table class="tradeoff-table">
+        <thead>
+          <tr>
+            <th>阶段</th>
+            <th>重点内容</th>
+            <th>Python 类比</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>① 本篇基础</td>
+            <td>HTML / CSS / JS 基础语法、DOM 操作、事件</td>
+            <td>—— 当前位置</td>
+          </tr>
+          <tr>
+            <td>② 异步编程</td>
+            <td>fetch API、Promise、async/await、调用后端接口</td>
+            <td>类比 Python 的 <code style="font-family:var(--mono);font-size:11px;">asyncio</code> / <code style="font-family:var(--mono);font-size:11px;">requests</code></td>
+          </tr>
+          <tr>
+            <td>③ CSS 布局</td>
+            <td>Flexbox、Grid、响应式设计（手机适配）</td>
+            <td>类比 tkinter 的 pack / grid 布局</td>
+          </tr>
+          <tr>
+            <td>④ 现代框架</td>
+            <td>React 或 Vue——组件化、状态管理、虚拟 DOM</td>
+            <td>类比 Python 的类与模块化</td>
+          </tr>
+          <tr>
+            <td>⑤ 工程化</td>
+            <td>npm、Webpack/Vite、TypeScript、版本管理</td>
+            <td>类比 pip、pyproject.toml、类型注解</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="callout info">
+    <p>工具建议：用 VS Code + Live Server 插件，保存文件时浏览器自动刷新，开发体验接近 Jupyter Notebook 的即时反馈。打开 DevTools（F12）是每个前端开发者必备的技能——它就是浏览器里的 Python 调试器。</p>
+  </div>
+
+  <div class="tag-row">
+    <a class="tag" href="#">HTML</a>
+    <a class="tag" href="#">CSS</a>
+    <a class="tag" href="#">JavaScript</a>
+    <a class="tag" href="#">DOM</a>
+    <a class="tag" href="#">前端入门</a>
+    <a class="tag" href="#">Python 类比</a>
+    <a class="tag" href="#">浏览器渲染</a>
+  </div>
+
+</article>
+
+<aside class="sidebar">
+  <p class="toc-label">目录</p>
+  <ul class="toc-list">
+    <li><a href="#s1" class="toc-link">浏览器与三层结构</a></li>
+    <li><a href="#s2" class="toc-link">HTML：标记与 DOM</a></li>
+    <li><a href="#s3" class="toc-link">CSS：选择器与样式</a></li>
+    <li><a href="#s4" class="toc-link">JavaScript：事件驱动</a></li>
+    <li><a href="#s5" class="toc-link">浏览器渲染流水线</a></li>
+    <li><a href="#s6" class="toc-link">实战：计数器</a></li>
+    <li><a href="#s7" class="toc-link">下一步路径</a></li>
+  </ul>
+</aside>
+</div>
+
+<footer class="site-footer">
+  <a href="../index.html" style="color:inherit;text-decoration:none;display:flex;align-items:center;gap:6px;">← 返回首页</a>
+  <span>聚合叉的博客</span>
+</footer>
+
+<script>
+  // Active TOC highlight on scroll
+  (function () {
+    const sections = ['s1','s2','s3','s4','s5','s6','s7'];
+    const links = document.querySelectorAll('.toc-link');
+
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          links.forEach(l => l.classList.remove('active'));
+          const active = document.querySelector(`.toc-link[href="#${entry.target.id}"]`);
+          if (active) active.classList.add('active');
+        }
+      });
+    }, { rootMargin: '-30% 0px -60% 0px' });
+
+    sections.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) observer.observe(el);
+    });
+  })();
+</script>
+</body>
+</html>
