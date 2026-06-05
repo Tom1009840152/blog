@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>前端工程师的专业语言 · 职场术语系列第四篇</title>
+<title>项目经理的专业语言 · 职场术语系列第四篇</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/@mdi/font@7.4.47/css/materialdesignicons.min.css" rel="stylesheet">
@@ -26,9 +26,8 @@
     --danger-light: #FAECE7;
     --success: #0F6E56;
     --success-light: #E1F5EE;
-    --fe: #1565C0;
-    --fe-light: #E3F0FF;
-    --fe-mid: #4A90D9;
+    --purple: #6B3FA0;
+    --purple-light: #F0EBF8;
     --border: rgba(60,50,40,0.1);
     --border-strong: rgba(60,50,40,0.2);
     --serif: 'Noto Serif SC', Georgia, serif;
@@ -37,20 +36,35 @@
   }
 
   html { scroll-behavior: smooth; }
-  body { background: var(--bg); color: var(--text-primary); font-family: var(--sans); font-weight: 400; line-height: 1.85; min-height: 100vh; }
+  body {
+    background: var(--bg);
+    color: var(--text-primary);
+    font-family: var(--sans);
+    font-weight: 400;
+    line-height: 1.85;
+    min-height: 100vh;
+  }
 
   /* ── Header ── */
-  .site-header { border-bottom: 0.5px solid var(--border); padding: 18px 0; position: sticky; top: 0; background: rgba(247,245,240,0.9); backdrop-filter: blur(12px); z-index: 100; }
-  .header-inner { max-width: 1020px; margin: 0 auto; padding: 0 32px; display: flex; align-items: center; justify-content: space-between; }
+  .site-header {
+    border-bottom: 0.5px solid var(--border);
+    padding: 18px 0; position: sticky; top: 0;
+    background: rgba(247,245,240,0.9);
+    backdrop-filter: blur(12px); z-index: 100;
+  }
+  .header-inner {
+    max-width: 1020px; margin: 0 auto; padding: 0 32px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
   .site-name { font-family: var(--serif); font-size: 15px; font-weight: 600; color: var(--text-primary); letter-spacing: 0.02em; }
   .header-tag { font-size: 11px; color: var(--text-tertiary); letter-spacing: 0.15em; text-transform: uppercase; font-weight: 400; }
 
   /* ── Hero ── */
   .hero { max-width: 1020px; margin: 0 auto; padding: 72px 32px 48px; border-bottom: 0.5px solid var(--border); }
-  .kicker { font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--fe); font-weight: 500; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
-  .kicker::after { content: ''; display: block; height: 1px; width: 40px; background: var(--fe-mid); opacity: 0.5; }
+  .kicker { font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent); font-weight: 500; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+  .kicker::after { content: ''; display: block; height: 1px; width: 40px; background: var(--accent-mid); opacity: 0.5; }
   .headline { font-family: var(--serif); font-size: 42px; font-weight: 700; line-height: 1.25; color: var(--text-primary); margin-bottom: 20px; letter-spacing: -0.01em; }
-  .headline em { font-style: normal; color: var(--fe); }
+  .headline em { font-style: normal; color: var(--accent); }
   .deck { font-size: 16px; color: var(--text-secondary); font-weight: 400; line-height: 1.75; max-width: 560px; margin-bottom: 32px; }
   .meta-row { display: flex; align-items: center; gap: 20px; font-size: 12px; color: var(--text-tertiary); flex-wrap: wrap; }
   .meta-row span { display: flex; align-items: center; gap: 5px; }
@@ -65,17 +79,17 @@
   .toc-list { list-style: none; border-left: 1px solid var(--border-strong); padding-left: 14px; margin-bottom: 32px; }
   .toc-list li { margin-bottom: 8px; }
   .toc-list a { font-size: 12px; color: var(--text-tertiary); text-decoration: none; font-weight: 400; line-height: 1.5; transition: color 0.2s; display: block; }
-  .toc-list a:hover { color: var(--fe); }
-  .toc-list a.active { color: var(--fe); font-weight: 500; }
+  .toc-list a:hover { color: var(--accent); }
+  .toc-list a.active { color: var(--accent); font-weight: 500; }
 
   .series-nav { border: 0.5px solid var(--border-strong); border-radius: 10px; overflow: hidden; background: var(--bg-card); }
   .series-nav-label { font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-tertiary); font-weight: 500; padding: 12px 14px 10px; border-bottom: 0.5px solid var(--border); }
   .series-nav-item { display: block; padding: 10px 14px; font-size: 12px; color: var(--text-secondary); text-decoration: none; border-bottom: 0.5px solid var(--border); line-height: 1.55; transition: background 0.15s; }
   .series-nav-item:last-child { border-bottom: none; }
-  .series-nav-item:hover { background: var(--fe-light); color: var(--fe); }
-  .series-nav-item.current { background: var(--fe-light); color: var(--fe); font-weight: 500; }
+  .series-nav-item:hover { background: var(--accent-light); color: var(--accent); }
+  .series-nav-item.current { background: var(--purple-light); color: var(--purple); font-weight: 500; }
   .series-nav-item .ep { display: block; font-size: 10px; color: var(--text-tertiary); margin-bottom: 2px; letter-spacing: 0.08em; }
-  .series-nav-item.current .ep { color: var(--fe); opacity: 0.7; }
+  .series-nav-item.current .ep { color: var(--purple); opacity: 0.7; }
 
   /* ── Typography ── */
   .section-label { font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--text-tertiary); font-weight: 500; margin: 52px 0 10px; }
@@ -84,89 +98,135 @@
   .body-text strong { font-weight: 500; }
 
   /* ── Pull quote ── */
-  .pull-quote { font-family: var(--serif); font-size: 20px; font-weight: 600; color: var(--text-primary); line-height: 1.6; padding: 32px 0; margin: 36px 0; border-top: 1.5px solid var(--fe); border-bottom: 0.5px solid var(--border); position: relative; }
-  .pull-quote::before { content: '\201C'; font-family: var(--serif); font-size: 72px; color: var(--fe); opacity: 0.12; position: absolute; top: 10px; left: -8px; line-height: 1; }
+  .pull-quote { font-family: var(--serif); font-size: 20px; font-weight: 600; color: var(--text-primary); line-height: 1.6; padding: 32px 0; margin: 36px 0; border-top: 1.5px solid var(--accent); border-bottom: 0.5px solid var(--border); position: relative; }
+  .pull-quote::before { content: '\201C'; font-family: var(--serif); font-size: 72px; color: var(--accent); opacity: 0.15; position: absolute; top: 10px; left: -8px; line-height: 1; }
 
   /* ── Callout ── */
   .callout { border-left: 2px solid var(--accent); padding: 16px 20px; background: var(--accent-light); border-radius: 0 8px 8px 0; margin: 28px 0; }
   .callout p { font-size: 14px; color: var(--danger); font-weight: 400; line-height: 1.75; margin: 0; }
-  .callout.info { border-color: var(--fe); background: var(--fe-light); }
-  .callout.info p { color: var(--fe); }
+  .callout.info { border-color: var(--info); background: var(--info-light); }
+  .callout.info p { color: var(--info); }
   .callout.success { border-color: var(--success); background: var(--success-light); }
   .callout.success p { color: var(--success); }
+  .callout.purple { border-color: var(--purple); background: var(--purple-light); }
+  .callout.purple p { color: var(--purple); }
 
   /* ── Diagram ── */
   .diagram { border: 0.5px solid var(--border-strong); border-radius: 12px; overflow: hidden; margin: 28px 0; background: var(--bg-card); }
   .diagram-header { padding: 12px 18px; border-bottom: 0.5px solid var(--border); display: flex; align-items: center; gap: 8px; }
-  .diagram-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--fe); flex-shrink: 0; }
   .diagram-label { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-tertiary); font-weight: 500; }
+  .diagram-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
   .diagram-body { padding: 20px 18px; }
 
   /* ── Term card ── */
   .term-list { display: flex; flex-direction: column; }
   .term-card { padding: 18px 0; border-bottom: 0.5px solid var(--border); display: grid; grid-template-columns: 140px 1fr; gap: 0 24px; align-items: start; }
   .term-card:last-child { border-bottom: none; }
-  .term-name { font-family: var(--mono); font-size: 13px; font-weight: 500; color: var(--fe); padding-top: 3px; line-height: 1.5; }
-  .term-name .term-en { display: block; font-size: 10px; color: var(--text-tertiary); font-weight: 400; margin-top: 3px; letter-spacing: 0.03em; }
+  .term-name { font-family: var(--mono); font-size: 13px; font-weight: 500; color: var(--purple); padding-top: 3px; line-height: 1.5; }
+  .term-name .term-en { display: block; font-size: 10px; color: var(--text-tertiary); font-weight: 400; margin-top: 3px; font-family: var(--mono); letter-spacing: 0.03em; }
   .term-def { font-size: 14px; color: var(--text-primary); font-weight: 500; margin-bottom: 8px; line-height: 1.65; }
   .term-scene { font-size: 13px; color: var(--text-secondary); line-height: 1.75; padding: 10px 14px; background: var(--bg); border-radius: 6px; border-left: 2px solid var(--border-strong); font-style: italic; }
-  .term-scene strong { font-style: normal; font-weight: 500; color: var(--fe); }
+  .term-scene strong { font-style: normal; font-weight: 500; color: var(--purple); }
 
-  /* ── Code block ── */
-  .code-block { background: var(--bg-code); border: 0.5px solid var(--border); border-radius: 8px; padding: 14px 16px; font-family: var(--mono); font-size: 12px; line-height: 1.8; color: var(--text-primary); overflow-x: auto; margin: 12px 0; }
-  .code-block .cm { color: var(--text-tertiary); }
-  .code-block .kw { color: var(--fe); font-weight: 500; }
-  .code-block .fn { color: var(--success); }
-  .code-block .str { color: var(--accent); }
-  .code-block .tag { color: var(--danger); }
-  .code-block .attr { color: var(--fe); }
-  .code-block .val { color: var(--accent); }
+  /* ── Gantt chart ── */
+  .gantt { display: flex; flex-direction: column; gap: 8px; }
+  .gantt-row { display: grid; grid-template-columns: 90px 1fr; gap: 0 12px; align-items: center; }
+  .gantt-label { font-size: 11px; color: var(--text-secondary); font-weight: 500; text-align: right; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .gantt-track { position: relative; height: 26px; background: var(--bg-code); border-radius: 4px; overflow: visible; }
+  .gantt-bar {
+    position: absolute; top: 3px; height: 20px;
+    border-radius: 3px; display: flex; align-items: center;
+    padding: 0 8px; font-size: 10px; font-weight: 500;
+    white-space: nowrap; overflow: hidden;
+    transition: opacity 0.2s;
+  }
+  .gantt-bar:hover { opacity: 0.85; }
+  .gantt-milestone {
+    position: absolute; top: 50%; transform: translateY(-50%);
+    width: 12px; height: 12px;
+    background: var(--accent); border: 2px solid white;
+    border-radius: 2px; rotate: 45deg;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  }
+  .gantt-header { display: grid; grid-template-columns: 90px 1fr; gap: 0 12px; margin-bottom: 4px; }
+  .gantt-days { display: flex; font-size: 9px; color: var(--text-tertiary); font-family: var(--mono); letter-spacing: 0.05em; }
+  .gantt-day { flex: 1; text-align: center; }
+  .gantt-day.today { color: var(--accent); font-weight: 600; }
 
-  /* ── Browser mock ── */
-  .browser-mock { background: var(--bg-card); border: 0.5px solid var(--border-strong); border-radius: 10px; overflow: hidden; margin: 14px 0; }
-  .browser-bar { background: var(--bg-code); padding: 8px 12px; border-bottom: 0.5px solid var(--border); display: flex; align-items: center; gap: 8px; }
-  .browser-dots { display: flex; gap: 5px; }
-  .browser-dot { width: 9px; height: 9px; border-radius: 50%; }
-  .browser-url { flex: 1; background: var(--bg-card); border-radius: 4px; padding: 4px 10px; font-family: var(--mono); font-size: 10px; color: var(--text-tertiary); border: 0.5px solid var(--border); }
-  .browser-body { padding: 16px; }
+  /* ── WBS tree ── */
+  .wbs { font-size: 13px; }
+  .wbs-item { display: flex; align-items: flex-start; gap: 0; }
+  .wbs-lines { display: flex; flex-direction: column; align-items: center; width: 20px; flex-shrink: 0; }
+  .wbs-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
+  .wbs-vert { width: 1.5px; background: var(--border-strong); flex: 1; min-height: 12px; }
+  .wbs-row { display: flex; gap: 8px; align-items: flex-start; padding: 6px 0; flex: 1; }
+  .wbs-label { color: var(--text-primary); line-height: 1.5; }
+  .wbs-label.l1 { font-weight: 600; font-family: var(--serif); font-size: 14px; }
+  .wbs-label.l2 { font-weight: 500; color: var(--text-secondary); }
+  .wbs-label.l3 { color: var(--text-tertiary); font-size: 12px; }
+  .wbs-indent { padding-left: 20px; border-left: 1.5px solid var(--border-strong); margin-left: 10px; }
+  .wbs-block { margin-bottom: 4px; }
 
-  /* ── Layer diagram ── */
-  .layers { display: flex; flex-direction: column; gap: 4px; }
-  .layer { border-radius: 7px; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; }
-  .layer-name { font-size: 13px; font-weight: 600; }
-  .layer-desc { font-size: 11px; opacity: 0.8; }
-  .layer-badge { font-size: 10px; padding: 2px 8px; border-radius: 4px; font-weight: 500; background: rgba(255,255,255,0.3); }
+  /* ── RACI table ── */
+  .raci-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .raci-table th { text-align: center; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-tertiary); font-weight: 500; padding: 8px 10px; border-bottom: 1px solid var(--border-strong); }
+  .raci-table th:first-child { text-align: left; }
+  .raci-table td { padding: 10px 10px; border-bottom: 0.5px solid var(--border); text-align: center; color: var(--text-secondary); vertical-align: middle; }
+  .raci-table td:first-child { text-align: left; font-weight: 500; color: var(--text-primary); font-size: 12px; }
+  .raci-table tr:last-child td { border-bottom: none; }
+  .raci-pill {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 28px; height: 28px; border-radius: 6px;
+    font-size: 11px; font-weight: 700; font-family: var(--mono);
+  }
+  .raci-R { background: var(--purple-light); color: var(--purple); }
+  .raci-A { background: var(--accent-light); color: var(--accent); }
+  .raci-C { background: var(--info-light); color: var(--info); }
+  .raci-I { background: var(--bg-code); color: var(--text-tertiary); }
+  .raci-legend { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 12px; }
+  .raci-legend-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text-secondary); }
 
-  /* ── Perf metrics ── */
-  .perf-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin: 12px 0; }
-  .perf-card { background: var(--bg); border: 0.5px solid var(--border); border-radius: 8px; padding: 14px; }
-  .perf-abbr { font-family: var(--mono); font-size: 14px; font-weight: 700; color: var(--fe); margin-bottom: 3px; }
-  .perf-name { font-size: 10px; color: var(--text-tertiary); font-weight: 500; margin-bottom: 6px; letter-spacing: 0.04em; }
-  .perf-desc { font-size: 11px; color: var(--text-secondary); line-height: 1.6; }
-  .perf-score { font-size: 11px; margin-top: 8px; padding-top: 8px; border-top: 0.5px solid var(--border); }
-  .score-good { color: var(--success); font-weight: 500; }
-  .score-mid { color: var(--accent); font-weight: 500; }
-  .score-bad { color: var(--danger); font-weight: 500; }
+  /* ── Risk matrix ── */
+  .risk-matrix { display: grid; grid-template-columns: 28px 1fr 1fr 1fr; grid-template-rows: 1fr 1fr 1fr 28px; gap: 4px; width: 100%; aspect-ratio: 4/3.2; max-width: 360px; }
+  .risk-cell {
+    border-radius: 6px; display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 500; text-align: center; line-height: 1.4; padding: 4px;
+    position: relative; cursor: default;
+  }
+  .risk-cell.low { background: var(--success-light); color: var(--success); }
+  .risk-cell.mid { background: var(--accent-light); color: var(--accent); }
+  .risk-cell.high { background: var(--danger-light); color: var(--danger); }
+  .risk-cell.axis-label { background: transparent; font-size: 9px; color: var(--text-tertiary); font-weight: 500; letter-spacing: 0.06em; writing-mode: vertical-rl; text-orientation: mixed; transform: rotate(180deg); justify-content: center; border-radius: 0; }
+  .risk-cell.axis-bottom { writing-mode: horizontal-tb; transform: none; font-size: 9px; color: var(--text-tertiary); font-weight: 500; letter-spacing: 0.06em; }
+  .risk-dot {
+    position: absolute; width: 10px; height: 10px; border-radius: 50%;
+    background: var(--text-primary); border: 2px solid white;
+    top: 50%; left: 50%; transform: translate(-50%, -50%);
+    font-size: 0;
+  }
+  .risk-list { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+  .risk-item { display: flex; align-items: flex-start; gap: 10px; padding: 10px 12px; border-radius: 7px; border: 0.5px solid var(--border); background: var(--bg); }
+  .risk-badge { font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 4px; white-space: nowrap; flex-shrink: 0; margin-top: 1px; }
+  .risk-badge.high { background: var(--danger-light); color: var(--danger); }
+  .risk-badge.mid { background: var(--accent-light); color: var(--accent); }
+  .risk-badge.low { background: var(--success-light); color: var(--success); }
+  .risk-content .risk-title { font-size: 12px; font-weight: 500; color: var(--text-primary); margin-bottom: 3px; }
+  .risk-content .risk-mitigation { font-size: 11px; color: var(--text-tertiary); line-height: 1.55; }
 
-  /* ── Flow arrow ── */
-  .flow-chain { display: flex; align-items: stretch; flex-wrap: wrap; gap: 4px; margin: 12px 0; }
-  .flow-step { flex: 1; min-width: 80px; background: var(--bg); border: 0.5px solid var(--border); border-radius: 8px; padding: 10px 8px; text-align: center; font-size: 12px; color: var(--text-secondary); line-height: 1.45; }
-  .flow-step.fe { background: var(--fe-light); border-color: rgba(21,101,192,0.2); color: var(--fe); font-weight: 500; }
-  .flow-step span { display: block; font-size: 10px; color: var(--text-tertiary); margin-top: 3px; }
-  .flow-step.fe span { color: rgba(21,101,192,0.6); }
-  .flow-arrow { display: flex; align-items: center; color: var(--text-tertiary); font-size: 13px; padding: 0 4px; flex-shrink: 0; }
-
-  /* ── Responsive compare ── */
-  .resp-demo { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin: 12px 0; }
-  .resp-screen { background: var(--bg); border: 0.5px solid var(--border); border-radius: 8px; overflow: hidden; }
-  .resp-label { font-size: 10px; font-weight: 500; color: var(--text-tertiary); padding: 6px 10px; border-bottom: 0.5px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
-  .resp-body { padding: 10px; }
-  .resp-block { background: var(--fe-light); border-radius: 4px; margin-bottom: 6px; }
+  /* ── Status board ── */
+  .status-cols { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+  .status-col { background: var(--bg); border: 0.5px solid var(--border); border-radius: 8px; overflow: hidden; }
+  .status-col-header { padding: 8px 12px; border-bottom: 0.5px solid var(--border); font-size: 11px; font-weight: 600; display: flex; align-items: center; justify-content: space-between; }
+  .status-col-body { padding: 8px; display: flex; flex-direction: column; gap: 6px; }
+  .status-card { background: var(--bg-card); border: 0.5px solid var(--border-strong); border-radius: 6px; padding: 8px 10px; font-size: 11px; color: var(--text-secondary); line-height: 1.5; }
+  .status-card .sc-title { font-weight: 500; color: var(--text-primary); margin-bottom: 3px; font-size: 12px; }
+  .status-card .sc-meta { font-size: 10px; color: var(--text-tertiary); }
+  .count-pill { font-size: 10px; padding: 1px 7px; border-radius: 10px; font-weight: 600; }
 
   /* ── Tags ── */
   .tag-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 48px; padding-top: 24px; border-top: 0.5px solid var(--border); }
   .tag { font-size: 11px; padding: 4px 12px; border-radius: 20px; border: 0.5px solid var(--border-strong); color: var(--text-secondary); font-weight: 400; text-decoration: none; transition: all 0.2s; }
-  .tag:hover { border-color: var(--fe); color: var(--fe); }
+  .tag:hover { border-color: var(--accent); color: var(--accent); }
 
   /* ── Animations ── */
   @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
@@ -187,8 +247,8 @@
     .header-inner { padding: 0 20px; }
     .site-footer { padding: 28px 20px; }
     .term-card { grid-template-columns: 1fr; gap: 6px; }
-    .perf-grid { grid-template-columns: 1fr 1fr; }
-    .resp-demo { grid-template-columns: 1fr; }
+    .status-cols { grid-template-columns: 1fr; }
+    .raci-table { font-size: 11px; }
   }
 </style>
 </head>
@@ -196,19 +256,19 @@
 
 <header class="site-header">
   <div class="header-inner">
-    <a class="site-name" href="../../index.html" style="text-decoration:none;color:inherit;">聚合叉的博客</a>
+    <a class="site-name" href="../index.html" style="text-decoration:none;color:inherit;">聚合叉的博客</a>
     <span class="header-tag">职场术语 · 进阶篇</span>
   </div>
 </header>
 
 <section class="hero">
   <p class="kicker">进阶篇 · 第四篇</p>
-  <h1 class="headline">前端工程师的<em>专业语言</em></h1>
-  <p class="deck">组件、渲染、响应式、性能优化……前端在意的不只是"好不好看"，而是用户每一次点击背后的体验质量。读懂这些词，你就能和前端说到一块儿去。</p>
+  <h1 class="headline">项目经理的<em>专业语言</em></h1>
+  <p class="deck">甘特图、WBS、RACI、风险矩阵……PMO 开口的每一个词，都是在管理一个复杂系统不失控。读懂它们，你就能看懂项目背后的管理逻辑。</p>
   <div class="meta-row">
     <span>2026-06-05</span>
     <span>阅读约 12 分钟</span>
-    <span>前端开发 · 浏览器 · 性能</span>
+    <span>项目管理 · PMO 术语</span>
     <span>建议先读第一、二篇</span>
   </div>
 </section>
@@ -216,98 +276,74 @@
 <div class="content-wrap">
   <article class="article-body">
 
-    <p class="body-text">前端工程师负责的是用户能直接看到和触摸到的那一层——按钮、页面、动画、表单。但他们的工作远不止"把设计稿还原"这么简单：浏览器怎么工作、页面加载多快、在不同设备上的表现是否一致……这些都是前端要操心的事。</p>
+    <p class="body-text">产品经理关注的是"做什么"，项目经理关注的是"怎么按时做完"。一个功能再好，如果所有人踩点混乱、分工不清、风险没人管，最终也会延期翻车。</p>
+    <p class="body-text">项目经理（PMO）的工作本质是<strong>管理不确定性</strong>——把一个混沌的目标，拆解成清晰的任务、时间和责任，让多个角色协同推进而不失控。他们的语言，是为这个目标服务的工具。</p>
 
-    <p class="body-text">这篇按四个维度来讲前端的语言：页面的基础构成、组件化开发思维、浏览器与渲染、性能与体验优化。</p>
-
-    <div class="callout info">
-      <p>本篇主题色为蓝色，代表前端工程师角色。前端是距离用户最近的工程师，他们的语言里有很多"看得见摸得着"的概念——读这篇时，脑子里可以一边想用户看到的界面，一边对号入座。</p>
+    <div class="callout purple">
+      <p>本篇的术语主题色是紫色，对应项目经理角色。你在第二篇流程图里见过他们——负责排期、跟进进度、盯上线发布。</p>
     </div>
 
-    <!-- ===== S1 基础构成 ===== -->
+    <!-- ===== S1 计划 ===== -->
     <p class="section-label" id="s1">第一层</p>
-    <h2 class="section-heading">页面的基础构成——HTML / CSS / JS 三件套</h2>
+    <h2 class="section-heading">把目标变成计划——规划语言</h2>
 
-    <p class="body-text">任何一个网页或 App 界面，底层都由三样东西构成。前端工程师说的大多数话，都围绕这三样展开。</p>
-
-    <div class="diagram">
-      <div class="diagram-header">
-        <span class="diagram-dot"></span>
-        <span class="diagram-label">前端三件套</span>
-      </div>
-      <div class="diagram-body">
-        <div class="layers">
-          <div class="layer" style="background:var(--fe-light);border:0.5px solid rgba(21,101,192,0.2);">
-            <div>
-              <p class="layer-name" style="color:var(--fe);">JavaScript · 行为层</p>
-              <p class="layer-desc" style="color:rgba(21,101,192,0.7);font-size:12px;">让页面"动"起来——响应点击、发请求、更新数据、控制逻辑</p>
-            </div>
-            <span class="layer-badge" style="background:rgba(21,101,192,0.12);color:var(--fe);">.js</span>
-          </div>
-          <div class="layer" style="background:var(--accent-light);border:0.5px solid rgba(196,98,42,0.2);">
-            <div>
-              <p class="layer-name" style="color:var(--accent);">CSS · 样式层</p>
-              <p class="layer-desc" style="color:rgba(196,98,42,0.7);font-size:12px;">控制页面"长什么样"——颜色、间距、字体、动画、布局</p>
-            </div>
-            <span class="layer-badge" style="background:rgba(196,98,42,0.12);color:var(--accent);">.css</span>
-          </div>
-          <div class="layer" style="background:var(--success-light);border:0.5px solid rgba(15,110,86,0.2);">
-            <div>
-              <p class="layer-name" style="color:var(--success);">HTML · 结构层</p>
-              <p class="layer-desc" style="color:rgba(15,110,86,0.7);font-size:12px;">定义页面的骨架——有哪些元素、是什么类型（标题/段落/按钮）</p>
-            </div>
-            <span class="layer-badge" style="background:rgba(15,110,86,0.12);color:var(--success);">.html</span>
-          </div>
-        </div>
-        <p style="font-size:12px;color:var(--text-tertiary);margin-top:14px;line-height:1.65;">三层从下往上叠加：HTML 是骨架，CSS 是外观，JS 是行为。产品经理看到的"页面"，是这三层共同作用的结果。</p>
-      </div>
-    </div>
+    <p class="body-text">项目启动之后，第一件事是把模糊的目标拆成可执行的任务，并确定谁在什么时间做什么。这一层的词，是把混沌变成秩序的工具。</p>
 
     <div class="diagram">
       <div class="diagram-header">
         <span class="diagram-dot"></span>
-        <span class="diagram-label">基础概念术语</span>
+        <span class="diagram-label">规划相关术语</span>
       </div>
       <div class="diagram-body">
         <div class="term-list">
 
           <div class="term-card">
-            <div class="term-name">DOM
-              <span class="term-en">Document Object Model</span>
+            <div class="term-name">WBS
+              <span class="term-en">Work Breakdown Structure</span>
             </div>
             <div class="term-body">
-              <p class="term-def">浏览器把 HTML 解析之后形成的树状结构，JavaScript 通过操作这棵树来动态修改页面内容。前端说"操作 DOM"就是用代码改变页面上显示的东西。</p>
-              <p class="term-scene">「这里频繁操作 <strong>DOM</strong> 会影响性能，可以用虚拟 DOM 减少实际修改次数。」</p>
+              <p class="term-def">工作分解结构——把一个大项目逐层拆解成可执行的最小任务单元，像树状图一样，从"完整目标"一直拆到"具体的一件事"。</p>
+              <p class="term-scene">「我们先把这个项目做个 <strong>WBS</strong>，把所有任务都列出来，再评估工作量。」</p>
             </div>
           </div>
 
           <div class="term-card">
-            <div class="term-name">API 调用
-              <span class="term-en">API Request</span>
+            <div class="term-name">甘特图
+              <span class="term-en">Gantt Chart</span>
             </div>
             <div class="term-body">
-              <p class="term-def">前端向后端服务器发送请求、获取或提交数据的操作。用户点击"签到"按钮，前端就在后台悄悄发了一个 API 调用去通知后端记录。</p>
-              <p class="term-scene">「签到按钮点击后发 <strong>API 调用</strong>，等后端返回成功再显示积分动画。」</p>
+              <p class="term-def">用横条形式展示每个任务的开始时间、结束时间和相互依赖关系的时间规划图，一眼看出谁在什么时候做什么、有没有冲突。</p>
+              <p class="term-scene">「<strong>甘特图</strong>我更新了，你看一下第三周前端和后端有资源冲突。」</p>
             </div>
           </div>
 
           <div class="term-card">
-            <div class="term-name">路由
-              <span class="term-en">Routing</span>
+            <div class="term-name">关键路径
+              <span class="term-en">Critical Path</span>
             </div>
             <div class="term-body">
-              <p class="term-def">决定用户访问某个 URL 时显示哪个页面的机制。类似"地址与房间的对应关系"，/home 显示首页，/checkin 显示签到页。</p>
-              <p class="term-scene">「签到页的<strong>路由</strong>还没配，你直接访问 /checkin 会 404。」</p>
+              <p class="term-def">项目中决定最短完成时间的那条任务链——链上任何一个任务延迟，整个项目都会延期。是项目经理重点盯防的对象。</p>
+              <p class="term-scene">「后端接口在<strong>关键路径</strong>上，这里不能延，否则前端联调就没时间了。」</p>
             </div>
           </div>
 
           <div class="term-card">
-            <div class="term-name">状态
-              <span class="term-en">State</span>
+            <div class="term-name">依赖关系
+              <span class="term-en">Dependency</span>
             </div>
             <div class="term-body">
-              <p class="term-def">页面在某一时刻的数据快照——比如"用户今天已签到""积分余额是 150""按钮处于 loading 中"，状态变化驱动页面更新。</p>
-              <p class="term-scene">「这个按钮有三种<strong>状态</strong>：默认、loading、已签到，每种都要设计对应的样式。」</p>
+              <p class="term-def">任务之间的先后约束——A 任务完成之后 B 才能开始。项目经理要识别所有依赖，避免"等了半天才发现前置没做"。</p>
+              <p class="term-scene">「前端的工作<strong>依赖</strong>后端接口文档，文档没出来前不能开工。」</p>
+            </div>
+          </div>
+
+          <div class="term-card">
+            <div class="term-name">缓冲时间
+              <span class="term-en">Buffer / Slack</span>
+            </div>
+            <div class="term-body">
+              <p class="term-def">排期时预留的余量时间，专门用来应对突发的延迟、返工或需求变更，避免计划一旦出现小波动就整体崩掉。</p>
+              <p class="term-scene">「工作量评估完 12 天，我加了 3 天<strong>缓冲</strong>，总共排 15 天。」</p>
             </div>
           </div>
 
@@ -315,211 +351,330 @@
       </div>
     </div>
 
-    <!-- ===== S2 组件化 ===== -->
-    <p class="section-label" id="s2">第二层</p>
-    <h2 class="section-heading">组件化开发——搭积木的思维</h2>
-
-    <p class="body-text">现代前端开发不是一行一行写页面，而是把界面拆成可复用的"积木块"——组件。这套思维方式影响了前端的整个工作方式和沟通语言。</p>
+    <p class="body-text">WBS 拆解出来的任务，放进甘特图里之后大概是这样的——</p>
 
     <div class="diagram">
       <div class="diagram-header">
         <span class="diagram-dot"></span>
-        <span class="diagram-label">组件化相关术语</span>
+        <span class="diagram-label">甘特图示例 · 签到功能 18 天计划</span>
       </div>
       <div class="diagram-body">
-        <div class="term-list">
-
-          <div class="term-card">
-            <div class="term-name">组件
-              <span class="term-en">Component</span>
-            </div>
-            <div class="term-body">
-              <p class="term-def">可独立封装、可复用的 UI 单元。一个按钮、一个卡片、一个导航栏，都可以是组件。写一次，在多个地方用。</p>
-              <p class="term-scene">「签到按钮做成<strong>组件</strong>，首页和签到详情页都能复用，不用写两遍。」</p>
+        <!-- day header -->
+        <div style="display:grid;grid-template-columns:90px 1fr;gap:0 12px;margin-bottom:8px;">
+          <div></div>
+          <div style="display:flex;">
+            <div style="flex:1;text-align:center;font-size:9px;color:var(--text-tertiary);font-family:var(--mono);">D1</div>
+            <div style="flex:1;text-align:center;font-size:9px;color:var(--text-tertiary);font-family:var(--mono);">D3</div>
+            <div style="flex:1;text-align:center;font-size:9px;color:var(--text-tertiary);font-family:var(--mono);">D5</div>
+            <div style="flex:1;text-align:center;font-size:9px;color:var(--text-tertiary);font-family:var(--mono);">D7</div>
+            <div style="flex:1;text-align:center;font-size:9px;color:var(--text-tertiary);font-family:var(--mono);">D9</div>
+            <div style="flex:1;text-align:center;font-size:9px;color:var(--text-tertiary);font-family:var(--mono);">D11</div>
+            <div style="flex:1;text-align:center;font-size:9px;color:var(--text-tertiary);font-family:var(--mono);">D13</div>
+            <div style="flex:1;text-align:center;font-size:9px;color:var(--text-tertiary);font-family:var(--mono);">D15</div>
+            <div style="flex:1;text-align:center;font-size:9px;color:var(--text-tertiary);font-family:var(--mono);">D17</div>
+            <div style="flex:1;text-align:center;font-size:9px;color:var(--accent);font-family:var(--mono);font-weight:600;">D18</div>
+          </div>
+        </div>
+        <div class="gantt">
+          <!-- rows: left 90px, right track = 100% = 18 days -->
+          <div class="gantt-row">
+            <span class="gantt-label">需求评审</span>
+            <div class="gantt-track">
+              <div class="gantt-bar" style="left:0%;width:11%;background:var(--info);color:white;">评审</div>
             </div>
           </div>
-
-          <div class="term-card">
-            <div class="term-name">框架
-              <span class="term-en">Framework</span>
-            </div>
-            <div class="term-body">
-              <p class="term-def">前端开发的工具套装，提供组件化开发、状态管理、路由等能力，常见的有 React、Vue、Angular，相当于建房子用的脚手架。</p>
-              <p class="term-scene">「我们用的是 Vue <strong>框架</strong>，你把 UI 稿给我，我来拆组件结构。」</p>
+          <div class="gantt-row">
+            <span class="gantt-label">排期确认</span>
+            <div class="gantt-track">
+              <div class="gantt-bar" style="left:11%;width:16%;background:var(--purple);color:white;">排期</div>
             </div>
           </div>
-
-          <div class="term-card">
-            <div class="term-name">props / 参数
-              <span class="term-en">Props / Properties</span>
-            </div>
-            <div class="term-body">
-              <p class="term-def">从外部传入组件的数据，决定组件的表现形式。同一个按钮组件，传入不同的 props 就能显示不同的文字、颜色或大小。</p>
-              <p class="term-scene">「这个卡片<strong>组件</strong>的标题和图片都是 <strong>props</strong>，调用时传进来就行。」</p>
+          <div class="gantt-row">
+            <span class="gantt-label">后端开发</span>
+            <div class="gantt-track">
+              <div class="gantt-bar" style="left:27%;width:38%;background:var(--success);color:white;">后端 7d</div>
             </div>
           </div>
-
-          <div class="term-card">
-            <div class="term-name">设计系统 / UI 库
-              <span class="term-en">Design System / UI Library</span>
-            </div>
-            <div class="term-body">
-              <p class="term-def">一套预制的组件集合和设计规范，统一全产品的视觉风格。前端和设计师共用一套"词汇表"，说"用主按钮"就知道是什么样的按钮。</p>
-              <p class="term-scene">「直接用<strong>设计系统</strong>里的弹窗组件，不用重新设计，保持风格统一。」</p>
+          <div class="gantt-row">
+            <span class="gantt-label">前端开发</span>
+            <div class="gantt-track">
+              <div class="gantt-bar" style="left:27%;width:33%;background:#2E9B7A;color:white;">前端 6d</div>
             </div>
           </div>
-
-          <div class="term-card">
-            <div class="term-name">还原度
-              <span class="term-en">Design Fidelity</span>
-            </div>
-            <div class="term-body">
-              <p class="term-def">前端实现效果与设计稿的吻合程度，是产品和设计验收时最常用的评判标准。"还原度 90%"意味着还有 10% 有偏差。</p>
-              <p class="term-scene">「这个页面<strong>还原度</strong>不够，间距和字号和设计稿对不上，重新看一下。」</p>
+          <div class="gantt-row">
+            <span class="gantt-label">前后联调</span>
+            <div class="gantt-track">
+              <div class="gantt-bar" style="left:60%;width:11%;background:var(--accent-mid);color:white;">联调</div>
             </div>
           </div>
-
+          <div class="gantt-row">
+            <span class="gantt-label">测试回归</span>
+            <div class="gantt-track">
+              <div class="gantt-bar" style="left:72%;width:17%;background:var(--danger);color:white;">测试 3d</div>
+            </div>
+          </div>
+          <div class="gantt-row">
+            <span class="gantt-label">UAT / 上线</span>
+            <div class="gantt-track">
+              <div class="gantt-bar" style="left:89%;width:11%;background:var(--accent);color:white;">上线</div>
+              <!-- milestone diamond -->
+              <div class="gantt-milestone" style="left:calc(100% - 6px);"></div>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:14px;margin-top:12px;font-size:11px;color:var(--text-tertiary);">
+          <div style="display:flex;align-items:center;gap:5px;">
+            <div style="width:10px;height:10px;background:var(--accent);border:1.5px solid white;border-radius:2px;rotate:45deg;box-shadow:0 1px 2px rgba(0,0,0,0.2);"></div>
+            里程碑节点
+          </div>
+          <div style="display:flex;align-items:center;gap:5px;">
+            <div style="width:20px;height:6px;background:var(--success);border-radius:2px;"></div>
+            研发任务
+          </div>
+          <div style="display:flex;align-items:center;gap:5px;">
+            <div style="width:20px;height:6px;background:var(--danger);border-radius:2px;"></div>
+            测试任务
+          </div>
         </div>
       </div>
     </div>
 
-    <p class="body-text">组件化的核心思路是"拆解复用"。一个签到页面，在前端眼里是这样被分解的：</p>
-
     <div class="diagram">
       <div class="diagram-header">
         <span class="diagram-dot"></span>
-        <span class="diagram-label">签到页面的组件拆解示意</span>
+        <span class="diagram-label">WBS 示例 · 签到功能任务拆解</span>
       </div>
       <div class="diagram-body">
-        <div class="browser-mock">
-          <div class="browser-bar">
-            <div class="browser-dots">
-              <div class="browser-dot" style="background:#FF5F56;"></div>
-              <div class="browser-dot" style="background:#FFBD2E;"></div>
-              <div class="browser-dot" style="background:#27C93F;"></div>
-            </div>
-            <div class="browser-url">app.example.com/checkin</div>
+        <div class="wbs">
+
+          <div style="padding:8px 0 4px;font-family:var(--serif);font-size:15px;font-weight:700;color:var(--text-primary);border-bottom:1.5px solid var(--border-strong);margin-bottom:12px;">
+            📦 签到领积分功能
           </div>
-          <div class="browser-body">
-            <div style="position:relative;">
-              <!-- NavBar -->
-              <div style="background:var(--fe-light);border:1.5px dashed rgba(21,101,192,0.4);border-radius:6px;padding:8px 12px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;">
-                <span style="font-size:11px;color:var(--fe);font-weight:600;">← 签到</span>
-                <span style="font-size:10px;color:rgba(21,101,192,0.5);background:var(--fe-light);padding:2px 7px;border-radius:4px;border:0.5px solid rgba(21,101,192,0.2);">NavBar 组件</span>
-              </div>
-              <!-- Calendar -->
-              <div style="background:#F0F4FF;border:1.5px dashed rgba(21,101,192,0.4);border-radius:6px;padding:12px;margin-bottom:8px;">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-                  <span style="font-size:11px;color:var(--fe);font-weight:600;">连续签到日历</span>
-                  <span style="font-size:10px;color:rgba(21,101,192,0.5);background:var(--fe-light);padding:2px 7px;border-radius:4px;border:0.5px solid rgba(21,101,192,0.2);">Calendar 组件</span>
-                </div>
-                <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;">
-                  <div style="height:22px;background:var(--success);border-radius:4px;opacity:0.7;"></div>
-                  <div style="height:22px;background:var(--success);border-radius:4px;opacity:0.7;"></div>
-                  <div style="height:22px;background:var(--success);border-radius:4px;opacity:0.7;"></div>
-                  <div style="height:22px;background:var(--success);border-radius:4px;opacity:0.7;"></div>
-                  <div style="height:22px;background:var(--fe);border-radius:4px;"></div>
-                  <div style="height:22px;background:var(--border);border-radius:4px;"></div>
-                  <div style="height:22px;background:var(--border);border-radius:4px;"></div>
-                </div>
-              </div>
-              <!-- Button -->
-              <div style="background:var(--fe-light);border:1.5px dashed rgba(21,101,192,0.4);border-radius:6px;padding:10px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;">
-                <div style="flex:1;height:32px;background:var(--fe);border-radius:6px;display:flex;align-items:center;justify-content:center;margin-right:10px;">
-                  <span style="font-size:12px;color:white;font-weight:500;">今日签到 +10 积分</span>
-                </div>
-                <span style="font-size:10px;color:rgba(21,101,192,0.5);background:var(--fe-light);padding:2px 7px;border-radius:4px;border:0.5px solid rgba(21,101,192,0.2);white-space:nowrap;">Button 组件</span>
-              </div>
-              <!-- Points card -->
-              <div style="background:#F0F4FF;border:1.5px dashed rgba(21,101,192,0.4);border-radius:6px;padding:10px;display:flex;align-items:center;justify-content:space-between;">
-                <div>
-                  <div style="font-size:10px;color:var(--text-tertiary);margin-bottom:3px;">当前积分</div>
-                  <div style="font-size:18px;font-weight:700;color:var(--fe);font-family:var(--mono);">150 pts</div>
-                </div>
-                <span style="font-size:10px;color:rgba(21,101,192,0.5);background:var(--fe-light);padding:2px 7px;border-radius:4px;border:0.5px solid rgba(21,101,192,0.2);">PointsCard 组件</span>
-              </div>
+
+          <!-- 后端 -->
+          <div style="margin-bottom:10px;">
+            <div style="font-size:13px;font-weight:600;color:var(--success);margin-bottom:6px;display:flex;align-items:center;gap:6px;">
+              <span style="width:8px;height:8px;border-radius:50%;background:var(--success);display:inline-block;"></span>后端开发
+            </div>
+            <div style="padding-left:20px;border-left:1.5px solid rgba(15,110,86,0.2);display:flex;flex-direction:column;gap:4px;">
+              <div style="font-size:12px;color:var(--text-secondary);padding:4px 0;">签到接口开发（POST /checkin）</div>
+              <div style="font-size:12px;color:var(--text-secondary);padding:4px 0;">积分发放逻辑 + 连续天数计算</div>
+              <div style="font-size:12px;color:var(--text-secondary);padding:4px 0;">积分查询接口（GET /points/balance）</div>
+              <div style="font-size:12px;color:var(--text-secondary);padding:4px 0;">接口文档输出</div>
             </div>
           </div>
+
+          <!-- 前端 -->
+          <div style="margin-bottom:10px;">
+            <div style="font-size:13px;font-weight:600;color:var(--info);margin-bottom:6px;display:flex;align-items:center;gap:6px;">
+              <span style="width:8px;height:8px;border-radius:50%;background:var(--info);display:inline-block;"></span>前端开发
+            </div>
+            <div style="padding-left:20px;border-left:1.5px solid rgba(24,95,165,0.2);display:flex;flex-direction:column;gap:4px;">
+              <div style="font-size:12px;color:var(--text-secondary);padding:4px 0;">签到页面 UI 还原</div>
+              <div style="font-size:12px;color:var(--text-secondary);padding:4px 0;">签到动画与积分滚动效果</div>
+              <div style="font-size:12px;color:var(--text-secondary);padding:4px 0;">连续签到日历组件</div>
+              <div style="font-size:12px;color:var(--text-secondary);padding:4px 0;">接入后端接口联调</div>
+            </div>
+          </div>
+
+          <!-- 测试 -->
+          <div>
+            <div style="font-size:13px;font-weight:600;color:var(--danger);margin-bottom:6px;display:flex;align-items:center;gap:6px;">
+              <span style="width:8px;height:8px;border-radius:50%;background:var(--danger);display:inline-block;"></span>测试
+            </div>
+            <div style="padding-left:20px;border-left:1.5px solid rgba(153,60,29,0.2);display:flex;flex-direction:column;gap:4px;">
+              <div style="font-size:12px;color:var(--text-secondary);padding:4px 0;">编写测试用例（主流程 + 边界条件）</div>
+              <div style="font-size:12px;color:var(--text-secondary);padding:4px 0;">功能测试 + 兼容性测试</div>
+              <div style="font-size:12px;color:var(--text-secondary);padding:4px 0;">bug 跟踪与回归验证</div>
+            </div>
+          </div>
+
         </div>
-        <p style="font-size:12px;color:var(--text-tertiary);margin-top:10px;line-height:1.6;">每个虚线框都是一个独立组件，可以单独开发、单独测试、单独复用。前端开会时说"那个 Button 组件"，就是在指某个具体的积木块。</p>
       </div>
     </div>
 
     <div class="pull-quote">
-      前端看到一个页面，<br>先想的是"这里有几个组件"，<br>而不是"这里有几个按钮"。
+      项目经理不是催人的，<br>是让所有人都清楚自己的下一步是什么。
     </div>
 
-    <!-- ===== S3 渲染 ===== -->
+    <!-- ===== S2 分工 ===== -->
+    <p class="section-label" id="s2">第二层</p>
+    <h2 class="section-heading">说清楚谁负责什么——分工语言</h2>
+
+    <p class="body-text">多人协作最容易出的问题是"以为有人管，结果没人管"。RACI 矩阵是解决这个问题的标准工具。</p>
+
+    <div class="diagram">
+      <div class="diagram-header">
+        <span class="diagram-dot"></span>
+        <span class="diagram-label">分工协作相关术语</span>
+      </div>
+      <div class="diagram-body">
+        <div class="term-list">
+
+          <div class="term-card">
+            <div class="term-name">RACI 矩阵
+              <span class="term-en">RACI Matrix</span>
+            </div>
+            <div class="term-body">
+              <p class="term-def">明确每项任务由谁负责、谁拍板、谁参与、谁知情的分工框架。R=执行、A=决策、C=咨询、I=告知，四个字母覆盖所有协作关系。</p>
+              <p class="term-scene">「我们把这个项目的 <strong>RACI</strong> 对齐一下，不然到时候扯皮。」</p>
+            </div>
+          </div>
+
+          <div class="term-card">
+            <div class="term-name">资源
+              <span class="term-en">Resource</span>
+            </div>
+            <div class="term-body">
+              <p class="term-def">项目所需的人力、时间和工具。"资源不够"通常指人手不足或时间紧张，是项目经理向上申请支持的理由。</p>
+              <p class="term-scene">「这期<strong>资源</strong>不够，后端只有一个人，两个项目同时跑肯定排不过来。」</p>
+            </div>
+          </div>
+
+          <div class="term-card">
+            <div class="term-name">阻塞 / 阻碍
+              <span class="term-en">Blocker</span>
+            </div>
+            <div class="term-body">
+              <p class="term-def">让任务无法继续推进的障碍，站会上每天必问"有没有 blocker"，目的是让项目经理尽快帮忙清除障碍。</p>
+              <p class="term-scene">「我这边有个 <strong>blocker</strong>，第三方支付接口文档还没给，卡了两天了。」</p>
+            </div>
+          </div>
+
+          <div class="term-card">
+            <div class="term-name">交付物
+              <span class="term-en">Deliverable</span>
+            </div>
+            <div class="term-body">
+              <p class="term-def">每个阶段结束时需要产出的具体成果，可以是文档、代码、测试报告或上线的功能，有了交付物才能明确"做完"的标准。</p>
+              <p class="term-scene">「这期的<strong>交付物</strong>是：接口文档、前端页面、测试报告、上线记录。」</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="diagram">
+      <div class="diagram-header">
+        <span class="diagram-dot"></span>
+        <span class="diagram-label">RACI 矩阵示例 · 签到功能</span>
+      </div>
+      <div class="diagram-body">
+        <table class="raci-table">
+          <thead>
+            <tr>
+              <th>任务</th>
+              <th>产品经理</th>
+              <th>项目经理</th>
+              <th>后端</th>
+              <th>前端</th>
+              <th>测试</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>需求评审</td>
+              <td><span class="raci-pill raci-A">A</span></td>
+              <td><span class="raci-pill raci-R">R</span></td>
+              <td><span class="raci-pill raci-C">C</span></td>
+              <td><span class="raci-pill raci-C">C</span></td>
+              <td><span class="raci-pill raci-C">C</span></td>
+            </tr>
+            <tr>
+              <td>接口开发</td>
+              <td><span class="raci-pill raci-I">I</span></td>
+              <td><span class="raci-pill raci-I">I</span></td>
+              <td><span class="raci-pill raci-R">R</span></td>
+              <td><span class="raci-pill raci-C">C</span></td>
+              <td><span class="raci-pill raci-I">I</span></td>
+            </tr>
+            <tr>
+              <td>前端页面</td>
+              <td><span class="raci-pill raci-I">I</span></td>
+              <td><span class="raci-pill raci-I">I</span></td>
+              <td><span class="raci-pill raci-C">C</span></td>
+              <td><span class="raci-pill raci-R">R</span></td>
+              <td><span class="raci-pill raci-I">I</span></td>
+            </tr>
+            <tr>
+              <td>测试与回归</td>
+              <td><span class="raci-pill raci-I">I</span></td>
+              <td><span class="raci-pill raci-I">I</span></td>
+              <td><span class="raci-pill raci-C">C</span></td>
+              <td><span class="raci-pill raci-C">C</span></td>
+              <td><span class="raci-pill raci-R">R</span></td>
+            </tr>
+            <tr>
+              <td>上线决策</td>
+              <td><span class="raci-pill raci-A">A</span></td>
+              <td><span class="raci-pill raci-R">R</span></td>
+              <td><span class="raci-pill raci-C">C</span></td>
+              <td><span class="raci-pill raci-I">I</span></td>
+              <td><span class="raci-pill raci-C">C</span></td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="raci-legend">
+          <div class="raci-legend-item"><span class="raci-pill raci-R" style="width:22px;height:22px;font-size:10px;">R</span> Responsible · 执行者，具体做这件事的人</div>
+          <div class="raci-legend-item"><span class="raci-pill raci-A" style="width:22px;height:22px;font-size:10px;">A</span> Accountable · 决策者，最终拍板负责的人</div>
+          <div class="raci-legend-item"><span class="raci-pill raci-C" style="width:22px;height:22px;font-size:10px;">C</span> Consulted · 被咨询者，需要提供意见的人</div>
+          <div class="raci-legend-item"><span class="raci-pill raci-I" style="width:22px;height:22px;font-size:10px;">I</span> Informed · 被告知者，需要知道结果即可</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== S3 风险 ===== -->
     <p class="section-label" id="s3">第三层</p>
-    <h2 class="section-heading">浏览器与渲染——页面是怎么出现的</h2>
+    <h2 class="section-heading">识别和应对风险——风险管理语言</h2>
 
-    <p class="body-text">产品经理看到的是界面，前端工程师想的是"这个界面怎么出现在浏览器里"。渲染相关的词，是前端和后端、前端和测试之间最常产生分歧的地方。</p>
+    <p class="body-text">项目里总会有意外。项目经理的职责不是消灭风险——风险无法消灭——而是提前识别、评估、并准备好应对方案，让"意外"变得没那么意外。</p>
 
     <div class="diagram">
       <div class="diagram-header">
         <span class="diagram-dot"></span>
-        <span class="diagram-label">渲染相关术语</span>
+        <span class="diagram-label">风险管理相关术语</span>
       </div>
       <div class="diagram-body">
         <div class="term-list">
 
           <div class="term-card">
-            <div class="term-name">CSR
-              <span class="term-en">Client-Side Rendering</span>
+            <div class="term-name">风险矩阵
+              <span class="term-en">Risk Matrix</span>
             </div>
             <div class="term-body">
-              <p class="term-def">客户端渲染——浏览器下载 JS 后，在用户设备上生成页面内容。首次加载较慢，但后续交互流畅。大多数 SPA 是这种方式。</p>
-              <p class="term-scene">「我们用的是 <strong>CSR</strong>，所以首屏白屏时间会长一点，要做 loading 骨架屏。」</p>
+              <p class="term-def">用"发生概率"和"影响程度"两个维度评估风险等级的工具，高概率 × 高影响 = 必须立刻处理，低概率 × 低影响 = 记录备案即可。</p>
+              <p class="term-scene">「把所有风险放进<strong>风险矩阵</strong>里评级，优先处理红色区域的。」</p>
             </div>
           </div>
 
           <div class="term-card">
-            <div class="term-name">SSR
-              <span class="term-en">Server-Side Rendering</span>
+            <div class="term-name">应急预案
+              <span class="term-en">Contingency Plan</span>
             </div>
             <div class="term-body">
-              <p class="term-def">服务端渲染——服务器把页面内容生成好之后再发给浏览器，首屏速度快、对 SEO 友好，但服务器压力较大。</p>
-              <p class="term-scene">「这个落地页需要 SEO，用 <strong>SSR</strong> 更合适，不然搜索引擎抓不到内容。」</p>
+              <p class="term-def">风险真的发生时的备用行动方案，提前想好"如果 X 出问题，我们就做 Y"，而不是到时候现想。</p>
+              <p class="term-scene">「第三方支付接口有延迟风险，<strong>应急预案</strong>是先上线积分发放，支付接入下一期。」</p>
             </div>
           </div>
 
           <div class="term-card">
-            <div class="term-name">SPA
-              <span class="term-en">Single Page Application</span>
+            <div class="term-name">范围变更
+              <span class="term-en">Scope Change</span>
             </div>
             <div class="term-body">
-              <p class="term-def">单页应用——整个应用只有一个 HTML 页面，页面内容通过 JS 动态切换，用户感觉像在用桌面 App，切页面时不会整页刷新。</p>
-              <p class="term-scene">「我们是 <strong>SPA</strong>，切页面不会白屏，但首次加载要下载比较多的 JS。」</p>
+              <p class="term-def">项目进行中需求发生变动，导致工作量、时间或资源需要重新评估。项目经理必须把变更的代价明确告知所有人，而不是默默吸收。</p>
+              <p class="term-scene">「这个是<strong>范围变更</strong>，新增的功能要重新评估工期，不能直接加进去。」</p>
             </div>
           </div>
 
           <div class="term-card">
-            <div class="term-name">白屏 / 骨架屏
-              <span class="term-en">Blank Screen / Skeleton Screen</span>
+            <div class="term-name">升级 / 上报
+              <span class="term-en">Escalation</span>
             </div>
             <div class="term-body">
-              <p class="term-def">白屏是页面还没加载好时用户看到的空白；骨架屏是用灰色占位块代替真实内容，让用户感知"页面正在加载"而不是"出问题了"。</p>
-              <p class="term-scene">「签到页加载时先显示<strong>骨架屏</strong>，比白屏体验好很多，用户不会以为崩了。」</p>
-            </div>
-          </div>
-
-          <div class="term-card">
-            <div class="term-name">缓存
-              <span class="term-en">Cache</span>
-            </div>
-            <div class="term-body">
-              <p class="term-def">把资源（图片、JS、CSS）保存在本地，下次访问直接用本地的，不用再从服务器下载，加快加载速度。有时缓存导致"改了代码但页面没变"。</p>
-              <p class="term-scene">「你看到的是旧版本，清一下<strong>缓存</strong>强制刷新，就能看到最新的了。」</p>
-            </div>
-          </div>
-
-          <div class="term-card">
-            <div class="term-name">跨域
-              <span class="term-en">CORS / Cross-Origin</span>
-            </div>
-            <div class="term-body">
-              <p class="term-def">浏览器的安全限制，阻止 A 域名的网页直接请求 B 域名的数据。联调时"跨域报错"是最常见的报错之一，需要后端配置允许。</p>
-              <p class="term-scene">「本地联调报<strong>跨域</strong>错误，后端你那边加一下 CORS 配置。」</p>
+              <p class="term-def">当项目中出现超出团队解决能力的问题时，主动向上级报告寻求支持，是负责任的表现而不是示弱。</p>
+              <p class="term-scene">「这个问题我们层面解决不了，需要<strong>升级</strong>到总监那边来拍板。」</p>
             </div>
           </div>
 
@@ -530,130 +685,117 @@
     <div class="diagram">
       <div class="diagram-header">
         <span class="diagram-dot"></span>
-        <span class="diagram-label">CSR vs SSR · 关键区别</span>
+        <span class="diagram-label">风险矩阵示例 · 签到项目识别出的风险</span>
       </div>
       <div class="diagram-body">
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-          <div style="background:var(--fe-light);border:0.5px solid rgba(21,101,192,0.2);border-radius:8px;padding:14px;">
-            <p style="font-size:12px;font-weight:600;color:var(--fe);margin-bottom:10px;">CSR · 客户端渲染</p>
-            <div class="flow-chain" style="flex-direction:column;gap:4px;">
-              <div class="flow-step fe" style="text-align:left;padding:7px 10px;">① 下载空 HTML <span style="display:inline;margin:0;">+</span> JS 包</div>
-              <div class="flow-step fe" style="text-align:left;padding:7px 10px;">② 浏览器执行 JS，生成页面</div>
-              <div class="flow-step fe" style="text-align:left;padding:7px 10px;">③ 显示内容（首屏慢）</div>
+        <div style="display:flex;gap:24px;align-items:flex-start;flex-wrap:wrap;">
+          <!-- matrix grid -->
+          <div>
+            <div style="font-size:10px;color:var(--text-tertiary);margin-bottom:6px;letter-spacing:0.08em;">↑ 影响程度</div>
+            <div style="display:grid;grid-template-columns:20px repeat(3,64px);grid-template-rows:repeat(3,48px) 20px;gap:3px;">
+              <!-- Y axis label -->
+              <div style="grid-column:1;grid-row:1/4;writing-mode:vertical-rl;transform:rotate(180deg);display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--text-tertiary);letter-spacing:0.05em;"></div>
+              <!-- row 1: high impact -->
+              <div class="risk-cell high" style="font-size:10px;grid-column:2;grid-row:1;">中风险<br>关注</div>
+              <div class="risk-cell high" style="font-size:10px;grid-column:3;grid-row:1;position:relative;">高风险<br>优先处理<div class="risk-dot" title="接口延迟"></div></div>
+              <div class="risk-cell high" style="font-size:10px;grid-column:4;grid-row:1;">高风险<br>优先处理</div>
+              <!-- row 2: mid impact -->
+              <div class="risk-cell mid" style="font-size:10px;grid-column:2;grid-row:2;">低风险<br>记录</div>
+              <div class="risk-cell mid" style="font-size:10px;grid-column:3;grid-row:2;position:relative;">中风险<br>关注<div class="risk-dot" title="需求变更" style="background:var(--purple);"></div></div>
+              <div class="risk-cell high" style="font-size:10px;grid-column:4;grid-row:2;">高风险<br>优先处理</div>
+              <!-- row 3: low impact -->
+              <div class="risk-cell low" style="font-size:10px;grid-column:2;grid-row:3;">低风险<br>忽略</div>
+              <div class="risk-cell low" style="font-size:10px;grid-column:3;grid-row:3;">低风险<br>记录</div>
+              <div class="risk-cell mid" style="font-size:10px;grid-column:4;grid-row:3;position:relative;">中风险<br>关注<div class="risk-dot" title="人员请假" style="background:var(--info);"></div></div>
+              <!-- X axis labels -->
+              <div style="grid-column:2;grid-row:4;font-size:9px;color:var(--text-tertiary);display:flex;align-items:center;justify-content:center;">低</div>
+              <div style="grid-column:3;grid-row:4;font-size:9px;color:var(--text-tertiary);display:flex;align-items:center;justify-content:center;">中</div>
+              <div style="grid-column:4;grid-row:4;font-size:9px;color:var(--text-tertiary);display:flex;align-items:center;justify-content:center;">高</div>
             </div>
-            <div style="display:flex;flex-direction:column;gap:4px;margin-top:8px;font-size:11px;">
-              <span style="color:var(--success);">✓ 后续交互流畅</span>
-              <span style="color:var(--success);">✓ 服务器压力小</span>
-              <span style="color:var(--danger);">✗ 首屏慢，SEO 差</span>
-            </div>
+            <div style="font-size:10px;color:var(--text-tertiary);margin-top:4px;text-align:center;letter-spacing:0.08em;">发生概率 →</div>
           </div>
-          <div style="background:var(--success-light);border:0.5px solid rgba(15,110,86,0.2);border-radius:8px;padding:14px;">
-            <p style="font-size:12px;font-weight:600;color:var(--success);margin-bottom:10px;">SSR · 服务端渲染</p>
-            <div class="flow-chain" style="flex-direction:column;gap:4px;">
-              <div class="flow-step" style="text-align:left;padding:7px 10px;background:var(--success-light);border-color:rgba(15,110,86,0.2);color:var(--success);">① 服务器生成完整 HTML</div>
-              <div class="flow-step" style="text-align:left;padding:7px 10px;background:var(--success-light);border-color:rgba(15,110,86,0.2);color:var(--success);">② 浏览器直接显示内容</div>
-              <div class="flow-step" style="text-align:left;padding:7px 10px;background:var(--success-light);border-color:rgba(15,110,86,0.2);color:var(--success);">③ JS 加载后激活交互</div>
-            </div>
-            <div style="display:flex;flex-direction:column;gap:4px;margin-top:8px;font-size:11px;">
-              <span style="color:var(--success);">✓ 首屏快，SEO 好</span>
-              <span style="color:var(--danger);">✗ 服务器压力大</span>
-              <span style="color:var(--danger);">✗ 开发复杂度高</span>
+          <!-- risk list -->
+          <div style="flex:1;min-width:180px;">
+            <p style="font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-tertiary);font-weight:500;margin-bottom:10px;">已识别风险</p>
+            <div class="risk-list">
+              <div class="risk-item">
+                <span class="risk-badge high">高</span>
+                <div class="risk-content">
+                  <p class="risk-title">● 第三方接口延迟交付</p>
+                  <p class="risk-mitigation">应对：先完成内部功能，接口到位后再联调，预留 3 天缓冲</p>
+                </div>
+              </div>
+              <div class="risk-item">
+                <span class="risk-badge mid">中</span>
+                <div class="risk-content">
+                  <p class="risk-title">▪ 上线前需求变更</p>
+                  <p class="risk-mitigation">应对：需求锁定后变更需走正式评估，明确工期影响再决定</p>
+                </div>
+              </div>
+              <div class="risk-item">
+                <span class="risk-badge mid">中</span>
+                <div class="risk-content">
+                  <p class="risk-title">▪ 核心成员请假</p>
+                  <p class="risk-mitigation">应对：知识文档共享，关键任务至少两人了解</p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- ===== S4 性能 ===== -->
+    <!-- ===== S4 跟进 ===== -->
     <p class="section-label" id="s4">第四层</p>
-    <h2 class="section-heading">性能与体验优化——快和顺滑</h2>
+    <h2 class="section-heading">跟进项目进展——过程管理语言</h2>
 
-    <p class="body-text">前端性能直接影响用户体验：页面加载慢 1 秒，转化率可能下降几个百分点。这一层的词是前端工程师每次做性能优化时讨论的核心指标。</p>
-
-    <div class="diagram">
-      <div class="diagram-header">
-        <span class="diagram-dot"></span>
-        <span class="diagram-label">核心性能指标 · Web Vitals</span>
-      </div>
-      <div class="diagram-body">
-        <div class="perf-grid">
-          <div class="perf-card">
-            <p class="perf-abbr">LCP</p>
-            <p class="perf-name">最大内容绘制</p>
-            <p class="perf-desc">页面主体内容（最大图片或文字块）完成渲染的时间，代表"用户什么时候看到有用内容"</p>
-            <p class="perf-score"><span class="score-good">≤ 2.5s · 好</span>　<span class="score-mid">≤ 4s · 一般</span>　<span class="score-bad">&gt;4s · 差</span></p>
-          </div>
-          <div class="perf-card">
-            <p class="perf-abbr">FID</p>
-            <p class="perf-name">首次输入延迟</p>
-            <p class="perf-desc">用户第一次点击或输入后，页面多久才有响应，代表"页面是否能立刻交互"</p>
-            <p class="perf-score"><span class="score-good">≤ 100ms · 好</span>　<span class="score-bad">&gt;300ms · 差</span></p>
-          </div>
-          <div class="perf-card">
-            <p class="perf-abbr">CLS</p>
-            <p class="perf-name">累积布局偏移</p>
-            <p class="perf-desc">页面元素在加载过程中意外移动的程度，就是"刚要点按钮结果它动了"的那种体验</p>
-            <p class="perf-score"><span class="score-good">≤ 0.1 · 好</span>　<span class="score-bad">&gt;0.25 · 差</span></p>
-          </div>
-        </div>
-      </div>
-    </div>
+    <p class="body-text">项目开始之后，计划就只是计划。真正的挑战在于持续追踪进度，识别偏差，及时调整。这一层的词，是项目经理每天要用的工具。</p>
 
     <div class="diagram">
       <div class="diagram-header">
         <span class="diagram-dot"></span>
-        <span class="diagram-label">性能优化相关术语</span>
+        <span class="diagram-label">过程管理相关术语</span>
       </div>
       <div class="diagram-body">
         <div class="term-list">
 
           <div class="term-card">
-            <div class="term-name">懒加载
-              <span class="term-en">Lazy Loading</span>
+            <div class="term-name">进度报告
+              <span class="term-en">Status Report</span>
             </div>
             <div class="term-body">
-              <p class="term-def">只在需要的时候才加载资源——比如图片只在滚动到视口内才下载，不在屏幕里的不提前加载，减少首屏需要下载的数据量。</p>
-              <p class="term-scene">「签到日历里的历史图片用<strong>懒加载</strong>，不然首屏加载几十张，慢死了。」</p>
+              <p class="term-def">定期（通常每周）汇报项目当前状态的文档，包含完成了什么、下周做什么、有什么风险或阻碍，让所有相关方保持同步。</p>
+              <p class="term-scene">「每周五发一份<strong>进度报告</strong>给各方，不要等到出问题才开口。」</p>
             </div>
           </div>
 
           <div class="term-card">
-            <div class="term-name">代码分割
-              <span class="term-en">Code Splitting</span>
+            <div class="term-name">燃尽图
+              <span class="term-en">Burndown Chart</span>
             </div>
             <div class="term-body">
-              <p class="term-def">把 JS 包拆成多个小文件，只加载当前页面需要的代码，其余的等需要时再加载，减少首屏 JS 体积。</p>
-              <p class="term-scene">「做一下<strong>代码分割</strong>，把积分商城的代码从主包里拆出去，首屏能轻 30%。」</p>
+              <p class="term-def">展示剩余工作量随时间减少趋势的图表，理想状态是一条斜线，如果实际线高于理想线，说明进度落后需要干预。</p>
+              <p class="term-scene">「<strong>燃尽图</strong>显示我们已经落后两天了，下周要加快。」</p>
             </div>
           </div>
 
           <div class="term-card">
-            <div class="term-name">响应式设计
-              <span class="term-en">Responsive Design</span>
+            <div class="term-name">看板
+              <span class="term-en">Kanban Board</span>
             </div>
             <div class="term-body">
-              <p class="term-def">同一套代码能适配不同屏幕尺寸（手机、平板、电脑），通过 CSS 媒体查询自动调整布局，而不是为每种设备单独写一套。</p>
-              <p class="term-scene">「这个页面要做<strong>响应式</strong>，在平板上两列、手机上一列、桌面三列。」</p>
+              <p class="term-def">把任务按"待办 / 进行中 / 已完成"三列可视化展示的工具，让每个人都能一眼看到整体进度和阻塞点，常用 Jira、Trello 等工具实现。</p>
+              <p class="term-scene">「把你的任务状态更新到<strong>看板</strong>上，不然我不知道你卡在哪了。」</p>
             </div>
           </div>
 
           <div class="term-card">
-            <div class="term-name">打包 / 构建
-              <span class="term-en">Build / Bundle</span>
+            <div class="term-name">复盘 / 回顾
+              <span class="term-en">Retrospective</span>
             </div>
             <div class="term-body">
-              <p class="term-def">把开发时散乱的源代码文件压缩、合并、优化成浏览器能高效运行的产出文件的过程，常用 Webpack、Vite 等工具完成。</p>
-              <p class="term-scene">「代码改好了，<strong>构建</strong>一下推到测试环境，让 QA 验证。」</p>
-            </div>
-          </div>
-
-          <div class="term-card">
-            <div class="term-name">兼容性
-              <span class="term-en">Compatibility</span>
-            </div>
-            <div class="term-body">
-              <p class="term-def">代码能否在不同浏览器（Chrome、Safari、Firefox）和不同版本的操作系统上正常运行。兼容性问题常常在测试阶段才暴露。</p>
-              <p class="term-scene">「在 iOS Safari 上有<strong>兼容性</strong>问题，签到动画不播放，需要单独处理。」</p>
+              <p class="term-def">项目或迭代结束后的总结会，聚焦"做得好的继续""下次改进的"两个方向，目的是让团队持续变好，不是追责。</p>
+              <p class="term-scene">「这期<strong>复盘</strong>最大的收获：提测前需要跑一遍冒烟测试，下期加进去。」</p>
             </div>
           </div>
 
@@ -661,139 +803,81 @@
       </div>
     </div>
 
-    <p class="body-text">响应式设计值得直观感受一下，同一个签到页在不同设备上的布局差异：</p>
+    <p class="body-text">看板是项目日常管理中最直观的工具之一，长这样：</p>
 
     <div class="diagram">
       <div class="diagram-header">
         <span class="diagram-dot"></span>
-        <span class="diagram-label">响应式布局示意 · 同一页面，三种尺寸</span>
+        <span class="diagram-label">看板示例 · 签到功能第二周任务状态</span>
       </div>
       <div class="diagram-body">
-        <div class="resp-demo">
-          <!-- Mobile -->
-          <div class="resp-screen">
-            <div class="resp-label">
-              <span>📱 手机</span>
-              <span style="font-family:var(--mono);font-size:9px;">375px</span>
+        <div class="status-cols">
+          <div class="status-col">
+            <div class="status-col-header" style="color:var(--text-tertiary);">
+              待办 <span class="count-pill" style="background:var(--bg-code);color:var(--text-tertiary);">2</span>
             </div>
-            <div class="resp-body">
-              <div class="resp-block" style="height:28px;"></div>
-              <div class="resp-block" style="height:60px;"></div>
-              <div class="resp-block" style="height:28px;"></div>
-              <div class="resp-block" style="height:18px;"></div>
+            <div class="status-col-body">
+              <div class="status-card">
+                <p class="sc-title">签到动画效果</p>
+                <p class="sc-meta">前端 · 未开始</p>
+              </div>
+              <div class="status-card">
+                <p class="sc-title">积分商城跳转入口</p>
+                <p class="sc-meta">前端 · 等设计稿</p>
+              </div>
             </div>
           </div>
-          <!-- Tablet -->
-          <div class="resp-screen">
-            <div class="resp-label">
-              <span>📲 平板</span>
-              <span style="font-family:var(--mono);font-size:9px;">768px</span>
+          <div class="status-col">
+            <div class="status-col-header" style="color:var(--info);">
+              进行中 <span class="count-pill" style="background:var(--info-light);color:var(--info);">3</span>
             </div>
-            <div class="resp-body">
-              <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:6px;">
-                <div class="resp-block" style="height:50px;"></div>
-                <div class="resp-block" style="height:50px;"></div>
+            <div class="status-col-body">
+              <div class="status-card" style="border-left:2px solid var(--info);">
+                <p class="sc-title">积分发放逻辑</p>
+                <p class="sc-meta">后端 · Day 8/10</p>
               </div>
-              <div class="resp-block" style="height:22px;"></div>
-              <div class="resp-block" style="height:18px;"></div>
+              <div class="status-card" style="border-left:2px solid var(--info);">
+                <p class="sc-title">签到页面 UI</p>
+                <p class="sc-meta">前端 · Day 6/9</p>
+              </div>
+              <div class="status-card" style="border-left:2px solid var(--danger);">
+                <p class="sc-title">⚠ 接口文档</p>
+                <p class="sc-meta">后端 · Blocker：等第三方确认</p>
+              </div>
             </div>
           </div>
-          <!-- Desktop -->
-          <div class="resp-screen">
-            <div class="resp-label">
-              <span>🖥 桌面</span>
-              <span style="font-family:var(--mono);font-size:9px;">1440px</span>
+          <div class="status-col">
+            <div class="status-col-header" style="color:var(--success);">
+              已完成 <span class="count-pill" style="background:var(--success-light);color:var(--success);">3</span>
             </div>
-            <div class="resp-body">
-              <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;margin-bottom:6px;">
-                <div class="resp-block" style="height:40px;"></div>
-                <div class="resp-block" style="height:40px;"></div>
-                <div class="resp-block" style="height:40px;"></div>
+            <div class="status-col-body">
+              <div class="status-card">
+                <p class="sc-title">需求评审 ✓</p>
+                <p class="sc-meta">全员 · D2 完成</p>
               </div>
-              <div class="resp-block" style="height:18px;"></div>
+              <div class="status-card">
+                <p class="sc-title">排期确认 ✓</p>
+                <p class="sc-meta">项目经理 · D4 完成</p>
+              </div>
+              <div class="status-card">
+                <p class="sc-title">签到接口设计 ✓</p>
+                <p class="sc-meta">后端 · D7 完成</p>
+              </div>
             </div>
           </div>
         </div>
-        <p style="font-size:12px;color:var(--text-tertiary);margin-top:10px;line-height:1.6;">同一套代码，通过 CSS 媒体查询自动切换布局。前端说"这里要做响应式"，意味着他要写三套布局逻辑，工作量不小。</p>
+        <p style="font-size:12px;color:var(--text-tertiary);margin-top:12px;line-height:1.6;">⚠ 红色边框 = Blocker，项目经理看到后需立刻介入解决，否则会影响关键路径。</p>
       </div>
     </div>
 
-    <!-- ===== S5 协作 ===== -->
-    <p class="section-label" id="s5">第五层</p>
-    <h2 class="section-heading">前端的协作语言——和其他角色打交道</h2>
-
-    <p class="body-text">前端是所有角色交汇的节点：要和设计师对稿，要和后端联调接口，要和测试确认兼容性。这一层的词是前端在跨角色沟通时最高频出现的。</p>
+    <!-- ===== S5 速查 ===== -->
+    <p class="section-label" id="s5">速查手册</p>
+    <h2 class="section-heading">项目经理术语一览</h2>
 
     <div class="diagram">
       <div class="diagram-header">
         <span class="diagram-dot"></span>
-        <span class="diagram-label">协作相关术语</span>
-      </div>
-      <div class="diagram-body">
-        <div class="term-list">
-
-          <div class="term-card">
-            <div class="term-name">切图 / 标注
-              <span class="term-en">Asset Export / Annotation</span>
-            </div>
-            <div class="term-body">
-              <p class="term-def">设计师在设计稿（Figma/Sketch）里导出图片资源、标注间距和字号，供前端直接使用。"帮我切一下这个图标"是日常沟通。</p>
-              <p class="term-scene">「设计稿里的图标<strong>切图</strong>给我，2x 和 3x 都要，适配高清屏。」</p>
-            </div>
-          </div>
-
-          <div class="term-card">
-            <div class="term-name">接口文档
-              <span class="term-en">API Documentation</span>
-            </div>
-            <div class="term-body">
-              <p class="term-def">后端提供的接口说明，包含请求地址、参数格式、返回数据结构。前端开发必须有这个才能知道"数据从哪来、格式是什么"。</p>
-              <p class="term-scene">「<strong>接口文档</strong>还没出，我先用 mock 数据开发，等你文档出了再联调。」</p>
-            </div>
-          </div>
-
-          <div class="term-card">
-            <div class="term-name">Mock 数据
-              <span class="term-en">Mock Data</span>
-            </div>
-            <div class="term-body">
-              <p class="term-def">在后端接口未就绪时，前端自己模拟的假数据，用来先跑通页面逻辑，等后端接口好了再替换成真实数据。</p>
-              <p class="term-scene">「积分接口还没好，我先用 <strong>mock</strong> 数据把页面调出来，不影响开发进度。」</p>
-            </div>
-          </div>
-
-          <div class="term-card">
-            <div class="term-name">冒烟测试
-              <span class="term-en">Smoke Test</span>
-            </div>
-            <div class="term-body">
-              <p class="term-def">提测前前端自己做的最基础验证——把主流程走一遍，确认没有明显崩溃或白屏，再交给测试同学，避免浪费测试资源。</p>
-              <p class="term-scene">「提测之前自己先做个<strong>冒烟测试</strong>，主流程走通再给测试，不然让人家白跑一趟。」</p>
-            </div>
-          </div>
-
-          <div class="term-card">
-            <div class="term-name">热更新
-              <span class="term-en">Hot Module Replacement / HMR</span>
-            </div>
-            <div class="term-body">
-              <p class="term-def">开发时修改代码后，页面自动更新修改部分而不需要整页刷新的功能，大幅提升开发效率。这是前端开发工具的标配功能。</p>
-              <p class="term-scene">「本地开发有<strong>热更新</strong>，改完 CSS 直接看效果，不用每次手动刷新。」</p>
-            </div>
-          </div>
-
-        </div>
-      </div>
-    </div>
-
-    <!-- ===== S6 速查 ===== -->
-    <p class="section-label" id="s6">速查手册</p>
-    <h2 class="section-heading">前端术语一览</h2>
-
-    <div class="diagram">
-      <div class="diagram-header">
-        <span class="diagram-dot"></span>
-        <span class="diagram-label">前端专业术语速查 · 共 22 个</span>
+        <span class="diagram-label">PMO 专业术语速查 · 共 17 个</span>
       </div>
       <div class="diagram-body">
         <table style="width:100%;border-collapse:collapse;font-size:13px;">
@@ -805,58 +889,53 @@
             </tr>
           </thead>
           <tbody>
-            <tr style="background:var(--fe-light);">
-              <td colspan="3" style="padding:6px 10px;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--fe);font-weight:500;">基础构成</td>
+            <tr style="background:var(--purple-light);">
+              <td colspan="3" style="padding:6px 10px;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--purple);font-weight:500;">规划</td>
             </tr>
-            <tr><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--fe);">HTML / CSS / JS</td><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);color:var(--text-tertiary);font-size:12px;">基础</td><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);color:var(--text-secondary);font-size:12px;">骨架 / 外观 / 行为，三层缺一不可</td></tr>
-            <tr><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--fe);">DOM</td><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);color:var(--text-tertiary);font-size:12px;">基础</td><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);color:var(--text-secondary);font-size:12px;">浏览器解析 HTML 后的树状结构</td></tr>
-            <tr><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--fe);">API 调用</td><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);color:var(--text-tertiary);font-size:12px;">基础</td><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);color:var(--text-secondary);font-size:12px;">前端向后端请求数据的动作</td></tr>
-            <tr><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--fe);">路由</td><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);color:var(--text-tertiary);font-size:12px;">基础</td><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);color:var(--text-secondary);font-size:12px;">URL 和页面的对应关系</td></tr>
-            <tr><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--fe);">状态</td><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);color:var(--text-tertiary);font-size:12px;">基础</td><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);color:var(--text-secondary);font-size:12px;">页面某一时刻的数据快照</td></tr>
-            <tr style="background:var(--accent-light);">
-              <td colspan="3" style="padding:6px 10px;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent);font-weight:500;">组件化</td>
+            <tr><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--purple);">WBS</td><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);color:var(--text-tertiary);font-size:12px;">规划</td><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);color:var(--text-secondary);font-size:12px;">大目标逐层拆成可执行小任务</td></tr>
+            <tr><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--purple);">甘特图</td><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);color:var(--text-tertiary);font-size:12px;">规划</td><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);color:var(--text-secondary);font-size:12px;">任务时间轴，谁什么时候做什么</td></tr>
+            <tr><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--purple);">关键路径</td><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);color:var(--text-tertiary);font-size:12px;">规划</td><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);color:var(--text-secondary);font-size:12px;">决定项目最短工期的那条任务链</td></tr>
+            <tr><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--purple);">依赖关系</td><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);color:var(--text-tertiary);font-size:12px;">规划</td><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);color:var(--text-secondary);font-size:12px;">A 完成之后 B 才能开始</td></tr>
+            <tr><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--purple);">缓冲时间</td><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);color:var(--text-tertiary);font-size:12px;">规划</td><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);color:var(--text-secondary);font-size:12px;">排期里预留的应急余量</td></tr>
+            <tr style="background:var(--info-light);">
+              <td colspan="3" style="padding:6px 10px;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--info);font-weight:500;">分工</td>
             </tr>
-            <tr><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--fe);">组件</td><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);color:var(--text-tertiary);font-size:12px;">组件</td><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);color:var(--text-secondary);font-size:12px;">可复用的 UI 积木块</td></tr>
-            <tr><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--fe);">框架</td><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);color:var(--text-tertiary);font-size:12px;">组件</td><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);color:var(--text-secondary);font-size:12px;">React/Vue 等开发工具套装</td></tr>
-            <tr><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--fe);">props</td><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);color:var(--text-tertiary);font-size:12px;">组件</td><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);color:var(--text-secondary);font-size:12px;">传入组件的外部参数</td></tr>
-            <tr><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--fe);">设计系统</td><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);color:var(--text-tertiary);font-size:12px;">组件</td><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);color:var(--text-secondary);font-size:12px;">预制组件 + 设计规范的组合</td></tr>
-            <tr><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--fe);">还原度</td><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);color:var(--text-tertiary);font-size:12px;">组件</td><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);color:var(--text-secondary);font-size:12px;">实现效果与设计稿的吻合程度</td></tr>
+            <tr><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--purple);">RACI 矩阵</td><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);color:var(--text-tertiary);font-size:12px;">分工</td><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);color:var(--text-secondary);font-size:12px;">执行/决策/咨询/告知，四个角色</td></tr>
+            <tr><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--purple);">资源</td><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);color:var(--text-tertiary);font-size:12px;">分工</td><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);color:var(--text-secondary);font-size:12px;">项目所需的人力与时间</td></tr>
+            <tr><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--purple);">阻塞 / Blocker</td><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);color:var(--text-tertiary);font-size:12px;">分工</td><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);color:var(--text-secondary);font-size:12px;">让任务无法继续的障碍</td></tr>
+            <tr><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--purple);">交付物</td><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);color:var(--text-tertiary);font-size:12px;">分工</td><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);color:var(--text-secondary);font-size:12px;">每阶段结束时要产出的具体成果</td></tr>
+            <tr style="background:var(--danger-light);">
+              <td colspan="3" style="padding:6px 10px;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--danger);font-weight:500;">风险</td>
+            </tr>
+            <tr><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--purple);">风险矩阵</td><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);color:var(--text-tertiary);font-size:12px;">风险</td><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);color:var(--text-secondary);font-size:12px;">概率 × 影响，识别优先级</td></tr>
+            <tr><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--purple);">应急预案</td><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);color:var(--text-tertiary);font-size:12px;">风险</td><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);color:var(--text-secondary);font-size:12px;">风险发生时的备用行动方案</td></tr>
+            <tr><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--purple);">范围变更</td><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);color:var(--text-tertiary);font-size:12px;">风险</td><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);color:var(--text-secondary);font-size:12px;">需求变了，工期必须重新评估</td></tr>
+            <tr><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--purple);">升级 / 上报</td><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);color:var(--text-tertiary);font-size:12px;">风险</td><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);color:var(--text-secondary);font-size:12px;">自己解决不了就向上汇报</td></tr>
             <tr style="background:var(--success-light);">
-              <td colspan="3" style="padding:6px 10px;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--success);font-weight:500;">渲染</td>
+              <td colspan="3" style="padding:6px 10px;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--success);font-weight:500;">过程管理</td>
             </tr>
-            <tr><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--fe);">CSR</td><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);color:var(--text-tertiary);font-size:12px;">渲染</td><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);color:var(--text-secondary);font-size:12px;">浏览器跑 JS 后生成页面</td></tr>
-            <tr><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--fe);">SSR</td><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);color:var(--text-tertiary);font-size:12px;">渲染</td><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);color:var(--text-secondary);font-size:12px;">服务器生成好 HTML 再发给浏览器</td></tr>
-            <tr><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--fe);">SPA</td><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);color:var(--text-tertiary);font-size:12px;">渲染</td><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);color:var(--text-secondary);font-size:12px;">单页面，切页面不整页刷新</td></tr>
-            <tr><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--fe);">骨架屏</td><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);color:var(--text-tertiary);font-size:12px;">渲染</td><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);color:var(--text-secondary);font-size:12px;">加载时用占位灰块代替内容</td></tr>
-            <tr><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--fe);">缓存</td><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);color:var(--text-tertiary);font-size:12px;">渲染</td><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);color:var(--text-secondary);font-size:12px;">本地存资源，避免重复下载</td></tr>
-            <tr><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--fe);">跨域</td><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);color:var(--text-tertiary);font-size:12px;">渲染</td><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);color:var(--text-secondary);font-size:12px;">不同域名互访的浏览器安全限制</td></tr>
-            <tr style="background:var(--bg-code);">
-              <td colspan="3" style="padding:6px 10px;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-tertiary);font-weight:500;">性能 · 协作</td>
-            </tr>
-            <tr><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--fe);">LCP / FID / CLS</td><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);color:var(--text-tertiary);font-size:12px;">性能</td><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);color:var(--text-secondary);font-size:12px;">Google 三大核心体验指标</td></tr>
-            <tr><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--fe);">懒加载</td><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);color:var(--text-tertiary);font-size:12px;">性能</td><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);color:var(--text-secondary);font-size:12px;">需要时才加载，减少首屏开销</td></tr>
-            <tr><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--fe);">响应式设计</td><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);color:var(--text-tertiary);font-size:12px;">性能</td><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);color:var(--text-secondary);font-size:12px;">一套代码适配手机/平板/桌面</td></tr>
-            <tr><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--fe);">打包 / 构建</td><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);color:var(--text-tertiary);font-size:12px;">性能</td><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);color:var(--text-secondary);font-size:12px;">源码压缩优化成浏览器能跑的产物</td></tr>
-            <tr><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--fe);">Mock 数据</td><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);color:var(--text-tertiary);font-size:12px;">协作</td><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);color:var(--text-secondary);font-size:12px;">后端没好时自己造假数据先跑</td></tr>
-            <tr><td style="padding:9px 10px;font-family:var(--mono);font-size:12px;color:var(--fe);">冒烟测试</td><td style="padding:9px 10px;color:var(--text-tertiary);font-size:12px;">协作</td><td style="padding:9px 10px;color:var(--text-secondary);font-size:12px;">提测前自己先过一遍主流程</td></tr>
+            <tr><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--purple);">进度报告</td><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);color:var(--text-tertiary);font-size:12px;">过程</td><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);color:var(--text-secondary);font-size:12px;">定期同步项目状态给所有相关方</td></tr>
+            <tr><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--purple);">燃尽图</td><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);color:var(--text-tertiary);font-size:12px;">过程</td><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);color:var(--text-secondary);font-size:12px;">剩余工作量的减少趋势，看是否落后</td></tr>
+            <tr><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--purple);">看板</td><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);color:var(--text-tertiary);font-size:12px;">过程</td><td style="padding:9px 10px;border-bottom:0.5px solid var(--border);color:var(--text-secondary);font-size:12px;">任务状态可视化，待办/进行/完成</td></tr>
+            <tr><td style="padding:9px 10px;font-family:var(--mono);font-size:12px;color:var(--purple);">复盘 / 回顾</td><td style="padding:9px 10px;color:var(--text-tertiary);font-size:12px;">过程</td><td style="padding:9px 10px;color:var(--text-secondary);font-size:12px;">结束后总结改进，不是追责</td></tr>
           </tbody>
         </table>
       </div>
     </div>
 
     <div class="callout success">
-      <p>下一篇预告：《后端工程师的专业语言》——接口、服务、数据库、中间件、高可用……从看不见的服务器端出发，讲清楚数据是怎么被存储、处理和返回的。</p>
+      <p>下一篇预告：《前端工程师的专业语言》——组件、渲染、性能优化、联调……从用户看到的界面出发，讲清楚前端工程师在意的那些词。</p>
     </div>
 
     <div class="tag-row">
-      <a class="tag" href="#">前端工程师</a>
-      <a class="tag" href="#">组件化</a>
-      <a class="tag" href="#">渲染</a>
-      <a class="tag" href="#">性能优化</a>
-      <a class="tag" href="#">响应式设计</a>
-      <a class="tag" href="#">CSR</a>
-      <a class="tag" href="#">SSR</a>
-      <a class="tag" href="#">Web Vitals</a>
+      <a class="tag" href="#">项目经理</a>
+      <a class="tag" href="#">PMO</a>
+      <a class="tag" href="#">甘特图</a>
+      <a class="tag" href="#">WBS</a>
+      <a class="tag" href="#">RACI</a>
+      <a class="tag" href="#">风险管理</a>
+      <a class="tag" href="#">看板</a>
+      <a class="tag" href="#">关键路径</a>
     </div>
 
   </article>
@@ -864,24 +943,52 @@
   <aside class="sidebar">
     <p class="toc-label">本篇目录</p>
     <ul class="toc-list">
-      <li><a href="#s1" class="toc-link">HTML / CSS / JS 三件套</a></li>
-      <li><a href="#s2" class="toc-link">组件化开发思维</a></li>
-      <li><a href="#s3" class="toc-link">浏览器与渲染</a></li>
-      <li><a href="#s4" class="toc-link">性能与体验优化</a></li>
-      <li><a href="#s5" class="toc-link">前端的协作语言</a></li>
-      <li><a href="#s6" class="toc-link">速查手册</a></li>
+      <li><a href="#s1" class="toc-link">规划语言</a></li>
+      <li><a href="#s2" class="toc-link">分工语言</a></li>
+      <li><a href="#s3" class="toc-link">风险管理语言</a></li>
+      <li><a href="#s4" class="toc-link">过程管理语言</a></li>
+      <li><a href="#s5" class="toc-link">速查手册</a></li>
     </ul>
+
+    <p class="toc-label" style="margin-top:28px;">系列导航</p>
+    <div class="series-nav">
+      <p class="series-nav-label">职场术语系列 · 共 9 篇</p>
+      <a href="./blog-series-00-preface.html" class="series-nav-item">
+        <span class="ep">第〇篇 · 前言</span>
+        为什么程序员要懂"黑话"？
+      </a>
+      <a href="./blog-series-01-general-terms.html" class="series-nav-item">
+        <span class="ep">第一篇 · 入门</span>
+        职场通用术语
+      </a>
+      <a href="./blog-series-02-feature-lifecycle.html" class="series-nav-item">
+        <span class="ep">第二篇 · 过渡</span>
+        读懂一张需求文档
+      </a>
+      <a href="./blog-series-03-pm-terms.html" class="series-nav-item">
+        <span class="ep">第三篇 · 进阶·产品</span>
+        产品经理的专业语言
+      </a>
+      <a href="#" class="series-nav-item current">
+        <span class="ep">第四篇 · 进阶·项目</span>
+        项目经理的专业语言
+      </a>
+      <a href="#" class="series-nav-item">
+        <span class="ep">第五～八篇</span>
+        更多角色 · 即将发布 →
+      </a>
+    </div>
   </aside>
 </div>
 
 <footer class="site-footer">
-  <a href="../../index.html" style="color:inherit;text-decoration:none;display:flex;align-items:center;gap:6px;">← 返回首页</a>
+  <a href="../index.html" style="color:inherit;text-decoration:none;display:flex;align-items:center;gap:6px;">← 返回首页</a>
   <span>聚合叉的博客</span>
 </footer>
 
 <script>
   (function () {
-    const sections = ['s1','s2','s3','s4','s5','s6'];
+    const sections = ['s1','s2','s3','s4','s5'];
     const links = document.querySelectorAll('.toc-link');
     const observer = new IntersectionObserver(entries => {
       entries.forEach(entry => {
