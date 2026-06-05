@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>后端工程师的专业语言 · 职场术语系列第五篇</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/@mdi/font@7.4.47/css/materialdesignicons.min.css" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #F7F5F0;
+    --bg-card: #FFFFFF;
+    --bg-code: #F0EDE8;
+    --text-primary: #1A1814;
+    --text-secondary: #5C5850;
+    --text-tertiary: #9A948A;
+    --accent: #C4622A;
+    --accent-light: #FAE8DC;
+    --accent-mid: #E8855A;
+    --info: #185FA5;
+    --info-light: #E6F1FB;
+    --danger: #993C1D;
+    --danger-light: #FAECE7;
+    --success: #0F6E56;
+    --success-light: #E1F5EE;
+    --be: #0F6E56;
+    --be-light: #E1F5EE;
+    --be-mid: #2E9B7A;
+    --border: rgba(60,50,40,0.1);
+    --border-strong: rgba(60,50,40,0.2);
+    --serif: 'Noto Serif SC', Georgia, serif;
+    --sans: 'Noto Sans SC', system-ui, sans-serif;
+    --mono: 'JetBrains Mono', monospace;
+  }
+
+  html { scroll-behavior: smooth; }
+  body { background: var(--bg); color: var(--text-primary); font-family: var(--sans); font-weight: 400; line-height: 1.85; min-height: 100vh; }
+
+  .site-header { border-bottom: 0.5px solid var(--border); padding: 18px 0; position: sticky; top: 0; background: rgba(247,245,240,0.9); backdrop-filter: blur(12px); z-index: 100; }
+  .header-inner { max-width: 1020px; margin: 0 auto; padding: 0 32px; display: flex; align-items: center; justify-content: space-between; }
+  .site-name { font-family: var(--serif); font-size: 15px; font-weight: 600; color: var(--text-primary); letter-spacing: 0.02em; }
+  .header-tag { font-size: 11px; color: var(--text-tertiary); letter-spacing: 0.15em; text-transform: uppercase; font-weight: 400; }
+
+  .hero { max-width: 1020px; margin: 0 auto; padding: 72px 32px 48px; border-bottom: 0.5px solid var(--border); }
+  .kicker { font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--be); font-weight: 500; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+  .kicker::after { content: ''; display: block; height: 1px; width: 40px; background: var(--be-mid); opacity: 0.5; }
+  .headline { font-family: var(--serif); font-size: 42px; font-weight: 700; line-height: 1.25; color: var(--text-primary); margin-bottom: 20px; letter-spacing: -0.01em; }
+  .headline em { font-style: normal; color: var(--be); }
+  .deck { font-size: 16px; color: var(--text-secondary); font-weight: 400; line-height: 1.75; max-width: 560px; margin-bottom: 32px; }
+  .meta-row { display: flex; align-items: center; gap: 20px; font-size: 12px; color: var(--text-tertiary); flex-wrap: wrap; }
+  .meta-row span { display: flex; align-items: center; gap: 5px; }
+
+  .content-wrap { max-width: 1020px; margin: 0 auto; padding: 0 32px; display: grid; grid-template-columns: 1fr 260px; gap: 0 56px; align-items: start; }
+  .article-body { padding: 48px 0 80px; min-width: 0; }
+
+  .sidebar { padding: 48px 0 80px; position: sticky; top: 72px; }
+  .toc-label { font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-tertiary); font-weight: 500; margin-bottom: 14px; }
+  .toc-list { list-style: none; border-left: 1px solid var(--border-strong); padding-left: 14px; margin-bottom: 32px; }
+  .toc-list li { margin-bottom: 8px; }
+  .toc-list a { font-size: 12px; color: var(--text-tertiary); text-decoration: none; font-weight: 400; line-height: 1.5; transition: color 0.2s; display: block; }
+  .toc-list a:hover { color: var(--be); }
+  .toc-list a.active { color: var(--be); font-weight: 500; }
+
+  .series-nav { border: 0.5px solid var(--border-strong); border-radius: 10px; overflow: hidden; background: var(--bg-card); }
+  .series-nav-label { font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-tertiary); font-weight: 500; padding: 12px 14px 10px; border-bottom: 0.5px solid var(--border); }
+  .series-nav-item { display: block; padding: 10px 14px; font-size: 12px; color: var(--text-secondary); text-decoration: none; border-bottom: 0.5px solid var(--border); line-height: 1.55; transition: background 0.15s; }
+  .series-nav-item:last-child { border-bottom: none; }
+  .series-nav-item:hover { background: var(--be-light); color: var(--be); }
+  .series-nav-item.current { background: var(--be-light); color: var(--be); font-weight: 500; }
+  .series-nav-item .ep { display: block; font-size: 10px; color: var(--text-tertiary); margin-bottom: 2px; letter-spacing: 0.08em; }
+  .series-nav-item.current .ep { color: var(--be); opacity: 0.7; }
+
+  .section-label { font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--text-tertiary); font-weight: 500; margin: 52px 0 10px; }
+  .section-heading { font-family: var(--serif); font-size: 22px; font-weight: 600; color: var(--text-primary); margin-bottom: 18px; line-height: 1.4; }
+  .body-text { font-size: 15px; color: var(--text-primary); margin-bottom: 18px; font-weight: 400; line-height: 1.9; }
+  .body-text strong { font-weight: 500; }
+
+  .pull-quote { font-family: var(--serif); font-size: 20px; font-weight: 600; color: var(--text-primary); line-height: 1.6; padding: 32px 0; margin: 36px 0; border-top: 1.5px solid var(--be); border-bottom: 0.5px solid var(--border); position: relative; }
+  .pull-quote::before { content: '\201C'; font-family: var(--serif); font-size: 72px; color: var(--be); opacity: 0.12; position: absolute; top: 10px; left: -8px; line-height: 1; }
+
+  .callout { border-left: 2px solid var(--accent); padding: 16px 20px; background: var(--accent-light); border-radius: 0 8px 8px 0; margin: 28px 0; }
+  .callout p { font-size: 14px; color: var(--danger); font-weight: 400; line-height: 1.75; margin: 0; }
+  .callout.be { border-color: var(--be); background: var(--be-light); }
+  .callout.be p { color: var(--be); }
+  .callout.success { border-color: var(--success); background: var(--success-light); }
+  .callout.success p { color: var(--success); }
+  .callout.warn { border-color: var(--accent); background: var(--accent-light); }
+  .callout.warn p { color: var(--danger); }
+
+  .diagram { border: 0.5px solid var(--border-strong); border-radius: 12px; overflow: hidden; margin: 28px 0; background: var(--bg-card); }
+  .diagram-header { padding: 12px 18px; border-bottom: 0.5px solid var(--border); display: flex; align-items: center; gap: 8px; }
+  .diagram-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--be); flex-shrink: 0; }
+  .diagram-label { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-tertiary); font-weight: 500; }
+  .diagram-body { padding: 20px 18px; }
+
+  /* Term card */
+  .term-list { display: flex; flex-direction: column; }
+  .term-card { padding: 18px 0; border-bottom: 0.5px solid var(--border); display: grid; grid-template-columns: 140px 1fr; gap: 0 24px; align-items: start; }
+  .term-card:last-child { border-bottom: none; }
+  .term-name { font-family: var(--mono); font-size: 13px; font-weight: 500; color: var(--be); padding-top: 3px; line-height: 1.5; }
+  .term-name .term-en { display: block; font-size: 10px; color: var(--text-tertiary); font-weight: 400; margin-top: 3px; letter-spacing: 0.03em; }
+  .term-def { font-size: 14px; color: var(--text-primary); font-weight: 500; margin-bottom: 8px; line-height: 1.65; }
+  .term-scene { font-size: 13px; color: var(--text-secondary); line-height: 1.75; padding: 10px 14px; background: var(--bg); border-radius: 6px; border-left: 2px solid var(--border-strong); font-style: italic; }
+  .term-scene strong { font-style: normal; font-weight: 500; color: var(--be); }
+
+  /* Code block */
+  .code-block { background: #1C2A1E; border-radius: 8px; padding: 14px 16px; font-family: var(--mono); font-size: 12px; line-height: 1.9; overflow-x: auto; margin: 12px 0; }
+  .code-block .cm { color: #5a7a5e; }
+  .code-block .kw { color: #7ec8a4; font-weight: 500; }
+  .code-block .fn { color: #a8d8b0; }
+  .code-block .str { color: #d4a574; }
+  .code-block .num { color: #79c0ff; }
+  .code-block .type { color: #f0c070; }
+  .code-block .plain { color: #cdd9d1; }
+
+  /* Architecture diagram */
+  .arch { display: flex; flex-direction: column; gap: 6px; }
+  .arch-layer { display: flex; align-items: stretch; gap: 6px; }
+  .arch-box {
+    flex: 1; border-radius: 8px; padding: 12px 14px;
+    display: flex; flex-direction: column; justify-content: center;
+    border: 0.5px solid;
+  }
+  .arch-box-title { font-size: 12px; font-weight: 600; margin-bottom: 3px; }
+  .arch-box-desc { font-size: 10px; opacity: 0.75; line-height: 1.5; }
+  .arch-arrow { display: flex; align-items: center; justify-content: center; color: var(--text-tertiary); font-size: 14px; padding: 0; flex-shrink: 0; width: 20px; }
+
+  /* DB table mock */
+  .db-table { width: 100%; border-collapse: collapse; font-size: 12px; font-family: var(--mono); }
+  .db-table th { text-align: left; font-size: 10px; color: var(--be); font-weight: 600; padding: 6px 10px; border-bottom: 1.5px solid rgba(15,110,86,0.3); letter-spacing: 0.06em; }
+  .db-table td { padding: 7px 10px; border-bottom: 0.5px solid var(--border); color: var(--text-secondary); vertical-align: middle; }
+  .db-table tr:last-child td { border-bottom: none; }
+  .db-table td:first-child { color: var(--be); font-weight: 500; }
+  .db-pk { display: inline-block; font-size: 9px; padding: 1px 5px; border-radius: 3px; background: var(--be-light); color: var(--be); font-weight: 600; margin-right: 4px; }
+  .db-fk { display: inline-block; font-size: 9px; padding: 1px 5px; border-radius: 3px; background: var(--accent-light); color: var(--accent); font-weight: 600; margin-right: 4px; }
+
+  /* Request flow */
+  .req-flow { display: flex; flex-direction: column; gap: 4px; }
+  .req-step { display: flex; align-items: flex-start; gap: 10px; padding: 9px 12px; border-radius: 7px; border: 0.5px solid var(--border); background: var(--bg); }
+  .req-num { font-family: var(--mono); font-size: 11px; font-weight: 700; color: var(--be); min-width: 18px; margin-top: 1px; }
+  .req-actor { font-size: 11px; font-weight: 600; min-width: 56px; color: var(--text-primary); margin-top: 1px; }
+  .req-desc { font-size: 12px; color: var(--text-secondary); line-height: 1.6; }
+  .req-code { font-family: var(--mono); font-size: 11px; background: var(--bg-code); padding: 1px 6px; border-radius: 3px; color: var(--be); }
+  .req-step.highlight { background: var(--be-light); border-color: rgba(15,110,86,0.2); }
+
+  /* High availability grid */
+  .ha-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .ha-card { background: var(--bg); border: 0.5px solid var(--border); border-radius: 8px; padding: 14px; }
+  .ha-icon { font-size: 20px; margin-bottom: 6px; display: block; color: var(--be); }
+  .ha-title { font-size: 13px; font-weight: 600; color: var(--text-primary); margin-bottom: 5px; }
+  .ha-desc { font-size: 12px; color: var(--text-secondary); line-height: 1.65; }
+
+  /* Status badges */
+  .http-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin: 12px 0; }
+  .http-card { border-radius: 8px; padding: 10px 8px; text-align: center; border: 0.5px solid; }
+  .http-code { font-family: var(--mono); font-size: 15px; font-weight: 700; display: block; margin-bottom: 3px; }
+  .http-name { font-size: 10px; font-weight: 500; }
+
+  /* Tags */
+  .tag-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 48px; padding-top: 24px; border-top: 0.5px solid var(--border); }
+  .tag { font-size: 11px; padding: 4px 12px; border-radius: 20px; border: 0.5px solid var(--border-strong); color: var(--text-secondary); font-weight: 400; text-decoration: none; transition: all 0.2s; }
+  .tag:hover { border-color: var(--be); color: var(--be); }
+
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+  .hero { animation: fadeUp 0.6s ease both; }
+  .article-body { animation: fadeUp 0.6s 0.1s ease both; }
+  .sidebar { animation: fadeUp 0.6s 0.15s ease both; }
+
+  .site-footer { border-top: 0.5px solid var(--border); padding: 28px 32px; max-width: 1020px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: var(--text-tertiary); }
+
+  @media (max-width: 680px) {
+    .content-wrap { grid-template-columns: 1fr; }
+    .sidebar { display: none; }
+    .headline { font-size: 28px; }
+    .hero { padding: 40px 20px 32px; }
+    .content-wrap { padding: 0 20px; }
+    .header-inner { padding: 0 20px; }
+    .site-footer { padding: 28px 20px; }
+    .term-card { grid-template-columns: 1fr; gap: 6px; }
+    .ha-grid { grid-template-columns: 1fr; }
+    .http-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <a class="site-name" href="../../index.html" style="text-decoration:none;color:inherit;">聚合叉的博客</a>
+    <span class="header-tag">职场术语 · 进阶篇</span>
+  </div>
+</header>
+
+<section class="hero">
+  <p class="kicker">进阶篇 · 第五篇</p>
+  <h1 class="headline">后端工程师的<em>专业语言</em></h1>
+  <p class="deck">接口、数据库、缓存、消息队列、高可用……后端是用户看不见的那一层，但数据怎么存、怎么算、怎么返回，全靠他们。读懂这些词，你才能真正理解一个系统是怎么运转的。</p>
+  <div class="meta-row">
+    <span>2026-06-05</span>
+    <span>阅读约 14 分钟</span>
+    <span>后端开发 · 系统设计 · 数据库</span>
+    <span>建议先读第一、二篇</span>
+  </div>
+</section>
+
+<div class="content-wrap">
+  <article class="article-body">
+
+    <p class="body-text">前端是用户看得见的世界，后端是支撑这个世界运转的基础设施。用户点击"签到"，前端发出一个请求——接下来发生的事，全在后端：验证用户身份、检查今天是否已签到、写入数据库、计算积分、返回结果。每一步都有对应的语言。</p>
+
+    <p class="body-text">这篇按五个层次展开：接口与通信、数据存储、架构设计、高可用保障、DevOps 与部署。</p>
+
+    <div class="callout be">
+      <p>本篇主题色为墨绿，代表后端工程师角色。后端的语言偏向系统和抽象，初次接触可能觉得有点绕——但每个词背后都有一个具体的现实问题在驱动它。带着"为什么需要这个"去读，会容易很多。</p>
+    </div>
+
+    <!-- ===== S1 接口 ===== -->
+    <p class="section-label" id="s1">第一层</p>
+    <h2 class="section-heading">接口与通信——前后端的契约</h2>
+
+    <p class="body-text">前端和后端之间通过接口（API）传递数据。接口是两者之间的"契约"——双方约定好请求格式和返回格式，各自按约定开发，互不干扰。这一层的词，是联调时最高频出现的。</p>
+
+    <div class="diagram">
+      <div class="diagram-header">
+        <span class="diagram-dot"></span>
+        <span class="diagram-label">接口与通信相关术语</span>
+      </div>
+      <div class="diagram-body">
+        <div class="term-list">
+
+          <div class="term-card">
+            <div class="term-name">API
+              <span class="term-en">Application Programming Interface</span>
+            </div>
+            <div class="term-body">
+              <p class="term-def">应用程序接口——后端提供的数据入口，前端通过特定的地址和格式发请求，后端按约定返回数据。是前后端之间唯一合法的沟通渠道。</p>
+              <p class="term-scene">「签到的 <strong>API</strong> 我写好了，地址是 POST /api/v1/checkin，参数看文档。」</p>
+            </div>
+          </div>
+
+          <div class="term-card">
+            <div class="term-name">RESTful
+              <span class="term-en">REST API Style</span>
+            </div>
+            <div class="term-body">
+              <p class="term-def">一种 API 设计风格，用 HTTP 动词（GET 查询、POST 新建、PUT 更新、DELETE 删除）加资源路径来表达操作，读起来接近自然语言。大多数互联网产品的接口都遵循这个风格。</p>
+              <p class="term-scene">「我们的接口都是 <strong>RESTful</strong> 风格，GET /users/:id 就是查某个用户信息。」</p>
+            </div>
+          </div>
+
+          <div class="term-card">
+            <div class="term-name">请求 / 响应
+              <span class="term-en">Request / Response</span>
+            </div>
+            <div class="term-body">
+              <p class="term-def">前端发出请求（Request），后端处理后返回响应（Response）。一个完整的接口调用就是这一来一回，HTTP 状态码告诉前端这次调用的结果。</p>
+              <p class="term-scene">「<strong>请求</strong>到了但一直没有<strong>响应</strong>，可能是服务超时，看一下后端日志。」</p>
+            </div>
+          </div>
+
+          <div class="term-card">
+            <div class="term-name">HTTP 状态码
+              <span class="term-en">HTTP Status Code</span>
+            </div>
+            <div class="term-body">
+              <p class="term-def">后端在响应里附带的三位数字，告诉前端这次请求的处理结果。2xx 是成功，4xx 是客户端错误，5xx 是服务端错误。</p>
+              <p class="term-scene">「签到接口返回 <strong>500</strong>，是后端服务报错，不是前端的问题。」</p>
+            </div>
+          </div>
+
+          <div class="term-card">
+            <div class="term-name">JSON
+              <span class="term-en">JavaScript Object Notation</span>
+            </div>
+            <div class="term-body">
+              <p class="term-def">前后端之间传递数据最常用的格式，用键值对表示结构化数据，人类可读、机器易解析，是接口返回数据的标准格式。</p>
+              <p class="term-scene">「接口返回的 <strong>JSON</strong> 里，积分字段叫 points 不叫 score，前端注意一下。」</p>
+            </div>
+          </div>
+
+          <div class="term-card">
+            <div class="term-name">鉴权 / Token
+              <span class="term-en">Authentication / Token</span>
+            </div>
+            <div class="term-body">
+              <p class="term-def">验证"这个请求是合法用户发的"的机制。用户登录后拿到一个 Token，之后每次请求都带上它，后端用来确认身份。没有 Token 的请求会被拒绝。</p>
+              <p class="term-scene">「签到接口需要<strong>鉴权</strong>，前端发请求时在 Header 里带上用户 <strong>Token</strong>。」</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <p class="body-text">HTTP 状态码是联调时最常提到的信息，值得单独认识常见的几个——</p>
+
+    <div class="diagram">
+      <div class="diagram-header">
+        <span class="diagram-dot"></span>
+        <span class="diagram-label">常见 HTTP 状态码速认</span>
+      </div>
+      <div class="diagram-body">
+        <div class="http-grid">
+          <div class="http-card" style="background:var(--be-light);border-color:rgba(15,110,86,0.25);">
+            <span class="http-code" style="color:var(--be);">200</span>
+            <span class="http-name" style="color:var(--be);">成功</span>
+          </div>
+          <div class="http-card" style="background:var(--be-light);border-color:rgba(15,110,86,0.25);">
+            <span class="http-code" style="color:var(--be);">201</span>
+            <span class="http-name" style="color:var(--be);">创建成功</span>
+          </div>
+          <div class="http-card" style="background:var(--bg-code);border-color:var(--border-strong);">
+            <span class="http-code" style="color:var(--text-tertiary);">304</span>
+            <span class="http-name" style="color:var(--text-tertiary);">未变更</span>
+          </div>
+          <div class="http-card" style="background:var(--accent-light);border-color:rgba(196,98,42,0.25);">
+            <span class="http-code" style="color:var(--accent);">400</span>
+            <span class="http-name" style="color:var(--accent);">请求错误</span>
+          </div>
+          <div class="http-card" style="background:var(--accent-light);border-color:rgba(196,98,42,0.25);">
+            <span class="http-code" style="color:var(--accent);">401</span>
+            <span class="http-name" style="color:var(--accent);">未鉴权</span>
+          </div>
+          <div class="http-card" style="background:var(--accent-light);border-color:rgba(196,98,42,0.25);">
+            <span class="http-code" style="color:var(--accent);">403</span>
+            <span class="http-name" style="color:var(--accent);">无权限</span>
+          </div>
+          <div class="http-card" style="background:var(--danger-light);border-color:rgba(153,60,29,0.25);">
+            <span class="http-code" style="color:var(--danger);">404</span>
+            <span class="http-name" style="color:var(--danger);">找不到</span>
+          </div>
+          <div class="http-card" style="background:var(--danger-light);border-color:rgba(153,60,29,0.25);">
+            <span class="http-code" style="color:var(--danger);">500</span>
+            <span class="http-name" style="color:var(--danger);">服务报错</span>
+          </div>
+          <div class="http-card" style="background:var(--danger-light);border-color:rgba(153,60,29,0.25);">
+            <span class="http-code" style="color:var(--danger);">503</span>
+            <span class="http-name" style="color:var(--danger);">服务不可用</span>
+          </div>
+          <div class="http-card" style="background:var(--danger-light);border-color:rgba(153,60,29,0.25);">
+            <span class="http-code" style="color:var(--danger);">504</span>
+            <span class="http-name" style="color:var(--danger);">网关超时</span>
+          </div>
+        </div>
+        <p style="font-size:12px;color:var(--text-tertiary);margin-top:10px;line-height:1.65;">绿色 = 成功，橙色 = 客户端问题（前端或请求参数），红色 = 服务端问题（后端）。下次联调遇到报错，先看状态码，就知道锅在哪边。</p>
+      </div>
+    </div>
+
+    <div class="diagram">
+      <div class="diagram-header">
+        <span class="diagram-dot"></span>
+        <span class="diagram-label">一次签到请求的完整链路</span>
+      </div>
+      <div class="diagram-body">
+        <div class="req-flow">
+          <div class="req-step">
+            <span class="req-num">①</span>
+            <span class="req-actor">用户</span>
+            <span class="req-desc">点击签到按钮</span>
+          </div>
+          <div class="req-step">
+            <span class="req-num">②</span>
+            <span class="req-actor">前端</span>
+            <span class="req-desc">发送请求：<span class="req-code">POST /api/v1/checkin</span>，Header 携带 Token</span>
+          </div>
+          <div class="req-step highlight">
+            <span class="req-num">③</span>
+            <span class="req-actor">后端</span>
+            <span class="req-desc">验证 Token → 查数据库确认今天未签到 → 写入签到记录 → 发放积分 → 返回结果</span>
+          </div>
+          <div class="req-step">
+            <span class="req-num">④</span>
+            <span class="req-actor">后端</span>
+            <span class="req-desc">响应 <span class="req-code">200 OK</span>，返回 JSON：<span class="req-code">{"success": true, "points": 160}</span></span>
+          </div>
+          <div class="req-step">
+            <span class="req-num">⑤</span>
+            <span class="req-actor">前端</span>
+            <span class="req-desc">接收响应，播放积分动画，页面显示 160 分</span>
+          </div>
+        </div>
+        <p style="font-size:12px;color:var(--text-tertiary);margin-top:12px;line-height:1.65;">绿色高亮的是后端的工作范围——同一个"签到"动作，后端内部要做好几件事，每一步出了问题都会影响最终结果。</p>
+      </div>
+    </div>
+
+    <!-- ===== S2 数据库 ===== -->
+    <p class="section-label" id="s2">第二层</p>
+    <h2 class="section-heading">数据存储——数据住在哪里</h2>
+
+    <p class="body-text">后端的核心工作之一是管理数据——用户信息、签到记录、积分余额，都需要被持久化存储。这一层的词描述数据是怎么组织和操作的。</p>
+
+    <div class="diagram">
+      <div class="diagram-header">
+        <span class="diagram-dot"></span>
+        <span class="diagram-label">数据存储相关术语</span>
+      </div>
+      <div class="diagram-body">
+        <div class="term-list">
+
+          <div class="term-card">
+            <div class="term-name">数据库
+              <span class="term-en">Database</span>
+            </div>
+            <div class="term-body">
+              <p class="term-def">持久化存储数据的系统，分关系型（MySQL、PostgreSQL，用表格组织）和非关系型（MongoDB、Redis，用文档或键值对组织）。选哪种取决于数据结构和访问模式。</p>
+              <p class="term-scene">「用户的签到记录存 MySQL，实时积分缓存放 <strong>Redis</strong>，查起来快。」</p>
+            </div>
+          </div>
+
+          <div class="term-card">
+            <div class="term-name">表 / 字段
+              <span class="term-en">Table / Column</span>
+            </div>
+            <div class="term-body">
+              <p class="term-def">关系型数据库里，表是数据的容器（类似 Excel 表格），字段是表里的每一列（类似表头）。一行数据就是一条记录。</p>
+              <p class="term-scene">「checkin_records <strong>表</strong>里加一个 consecutive_days <strong>字段</strong>，记录连续签到天数。」</p>
+            </div>
+          </div>
+
+          <div class="term-card">
+            <div class="term-name">索引
+              <span class="term-en">Index</span>
+            </div>
+            <div class="term-body">
+              <p class="term-def">给数据库里的某个字段建立的"目录"，让查询速度大幅提升。没有索引，查 1000 万条记录要全部扫一遍；有了索引，直接跳到目标位置。</p>
+              <p class="term-scene">「user_id 字段加个<strong>索引</strong>，不然每次查签到记录都全表扫描，慢死了。」</p>
+            </div>
+          </div>
+
+          <div class="term-card">
+            <div class="term-name">事务
+              <span class="term-en">Transaction</span>
+            </div>
+            <div class="term-body">
+              <p class="term-def">把多个数据库操作打包成一个不可分割的整体——要么全成功，要么全回滚。防止"积分发出去但签到记录没写进去"这类数据不一致问题。</p>
+              <p class="term-scene">「签到记录写入和积分发放要放在同一个<strong>事务</strong>里，不能只做一半。」</p>
+            </div>
+          </div>
+
+          <div class="term-card">
+            <div class="term-name">缓存（Redis）
+              <span class="term-en">Cache / Redis</span>
+            </div>
+            <div class="term-body">
+              <p class="term-def">把频繁查询的数据存在内存里（而不是硬盘），读取速度比数据库快 100 倍以上。积分余额、用户信息这类高频读取的数据，通常会缓存在 Redis 里。</p>
+              <p class="term-scene">「积分余额查询太频繁，加一层 <strong>Redis 缓存</strong>，不然数据库撑不住。」</p>
+            </div>
+          </div>
+
+          <div class="term-card">
+            <div class="term-name">ORM
+              <span class="term-en">Object-Relational Mapping</span>
+            </div>
+            <div class="term-body">
+              <p class="term-def">让开发者用代码对象操作数据库，而不用直接写 SQL 语句的工具。"查所有今天签到的用户"可以写成代码，ORM 自动翻译成 SQL 执行。</p>
+              <p class="term-scene">「我用 <strong>ORM</strong> 写的查询，你要看原始 SQL 用 .toSQL() 打印出来看。」</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <p class="body-text">一个签到功能涉及的数据表结构大概是这样的——</p>
+
+    <div class="diagram">
+      <div class="diagram-header">
+        <span class="diagram-dot"></span>
+        <span class="diagram-label">数据库表结构示例 · 签到功能</span>
+      </div>
+      <div class="diagram-body">
+        <div style="display:flex;flex-direction:column;gap:16px;">
+
+          <div>
+            <p style="font-size:11px;font-weight:600;color:var(--be);margin-bottom:8px;letter-spacing:0.04em;">📋 users（用户表）</p>
+            <div style="background:var(--bg);border-radius:8px;overflow:hidden;border:0.5px solid var(--border);">
+              <table class="db-table">
+                <thead><tr><th>字段名</th><th>类型</th><th>说明</th></tr></thead>
+                <tbody>
+                  <tr><td><span class="db-pk">PK</span>id</td><td>BIGINT</td><td>用户唯一标识</td></tr>
+                  <tr><td>username</td><td>VARCHAR</td><td>用户名</td></tr>
+                  <tr><td>points_balance</td><td>INT</td><td>积分余额</td></tr>
+                  <tr><td>created_at</td><td>DATETIME</td><td>注册时间</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div>
+            <p style="font-size:11px;font-weight:600;color:var(--be);margin-bottom:8px;letter-spacing:0.04em;">📋 checkin_records（签到记录表）</p>
+            <div style="background:var(--bg);border-radius:8px;overflow:hidden;border:0.5px solid var(--border);">
+              <table class="db-table">
+                <thead><tr><th>字段名</th><th>类型</th><th>说明</th></tr></thead>
+                <tbody>
+                  <tr><td><span class="db-pk">PK</span>id</td><td>BIGINT</td><td>记录 ID</td></tr>
+                  <tr><td><span class="db-fk">FK</span>user_id</td><td>BIGINT</td><td>关联用户表的 id</td></tr>
+                  <tr><td>checkin_date</td><td>DATE</td><td>签到日期（加索引）</td></tr>
+                  <tr><td>points_earned</td><td>INT</td><td>本次获得积分</td></tr>
+                  <tr><td>consecutive_days</td><td>INT</td><td>当时连续签到天数</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+        <p style="font-size:12px;color:var(--text-tertiary);margin-top:12px;line-height:1.65;"><span class="db-pk">PK</span>= 主键（唯一标识一行）　<span class="db-fk">FK</span>= 外键（关联另一张表）　checkin_date 字段会加索引，方便快速查"今天有没有签到"。</p>
+      </div>
+    </div>
+
+    <div class="pull-quote">
+      后端的数据库设计，<br>决定了这个产品能跑多快、能撑多大。
+    </div>
+
+    <!-- ===== S3 架构 ===== -->
+    <p class="section-label" id="s3">第三层</p>
+    <h2 class="section-heading">架构设计——系统的骨架</h2>
+
+    <p class="body-text">随着用户量增长，一台服务器一个数据库会撑不住。架构设计就是把系统拆成合理的模块、合理地分配工作，让系统能扩展、能容错。</p>
+
+    <div class="diagram">
+      <div class="diagram-header">
+        <span class="diagram-dot"></span>
+        <span class="diagram-label">架构相关术语</span>
+      </div>
+      <div class="diagram-body">
+        <div class="term-list">
+
+          <div class="term-card">
+            <div class="term-name">单体架构
+              <span class="term-en">Monolith</span>
+            </div>
+            <div class="term-body">
+              <p class="term-def">所有功能打包在一个应用里运行，简单易维护，适合早期产品。缺点是随着功能增多，代码越来越难改，一个模块出问题可能影响全部。</p>
+              <p class="term-scene">「我们现在是<strong>单体</strong>，代码都在一起，等用户量上去再考虑拆服务。」</p>
+            </div>
+          </div>
+
+          <div class="term-card">
+            <div class="term-name">微服务
+              <span class="term-en">Microservices</span>
+            </div>
+            <div class="term-body">
+              <p class="term-def">把系统拆成多个独立的小服务（用户服务、积分服务、签到服务……），每个服务独立部署、独立扩容，互不影响。复杂度高但灵活性强。</p>
+              <p class="term-scene">「积分服务流量大，拆成独立<strong>微服务</strong>后可以单独扩容，不影响其他模块。」</p>
+            </div>
+          </div>
+
+          <div class="term-card">
+            <div class="term-name">负载均衡
+              <span class="term-en">Load Balancer</span>
+            </div>
+            <div class="term-body">
+              <p class="term-def">把涌入的大量请求均匀分配到多台服务器上，避免某台服务器被压垮，同时如果一台挂了还有其他台顶着。是高并发场景的标配。</p>
+              <p class="term-scene">「签到高峰期并发量大，加一层<strong>负载均衡</strong>，把请求分到三台服务器上。」</p>
+            </div>
+          </div>
+
+          <div class="term-card">
+            <div class="term-name">消息队列
+              <span class="term-en">Message Queue / MQ</span>
+            </div>
+            <div class="term-body">
+              <p class="term-def">在服务之间传递消息的"缓冲区"。把耗时操作（比如发短信通知）放进队列异步处理，不让它阻塞主流程，用户不用等。常见工具有 Kafka、RabbitMQ。</p>
+              <p class="term-scene">「签到成功后发推送通知放进<strong>消息队列</strong>异步处理，不影响接口响应速度。」</p>
+            </div>
+          </div>
+
+          <div class="term-card">
+            <div class="term-name">中间件
+              <span class="term-en">Middleware</span>
+            </div>
+            <div class="term-body">
+              <p class="term-def">夹在应用和底层基础设施之间的软件层，比如处理请求日志、鉴权验证、限流控制的代码模块。每个请求进来都会先经过中间件的处理。</p>
+              <p class="term-scene">「鉴权逻辑做成<strong>中间件</strong>，所有需要登录才能访问的接口自动生效，不用每个都写一遍。」</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="diagram">
+      <div class="diagram-header">
+        <span class="diagram-dot"></span>
+        <span class="diagram-label">系统架构示意 · 签到功能的服务层次</span>
+      </div>
+      <div class="diagram-body">
+        <div class="arch">
+
+          <div class="arch-layer">
+            <div class="arch-box" style="background:#EBF3FF;border-color:rgba(24,95,165,0.2);">
+              <p class="arch-box-title" style="color:var(--info);">🌐 客户端</p>
+              <p class="arch-box-desc" style="color:rgba(24,95,165,0.7);">浏览器 / App · 前端代码运行的地方</p>
+            </div>
+          </div>
+
+          <div style="text-align:center;font-size:16px;color:var(--text-tertiary);padding:2px 0;">↓ HTTPS 请求</div>
+
+          <div class="arch-layer">
+            <div class="arch-box" style="background:var(--bg-code);border-color:var(--border-strong);">
+              <p class="arch-box-title" style="color:var(--text-primary);">⚖️ 负载均衡</p>
+              <p class="arch-box-desc">Nginx · 把请求分发到多台服务器</p>
+            </div>
+          </div>
+
+          <div style="text-align:center;font-size:16px;color:var(--text-tertiary);padding:2px 0;">↓ 分发请求</div>
+
+          <div class="arch-layer" style="gap:6px;">
+            <div class="arch-box" style="background:var(--be-light);border-color:rgba(15,110,86,0.2);">
+              <p class="arch-box-title" style="color:var(--be);">🔧 中间件层</p>
+              <p class="arch-box-desc" style="color:rgba(15,110,86,0.7);">鉴权 / 限流 / 日志</p>
+            </div>
+            <div class="arch-arrow">→</div>
+            <div class="arch-box" style="background:var(--be-light);border-color:rgba(15,110,86,0.2);">
+              <p class="arch-box-title" style="color:var(--be);">📦 签到服务</p>
+              <p class="arch-box-desc" style="color:rgba(15,110,86,0.7);">业务逻辑 · 积分计算</p>
+            </div>
+            <div class="arch-arrow">→</div>
+            <div class="arch-box" style="background:var(--be-light);border-color:rgba(15,110,86,0.2);">
+              <p class="arch-box-title" style="color:var(--be);">📬 消息队列</p>
+              <p class="arch-box-desc" style="color:rgba(15,110,86,0.7);">异步通知 · 推送</p>
+            </div>
+          </div>
+
+          <div style="text-align:center;font-size:16px;color:var(--text-tertiary);padding:2px 0;">↓ 读写数据</div>
+
+          <div class="arch-layer" style="gap:6px;">
+            <div class="arch-box" style="background:var(--accent-light);border-color:rgba(196,98,42,0.2);">
+              <p class="arch-box-title" style="color:var(--accent);">🗄️ MySQL</p>
+              <p class="arch-box-desc" style="color:rgba(196,98,42,0.7);">签到记录 · 用户数据持久化</p>
+            </div>
+            <div class="arch-box" style="background:var(--danger-light);border-color:rgba(153,60,29,0.2);">
+              <p class="arch-box-title" style="color:var(--danger);">⚡ Redis</p>
+              <p class="arch-box-desc" style="color:rgba(153,60,29,0.7);">积分缓存 · 高频数据加速</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== S4 高可用 ===== -->
+    <p class="section-label" id="s4">第四层</p>
+    <h2 class="section-heading">高可用保障——出了问题怎么办</h2>
+
+    <p class="body-text">系统在生产环境运行时，任何组件都可能出故障。高可用（High Availability）的目标，是让系统在局部故障时仍能对外提供服务，把影响控制到最小。</p>
+
+    <div class="diagram">
+      <div class="diagram-header">
+        <span class="diagram-dot"></span>
+        <span class="diagram-label">高可用相关术语</span>
+      </div>
+      <div class="diagram-body">
+        <div class="term-list">
+
+          <div class="term-card">
+            <div class="term-name">高可用 / HA
+              <span class="term-en">High Availability</span>
+            </div>
+            <div class="term-body">
+              <p class="term-def">系统在大部分时间内保持可用状态的能力，通常用"几个九"来衡量：99.9% 表示每年最多停机 8.7 小时，99.99% 表示最多 52 分钟。</p>
+              <p class="term-scene">「签到服务要做到 <strong>99.9%</strong> 可用，不能因为一台机器挂了就全挂。」</p>
+            </div>
+          </div>
+
+          <div class="term-card">
+            <div class="term-name">熔断
+              <span class="term-en">Circuit Breaker</span>
+            </div>
+            <div class="term-body">
+              <p class="term-def">当某个依赖服务（比如积分服务）频繁报错时，自动切断对它的调用，直接返回降级结果，防止雪崩式故障蔓延到全系统。</p>
+              <p class="term-scene">「积分服务挂了，<strong>熔断</strong>了，签到还能正常用，积分后面补发。」</p>
+            </div>
+          </div>
+
+          <div class="term-card">
+            <div class="term-name">限流
+              <span class="term-en">Rate Limiting</span>
+            </div>
+            <div class="term-body">
+              <p class="term-def">限制在单位时间内允许通过的请求数量，防止突发流量把服务器压垮。常见策略有每秒最多 1000 次请求，超过的排队或直接拒绝。</p>
+              <p class="term-scene">「签到接口加<strong>限流</strong>，每个用户每分钟最多调用 10 次，防刷。」</p>
+            </div>
+          </div>
+
+          <div class="term-card">
+            <div class="term-name">降级
+              <span class="term-en">Graceful Degradation</span>
+            </div>
+            <div class="term-body">
+              <p class="term-def">在系统部分功能不可用时，主动关闭非核心功能、保留核心功能运转的策略。"签到功能正常，但排行榜暂时不显示"就是一种降级。</p>
+              <p class="term-scene">「高峰期把签到排行榜<strong>降级</strong>掉，保签到主流程，排行榜明天再恢复。」</p>
+            </div>
+          </div>
+
+          <div class="term-card">
+            <div class="term-name">幂等性
+              <span class="term-en">Idempotency</span>
+            </div>
+            <div class="term-body">
+              <p class="term-def">同一个请求发多次，结果和发一次一样——不会因为网络重试造成重复签到、重复扣钱。后端接口设计的基本原则，防止因网络抖动造成数据异常。</p>
+              <p class="term-scene">「签到接口要保证<strong>幂等</strong>，网络重试时不能重复发积分。」</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="diagram">
+      <div class="diagram-header">
+        <span class="diagram-dot"></span>
+        <span class="diagram-label">高可用四大保障机制</span>
+      </div>
+      <div class="diagram-body">
+        <div class="ha-grid">
+          <div class="ha-card">
+            <span class="ha-icon mdi mdi-electric-switch"></span>
+            <p class="ha-title">熔断</p>
+            <p class="ha-desc">依赖服务挂了时自动切断，防止故障扩散。就像保险丝，局部短路不烧整个电路。</p>
+          </div>
+          <div class="ha-card">
+            <span class="ha-icon mdi mdi-speedometer-slow"></span>
+            <p class="ha-title">限流</p>
+            <p class="ha-desc">控制进来的流量，不让突发请求压垮服务。就像水龙头，放水但不让水漫出来。</p>
+          </div>
+          <div class="ha-card">
+            <span class="ha-icon mdi mdi-arrow-down-circle-outline"></span>
+            <p class="ha-title">降级</p>
+            <p class="ha-desc">压力大时主动关闭非核心功能，保核心路径。就像飞机减重，先扔非必要货物。</p>
+          </div>
+          <div class="ha-card">
+            <span class="ha-icon mdi mdi-repeat"></span>
+            <p class="ha-title">重试 + 幂等</p>
+            <p class="ha-desc">网络失败时自动重试，但保证重试不会产生副作用。两者必须配套使用。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== S5 DevOps ===== -->
+    <p class="section-label" id="s5">第五层</p>
+    <h2 class="section-heading">DevOps 与部署——代码怎么上线</h2>
+
+    <p class="body-text">写完代码到真正跑在服务器上，中间有一套自动化流程。DevOps 把开发（Development）和运维（Operations）连起来，让上线变得可重复、可回溯、出错率低。</p>
+
+    <div class="diagram">
+      <div class="diagram-header">
+        <span class="diagram-dot"></span>
+        <span class="diagram-label">DevOps 相关术语</span>
+      </div>
+      <div class="diagram-body">
+        <div class="term-list">
+
+          <div class="term-card">
+            <div class="term-name">CI/CD
+              <span class="term-en">Continuous Integration / Delivery</span>
+            </div>
+            <div class="term-body">
+              <p class="term-def">持续集成/持续交付——代码每次提交都自动跑测试（CI），测试通过后自动部署到测试或生产环境（CD），减少人工操作失误，让上线变成日常动作。</p>
+              <p class="term-scene">「<strong>CI/CD</strong> 流水线配好了，代码合并到 main 分支后自动发到测试环境，不用手动部署。」</p>
+            </div>
+          </div>
+
+          <div class="term-card">
+            <div class="term-name">容器 / Docker
+              <span class="term-en">Container / Docker</span>
+            </div>
+            <div class="term-body">
+              <p class="term-def">把应用和它运行所需的所有环境打包在一起，做到"在我机器上能跑，在任何地方都能跑"。Docker 是最流行的容器技术，解决了经典的"在我这里没问题"困境。</p>
+              <p class="term-scene">「用 <strong>Docker</strong> 打包，测试环境和生产环境用同一个镜像，环境差异导致的 bug 基本消失了。」</p>
+            </div>
+          </div>
+
+          <div class="term-card">
+            <div class="term-name">日志
+              <span class="term-en">Log</span>
+            </div>
+            <div class="term-body">
+              <p class="term-def">系统运行过程中自动记录的运行信息，包括请求记录、错误信息、性能数据。出了线上问题，第一步永远是"看日志"。</p>
+              <p class="term-scene">「签到接口报 500，把<strong>日志</strong>拉出来看，找到具体是哪行代码出错的。」</p>
+            </div>
+          </div>
+
+          <div class="term-card">
+            <div class="term-name">监控 / 告警
+              <span class="term-en">Monitoring / Alerting</span>
+            </div>
+            <div class="term-body">
+              <p class="term-def">实时观测系统健康状态（接口响应时间、错误率、CPU 使用率等），当指标超过阈值时自动发送告警（钉钉/短信），让工程师在用户察觉之前就发现问题。</p>
+              <p class="term-scene">「给签到接口设一个<strong>告警</strong>：错误率超过 1% 立刻通知我，不用等用户反馈。」</p>
+            </div>
+          </div>
+
+          <div class="term-card">
+            <div class="term-name">代码审查 / CR
+              <span class="term-en">Code Review</span>
+            </div>
+            <div class="term-body">
+              <p class="term-def">代码合并前由其他工程师检查代码质量、逻辑正确性和潜在问题的过程。是防止 bug 流入主分支的重要关卡，也是团队知识共享的重要方式。</p>
+              <p class="term-scene">「签到逻辑改完了，提个 PR 发给我 <strong>CR</strong> 一下，没问题再合并。」</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="diagram">
+      <div class="diagram-header">
+        <span class="diagram-dot"></span>
+        <span class="diagram-label">一次代码上线的 CI/CD 流程</span>
+      </div>
+      <div class="diagram-body">
+        <div style="display:flex;flex-direction:column;gap:4px;">
+          <div style="display:flex;gap:4px;align-items:stretch;flex-wrap:wrap;">
+            <div style="flex:1;min-width:80px;background:var(--be-light);border:0.5px solid rgba(15,110,86,0.2);border-radius:7px;padding:10px;text-align:center;">
+              <p style="font-size:11px;font-weight:600;color:var(--be);margin-bottom:3px;">① 提交代码</p>
+              <p style="font-size:10px;color:rgba(15,110,86,0.6);">git push</p>
+            </div>
+            <div style="display:flex;align-items:center;color:var(--text-tertiary);font-size:12px;padding:0 2px;">→</div>
+            <div style="flex:1;min-width:80px;background:var(--be-light);border:0.5px solid rgba(15,110,86,0.2);border-radius:7px;padding:10px;text-align:center;">
+              <p style="font-size:11px;font-weight:600;color:var(--be);margin-bottom:3px;">② 代码审查</p>
+              <p style="font-size:10px;color:rgba(15,110,86,0.6);">CR / PR</p>
+            </div>
+            <div style="display:flex;align-items:center;color:var(--text-tertiary);font-size:12px;padding:0 2px;">→</div>
+            <div style="flex:1;min-width:80px;background:var(--be-light);border:0.5px solid rgba(15,110,86,0.2);border-radius:7px;padding:10px;text-align:center;">
+              <p style="font-size:11px;font-weight:600;color:var(--be);margin-bottom:3px;">③ 自动测试</p>
+              <p style="font-size:10px;color:rgba(15,110,86,0.6);">CI 跑单测</p>
+            </div>
+            <div style="display:flex;align-items:center;color:var(--text-tertiary);font-size:12px;padding:0 2px;">→</div>
+            <div style="flex:1;min-width:80px;background:var(--be-light);border:0.5px solid rgba(15,110,86,0.2);border-radius:7px;padding:10px;text-align:center;">
+              <p style="font-size:11px;font-weight:600;color:var(--be);margin-bottom:3px;">④ 构建镜像</p>
+              <p style="font-size:10px;color:rgba(15,110,86,0.6);">Docker build</p>
+            </div>
+            <div style="display:flex;align-items:center;color:var(--text-tertiary);font-size:12px;padding:0 2px;">→</div>
+            <div style="flex:1;min-width:80px;background:var(--accent-light);border:0.5px solid rgba(196,98,42,0.2);border-radius:7px;padding:10px;text-align:center;">
+              <p style="font-size:11px;font-weight:600;color:var(--accent);margin-bottom:3px;">⑤ 自动部署</p>
+              <p style="font-size:10px;color:rgba(196,98,42,0.6);">CD 上测试环境</p>
+            </div>
+            <div style="display:flex;align-items:center;color:var(--text-tertiary);font-size:12px;padding:0 2px;">→</div>
+            <div style="flex:1;min-width:80px;background:var(--accent);border-radius:7px;padding:10px;text-align:center;">
+              <p style="font-size:11px;font-weight:600;color:white;margin-bottom:3px;">⑥ 灰度上线</p>
+              <p style="font-size:10px;color:rgba(255,255,255,0.7);">生产环境</p>
+            </div>
+          </div>
+          <p style="font-size:12px;color:var(--text-tertiary);margin-top:10px;line-height:1.65;">整个流程全自动触发，工程师只需要提交代码和审查，其余步骤由 CI/CD 系统自动完成。出错任何一步会自动中断并发送告警。</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== S6 速查 ===== -->
+    <p class="section-label" id="s6">速查手册</p>
+    <h2 class="section-heading">后端术语一览</h2>
+
+    <div class="diagram">
+      <div class="diagram-header">
+        <span class="diagram-dot"></span>
+        <span class="diagram-label">后端专业术语速查 · 共 26 个</span>
+      </div>
+      <div class="diagram-body">
+        <table style="width:100%;border-collapse:collapse;font-size:13px;">
+          <thead>
+            <tr>
+              <th style="text-align:left;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-tertiary);font-weight:500;padding:8px 10px;border-bottom:1px solid var(--border-strong);">术语</th>
+              <th style="text-align:left;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-tertiary);font-weight:500;padding:8px 10px;border-bottom:1px solid var(--border-strong);">层次</th>
+              <th style="text-align:left;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-tertiary);font-weight:500;padding:8px 10px;border-bottom:1px solid var(--border-strong);">一句话记忆</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="background:var(--be-light);">
+              <td colspan="3" style="padding:6px 10px;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--be);font-weight:500;">接口与通信</td>
+            </tr>
+            <tr><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--be);">API</td><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);color:var(--text-tertiary);font-size:12px;">接口</td><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);color:var(--text-secondary);font-size:12px;">前后端数据交换的入口</td></tr>
+            <tr><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--be);">RESTful</td><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);color:var(--text-tertiary);font-size:12px;">接口</td><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);color:var(--text-secondary);font-size:12px;">用 HTTP 动词描述操作的接口风格</td></tr>
+            <tr><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--be);">HTTP 状态码</td><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);color:var(--text-tertiary);font-size:12px;">接口</td><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);color:var(--text-secondary);font-size:12px;">2xx 成功 / 4xx 客户端错 / 5xx 服务端错</td></tr>
+            <tr><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--be);">JSON</td><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);color:var(--text-tertiary);font-size:12px;">接口</td><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);color:var(--text-secondary);font-size:12px;">接口数据传输的标准格式</td></tr>
+            <tr><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--be);">鉴权 / Token</td><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);color:var(--text-tertiary);font-size:12px;">接口</td><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);color:var(--text-secondary);font-size:12px;">证明这个请求是合法用户发的</td></tr>
+            <tr style="background:var(--accent-light);">
+              <td colspan="3" style="padding:6px 10px;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent);font-weight:500;">数据存储</td>
+            </tr>
+            <tr><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--be);">数据库</td><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);color:var(--text-tertiary);font-size:12px;">存储</td><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);color:var(--text-secondary);font-size:12px;">关系型（MySQL）或非关系型（MongoDB）</td></tr>
+            <tr><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--be);">表 / 字段</td><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);color:var(--text-tertiary);font-size:12px;">存储</td><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);color:var(--text-secondary);font-size:12px;">容器和列，数据的基本组织单位</td></tr>
+            <tr><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--be);">索引</td><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);color:var(--text-tertiary);font-size:12px;">存储</td><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);color:var(--text-secondary);font-size:12px;">数据库的目录，让查询飞速</td></tr>
+            <tr><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--be);">事务</td><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);color:var(--text-tertiary);font-size:12px;">存储</td><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);color:var(--text-secondary);font-size:12px;">多步操作要么全成功要么全回滚</td></tr>
+            <tr><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--be);">缓存 / Redis</td><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);color:var(--text-tertiary);font-size:12px;">存储</td><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);color:var(--text-secondary);font-size:12px;">热数据放内存，比数据库快 100 倍</td></tr>
+            <tr><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--be);">ORM</td><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);color:var(--text-tertiary);font-size:12px;">存储</td><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);color:var(--text-secondary);font-size:12px;">用代码对象操作数据库，不写 SQL</td></tr>
+            <tr style="background:var(--info-light);">
+              <td colspan="3" style="padding:6px 10px;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--info);font-weight:500;">架构设计</td>
+            </tr>
+            <tr><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--be);">单体架构</td><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);color:var(--text-tertiary);font-size:12px;">架构</td><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);color:var(--text-secondary);font-size:12px;">所有功能在一个应用里，简单易维护</td></tr>
+            <tr><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--be);">微服务</td><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);color:var(--text-tertiary);font-size:12px;">架构</td><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);color:var(--text-secondary);font-size:12px;">拆成独立小服务，各自部署扩容</td></tr>
+            <tr><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--be);">负载均衡</td><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);color:var(--text-tertiary);font-size:12px;">架构</td><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);color:var(--text-secondary);font-size:12px;">请求分发到多台服务器，防单点崩溃</td></tr>
+            <tr><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--be);">消息队列 / MQ</td><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);color:var(--text-tertiary);font-size:12px;">架构</td><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);color:var(--text-secondary);font-size:12px;">异步处理耗时操作，主流程不等待</td></tr>
+            <tr><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--be);">中间件</td><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);color:var(--text-tertiary);font-size:12px;">架构</td><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);color:var(--text-secondary);font-size:12px;">请求必经的公共处理层</td></tr>
+            <tr style="background:var(--danger-light);">
+              <td colspan="3" style="padding:6px 10px;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--danger);font-weight:500;">高可用</td>
+            </tr>
+            <tr><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--be);">高可用 / HA</td><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);color:var(--text-tertiary);font-size:12px;">可用性</td><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);color:var(--text-secondary);font-size:12px;">局部故障时系统仍可对外服务</td></tr>
+            <tr><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--be);">熔断</td><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);color:var(--text-tertiary);font-size:12px;">可用性</td><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);color:var(--text-secondary);font-size:12px;">依赖挂了就切断，防雪崩</td></tr>
+            <tr><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--be);">限流</td><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);color:var(--text-tertiary);font-size:12px;">可用性</td><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);color:var(--text-secondary);font-size:12px;">控制请求速率，防服务器被压垮</td></tr>
+            <tr><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--be);">降级</td><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);color:var(--text-tertiary);font-size:12px;">可用性</td><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);color:var(--text-secondary);font-size:12px;">关闭非核心功能，保核心路径</td></tr>
+            <tr><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--be);">幂等性</td><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);color:var(--text-tertiary);font-size:12px;">可用性</td><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);color:var(--text-secondary);font-size:12px;">重试多次结果不变，防重复操作</td></tr>
+            <tr style="background:var(--bg-code);">
+              <td colspan="3" style="padding:6px 10px;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-tertiary);font-weight:500;">DevOps</td>
+            </tr>
+            <tr><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--be);">CI/CD</td><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);color:var(--text-tertiary);font-size:12px;">部署</td><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);color:var(--text-secondary);font-size:12px;">提交代码后自动测试 + 自动部署</td></tr>
+            <tr><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--be);">Docker / 容器</td><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);color:var(--text-tertiary);font-size:12px;">部署</td><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);color:var(--text-secondary);font-size:12px;">打包应用 + 环境，到哪都能跑</td></tr>
+            <tr><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--be);">日志</td><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);color:var(--text-tertiary);font-size:12px;">部署</td><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);color:var(--text-secondary);font-size:12px;">出了问题第一步就是看日志</td></tr>
+            <tr><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--be);">监控 / 告警</td><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);color:var(--text-tertiary);font-size:12px;">部署</td><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);color:var(--text-secondary);font-size:12px;">实时观测 + 超阈值自动通知</td></tr>
+            <tr><td style="padding:8px 10px;font-family:var(--mono);font-size:12px;color:var(--be);">代码审查 / CR</td><td style="padding:8px 10px;color:var(--text-tertiary);font-size:12px;">部署</td><td style="padding:8px 10px;color:var(--text-secondary);font-size:12px;">合并前由同事检查代码质量</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="callout success">
+      <p>下一篇预告：《数据与算法的专业语言》——埋点、指标体系、AB 测试、特征工程、模型上线……从数据如何产生到如何驱动决策，一篇串联数分和算法两个角色。</p>
+    </div>
+
+    <div class="tag-row">
+      <a class="tag" href="#">后端工程师</a>
+      <a class="tag" href="#">API 设计</a>
+      <a class="tag" href="#">数据库</a>
+      <a class="tag" href="#">高可用</a>
+      <a class="tag" href="#">微服务</a>
+      <a class="tag" href="#">CI/CD</a>
+      <a class="tag" href="#">Redis</a>
+      <a class="tag" href="#">消息队列</a>
+    </div>
+
+  </article>
+
+  <aside class="sidebar">
+    <p class="toc-label">本篇目录</p>
+    <ul class="toc-list">
+      <li><a href="#s1" class="toc-link">接口与通信</a></li>
+      <li><a href="#s2" class="toc-link">数据存储</a></li>
+      <li><a href="#s3" class="toc-link">架构设计</a></li>
+      <li><a href="#s4" class="toc-link">高可用保障</a></li>
+      <li><a href="#s5" class="toc-link">DevOps 与部署</a></li>
+      <li><a href="#s6" class="toc-link">速查手册</a></li>
+    </ul>
+
+  </aside>
+</div>
+
+<footer class="site-footer">
+  <a href="../../index.html" style="color:inherit;text-decoration:none;display:flex;align-items:center;gap:6px;">← 返回首页</a>
+  <span>聚合叉的博客</span>
+</footer>
+
+<script>
+  (function () {
+    const sections = ['s1','s2','s3','s4','s5','s6'];
+    const links = document.querySelectorAll('.toc-link');
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          links.forEach(l => l.classList.remove('active'));
+          const active = document.querySelector(`.toc-link[href="#${entry.target.id}"]`);
+          if (active) active.classList.add('active');
+        }
+      });
+    }, { rootMargin: '-30% 0px -60% 0px' });
+    sections.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) observer.observe(el);
+    });
+  })();
+</script>
+</body>
+</html>

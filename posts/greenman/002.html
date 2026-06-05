@@ -1,0 +1,1189 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>读懂一张需求文档——从提出到上线 · 职场术语系列第二篇</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/@mdi/font@7.4.47/css/materialdesignicons.min.css" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #F7F5F0;
+    --bg-card: #FFFFFF;
+    --bg-code: #F0EDE8;
+    --text-primary: #1A1814;
+    --text-secondary: #5C5850;
+    --text-tertiary: #9A948A;
+    --accent: #C4622A;
+    --accent-light: #FAE8DC;
+    --accent-mid: #E8855A;
+    --info: #185FA5;
+    --info-light: #E6F1FB;
+    --danger: #993C1D;
+    --danger-light: #FAECE7;
+    --success: #0F6E56;
+    --success-light: #E1F5EE;
+    --border: rgba(60,50,40,0.1);
+    --border-strong: rgba(60,50,40,0.2);
+    --serif: 'Noto Serif SC', Georgia, serif;
+    --sans: 'Noto Sans SC', system-ui, sans-serif;
+    --mono: 'JetBrains Mono', monospace;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text-primary);
+    font-family: var(--sans);
+    font-weight: 400;
+    line-height: 1.85;
+    min-height: 100vh;
+  }
+
+  /* ── Header ── */
+  .site-header {
+    border-bottom: 0.5px solid var(--border);
+    padding: 18px 0;
+    position: sticky; top: 0;
+    background: rgba(247,245,240,0.9);
+    backdrop-filter: blur(12px);
+    z-index: 100;
+  }
+  .header-inner {
+    max-width: 1020px; margin: 0 auto;
+    padding: 0 32px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .site-name {
+    font-family: var(--serif); font-size: 15px; font-weight: 600;
+    color: var(--text-primary); letter-spacing: 0.02em;
+  }
+  .header-tag {
+    font-size: 11px; color: var(--text-tertiary);
+    letter-spacing: 0.15em; text-transform: uppercase; font-weight: 400;
+  }
+
+  /* ── Hero ── */
+  .hero {
+    max-width: 1020px; margin: 0 auto;
+    padding: 72px 32px 48px;
+    border-bottom: 0.5px solid var(--border);
+  }
+  .kicker {
+    font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--accent); font-weight: 500; margin-bottom: 20px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .kicker::after {
+    content: ''; display: block; height: 1px; width: 40px;
+    background: var(--accent-mid); opacity: 0.5;
+  }
+  .headline {
+    font-family: var(--serif); font-size: 42px; font-weight: 700;
+    line-height: 1.25; color: var(--text-primary);
+    margin-bottom: 20px; letter-spacing: -0.01em;
+  }
+  .headline em { font-style: normal; color: var(--accent); }
+  .deck {
+    font-size: 16px; color: var(--text-secondary);
+    font-weight: 400; line-height: 1.75;
+    max-width: 560px; margin-bottom: 32px;
+  }
+  .meta-row {
+    display: flex; align-items: center;
+    gap: 20px; font-size: 12px;
+    color: var(--text-tertiary); flex-wrap: wrap;
+  }
+  .meta-row span { display: flex; align-items: center; gap: 5px; }
+
+  /* ── Layout ── */
+  .content-wrap {
+    max-width: 1020px; margin: 0 auto; padding: 0 32px;
+    display: grid; grid-template-columns: 1fr 260px;
+    gap: 0 56px; align-items: start;
+  }
+  .article-body { padding: 48px 0 80px; min-width: 0; }
+
+  /* ── Sidebar ── */
+  .sidebar { padding: 48px 0 80px; position: sticky; top: 72px; }
+  .toc-label {
+    font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--text-tertiary); font-weight: 500; margin-bottom: 14px;
+  }
+  .toc-list {
+    list-style: none;
+    border-left: 1px solid var(--border-strong);
+    padding-left: 14px; margin-bottom: 32px;
+  }
+  .toc-list li { margin-bottom: 8px; }
+  .toc-list a {
+    font-size: 12px; color: var(--text-tertiary); text-decoration: none;
+    font-weight: 400; line-height: 1.5; transition: color 0.2s; display: block;
+  }
+  .toc-list a:hover { color: var(--accent); }
+  .toc-list a.active { color: var(--accent); font-weight: 500; }
+
+  .series-nav {
+    border: 0.5px solid var(--border-strong); border-radius: 10px;
+    overflow: hidden; background: var(--bg-card);
+  }
+  .series-nav-label {
+    font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--text-tertiary); font-weight: 500;
+    padding: 12px 14px 10px; border-bottom: 0.5px solid var(--border);
+  }
+  .series-nav-item {
+    display: block; padding: 10px 14px; font-size: 12px;
+    color: var(--text-secondary); text-decoration: none;
+    border-bottom: 0.5px solid var(--border);
+    line-height: 1.55; transition: background 0.15s;
+  }
+  .series-nav-item:last-child { border-bottom: none; }
+  .series-nav-item:hover { background: var(--accent-light); color: var(--accent); }
+  .series-nav-item.current { background: var(--accent-light); color: var(--accent); font-weight: 500; }
+  .series-nav-item .ep {
+    display: block; font-size: 10px; color: var(--text-tertiary);
+    margin-bottom: 2px; letter-spacing: 0.08em;
+  }
+  .series-nav-item.current .ep { color: var(--accent-mid); }
+
+  /* ── Typography ── */
+  .section-label {
+    font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--text-tertiary); font-weight: 500; margin: 52px 0 10px;
+  }
+  .section-heading {
+    font-family: var(--serif); font-size: 22px; font-weight: 600;
+    color: var(--text-primary); margin-bottom: 18px; line-height: 1.4;
+  }
+  .body-text {
+    font-size: 15px; color: var(--text-primary);
+    margin-bottom: 18px; font-weight: 400; line-height: 1.9;
+  }
+  .body-text strong { font-weight: 500; color: var(--text-primary); }
+
+  /* ── Pull quote ── */
+  .pull-quote {
+    font-family: var(--serif); font-size: 20px; font-weight: 600;
+    color: var(--text-primary); line-height: 1.6;
+    padding: 32px 0; margin: 36px 0;
+    border-top: 1.5px solid var(--accent);
+    border-bottom: 0.5px solid var(--border);
+    position: relative;
+  }
+  .pull-quote::before {
+    content: '\201C'; font-family: var(--serif); font-size: 72px;
+    color: var(--accent); opacity: 0.15;
+    position: absolute; top: 10px; left: -8px; line-height: 1;
+  }
+
+  /* ── Callout ── */
+  .callout {
+    border-left: 2px solid var(--accent); padding: 16px 20px;
+    background: var(--accent-light); border-radius: 0 8px 8px 0; margin: 28px 0;
+  }
+  .callout p {
+    font-size: 14px; color: var(--danger);
+    font-weight: 400; line-height: 1.75; margin: 0;
+  }
+  .callout.info { border-color: var(--info); background: var(--info-light); }
+  .callout.info p { color: var(--info); }
+  .callout.success { border-color: var(--success); background: var(--success-light); }
+  .callout.success p { color: var(--success); }
+
+  /* ── Diagram ── */
+  .diagram {
+    border: 0.5px solid var(--border-strong); border-radius: 12px;
+    overflow: hidden; margin: 28px 0; background: var(--bg-card);
+  }
+  .diagram-header {
+    padding: 12px 18px; border-bottom: 0.5px solid var(--border);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .diagram-label {
+    font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--text-tertiary); font-weight: 500;
+  }
+  .diagram-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--accent); flex-shrink: 0;
+  }
+  .diagram-body { padding: 20px 18px; }
+
+  /* ── Timeline phase ── */
+  .timeline { display: flex; flex-direction: column; gap: 0; }
+
+  .phase {
+    display: grid;
+    grid-template-columns: 28px 1fr;
+    gap: 0 16px;
+    position: relative;
+  }
+
+  .phase-line {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 4px;
+  }
+
+  .phase-dot {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: var(--accent-light);
+    border: 2px solid var(--accent);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 600;
+    color: var(--accent);
+    flex-shrink: 0;
+    font-family: var(--mono);
+    z-index: 1;
+  }
+
+  .phase-connector {
+    width: 1.5px;
+    flex: 1;
+    background: var(--border-strong);
+    min-height: 20px;
+    margin-top: 4px;
+  }
+
+  .phase:last-child .phase-connector { display: none; }
+
+  .phase-content {
+    padding-bottom: 32px;
+  }
+
+  .phase:last-child .phase-content { padding-bottom: 0; }
+
+  .phase-header {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+  }
+
+  .phase-title {
+    font-family: var(--serif);
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+    line-height: 1.4;
+  }
+
+  .phase-day {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    font-family: var(--mono);
+    font-weight: 400;
+    background: var(--bg-code);
+    padding: 2px 8px;
+    border-radius: 20px;
+    white-space: nowrap;
+  }
+
+  .phase-desc {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.8;
+    margin-bottom: 12px;
+  }
+
+  /* ── Role pills ── */
+  .role-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+
+  .role-pill {
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-weight: 500;
+    border: 0.5px solid;
+  }
+
+  .role-pill.pm { background: #EBF3FF; color: var(--info); border-color: rgba(24,95,165,0.25); }
+  .role-pill.pmo { background: #F0EBF8; color: #6B3FA0; border-color: rgba(107,63,160,0.25); }
+  .role-pill.dev { background: var(--success-light); color: var(--success); border-color: rgba(15,110,86,0.25); }
+  .role-pill.qa { background: var(--danger-light); color: var(--danger); border-color: rgba(153,60,29,0.25); }
+  .role-pill.biz { background: var(--accent-light); color: var(--accent); border-color: rgba(196,98,42,0.25); }
+
+  /* ── Term tag inline ── */
+  .term-tag {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 11px;
+    padding: 1px 7px;
+    border-radius: 4px;
+    background: var(--accent-light);
+    color: var(--accent);
+    font-weight: 500;
+    border: 0.5px solid rgba(196,98,42,0.2);
+    vertical-align: middle;
+    margin: 0 1px;
+  }
+
+  /* ── Chat bubble ── */
+  .chat-scene { display: flex; flex-direction: column; gap: 10px; padding: 4px 0; }
+  .chat-row { display: flex; align-items: flex-start; gap: 10px; }
+  .chat-row.right { flex-direction: row-reverse; }
+  .chat-avatar {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--bg-code); border: 0.5px solid var(--border-strong);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; flex-shrink: 0; color: var(--text-secondary);
+    font-weight: 600; font-family: var(--serif);
+  }
+  .chat-avatar.pm { background: #EBF3FF; color: var(--info); border-color: rgba(24,95,165,0.2); }
+  .chat-avatar.dev { background: var(--success-light); color: var(--success); border-color: rgba(15,110,86,0.2); }
+  .chat-avatar.qa { background: var(--danger-light); color: var(--danger); border-color: rgba(153,60,29,0.2); }
+  .chat-avatar.pmo { background: #F0EBF8; color: #6B3FA0; border-color: rgba(107,63,160,0.2); }
+  .chat-bubble {
+    max-width: 82%;
+    padding: 9px 13px;
+    border-radius: 10px;
+    font-size: 13px; line-height: 1.7;
+    color: var(--text-primary);
+    background: var(--bg-card);
+    border: 0.5px solid var(--border-strong);
+  }
+  .chat-who {
+    font-size: 10px; color: var(--text-tertiary);
+    letter-spacing: 0.08em; margin-bottom: 3px; font-weight: 500;
+  }
+
+  /* ── PRD mock ── */
+  .prd-mock {
+    background: var(--bg-card);
+    border: 0.5px solid var(--border-strong);
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 16px 0;
+    font-size: 13px;
+  }
+  .prd-mock-header {
+    padding: 10px 16px;
+    background: var(--bg-code);
+    border-bottom: 0.5px solid var(--border);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .prd-mock-title {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-tertiary);
+    font-weight: 500;
+    letter-spacing: 0.08em;
+  }
+  .prd-mock-body { padding: 16px; }
+  .prd-row {
+    display: grid;
+    grid-template-columns: 90px 1fr;
+    gap: 8px 16px;
+    padding: 8px 0;
+    border-bottom: 0.5px solid var(--border);
+    align-items: baseline;
+  }
+  .prd-row:last-child { border-bottom: none; }
+  .prd-key {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    font-weight: 500;
+    letter-spacing: 0.06em;
+  }
+  .prd-val {
+    font-size: 13px;
+    color: var(--text-primary);
+    line-height: 1.65;
+  }
+
+  /* ── Role grid ── */
+  .role-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin: 12px 0;
+  }
+  .role-card {
+    background: var(--bg);
+    border: 0.5px solid var(--border);
+    border-radius: 8px;
+    padding: 12px;
+    text-align: center;
+  }
+  .role-card-icon {
+    font-size: 18px;
+    margin-bottom: 6px;
+    display: block;
+  }
+  .role-card-name {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-primary);
+    margin-bottom: 3px;
+  }
+  .role-card-doing {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    line-height: 1.5;
+  }
+
+  /* ── Progress bar ── */
+  .progress-wrap { margin: 16px 0; }
+  .progress-label {
+    display: flex; justify-content: space-between;
+    font-size: 11px; color: var(--text-tertiary);
+    margin-bottom: 6px;
+  }
+  .progress-track {
+    height: 6px;
+    background: var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent) 0%, var(--accent-mid) 100%);
+    border-radius: 3px;
+    transition: width 0.6s ease;
+  }
+
+  /* ── Tags ── */
+  .tag-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 48px; padding-top: 24px; border-top: 0.5px solid var(--border); }
+  .tag {
+    font-size: 11px; padding: 4px 12px; border-radius: 20px;
+    border: 0.5px solid var(--border-strong);
+    color: var(--text-secondary); font-weight: 400;
+    text-decoration: none; transition: all 0.2s;
+  }
+  .tag:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* ── Animations ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .hero { animation: fadeUp 0.6s ease both; }
+  .article-body { animation: fadeUp 0.6s 0.1s ease both; }
+  .sidebar { animation: fadeUp 0.6s 0.15s ease both; }
+
+  /* ── Footer ── */
+  .site-footer {
+    border-top: 0.5px solid var(--border); padding: 28px 32px;
+    max-width: 1020px; margin: 0 auto;
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 12px; color: var(--text-tertiary);
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 680px) {
+    .content-wrap { grid-template-columns: 1fr; }
+    .sidebar { display: none; }
+    .headline { font-size: 28px; }
+    .hero { padding: 40px 20px 32px; }
+    .content-wrap { padding: 0 20px; }
+    .header-inner { padding: 0 20px; }
+    .site-footer { padding: 28px 20px; }
+    .role-grid { grid-template-columns: 1fr 1fr; }
+    .prd-row { grid-template-columns: 1fr; gap: 2px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <a class="site-name" href="../../index.html" style="text-decoration:none;color:inherit;">聚合叉的博客</a>
+    <span class="header-tag">职场术语 · 新手入门</span>
+  </div>
+</header>
+
+<section class="hero">
+  <p class="kicker">过渡篇 · 第二篇</p>
+  <h1 class="headline">读懂一张需求文档——<br>从<em>提出</em>到<em>上线</em></h1>
+  <p class="deck">用"用户签到领积分"这个功能，带你把第一篇学到的 26 个词串成一条完整的链。术语不是孤立的词条，它们都活在这条流水线上。</p>
+  <div class="meta-row">
+    <span>2026-06-05</span>
+    <span>阅读约 12 分钟</span>
+    <span>流程串联 · 角色协作</span>
+    <span>建议先读第一篇</span>
+  </div>
+</section>
+
+<div class="content-wrap">
+  <article class="article-body">
+
+    <p class="body-text">上一篇我们学了 26 个词。但词和词之间是什么关系？什么时候用"提测"、什么时候用"验收"？"评审"在"排期"之前还是之后？</p>
+
+    <p class="body-text">这一篇不讲新术语。我们用一个真实的功能，把所有词放到它该出现的地方，让你看清楚一个需求到底是怎么走完全程的。</p>
+
+    <div class="callout info">
+      <p>案例功能：<strong>用户签到领积分</strong>——每天打开 App 签到，获得 10 积分，连续 7 天额外奖励 50 积分。这是一个中等复杂度的需求，涉及前后端、产品、测试、运营多个角色。</p>
+    </div>
+
+    <!-- ===== OVERVIEW ===== -->
+    <p class="section-label" id="s0">全局视角</p>
+    <h2 class="section-heading">先看整条流水线</h2>
+
+    <p class="body-text">一个功能从提出到上线，通常经历 8 个阶段。时间线从左到右，每个阶段都有主要负责的角色。</p>
+
+    <div class="diagram">
+      <div class="diagram-header">
+        <span class="diagram-dot"></span>
+        <span class="diagram-label">需求全生命周期 · 签到功能案例</span>
+      </div>
+      <div class="diagram-body">
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <!-- progress bar -->
+          <div style="display:grid;grid-template-columns:repeat(8,1fr);gap:3px;margin-bottom:6px;">
+            <div style="text-align:center;font-size:10px;color:var(--accent);font-weight:600;font-family:var(--mono);">D1</div>
+            <div style="text-align:center;font-size:10px;color:var(--text-tertiary);font-family:var(--mono);">D2</div>
+            <div style="text-align:center;font-size:10px;color:var(--text-tertiary);font-family:var(--mono);">D3–5</div>
+            <div style="text-align:center;font-size:10px;color:var(--text-tertiary);font-family:var(--mono);">D6–12</div>
+            <div style="text-align:center;font-size:10px;color:var(--text-tertiary);font-family:var(--mono);">D13</div>
+            <div style="text-align:center;font-size:10px;color:var(--text-tertiary);font-family:var(--mono);">D14–16</div>
+            <div style="text-align:center;font-size:10px;color:var(--text-tertiary);font-family:var(--mono);">D17</div>
+            <div style="text-align:center;font-size:10px;color:var(--text-tertiary);font-family:var(--mono);">D18</div>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(8,1fr);gap:3px;">
+            <div style="background:var(--accent);color:white;font-size:10px;padding:6px 4px;border-radius:5px;text-align:center;font-weight:500;line-height:1.4;">需求<br>提出</div>
+            <div style="background:var(--info-light);color:var(--info);font-size:10px;padding:6px 4px;border-radius:5px;text-align:center;font-weight:500;line-height:1.4;border:0.5px solid rgba(24,95,165,0.2);">需求<br>评审</div>
+            <div style="background:var(--bg-code);color:var(--text-secondary);font-size:10px;padding:6px 4px;border-radius:5px;text-align:center;font-weight:500;line-height:1.4;border:0.5px solid var(--border);">排期<br>确认</div>
+            <div style="background:var(--success-light);color:var(--success);font-size:10px;padding:6px 4px;border-radius:5px;text-align:center;font-weight:500;line-height:1.4;border:0.5px solid rgba(15,110,86,0.2);">开发<br>联调</div>
+            <div style="background:var(--bg-code);color:var(--text-secondary);font-size:10px;padding:6px 4px;border-radius:5px;text-align:center;font-weight:500;line-height:1.4;border:0.5px solid var(--border);">提测</div>
+            <div style="background:var(--danger-light);color:var(--danger);font-size:10px;padding:6px 4px;border-radius:5px;text-align:center;font-weight:500;line-height:1.4;border:0.5px solid rgba(153,60,29,0.2);">测试<br>回归</div>
+            <div style="background:var(--accent-light);color:var(--accent);font-size:10px;padding:6px 4px;border-radius:5px;text-align:center;font-weight:500;line-height:1.4;border:0.5px solid rgba(196,98,42,0.2);">UAT<br>验收</div>
+            <div style="background:var(--accent);color:white;font-size:10px;padding:6px 4px;border-radius:5px;text-align:center;font-weight:500;line-height:1.4;">灰度<br>上线</div>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(8,1fr);gap:3px;margin-top:2px;">
+            <div style="text-align:center;font-size:10px;color:var(--text-tertiary);">产品</div>
+            <div style="text-align:center;font-size:10px;color:var(--text-tertiary);">全员</div>
+            <div style="text-align:center;font-size:10px;color:var(--text-tertiary);">项目</div>
+            <div style="text-align:center;font-size:10px;color:var(--text-tertiary);">研发</div>
+            <div style="text-align:center;font-size:10px;color:var(--text-tertiary);">研发</div>
+            <div style="text-align:center;font-size:10px;color:var(--text-tertiary);">测试</div>
+            <div style="text-align:center;font-size:10px;color:var(--text-tertiary);">产品</div>
+            <div style="text-align:center;font-size:10px;color:var(--text-tertiary);">研发</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p class="body-text">下面我们逐阶段走一遍。每个阶段会告诉你：发生了什么、谁在干什么、用到了哪些术语。</p>
+
+    <!-- ===== TIMELINE ===== -->
+    <p class="section-label" id="s1">流程详解</p>
+    <h2 class="section-heading">八个阶段，逐一拆解</h2>
+
+    <div class="diagram">
+      <div class="diagram-header">
+        <span class="diagram-dot"></span>
+        <span class="diagram-label">完整流程时间线</span>
+      </div>
+      <div class="diagram-body">
+        <div class="timeline">
+
+          <!-- PHASE 1 -->
+          <div class="phase">
+            <div class="phase-line">
+              <div class="phase-dot">1</div>
+              <div class="phase-connector"></div>
+            </div>
+            <div class="phase-content">
+              <div class="phase-header">
+                <span class="phase-title">需求提出</span>
+                <span class="phase-day">Day 1</span>
+              </div>
+              <div class="role-row">
+                <span class="role-pill biz">业务 / 运营</span>
+                <span class="role-pill pm">产品经理</span>
+              </div>
+              <p class="phase-desc">运营同学发现用户留存率在下滑，提出一个想法："能不能做个签到功能，让用户每天来一次？"这个想法落到产品经理手上，变成了一个正式的<span class="term-tag">需求</span>。产品经理开始分析可行性、定义规则、写文档。</p>
+              <div class="chat-scene">
+                <div class="chat-row">
+                  <div class="chat-avatar biz" style="background:var(--accent-light);color:var(--accent);border-color:rgba(196,98,42,0.2);">运</div>
+                  <div>
+                    <p class="chat-who">运营同学</p>
+                    <div class="chat-bubble">最近次日留存掉了 5 个点，能不能做个签到送积分？用户每天回来签到，积分可以换优惠券。</div>
+                  </div>
+                </div>
+                <div class="chat-row">
+                  <div class="chat-avatar pm">产</div>
+                  <div>
+                    <p class="chat-who">产品经理</p>
+                    <div class="chat-bubble">好，我来整理一下规则，写个 PRD，下周一我们开需求评审。</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- PHASE 2 -->
+          <div class="phase">
+            <div class="phase-line">
+              <div class="phase-dot">2</div>
+              <div class="phase-connector"></div>
+            </div>
+            <div class="phase-content">
+              <div class="phase-header">
+                <span class="phase-title">需求评审</span>
+                <span class="phase-day">Day 2</span>
+              </div>
+              <div class="role-row">
+                <span class="role-pill pm">产品经理</span>
+                <span class="role-pill dev">前端 / 后端</span>
+                <span class="role-pill qa">测试</span>
+                <span class="role-pill pmo">项目经理</span>
+              </div>
+              <p class="phase-desc">产品经理带着写好的 <span class="term-tag">PRD</span> 召集所有相关人开<span class="term-tag">评审</span>会。各方在这里对齐理解：研发问接口怎么设计、测试问边界情况怎么处理、项目经理记录分工。这一步的核心是"所有人都理解一致，不能各自猜"。</p>
+
+              <div class="prd-mock">
+                <div class="prd-mock-header">
+                  <span style="font-size:14px;">📄</span>
+                  <span class="prd-mock-title">PRD · 用户签到领积分功能 v1.0</span>
+                </div>
+                <div class="prd-mock-body">
+                  <div class="prd-row">
+                    <span class="prd-key">功能目标</span>
+                    <span class="prd-val">提升次日留存率，引导用户形成每日打开 App 的习惯</span>
+                  </div>
+                  <div class="prd-row">
+                    <span class="prd-key">核心规则</span>
+                    <span class="prd-val">每日签到 +10 积分；连续 7 天额外 +50 积分；每天 0 点重置</span>
+                  </div>
+                  <div class="prd-row">
+                    <span class="prd-key">边界条件</span>
+                    <span class="prd-val">同一用户同一天只能签到一次；断签后连续天数归零重新计算</span>
+                  </div>
+                  <div class="prd-row">
+                    <span class="prd-key">优先级</span>
+                    <span class="prd-val">P1 · 本迭代上线</span>
+                  </div>
+                  <div class="prd-row">
+                    <span class="prd-key">相关角色</span>
+                    <span class="prd-val">前端、后端、测试、运营（验收）</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="chat-scene">
+                <div class="chat-row">
+                  <div class="chat-avatar dev">后</div>
+                  <div>
+                    <p class="chat-who">后端工程师</p>
+                    <div class="chat-bubble">连续天数的判断是按自然日还是按 24 小时？比如今天晚上 11 点签，明天凌晨 1 点再签，算连续吗？</div>
+                  </div>
+                </div>
+                <div class="chat-row">
+                  <div class="chat-avatar pm">产</div>
+                  <div>
+                    <p class="chat-who">产品经理</p>
+                    <div class="chat-bubble">按自然日，每天 0 点重置。PRD 里我补一下这个说明。</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- PHASE 3 -->
+          <div class="phase">
+            <div class="phase-line">
+              <div class="phase-dot">3</div>
+              <div class="phase-connector"></div>
+            </div>
+            <div class="phase-content">
+              <div class="phase-header">
+                <span class="phase-title">排期确认</span>
+                <span class="phase-day">Day 3–5</span>
+              </div>
+              <div class="role-row">
+                <span class="role-pill pmo">项目经理</span>
+                <span class="role-pill dev">前端 / 后端</span>
+              </div>
+              <p class="phase-desc">评审完成后，项目经理收集各方的工作量评估，做<span class="term-tag">排期</span>。前端预估 3 天，后端预估 4 天，测试 2 天，加上 buffer，整体定在 Day 18 上线，并确认了关键<span class="term-tag">里程碑</span>节点。</p>
+
+              <div style="background:var(--bg);border:0.5px solid var(--border);border-radius:8px;padding:14px 16px;font-size:13px;margin:12px 0;">
+                <p style="font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-tertiary);font-weight:500;margin-bottom:10px;">里程碑节点</p>
+                <div style="display:flex;flex-direction:column;gap:8px;">
+                  <div style="display:flex;align-items:center;justify-content:space-between;">
+                    <span style="color:var(--text-secondary);font-size:13px;">需求锁定</span>
+                    <span style="font-family:var(--mono);font-size:12px;color:var(--text-tertiary);">Day 5</span>
+                  </div>
+                  <div style="display:flex;align-items:center;justify-content:space-between;">
+                    <span style="color:var(--text-secondary);font-size:13px;">提测</span>
+                    <span style="font-family:var(--mono);font-size:12px;color:var(--text-tertiary);">Day 13</span>
+                  </div>
+                  <div style="display:flex;align-items:center;justify-content:space-between;">
+                    <span style="color:var(--text-secondary);font-size:13px;">测试完成 / UAT</span>
+                    <span style="font-family:var(--mono);font-size:12px;color:var(--text-tertiary);">Day 17</span>
+                  </div>
+                  <div style="display:flex;align-items:center;justify-content:space-between;padding-top:8px;border-top:0.5px solid var(--border);">
+                    <span style="color:var(--accent);font-weight:500;font-size:13px;">🎯 上线 deadline</span>
+                    <span style="font-family:var(--mono);font-size:12px;color:var(--accent);font-weight:600;">Day 18</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- PHASE 4 -->
+          <div class="phase">
+            <div class="phase-line">
+              <div class="phase-dot">4</div>
+              <div class="phase-connector"></div>
+            </div>
+            <div class="phase-content">
+              <div class="phase-header">
+                <span class="phase-title">开发与联调</span>
+                <span class="phase-day">Day 6–12</span>
+              </div>
+              <div class="role-row">
+                <span class="role-pill dev">前端工程师</span>
+                <span class="role-pill dev">后端工程师</span>
+              </div>
+              <p class="phase-desc">研发进入编码阶段。前端写签到页面和交互，后端写积分计算逻辑和接口。Day 9 后端接口写完，前后端开始<span class="term-tag">联调</span>——把各自写好的部分连起来，看数据能不能正常传递。联调期间会发现各种接口理解偏差，慢慢修对。</p>
+
+              <div class="chat-scene">
+                <div class="chat-row">
+                  <div class="chat-avatar dev" style="background:#EBF3FF;color:var(--info);border-color:rgba(24,95,165,0.2);">前</div>
+                  <div>
+                    <p class="chat-who">前端工程师</p>
+                    <div class="chat-bubble">后端，你返回的积分字段叫 `point` 还是 `score`？文档里没写清楚，我先按 `point` 写了。</div>
+                  </div>
+                </div>
+                <div class="chat-row">
+                  <div class="chat-avatar dev">后</div>
+                  <div>
+                    <p class="chat-who">后端工程师</p>
+                    <div class="chat-bubble">我用的是 `points`，多了个 s。你改一下吧，接口文档我待会更新。</div>
+                  </div>
+                </div>
+              </div>
+
+              <div style="margin-top:12px;">
+                <div class="progress-wrap">
+                  <div class="progress-label"><span>开发进度</span><span>Day 12 · 完成</span></div>
+                  <div class="progress-track"><div class="progress-fill" style="width:100%"></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- PHASE 5 -->
+          <div class="phase">
+            <div class="phase-line">
+              <div class="phase-dot">5</div>
+              <div class="phase-connector"></div>
+            </div>
+            <div class="phase-content">
+              <div class="phase-header">
+                <span class="phase-title">提测</span>
+                <span class="phase-day">Day 13</span>
+              </div>
+              <div class="role-row">
+                <span class="role-pill dev">后端工程师</span>
+                <span class="role-pill qa">测试工程师</span>
+              </div>
+              <p class="phase-desc">后端在<span class="term-tag">测试环境</span>部署好代码，发出<span class="term-tag">提测</span>通知。这是一个正式的交接信号，意思是"研发这边做完了，测试可以开始了"。测试同学接手，开始按用例跑功能。</p>
+              <div class="chat-scene">
+                <div class="chat-row">
+                  <div class="chat-avatar dev">后</div>
+                  <div>
+                    <p class="chat-who">后端工程师</p>
+                    <div class="chat-bubble">签到功能已部署测试环境，提测。测试地址：test.example.com，账号密码见群文件。</div>
+                  </div>
+                </div>
+                <div class="chat-row">
+                  <div class="chat-avatar qa">测</div>
+                  <div>
+                    <p class="chat-who">测试工程师</p>
+                    <div class="chat-bubble">收到，我今天下午开始跑用例。</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- PHASE 6 -->
+          <div class="phase">
+            <div class="phase-line">
+              <div class="phase-dot">6</div>
+              <div class="phase-connector"></div>
+            </div>
+            <div class="phase-content">
+              <div class="phase-header">
+                <span class="phase-title">测试与回归</span>
+                <span class="phase-day">Day 14–16</span>
+              </div>
+              <div class="role-row">
+                <span class="role-pill qa">测试工程师</span>
+                <span class="role-pill dev">研发（修 bug）</span>
+              </div>
+              <p class="phase-desc">测试同学在测试环境跑完所有用例，发现了两个<span class="term-tag">bug</span>：①连续签到天数在跨月时重置异常；②积分发放有时会重复。研发修复后，测试做<span class="term-tag">回归</span>，确认修复没有引入新问题，同时验证老功能（积分兑换、账户余额）没有被破坏。</p>
+              <div style="background:var(--danger-light);border:0.5px solid rgba(153,60,29,0.2);border-radius:8px;padding:14px 16px;margin:12px 0;">
+                <p style="font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--danger);font-weight:500;margin-bottom:8px;">发现的 Bug</p>
+                <div style="display:flex;flex-direction:column;gap:6px;">
+                  <div style="display:flex;align-items:flex-start;gap:8px;">
+                    <span style="font-family:var(--mono);font-size:11px;color:var(--danger);font-weight:600;flex-shrink:0;margin-top:2px;">#001</span>
+                    <span style="font-size:13px;color:var(--text-secondary);">连续签到天数跨月时归零，复现步骤：月末最后一天签到后，次月 1 日继续签到，显示天数为 1</span>
+                  </div>
+                  <div style="display:flex;align-items:flex-start;gap:8px;">
+                    <span style="font-family:var(--mono);font-size:11px;color:var(--danger);font-weight:600;flex-shrink:0;margin-top:2px;">#002</span>
+                    <span style="font-size:13px;color:var(--text-secondary);">积分偶发重复发放，复现概率约 10%，疑似并发问题</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- PHASE 7 -->
+          <div class="phase">
+            <div class="phase-line">
+              <div class="phase-dot">7</div>
+              <div class="phase-connector"></div>
+            </div>
+            <div class="phase-content">
+              <div class="phase-header">
+                <span class="phase-title">UAT 验收</span>
+                <span class="phase-day">Day 17</span>
+              </div>
+              <div class="role-row">
+                <span class="role-pill pm">产品经理</span>
+                <span class="role-pill biz">运营同学</span>
+              </div>
+              <p class="phase-desc">测试通过后，产品经理和运营同学进行 <span class="term-tag">UAT</span>（用户验收测试）。他们模拟真实用户行为，验证功能"做出来的和当时说的一致"。通过后，产品<span class="term-tag">验收</span>签字，表示可以上线。</p>
+              <div class="chat-scene">
+                <div class="chat-row">
+                  <div class="chat-avatar pm">产</div>
+                  <div>
+                    <p class="chat-who">产品经理</p>
+                    <div class="chat-bubble">UAT 验收通过，连续 7 天奖励和页面展示都没问题。明天可以安排上线。</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- PHASE 8 -->
+          <div class="phase">
+            <div class="phase-line">
+              <div class="phase-dot">8</div>
+            </div>
+            <div class="phase-content">
+              <div class="phase-header">
+                <span class="phase-title">灰度上线 → 全量</span>
+                <span class="phase-day">Day 18</span>
+              </div>
+              <div class="role-row">
+                <span class="role-pill dev">后端工程师</span>
+                <span class="role-pill pmo">项目经理</span>
+              </div>
+              <p class="phase-desc">在当天晚上的<span class="term-tag">发布窗口</span>（22:00），研发先把功能<span class="term-tag">灰度</span>给 5% 的用户，观察半小时没有报错后，扩大到 30%，再到 100%<span class="term-tag">全量</span>。整个过程项目经理在群里盯着，随时准备<span class="term-tag">回滚</span>。</p>
+              <div class="chat-scene">
+                <div class="chat-row">
+                  <div class="chat-avatar dev">后</div>
+                  <div>
+                    <p class="chat-who">后端工程师 22:03</p>
+                    <div class="chat-bubble">已灰度 5%，目前无报错，观察中。</div>
+                  </div>
+                </div>
+                <div class="chat-row">
+                  <div class="chat-avatar dev">后</div>
+                  <div>
+                    <p class="chat-who">后端工程师 22:31</p>
+                    <div class="chat-bubble">灰度 5% 半小时正常，扩到 30%。</div>
+                  </div>
+                </div>
+                <div class="chat-row">
+                  <div class="chat-avatar pmo">项</div>
+                  <div>
+                    <p class="chat-who">项目经理 23:05</p>
+                    <div class="chat-bubble">30% 一小时稳定，签到率数据正常。全量吧。</div>
+                  </div>
+                </div>
+                <div class="chat-row">
+                  <div class="chat-avatar dev">后</div>
+                  <div>
+                    <p class="chat-who">后端工程师 23:08</p>
+                    <div class="chat-bubble">✅ 已全量，签到功能上线完成。</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="pull-quote">
+      每个术语，都是这条流水线上<br>某个具体动作的名字。
+    </div>
+
+    <!-- ===== ROLE MAP ===== -->
+    <p class="section-label" id="s2">角色视角</p>
+    <h2 class="section-heading">同一个功能，各自在干什么</h2>
+
+    <p class="body-text">同一个 18 天里，不同角色的体感完全不同。下面是这个功能里，每个角色的主要工作和关键时刻。</p>
+
+    <div class="diagram">
+      <div class="diagram-header">
+        <span class="diagram-dot"></span>
+        <span class="diagram-label">各角色参与阶段</span>
+      </div>
+      <div class="diagram-body">
+        <div style="display:flex;flex-direction:column;gap:12px;">
+
+          <div style="display:grid;grid-template-columns:90px 1fr;gap:10px;align-items:start;">
+            <span class="role-pill pm" style="text-align:center;justify-self:start;">产品经理</span>
+            <div>
+              <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap;font-size:12px;color:var(--text-secondary);">
+                <span style="background:var(--info-light);padding:3px 8px;border-radius:4px;font-size:11px;">写 PRD</span>
+                <span style="color:var(--border-strong);">→</span>
+                <span style="background:var(--info-light);padding:3px 8px;border-radius:4px;font-size:11px;">主持评审</span>
+                <span style="color:var(--border-strong);">→</span>
+                <span style="color:var(--text-tertiary);font-size:11px;">（等待开发）</span>
+                <span style="color:var(--border-strong);">→</span>
+                <span style="background:var(--info-light);padding:3px 8px;border-radius:4px;font-size:11px;">UAT 验收</span>
+              </div>
+            </div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:90px 1fr;gap:10px;align-items:start;">
+            <span class="role-pill pmo" style="text-align:center;justify-self:start;">项目经理</span>
+            <div>
+              <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap;font-size:12px;color:var(--text-secondary);">
+                <span style="background:#F0EBF8;padding:3px 8px;border-radius:4px;font-size:11px;color:#6B3FA0;">做排期</span>
+                <span style="color:var(--border-strong);">→</span>
+                <span style="background:#F0EBF8;padding:3px 8px;border-radius:4px;font-size:11px;color:#6B3FA0;">跟进进度</span>
+                <span style="color:var(--border-strong);">→</span>
+                <span style="background:#F0EBF8;padding:3px 8px;border-radius:4px;font-size:11px;color:#6B3FA0;">盯上线发布</span>
+              </div>
+            </div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:90px 1fr;gap:10px;align-items:start;">
+            <span class="role-pill dev" style="text-align:center;justify-self:start;">研发工程师</span>
+            <div>
+              <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap;font-size:12px;color:var(--text-secondary);">
+                <span style="color:var(--text-tertiary);font-size:11px;">（等评审）</span>
+                <span style="color:var(--border-strong);">→</span>
+                <span style="background:var(--success-light);padding:3px 8px;border-radius:4px;font-size:11px;color:var(--success);">开发 7 天</span>
+                <span style="color:var(--border-strong);">→</span>
+                <span style="background:var(--success-light);padding:3px 8px;border-radius:4px;font-size:11px;color:var(--success);">联调</span>
+                <span style="color:var(--border-strong);">→</span>
+                <span style="background:var(--success-light);padding:3px 8px;border-radius:4px;font-size:11px;color:var(--success);">提测</span>
+                <span style="color:var(--border-strong);">→</span>
+                <span style="background:var(--success-light);padding:3px 8px;border-radius:4px;font-size:11px;color:var(--success);">修 bug</span>
+                <span style="color:var(--border-strong);">→</span>
+                <span style="background:var(--success-light);padding:3px 8px;border-radius:4px;font-size:11px;color:var(--success);">发布</span>
+              </div>
+            </div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:90px 1fr;gap:10px;align-items:start;">
+            <span class="role-pill qa" style="text-align:center;justify-self:start;">测试工程师</span>
+            <div>
+              <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap;font-size:12px;color:var(--text-secondary);">
+                <span style="background:var(--danger-light);padding:3px 8px;border-radius:4px;font-size:11px;color:var(--danger);">写测试用例</span>
+                <span style="color:var(--border-strong);">→</span>
+                <span style="color:var(--text-tertiary);font-size:11px;">（等提测）</span>
+                <span style="color:var(--border-strong);">→</span>
+                <span style="background:var(--danger-light);padding:3px 8px;border-radius:4px;font-size:11px;color:var(--danger);">测试 3 天</span>
+                <span style="color:var(--border-strong);">→</span>
+                <span style="background:var(--danger-light);padding:3px 8px;border-radius:4px;font-size:11px;color:var(--danger);">回归验证</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== TERM MAP ===== -->
+    <p class="section-label" id="s3">术语地图</p>
+    <h2 class="section-heading">26 个词，都在哪一步出现</h2>
+
+    <p class="body-text">现在回头看第一篇里的 26 个词，你能把每一个放到上面的流程里了。下表是它们的出场位置。</p>
+
+    <div class="diagram">
+      <div class="diagram-header">
+        <span class="diagram-dot"></span>
+        <span class="diagram-label">术语 × 阶段 对应关系</span>
+      </div>
+      <div class="diagram-body">
+        <table style="width:100%;border-collapse:collapse;font-size:13px;">
+          <thead>
+            <tr>
+              <th style="text-align:left;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-tertiary);font-weight:500;padding:8px 10px;border-bottom:1px solid var(--border-strong);">出现阶段</th>
+              <th style="text-align:left;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-tertiary);font-weight:500;padding:8px 10px;border-bottom:1px solid var(--border-strong);">用到的术语</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="padding:10px;border-bottom:0.5px solid var(--border);color:var(--text-secondary);font-size:12px;white-space:nowrap;vertical-align:top;font-weight:500;">需求提出</td>
+              <td style="padding:10px;border-bottom:0.5px solid var(--border);">
+                <div style="display:flex;flex-wrap:wrap;gap:5px;">
+                  <span class="term-tag">需求</span><span class="term-tag">优先级</span><span class="term-tag">迭代</span>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:10px;border-bottom:0.5px solid var(--border);color:var(--text-secondary);font-size:12px;white-space:nowrap;vertical-align:top;font-weight:500;">需求评审</td>
+              <td style="padding:10px;border-bottom:0.5px solid var(--border);">
+                <div style="display:flex;flex-wrap:wrap;gap:5px;">
+                  <span class="term-tag">PRD</span><span class="term-tag">评审</span><span class="term-tag">对齐</span><span class="term-tag">kickoff</span>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:10px;border-bottom:0.5px solid var(--border);color:var(--text-secondary);font-size:12px;white-space:nowrap;vertical-align:top;font-weight:500;">排期确认</td>
+              <td style="padding:10px;border-bottom:0.5px solid var(--border);">
+                <div style="display:flex;flex-wrap:wrap;gap:5px;">
+                  <span class="term-tag">排期</span><span class="term-tag">里程碑</span><span class="term-tag">deadline</span><span class="term-tag">同步</span>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:10px;border-bottom:0.5px solid var(--border);color:var(--text-secondary);font-size:12px;white-space:nowrap;vertical-align:top;font-weight:500;">开发联调</td>
+              <td style="padding:10px;border-bottom:0.5px solid var(--border);">
+                <div style="display:flex;flex-wrap:wrap;gap:5px;">
+                  <span class="term-tag">联调</span><span class="term-tag">开发环境</span><span class="term-tag">跟进</span><span class="term-tag">owner</span>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:10px;border-bottom:0.5px solid var(--border);color:var(--text-secondary);font-size:12px;white-space:nowrap;vertical-align:top;font-weight:500;">提测</td>
+              <td style="padding:10px;border-bottom:0.5px solid var(--border);">
+                <div style="display:flex;flex-wrap:wrap;gap:5px;">
+                  <span class="term-tag">提测</span><span class="term-tag">测试环境</span><span class="term-tag">站会</span>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:10px;border-bottom:0.5px solid var(--border);color:var(--text-secondary);font-size:12px;white-space:nowrap;vertical-align:top;font-weight:500;">测试回归</td>
+              <td style="padding:10px;border-bottom:0.5px solid var(--border);">
+                <div style="display:flex;flex-wrap:wrap;gap:5px;">
+                  <span class="term-tag">Bug</span><span class="term-tag">复现</span><span class="term-tag">回归</span><span class="term-tag">拉通</span>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:10px;border-bottom:0.5px solid var(--border);color:var(--text-secondary);font-size:12px;white-space:nowrap;vertical-align:top;font-weight:500;">UAT 验收</td>
+              <td style="padding:10px;border-bottom:0.5px solid var(--border);">
+                <div style="display:flex;flex-wrap:wrap;gap:5px;">
+                  <span class="term-tag">UAT</span><span class="term-tag">验收</span>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:10px;color:var(--text-secondary);font-size:12px;white-space:nowrap;vertical-align:top;font-weight:500;">灰度上线</td>
+              <td style="padding:10px;">
+                <div style="display:flex;flex-wrap:wrap;gap:5px;">
+                  <span class="term-tag">灰度</span><span class="term-tag">全量</span><span class="term-tag">回滚</span><span class="term-tag">热修复</span><span class="term-tag">发布窗口</span><span class="term-tag">线上环境</span><span class="term-tag">延期</span><span class="term-tag">复盘</span>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="callout">
+      <p>注意最后一行：<strong>延期</strong>和<strong>复盘</strong>没有出现在案例里，因为这次功能顺利上线了。但它们随时可能在任何阶段发生——延期是进度出了问题，复盘是上线后出了事故。</p>
+    </div>
+
+    <!-- ===== TIPS ===== -->
+    <p class="section-label" id="s4">三个关键判断</p>
+    <h2 class="section-heading">新人最容易搞混的三件事</h2>
+
+    <p class="body-text">走完这个流程，有三个地方是新人最容易卡壳的，单独说一下。</p>
+
+    <div class="diagram">
+      <div class="diagram-header">
+        <span class="diagram-dot"></span>
+        <span class="diagram-label">常见误解澄清</span>
+      </div>
+      <div class="diagram-body">
+        <div style="display:flex;flex-direction:column;gap:0;">
+
+          <div style="padding:16px 0;border-bottom:0.5px solid var(--border);">
+            <p style="font-size:13px;font-weight:500;color:var(--text-primary);margin-bottom:8px;">① "评审通过"不等于"需求锁定"</p>
+            <p style="font-size:13px;color:var(--text-secondary);line-height:1.75;">评审只是大家当场理解一致，产品还可能在后续修改 PRD。真正的需求锁定是有一个明确节点（比如"Day 5 之后需求不再改动"），过了这个点改需求会引发<span class="term-tag">延期</span>。</p>
+          </div>
+
+          <div style="padding:16px 0;border-bottom:0.5px solid var(--border);">
+            <p style="font-size:13px;font-weight:500;color:var(--text-primary);margin-bottom:8px;">② "提测"之后研发不是就没事了</p>
+            <p style="font-size:13px;color:var(--text-secondary);line-height:1.75;">测试发现<span class="term-tag">bug</span>之后会来找研发修复，研发要配合测试做<span class="term-tag">回归</span>验证。提测只是"交给测试"，不是"研发下班"。</p>
+          </div>
+
+          <div style="padding:16px 0;">
+            <p style="font-size:13px;font-weight:500;color:var(--text-primary);margin-bottom:8px;">③ "UAT"和"测试"不是同一件事</p>
+            <p style="font-size:13px;color:var(--text-secondary);line-height:1.75;">测试（QA）关注的是"有没有 bug"，UAT 关注的是"做出来的是不是我要的"。前者是测试工程师主导，后者是产品或业务方主导。两者侧重不同，缺一不可。</p>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="callout success">
+      <p>到这里，你已经掌握了一个互联网团队里最核心的沟通框架：26 个词 + 8 个阶段 + 各角色的分工。接下来的进阶篇，我们会深入每个角色的专属语言——从产品经理开始。</p>
+    </div>
+
+    <div class="tag-row">
+      <a class="tag" href="#">需求流程</a>
+      <a class="tag" href="#">职场协作</a>
+      <a class="tag" href="#">全流程</a>
+      <a class="tag" href="#">联调</a>
+      <a class="tag" href="#">灰度上线</a>
+      <a class="tag" href="#">角色分工</a>
+      <a class="tag" href="#">新人必读</a>
+    </div>
+
+  </article>
+
+  <aside class="sidebar">
+    <p class="toc-label">本篇目录</p>
+    <ul class="toc-list">
+      <li><a href="#s0" class="toc-link">全局视角</a></li>
+      <li><a href="#s1" class="toc-link">八个阶段详解</a></li>
+      <li><a href="#s2" class="toc-link">角色视角</a></li>
+      <li><a href="#s3" class="toc-link">术语地图</a></li>
+      <li><a href="#s4" class="toc-link">三个关键判断</a></li>
+    </ul>
+  </aside>
+</div>
+
+<footer class="site-footer">
+  <a href="../../index.html" style="color:inherit;text-decoration:none;display:flex;align-items:center;gap:6px;">← 返回首页</a>
+  <span>聚合叉的博客</span>
+</footer>
+
+<script>
+  (function () {
+    const sections = ['s0','s1','s2','s3','s4'];
+    const links = document.querySelectorAll('.toc-link');
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          links.forEach(l => l.classList.remove('active'));
+          const active = document.querySelector(`.toc-link[href="#${entry.target.id}"]`);
+          if (active) active.classList.add('active');
+        }
+      });
+    }, { rootMargin: '-30% 0px -60% 0px' });
+    sections.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) observer.observe(el);
+    });
+  })();
+</script>
+</body>
+</html>

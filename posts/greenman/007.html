@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>测试工程师的专业语言 · 职场术语系列第七篇</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/@mdi/font@7.4.47/css/materialdesignicons.min.css" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #F7F5F0;
+    --bg-card: #FFFFFF;
+    --bg-code: #F0EDE8;
+    --text-primary: #1A1814;
+    --text-secondary: #5C5850;
+    --text-tertiary: #9A948A;
+    --accent: #C4622A;
+    --accent-light: #FAE8DC;
+    --accent-mid: #E8855A;
+    --info: #185FA5;
+    --info-light: #E6F1FB;
+    --danger: #993C1D;
+    --danger-light: #FAECE7;
+    --success: #0F6E56;
+    --success-light: #E1F5EE;
+    --qa: #7A1F1F;
+    --qa-light: #FAF0F0;
+    --qa-mid: #B85050;
+    --border: rgba(60,50,40,0.1);
+    --border-strong: rgba(60,50,40,0.2);
+    --serif: 'Noto Serif SC', Georgia, serif;
+    --sans: 'Noto Sans SC', system-ui, sans-serif;
+    --mono: 'JetBrains Mono', monospace;
+  }
+
+  html { scroll-behavior: smooth; }
+  body { background: var(--bg); color: var(--text-primary); font-family: var(--sans); font-weight: 400; line-height: 1.85; min-height: 100vh; }
+
+  .site-header { border-bottom: 0.5px solid var(--border); padding: 18px 0; position: sticky; top: 0; background: rgba(247,245,240,0.9); backdrop-filter: blur(12px); z-index: 100; }
+  .header-inner { max-width: 1020px; margin: 0 auto; padding: 0 32px; display: flex; align-items: center; justify-content: space-between; }
+  .site-name { font-family: var(--serif); font-size: 15px; font-weight: 600; color: var(--text-primary); letter-spacing: 0.02em; }
+  .header-tag { font-size: 11px; color: var(--text-tertiary); letter-spacing: 0.15em; text-transform: uppercase; font-weight: 400; }
+
+  .hero { max-width: 1020px; margin: 0 auto; padding: 72px 32px 48px; border-bottom: 0.5px solid var(--border); }
+  .kicker { font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--qa); font-weight: 500; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+  .kicker::after { content: ''; display: block; height: 1px; width: 40px; background: var(--qa-mid); opacity: 0.5; }
+  .headline { font-family: var(--serif); font-size: 42px; font-weight: 700; line-height: 1.25; color: var(--text-primary); margin-bottom: 20px; letter-spacing: -0.01em; }
+  .headline em { font-style: normal; color: var(--qa); }
+  .deck { font-size: 16px; color: var(--text-secondary); font-weight: 400; line-height: 1.75; max-width: 560px; margin-bottom: 32px; }
+  .meta-row { display: flex; align-items: center; gap: 20px; font-size: 12px; color: var(--text-tertiary); flex-wrap: wrap; }
+  .meta-row span { display: flex; align-items: center; gap: 5px; }
+
+  .content-wrap { max-width: 1020px; margin: 0 auto; padding: 0 32px; display: grid; grid-template-columns: 1fr 260px; gap: 0 56px; align-items: start; }
+  .article-body { padding: 48px 0 80px; min-width: 0; }
+
+  .sidebar { padding: 48px 0 80px; position: sticky; top: 72px; }
+  .toc-label { font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-tertiary); font-weight: 500; margin-bottom: 14px; }
+  .toc-list { list-style: none; border-left: 1px solid var(--border-strong); padding-left: 14px; margin-bottom: 32px; }
+  .toc-list li { margin-bottom: 8px; }
+  .toc-list a { font-size: 12px; color: var(--text-tertiary); text-decoration: none; font-weight: 400; line-height: 1.5; transition: color 0.2s; display: block; }
+  .toc-list a:hover { color: var(--qa); }
+  .toc-list a.active { color: var(--qa); font-weight: 500; }
+
+  .series-nav { border: 0.5px solid var(--border-strong); border-radius: 10px; overflow: hidden; background: var(--bg-card); }
+  .series-nav-label { font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-tertiary); font-weight: 500; padding: 12px 14px 10px; border-bottom: 0.5px solid var(--border); }
+  .series-nav-item { display: block; padding: 10px 14px; font-size: 12px; color: var(--text-secondary); text-decoration: none; border-bottom: 0.5px solid var(--border); line-height: 1.55; transition: background 0.15s; }
+  .series-nav-item:last-child { border-bottom: none; }
+  .series-nav-item:hover { background: var(--qa-light); color: var(--qa); }
+  .series-nav-item.current { background: var(--qa-light); color: var(--qa); font-weight: 500; }
+  .series-nav-item .ep { display: block; font-size: 10px; color: var(--text-tertiary); margin-bottom: 2px; letter-spacing: 0.08em; }
+  .series-nav-item.current .ep { color: var(--qa); opacity: 0.7; }
+  .series-nav-item.done { color: var(--text-tertiary); }
+  .series-nav-item.done .ep { color: var(--success); opacity: 0.8; }
+
+  .section-label { font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--text-tertiary); font-weight: 500; margin: 52px 0 10px; }
+  .section-heading { font-family: var(--serif); font-size: 22px; font-weight: 600; color: var(--text-primary); margin-bottom: 18px; line-height: 1.4; }
+  .body-text { font-size: 15px; color: var(--text-primary); margin-bottom: 18px; font-weight: 400; line-height: 1.9; }
+  .body-text strong { font-weight: 500; }
+
+  .pull-quote { font-family: var(--serif); font-size: 20px; font-weight: 600; color: var(--text-primary); line-height: 1.6; padding: 32px 0; margin: 36px 0; border-top: 1.5px solid var(--qa); border-bottom: 0.5px solid var(--border); position: relative; }
+  .pull-quote::before { content: '\201C'; font-family: var(--serif); font-size: 72px; color: var(--qa); opacity: 0.12; position: absolute; top: 10px; left: -8px; line-height: 1; }
+
+  .callout { border-left: 2px solid var(--accent); padding: 16px 20px; background: var(--accent-light); border-radius: 0 8px 8px 0; margin: 28px 0; }
+  .callout p { font-size: 14px; color: var(--danger); font-weight: 400; line-height: 1.75; margin: 0; }
+  .callout.qa { border-color: var(--qa); background: var(--qa-light); }
+  .callout.qa p { color: var(--qa); }
+  .callout.success { border-color: var(--success); background: var(--success-light); }
+  .callout.success p { color: var(--success); }
+  .callout.info { border-color: var(--info); background: var(--info-light); }
+  .callout.info p { color: var(--info); }
+
+  .diagram { border: 0.5px solid var(--border-strong); border-radius: 12px; overflow: hidden; margin: 28px 0; background: var(--bg-card); }
+  .diagram-header { padding: 12px 18px; border-bottom: 0.5px solid var(--border); display: flex; align-items: center; gap: 8px; }
+  .diagram-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--qa); flex-shrink: 0; }
+  .diagram-label { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-tertiary); font-weight: 500; }
+  .diagram-body { padding: 20px 18px; }
+
+  /* Term card */
+  .term-list { display: flex; flex-direction: column; }
+  .term-card { padding: 18px 0; border-bottom: 0.5px solid var(--border); display: grid; grid-template-columns: 140px 1fr; gap: 0 24px; align-items: start; }
+  .term-card:last-child { border-bottom: none; }
+  .term-name { font-family: var(--mono); font-size: 13px; font-weight: 500; color: var(--qa); padding-top: 3px; line-height: 1.5; }
+  .term-name .term-en { display: block; font-size: 10px; color: var(--text-tertiary); font-weight: 400; margin-top: 3px; letter-spacing: 0.03em; }
+  .term-def { font-size: 14px; color: var(--text-primary); font-weight: 500; margin-bottom: 8px; line-height: 1.65; }
+  .term-scene { font-size: 13px; color: var(--text-secondary); line-height: 1.75; padding: 10px 14px; background: var(--bg); border-radius: 6px; border-left: 2px solid var(--border-strong); font-style: italic; }
+  .term-scene strong { font-style: normal; font-weight: 500; color: var(--qa); }
+
+  /* Test case mock */
+  .test-case { background: var(--bg); border: 0.5px solid var(--border); border-radius: 8px; overflow: hidden; margin: 10px 0; }
+  .tc-header { padding: 8px 14px; border-bottom: 0.5px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .tc-id { font-family: var(--mono); font-size: 10px; color: var(--text-tertiary); font-weight: 500; }
+  .tc-title { font-size: 12px; font-weight: 600; color: var(--text-primary); flex: 1; }
+  .tc-badge { font-size: 10px; padding: 2px 8px; border-radius: 10px; font-weight: 600; white-space: nowrap; }
+  .tc-body { padding: 10px 14px; font-size: 12px; color: var(--text-secondary); line-height: 1.75; }
+  .tc-row { display: grid; grid-template-columns: 72px 1fr; gap: 4px 10px; margin-bottom: 4px; }
+  .tc-label { font-size: 10px; font-weight: 500; color: var(--text-tertiary); letter-spacing: 0.06em; padding-top: 2px; }
+
+  /* Bug report */
+  .bug-card { border-radius: 8px; overflow: hidden; border: 0.5px solid; margin: 8px 0; }
+  .bug-header { padding: 9px 14px; display: flex; align-items: center; gap: 8px; border-bottom: 0.5px solid; }
+  .bug-id { font-family: var(--mono); font-size: 11px; font-weight: 600; }
+  .bug-title { font-size: 12px; font-weight: 600; flex: 1; }
+  .bug-level { font-size: 10px; padding: 2px 8px; border-radius: 10px; font-weight: 700; white-space: nowrap; }
+  .bug-body { padding: 10px 14px; font-size: 12px; line-height: 1.7; }
+  .bug-field { display: grid; grid-template-columns: 56px 1fr; gap: 4px 8px; margin-bottom: 3px; }
+  .bug-key { font-size: 10px; color: var(--text-tertiary); font-weight: 500; padding-top: 2px; }
+
+  /* Severity legend */
+  .severity-row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .sev-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-secondary); }
+  .sev-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
+  /* Test pyramid */
+  .pyramid-wrap { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 0; }
+  .pyr-layer { border-radius: 6px; display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; }
+  .pyr-name { font-size: 12px; font-weight: 600; }
+  .pyr-desc { font-size: 11px; opacity: 0.75; }
+  .pyr-count { font-family: var(--mono); font-size: 11px; font-weight: 500; opacity: 0.8; }
+
+  /* Checklist */
+  .checklist { display: flex; flex-direction: column; gap: 6px; }
+  .check-item { display: flex; align-items: flex-start; gap: 10px; padding: 9px 12px; border-radius: 7px; border: 0.5px solid var(--border); background: var(--bg); }
+  .check-icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+  .check-text { font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+  .check-text strong { color: var(--text-primary); font-weight: 500; }
+  .check-item.done { background: var(--success-light); border-color: rgba(15,110,86,0.2); }
+  .check-item.done .check-text { color: var(--success); }
+  .check-item.warn { background: var(--qa-light); border-color: rgba(122,31,31,0.2); }
+  .check-item.warn .check-text { color: var(--qa); }
+
+  /* Series complete banner */
+  .series-complete {
+    background: linear-gradient(135deg, var(--qa-light) 0%, #FFF8F0 100%);
+    border: 1.5px solid rgba(122,31,31,0.2);
+    border-radius: 12px;
+    padding: 24px;
+    margin: 36px 0;
+    text-align: center;
+  }
+  .sc-icon { font-size: 36px; margin-bottom: 12px; }
+  .sc-title { font-family: var(--serif); font-size: 20px; font-weight: 700; color: var(--text-primary); margin-bottom: 8px; }
+  .sc-desc { font-size: 14px; color: var(--text-secondary); line-height: 1.75; max-width: 480px; margin: 0 auto 16px; }
+  .sc-pills { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; }
+  .sc-pill { font-size: 11px; padding: 4px 12px; border-radius: 20px; border: 0.5px solid var(--border-strong); color: var(--text-secondary); font-weight: 400; }
+  .sc-pill.done { background: var(--success-light); border-color: rgba(15,110,86,0.2); color: var(--success); font-weight: 500; }
+
+  /* Tags */
+  .tag-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 48px; padding-top: 24px; border-top: 0.5px solid var(--border); }
+  .tag { font-size: 11px; padding: 4px 12px; border-radius: 20px; border: 0.5px solid var(--border-strong); color: var(--text-secondary); font-weight: 400; text-decoration: none; transition: all 0.2s; }
+  .tag:hover { border-color: var(--qa); color: var(--qa); }
+
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+  .hero { animation: fadeUp 0.6s ease both; }
+  .article-body { animation: fadeUp 0.6s 0.1s ease both; }
+  .sidebar { animation: fadeUp 0.6s 0.15s ease both; }
+
+  .site-footer { border-top: 0.5px solid var(--border); padding: 28px 32px; max-width: 1020px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: var(--text-tertiary); }
+
+  @media (max-width: 680px) {
+    .content-wrap { grid-template-columns: 1fr; }
+    .sidebar { display: none; }
+    .headline { font-size: 28px; }
+    .hero { padding: 40px 20px 32px; }
+    .content-wrap { padding: 0 20px; }
+    .header-inner { padding: 0 20px; }
+    .site-footer { padding: 28px 20px; }
+    .term-card { grid-template-columns: 1fr; gap: 6px; }
+    .tc-row { grid-template-columns: 1fr; }
+    .bug-field { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <a class="site-name" href="../../index.html" style="text-decoration:none;color:inherit;">聚合叉的博客</a>
+    <span class="header-tag">职场术语 · 进阶篇</span>
+  </div>
+</header>
+
+<section class="hero">
+  <p class="kicker">进阶篇 · 第七篇（终）</p>
+  <h1 class="headline">测试工程师的<em>专业语言</em></h1>
+  <p class="deck">用例、冒烟测试、回归、缺陷等级、自动化……测试工程师是质量的最后一道防线，也是整个团队最容易被低估的角色。读懂他们的语言，就读懂了"上线"之前最关键的那扇门。</p>
+  <div class="meta-row">
+    <span>2026-06-05</span>
+    <span>阅读约 11 分钟</span>
+    <span>测试工程 · QA · 质量保障</span>
+    <span>建议先读第一、二篇</span>
+  </div>
+</section>
+
+<div class="content-wrap">
+  <article class="article-body">
+
+    <p class="body-text">如果说研发是"做出来"，测试工程师的工作就是"确认做对了"。他们不是找麻烦的人——他们是团队里对用户最负责的角色，在代码进入生产环境之前，替用户把所有可能的问题找出来。</p>
+
+    <p class="body-text">这篇按四个维度展开：测试的基础概念、如何组织测试工作、缺陷管理、以及自动化测试。</p>
+
+    <div class="callout qa">
+      <p>本篇主题色为深酒红，代表测试工程师角色。测试在整个系列里出场最晚，但第二篇流程里你已经见过他们——提测、回归、UAT 都是他们的主场。</p>
+    </div>
+
+    <!-- ===== S1 基础 ===== -->
+    <p class="section-label" id="s1">第一层</p>
+    <h2 class="section-heading">测试的基础概念——从"验证"到"发现"</h2>
+
+    <p class="body-text">很多人以为测试就是"点点点"——但测试工程师的工作远比这系统得多。这一层的词，是整个测试工作的基础认知框架。</p>
+
+    <div class="diagram">
+      <div class="diagram-header">
+        <span class="diagram-dot"></span>
+        <span class="diagram-label">测试基础概念术语</span>
+      </div>
+      <div class="diagram-body">
+        <div class="term-list">
+
+          <div class="term-card">
+            <div class="term-name">测试用例
+              <span class="term-en">Test Case</span>
+            </div>
+            <div class="term-body">
+              <p class="term-def">一条完整的测试脚本：描述前置条件、操作步骤和预期结果。是测试工程师的核心工作产出，也是测试工作可重复、可量化的基础。</p>
+              <p class="term-scene">「这个功能的<strong>测试用例</strong>写好了，主流程 12 条、边界条件 8 条，你看一下有没有遗漏。」</p>
+            </div>
+          </div>
+
+          <div class="term-card">
+            <div class="term-name">测试覆盖率
+              <span class="term-en">Test Coverage</span>
+            </div>
+            <div class="term-body">
+              <p class="term-def">衡量"有多少代码或功能路径被测试到了"的指标。100% 覆盖率不代表没有 bug，但低覆盖率意味着有大片盲区没人管。</p>
+              <p class="term-scene">「这次代码改动的<strong>测试覆盖率</strong>只有 60%，积分计算那块完全没覆盖到，风险大。」</p>
+            </div>
+          </div>
+
+          <div class="term-card">
+            <div class="term-name">黑盒测试
+              <span class="term-en">Black-box Testing</span>
+            </div>
+            <div class="term-body">
+              <p class="term-def">不关心内部代码实现，只从用户视角验证"输入什么、得到什么结果"是否符合预期。大多数功能测试都是黑盒测试。</p>
+              <p class="term-scene">「我做的是<strong>黑盒测试</strong>，不看代码，就验证用户能不能正常签到、积分有没有发对。」</p>
+            </div>
+          </div>
+
+          <div class="term-card">
+            <div class="term-name">白盒测试
+              <span class="term-en">White-box Testing</span>
+            </div>
+            <div class="term-body">
+              <p class="term-def">了解内部代码逻辑，针对代码分支、边界条件设计测试。单元测试通常是白盒测试，由研发自己或专门的测试工程师执行。</p>
+              <p class="term-scene">「积分并发问题用<strong>白盒测试</strong>，看代码里的锁机制有没有覆盖到所有竞争场景。」</p>
+            </div>
+          </div>
+
+          <div class="term-card">
+            <div class="term-name">探索性测试
+              <span class="term-en">Exploratory Testing</span>
+            </div>
+            <div class="term-body">
+              <p class="term-def">不按预定用例，由测试工程师凭经验和直觉自由探索产品，发现用例之外的意外问题。是结构化测试的重要补充，常常能发现最奇怪的 bug。</p>
+              <p class="term-scene">「用例都跑完了，再做一轮<strong>探索性测试</strong>，随便试试边界场景，有时候能发现意外惊喜。」</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <p class="body-text">一条完整的测试用例长这样——</p>
+
+    <div class="diagram">
+      <div class="diagram-header">
+        <span class="diagram-dot"></span>
+        <span class="diagram-label">测试用例示例 · 签到功能</span>
+      </div>
+      <div class="diagram-body">
+
+        <div class="test-case">
+          <div class="tc-header">
+            <span class="tc-id">TC-001</span>
+            <span class="tc-title">正常签到——今日首次签到</span>
+            <span class="tc-badge" style="background:var(--qa-light);color:var(--qa);">P0 · 主流程</span>
+          </div>
+          <div class="tc-body">
+            <div class="tc-row">
+              <span class="tc-label">前置条件</span>
+              <span>用户已登录，今日未签到，网络正常</span>
+            </div>
+            <div class="tc-row">
+              <span class="tc-label">操作步骤</span>
+              <span>① 进入签到页面 ② 点击"签到"按钮</span>
+            </div>
+            <div class="tc-row">
+              <span class="tc-label">预期结果</span>
+              <span style="color:var(--success);font-weight:500;">积分 +10，页面显示"签到成功"动画，按钮变为"已签到"不可点击状态</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="test-case">
+          <div class="tc-header">
+            <span class="tc-id">TC-007</span>
+            <span class="tc-title">边界——当日重复签到</span>
+            <span class="tc-badge" style="background:var(--info-light);color:var(--info);">P1 · 边界</span>
+          </div>
+          <div class="tc-body">
+            <div class="tc-row">
+              <span class="tc-label">前置条件</span>
+              <span>用户已登录，今日已签到成功一次</span>
+            </div>
+            <div class="tc-row">
+              <span class="tc-label">操作步骤</span>
+              <span>再次进入签到页面，点击"签到"按钮</span>
+            </div>
+            <div class="tc-row">
+              <span class="tc-label">预期结果</span>
+              <span style="color:var(--accent);font-weight:500;">提示"今日已签到"，积分不重复发放，接口返回 400 错误码</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="test-case">
+          <div class="tc-header">
+            <span class="tc-id">TC-012</span>
+            <span class="tc-title">异常——签到时网络中断</span>
+            <span class="tc-badge" style="background:var(--bg-code);color:var(--text-tertiary);">P2 · 异常</span>
+          </div>
+          <div class="tc-body">
+            <div class="tc-row">
+              <span class="tc-label">前置条件</span>
+              <span>用户已登录，今日未签到</span>
+            </div>
+            <div class="tc-row">
+              <span class="tc-label">操作步骤</span>
+              <span>点击"签到"按钮的同时断开网络连接</span>
+            </div>
+            <div class="tc-row">
+              <span class="tc-label">预期结果</span>
+              <span style="color:var(--danger);font-weight:500;">显示"网络异常，请稍后重试"，积分未发放，再次联网后可正常签到</span>
+            </div>
+          </div>
+        </div>
+
+        <p style="font-size:12px;color:var(--text-tertiary);margin-top:12px;line-height:1.65;">测试用例从主流程（P0）到边界（P1）到异常（P2）逐层展开，优先级决定执行顺序。紧急上线时可以先只跑 P0。</p>
+      </div>
+    </div>
+
+    <!-- ===== S2 测试类型 ===== -->
+    <p class="section-label" id="s2">第二层</p>
+    <h2 class="section-heading">测试类型——在哪个阶段测什么</h2>
+
+    <p class="body-text">不同阶段有不同的测试类型，每种类型解决的问题不同。知道这些词，你就能听懂测试同学在说"现在做到哪一步了"。</p>
+
+    <div class="diagram">
+      <div class="diagram-header">
+        <span class="diagram-dot"></span>
+        <span class="diagram-label">测试类型术语</span>
+      </div>
+      <div class="diagram-body">
+        <div class="term-list">
+
+          <div class="term-card">
+            <div class="term-name">单元测试
+              <span class="term-en">Unit Testing</span>
+            </div>
+            <div class="term-body">
+              <p class="term-def">对最小功能单元（一个函数、一个模块）的独立验证，通常由研发自己写，在代码提交前自动运行。粒度最细，速度最快，是自动化测试的基础。</p>
+              <p class="term-scene">「积分计算逻辑加了<strong>单元测试</strong>，边界值都覆盖了，每次提交自动跑。」</p>
+            </div>
+          </div>
+
+          <div class="term-card">
+            <div class="term-name">集成测试
+              <span class="term-en">Integration Testing</span>
+            </div>
+            <div class="term-body">
+              <p class="term-def">验证多个模块或服务组合在一起时能否正常工作。单元测试各自通过了，但接口对接时可能出问题——集成测试就是专门发现这类问题的。</p>
+              <p class="term-scene">「签到服务和积分服务<strong>集成测试</strong>时发现，并发场景下积分会多发，单测没有覆盖到。」</p>
+            </div>
+          </div>
+
+          <div class="term-card">
+            <div class="term-name">冒烟测试
+              <span class="term-en">Smoke Testing</span>
+            </div>
+            <div class="term-body">
+              <p class="term-def">提测后最先做的快速验证——只跑最核心的主流程，确认基本功能可用、没有明显崩溃，再决定是否值得投入完整测试资源。就像通电前先检查有没有冒烟。</p>
+              <p class="term-scene">「<strong>冒烟测试</strong>没过，签到页面直接白屏，打回去让研发先修了再提测。」</p>
+            </div>
+          </div>
+
+          <div class="term-card">
+            <div class="term-name">回归测试
+              <span class="term-en">Regression Testing</span>
+            </div>
+            <div class="term-body">
+              <p class="term-def">每次代码变更后，重新验证已有功能没有被新改动破坏。是防止"修了一个 bug 带来三个新 bug"的核心手段，每次上线前必做。</p>
+              <p class="term-scene">「这次改了积分逻辑，<strong>回归测试</strong>要覆盖积分发放、兑换、查询三个模块，不只是签到。」</p>
+            </div>
+          </div>
+
+          <div class="term-card">
+            <div class="term-name">性能测试
+              <span class="term-en">Performance Testing</span>
+            </div>
+            <div class="term-body">
+              <p class="term-def">模拟大量用户同时操作，验证系统在高负载下的响应速度和稳定性。"这个接口能支持多少并发"就是性能测试要回答的问题。</p>
+              <p class="term-scene">「<strong>性能测试</strong>结果：签到接口在 5000 QPS 时响应时间超过 3 秒，需要优化。」</p>
+            </div>
+          </div>
+
+          <div class="term-card">
+            <div class="term-name">兼容性测试
+              <span class="term-en">Compatibility Testing</span>
+            </div>
+            <div class="term-body">
+              <p class="term-def">验证功能在不同设备、不同操作系统版本、不同浏览器上的表现是否一致。移动端的兼容性测试尤其重要，因为 Android 机型碎片化严重。</p>
+              <p class="term-scene">「<strong>兼容性测试</strong>发现签到动画在 iOS 14 以下不播放，需要降级处理。」</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="diagram">
+      <div class="diagram-header">
+        <span class="diagram-dot"></span>
+        <span class="diagram-label">测试金字塔——不同层次测试的比例与速度</span>
+      </div>
+      <div class="diagram-body">
+        <div class="pyramid-wrap">
+          <div class="pyr-layer" style="width:55%;background:var(--danger-light);border:0.5px solid rgba(153,60,29,0.2);">
+            <span class="pyr-name" style="color:var(--danger);">端到端测试 / E2E</span>
+            <span class="pyr-count" style="color:var(--danger);">少量 · 慢</span>
+          </div>
+          <div class="pyr-layer" style="width:73%;background:var(--accent-light);border:0.5px solid rgba(196,98,42,0.2);">
+            <span class="pyr-name" style="color:var(--accent);">集成测试</span>
+            <span class="pyr-count" style="color:var(--accent);">适量 · 中速</span>
+          </div>
+          <div class="pyr-layer" style="width:100%;background:var(--success-light);border:0.5px solid rgba(15,110,86,0.2);">
+            <span class="pyr-name" style="color:var(--success);">单元测试</span>
+            <span class="pyr-count" style="color:var(--success);">大量 · 快</span>
+          </div>
+        </div>
+        <p style="font-size:12px;color:var(--text-tertiary);margin-top:14px;line-height:1.65;">底层单元测试最多也最快，是自动化的主力；顶层 E2E 测试模拟真实用户场景但运行慢，只做关键路径。理想的测试体系是底宽顶窄的金字塔形。</p>
+      </div>
+    </div>
+
+    <div class="pull-quote">
+      测试不是在找研发的茬，<br>是在替用户把问题挡在门外。
+    </div>
+
+    <!-- ===== S3 缺陷管理 ===== -->
+    <p class="section-label" id="s3">第三层</p>
+    <h2 class="section-heading">缺陷管理——发现问题怎么处理</h2>
+
+    <p class="body-text">发现 bug 只是第一步，怎么描述它、怎么定级、怎么跟进修复——这套流程决定了问题能不能被高效解决。</p>
+
+    <div class="diagram">
+      <div class="diagram-header">
+        <span class="diagram-dot"></span>
+        <span class="diagram-label">缺陷管理相关术语</span>
+      </div>
+      <div class="diagram-body">
+        <div class="term-list">
+
+          <div class="term-card">
+            <div class="term-name">缺陷等级
+              <span class="term-en">Bug Severity / Priority</span>
+            </div>
+            <div class="term-body">
+              <p class="term-def">按严重程度对 bug 分级：P0 阻塞主流程必须立即修，P1 核心功能异常优先修，P2 次要功能问题按排期修，P3 体验细节问题可以放下一版。</p>
+              <p class="term-scene">「这个重复发积分是 <strong>P0</strong>，必须今天修，会影响财务；那个按钮文字换行是 <strong>P3</strong>，放下期。」</p>
+            </div>
+          </div>
+
+          <div class="term-card">
+            <div class="term-name">复现步骤
+              <span class="term-en">Steps to Reproduce</span>
+            </div>
+            <div class="term-body">
+              <p class="term-def">能稳定触发 bug 的操作路径，是 bug 报告最核心的部分。没有复现步骤，研发无法定位问题，bug 报告就等于废纸。</p>
+              <p class="term-scene">「这个 bug 没有<strong>复现步骤</strong>，研发没法定位，你补全再发给他。」</p>
+            </div>
+          </div>
+
+          <div class="term-card">
+            <div class="term-name">缺陷生命周期
+              <span class="term-en">Bug Lifecycle</span>
+            </div>
+            <div class="term-body">
+              <p class="term-def">一个 bug 从被发现到被解决的完整状态流转：新建 → 指派 → 修复中 → 待验证 → 已关闭（或重新打开）。每个状态都有明确的负责人。</p>
+              <p class="term-scene">「这个 bug 状态是"待验证"，研发说修了，你去回归一下，没问题就关掉。」</p>
+            </div>
+          </div>
+
+          <div class="term-card">
+            <div class="term-name">误报 / 漏测
+              <span class="term-en">False Positive / Missed Bug</span>
+            </div>
+            <div class="term-body">
+              <p class="term-def">误报是把正常现象当成 bug 上报（测试理解错了需求）；漏测是真实的 bug 没有被发现就上线了。两者都是测试质量的负向指标。</p>
+              <p class="term-scene">「这次上线后发现有<strong>漏测</strong>，跨月连续签到的场景用例没覆盖到，要补上。」</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <p class="body-text">一份规范的 bug 报告长这样——</p>
+
+    <div class="diagram">
+      <div class="diagram-header">
+        <span class="diagram-dot"></span>
+        <span class="diagram-label">Bug 报告示例 · 积分重复发放</span>
+      </div>
+      <div class="diagram-body">
+
+        <div class="bug-card" style="background:var(--danger-light);border-color:rgba(153,60,29,0.3);">
+          <div class="bug-header" style="border-color:rgba(153,60,29,0.2);">
+            <span class="bug-id" style="color:var(--danger);">#BUG-042</span>
+            <span class="bug-title" style="color:var(--danger);">签到成功后积分发放两次（重复扣款风险）</span>
+            <span class="bug-level" style="background:var(--danger);color:white;">P0 致命</span>
+          </div>
+          <div class="bug-body" style="color:var(--text-secondary);">
+            <div class="bug-field"><span class="bug-key">环境</span><span>测试环境 v1.2.0-beta</span></div>
+            <div class="bug-field"><span class="bug-key">发现人</span><span>测试工程师 小王</span></div>
+            <div class="bug-field"><span class="bug-key">发现时间</span><span>2026-06-05 14:32</span></div>
+            <div class="bug-field" style="margin-top:8px;"><span class="bug-key">复现步骤</span>
+              <span>① 进入签到页 ② 快速连续点击签到按钮两次（间隔 &lt;500ms）③ 查看积分余额</span>
+            </div>
+            <div class="bug-field"><span class="bug-key">实际结果</span><span style="color:var(--danger);">积分增加 20，签到接口被调用两次</span></div>
+            <div class="bug-field"><span class="bug-key">预期结果</span><span style="color:var(--success);">积分仅增加 10，重复点击被拦截</span></div>
+            <div class="bug-field"><span class="bug-key">复现率</span><span>100%（每次必现）</span></div>
+            <div class="bug-field"><span class="bug-key">影响范围</span><span style="color:var(--danger);font-weight:500;">所有用户，财务风险，需紧急修复</span></div>
+          </div>
+        </div>
+
+        <div class="bug-card" style="margin-top:10px;background:var(--accent-light);border-color:rgba(196,98,42,0.3);">
+          <div class="bug-header" style="border-color:rgba(196,98,42,0.2);">
+            <span class="bug-id" style="color:var(--accent);">#BUG-043</span>
+            <span class="bug-title" style="color:var(--accent);">连续签到天数在月末显示异常（归零）</span>
+            <span class="bug-level" style="background:var(--accent);color:white;">P1 严重</span>
+          </div>
+          <div class="bug-body" style="color:var(--text-secondary);">
+            <div class="bug-field"><span class="bug-key">复现步骤</span><span>① 在月末最后一天签到 ② 次月 1 日再次签到 ③ 查看连续天数</span></div>
+            <div class="bug-field"><span class="bug-key">实际结果</span><span style="color:var(--danger);">连续天数归零，显示"第 1 天"</span></div>
+            <div class="bug-field"><span class="bug-key">预期结果</span><span style="color:var(--success);">连续天数正常累加，如"第 8 天"</span></div>
+            <div class="bug-field"><span class="bug-key">复现率</span><span>仅在月末可复现，需特殊时间条件</span></div>
+          </div>
+        </div>
+
+        <div style="margin-top:12px;">
+          <p style="font-size:11px;font-weight:500;color:var(--text-tertiary);margin-bottom:8px;letter-spacing:0.06em;">缺陷等级说明</p>
+          <div class="severity-row">
+            <div class="sev-item"><div class="sev-dot" style="background:var(--danger);"></div>P0 致命——主流程不可用，必须当天修复</div>
+            <div class="sev-item"><div class="sev-dot" style="background:var(--accent);"></div>P1 严重——核心功能异常，本次迭代必须修复</div>
+            <div class="sev-item"><div class="sev-dot" style="background:var(--info);"></div>P2 一般——次要功能问题，可排期修复</div>
+            <div class="sev-item"><div class="sev-dot" style="background:var(--text-tertiary);"></div>P3 轻微——体验细节，可放下一版</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== S4 自动化 ===== -->
+    <p class="section-label" id="s4">第四层</p>
+    <h2 class="section-heading">自动化测试——让机器帮忙测</h2>
+
+    <p class="body-text">随着产品功能越来越多，每次上线都手动跑一遍所有用例是不现实的。自动化测试把重复性的工作交给机器，让测试工程师专注于探索性测试和新功能验证。</p>
+
+    <div class="diagram">
+      <div class="diagram-header">
+        <span class="diagram-dot"></span>
+        <span class="diagram-label">自动化测试相关术语</span>
+      </div>
+      <div class="diagram-body">
+        <div class="term-list">
+
+          <div class="term-card">
+            <div class="term-name">自动化测试
+              <span class="term-en">Automated Testing</span>
+            </div>
+            <div class="term-body">
+              <p class="term-def">用代码或工具模拟用户操作，自动执行测试用例并对比结果，不需要人工逐步点击。适合频繁执行的回归测试，省去大量重复劳动。</p>
+              <p class="term-scene">「签到主流程已经写成<strong>自动化测试</strong>，每次发版自动跑，10 分钟出结果，不用人盯着。」</p>
+            </div>
+          </div>
+
+          <div class="term-card">
+            <div class="term-name">测试框架
+              <span class="term-en">Testing Framework</span>
+            </div>
+            <div class="term-body">
+              <p class="term-def">用于编写和运行自动化测试的工具套装。前端常用 Jest、Cypress；后端常用 JUnit、pytest；UI 自动化常用 Selenium、Appium。</p>
+              <p class="term-scene">「App 的 UI 自动化用 <strong>Appium</strong>，可以模拟真实用户在手机上点签到按钮。」</p>
+            </div>
+          </div>
+
+          <div class="term-card">
+            <div class="term-name">Mock / Stub
+              <span class="term-en">Mock / Stub</span>
+            </div>
+            <div class="term-body">
+              <p class="term-def">在测试时用假对象替代真实依赖（比如真实的数据库、第三方接口），让测试在隔离环境下稳定运行，不受外部系统的干扰。</p>
+              <p class="term-scene">「积分服务在测试时用 <strong>Mock</strong>，不真的调接口，这样签到测试不依赖积分服务是否正常。」</p>
+            </div>
+          </div>
+
+          <div class="term-card">
+            <div class="term-name">持续测试
+              <span class="term-en">Continuous Testing</span>
+            </div>
+            <div class="term-body">
+              <p class="term-def">把自动化测试嵌入 CI/CD 流水线，每次代码提交自动触发测试，及时发现问题，不让 bug 积累到发布前才爆发。是 DevOps 文化的核心实践之一。</p>
+              <p class="term-scene">「接入<strong>持续测试</strong>后，PR 合并前必须通过自动化测试，否则合并按钮是灰色的。」</p>
+            </div>
+          </div>
+
+          <div class="term-card">
+            <div class="term-name">测试报告
+              <span class="term-en">Test Report</span>
+            </div>
+            <div class="term-body">
+              <p class="term-def">每轮测试结束后输出的汇总文档，包含：测试范围、用例总数、通过/失败数、遗留 bug 清单、测试结论（是否建议上线）。是测试阶段结束的正式交付物。</p>
+              <p class="term-scene">「<strong>测试报告</strong>已发，共 68 条用例全部通过，P0/P1 无遗留，建议上线。」</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== S5 上线前检查 ===== -->
+    <p class="section-label" id="s5">实用清单</p>
+    <h2 class="section-heading">测试工程师的上线前检查单</h2>
+
+    <p class="body-text">在第二篇里，你看到了灰度上线前要经过 UAT 验收。但在 UAT 之前，测试工程师要确认一张完整的检查单都通过了。这是签到功能上线前，测试同学实际会过的清单：</p>
+
+    <div class="diagram">
+      <div class="diagram-header">
+        <span class="diagram-dot"></span>
+        <span class="diagram-label">上线前测试检查单 · 签到功能</span>
+      </div>
+      <div class="diagram-body">
+        <div class="checklist">
+          <div class="check-item done">
+            <span class="check-icon">✅</span>
+            <span class="check-text"><strong>冒烟测试通过</strong>——签到主流程可以跑通，没有白屏或崩溃</span>
+          </div>
+          <div class="check-item done">
+            <span class="check-icon">✅</span>
+            <span class="check-text"><strong>P0 用例 100% 通过</strong>——签到、积分发放、连续天数计算全部验证</span>
+          </div>
+          <div class="check-item done">
+            <span class="check-icon">✅</span>
+            <span class="check-text"><strong>P1 用例 100% 通过</strong>——重复签到拦截、网络异常处理、跨月场景已验证</span>
+          </div>
+          <div class="check-item done">
+            <span class="check-icon">✅</span>
+            <span class="check-text"><strong>P0/P1 bug 全部关闭</strong>——#BUG-042 重复积分已修复验证，#BUG-043 跨月 bug 已修复</span>
+          </div>
+          <div class="check-item done">
+            <span class="check-icon">✅</span>
+            <span class="check-text"><strong>回归测试通过</strong>——积分查询、兑换、账户余额等关联功能验证正常</span>
+          </div>
+          <div class="check-item done">
+            <span class="check-icon">✅</span>
+            <span class="check-text"><strong>兼容性测试通过</strong>——iOS 15+、Android 10+ 主流机型验证，动画正常播放</span>
+          </div>
+          <div class="check-item done">
+            <span class="check-icon">✅</span>
+            <span class="check-text"><strong>性能测试通过</strong>——5000 QPS 下响应时间 &lt; 500ms，无超时报错</span>
+          </div>
+          <div class="check-item warn">
+            <span class="check-icon">⚠️</span>
+            <span class="check-text"><strong>P2 遗留 bug 已知悉</strong>——iOS 14 及以下动画降级（下期修），产品已确认可接受</span>
+          </div>
+          <div class="check-item done">
+            <span class="check-icon">✅</span>
+            <span class="check-text"><strong>测试报告已交付</strong>——产品和项目经理已确认，建议灰度上线</span>
+          </div>
+        </div>
+        <div style="margin-top:14px;padding:10px 14px;background:var(--success-light);border-radius:7px;border:0.5px solid rgba(15,110,86,0.2);">
+          <p style="font-size:13px;color:var(--success);font-weight:500;">✓ 测试结论：建议灰度上线，P2 遗留问题不影响核心流程，已知悉并记录。</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== S6 速查 ===== -->
+    <p class="section-label" id="s6">速查手册</p>
+    <h2 class="section-heading">测试工程师术语一览</h2>
+
+    <div class="diagram">
+      <div class="diagram-header">
+        <span class="diagram-dot"></span>
+        <span class="diagram-label">QA 专业术语速查 · 共 19 个</span>
+      </div>
+      <div class="diagram-body">
+        <table style="width:100%;border-collapse:collapse;font-size:13px;">
+          <thead>
+            <tr>
+              <th style="text-align:left;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-tertiary);font-weight:500;padding:8px 10px;border-bottom:1px solid var(--border-strong);">术语</th>
+              <th style="text-align:left;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-tertiary);font-weight:500;padding:8px 10px;border-bottom:1px solid var(--border-strong);">层次</th>
+              <th style="text-align:left;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-tertiary);font-weight:500;padding:8px 10px;border-bottom:1px solid var(--border-strong);">一句话记忆</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="background:var(--qa-light);">
+              <td colspan="3" style="padding:6px 10px;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--qa);font-weight:500;">基础概念</td>
+            </tr>
+            <tr><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--qa);">测试用例</td><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);color:var(--text-tertiary);font-size:12px;">基础</td><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);color:var(--text-secondary);font-size:12px;">前置条件 + 步骤 + 预期结果的脚本</td></tr>
+            <tr><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--qa);">测试覆盖率</td><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);color:var(--text-tertiary);font-size:12px;">基础</td><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);color:var(--text-secondary);font-size:12px;">有多少功能被测试到了</td></tr>
+            <tr><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--qa);">黑盒测试</td><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);color:var(--text-tertiary);font-size:12px;">基础</td><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);color:var(--text-secondary);font-size:12px;">不看代码，只验证输入输出是否符合预期</td></tr>
+            <tr><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--qa);">白盒测试</td><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);color:var(--text-tertiary);font-size:12px;">基础</td><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);color:var(--text-secondary);font-size:12px;">基于代码逻辑设计测试，覆盖所有分支</td></tr>
+            <tr><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--qa);">探索性测试</td><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);color:var(--text-tertiary);font-size:12px;">基础</td><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);color:var(--text-secondary);font-size:12px;">凭经验自由探索，发现用例之外的问题</td></tr>
+            <tr style="background:var(--accent-light);">
+              <td colspan="3" style="padding:6px 10px;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent);font-weight:500;">测试类型</td>
+            </tr>
+            <tr><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--qa);">单元测试</td><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);color:var(--text-tertiary);font-size:12px;">类型</td><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);color:var(--text-secondary);font-size:12px;">最小单元的独立验证，研发自己写</td></tr>
+            <tr><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--qa);">集成测试</td><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);color:var(--text-tertiary);font-size:12px;">类型</td><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);color:var(--text-secondary);font-size:12px;">多模块组合后的联合验证</td></tr>
+            <tr><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--qa);">冒烟测试</td><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);color:var(--text-tertiary);font-size:12px;">类型</td><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);color:var(--text-secondary);font-size:12px;">提测后先跑主流程，决定要不要继续测</td></tr>
+            <tr><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--qa);">回归测试</td><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);color:var(--text-tertiary);font-size:12px;">类型</td><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);color:var(--text-secondary);font-size:12px;">改动后验证老功能没被破坏</td></tr>
+            <tr><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--qa);">性能测试</td><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);color:var(--text-tertiary);font-size:12px;">类型</td><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);color:var(--text-secondary);font-size:12px;">高并发下系统是否稳定、够快</td></tr>
+            <tr><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--qa);">兼容性测试</td><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);color:var(--text-tertiary);font-size:12px;">类型</td><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);color:var(--text-secondary);font-size:12px;">不同设备/系统/浏览器表现一致</td></tr>
+            <tr style="background:var(--danger-light);">
+              <td colspan="3" style="padding:6px 10px;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--danger);font-weight:500;">缺陷管理</td>
+            </tr>
+            <tr><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--qa);">缺陷等级 P0-P3</td><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);color:var(--text-tertiary);font-size:12px;">缺陷</td><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);color:var(--text-secondary);font-size:12px;">P0 今天修 / P1 这期修 / P2 排期 / P3 放后</td></tr>
+            <tr><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--qa);">复现步骤</td><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);color:var(--text-tertiary);font-size:12px;">缺陷</td><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);color:var(--text-secondary);font-size:12px;">bug 报告最核心的部分，没有等于没报</td></tr>
+            <tr><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--qa);">缺陷生命周期</td><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);color:var(--text-tertiary);font-size:12px;">缺陷</td><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);color:var(--text-secondary);font-size:12px;">新建→指派→修复→验证→关闭</td></tr>
+            <tr><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--qa);">误报 / 漏测</td><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);color:var(--text-tertiary);font-size:12px;">缺陷</td><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);color:var(--text-secondary);font-size:12px;">误报了正常现象 / 漏掉了真实 bug</td></tr>
+            <tr style="background:var(--success-light);">
+              <td colspan="3" style="padding:6px 10px;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--success);font-weight:500;">自动化</td>
+            </tr>
+            <tr><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--qa);">自动化测试</td><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);color:var(--text-tertiary);font-size:12px;">自动化</td><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);color:var(--text-secondary);font-size:12px;">代码代替人工执行用例，不用每次手点</td></tr>
+            <tr><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--qa);">Mock / Stub</td><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);color:var(--text-tertiary);font-size:12px;">自动化</td><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);color:var(--text-secondary);font-size:12px;">测试时用假对象替代真实依赖</td></tr>
+            <tr><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--qa);">持续测试</td><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);color:var(--text-tertiary);font-size:12px;">自动化</td><td style="padding:8px 10px;border-bottom:0.5px solid var(--border);color:var(--text-secondary);font-size:12px;">每次提交自动触发，不攒问题</td></tr>
+            <tr><td style="padding:8px 10px;font-family:var(--mono);font-size:12px;color:var(--qa);">测试报告</td><td style="padding:8px 10px;color:var(--text-tertiary);font-size:12px;">自动化</td><td style="padding:8px 10px;color:var(--text-secondary);font-size:12px;">测试阶段的正式交付物，含上线建议</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ===== 系列完结 ===== -->
+    <div class="series-complete">
+      <div class="sc-icon">🎉</div>
+      <p class="sc-title">系列完结——你已经解锁了整张职场地图</p>
+      <p class="sc-desc">从前言的"灰度上线"误解，到八篇完整的角色语言，这个系列覆盖了互联网团队里最核心的九个角色。下次开会，你不需要再靠猜了。</p>
+      <div class="sc-pills">
+        <span class="sc-pill done">✓ 第〇篇 前言</span>
+        <span class="sc-pill done">✓ 第一篇 通用术语</span>
+        <span class="sc-pill done">✓ 第二篇 需求文档</span>
+        <span class="sc-pill done">✓ 第三篇 产品经理</span>
+        <span class="sc-pill done">✓ 第四篇 项目经理</span>
+        <span class="sc-pill done">✓ 第五篇 前端工程师</span>
+        <span class="sc-pill done">✓ 第六篇 后端工程师</span>
+        <span class="sc-pill done">✓ 第七篇 数据与算法</span>
+        <span class="sc-pill done">✓ 第八篇 测试工程师</span>
+      </div>
+    </div>
+
+    <div class="callout info">
+      <p>学语言最好的方式是用它。下次你听到一个不认识的词，先查这个系列；如果还没有，欢迎留言——我会持续更新。</p>
+    </div>
+
+    <div class="tag-row">
+      <a class="tag" href="#">测试工程师</a>
+      <a class="tag" href="#">QA</a>
+      <a class="tag" href="#">测试用例</a>
+      <a class="tag" href="#">冒烟测试</a>
+      <a class="tag" href="#">回归测试</a>
+      <a class="tag" href="#">缺陷管理</a>
+      <a class="tag" href="#">自动化测试</a>
+      <a class="tag" href="#">质量保障</a>
+    </div>
+
+  </article>
+
+  <aside class="sidebar">
+    <p class="toc-label">本篇目录</p>
+    <ul class="toc-list">
+      <li><a href="#s1" class="toc-link">测试基础概念</a></li>
+      <li><a href="#s2" class="toc-link">测试类型</a></li>
+      <li><a href="#s3" class="toc-link">缺陷管理</a></li>
+      <li><a href="#s4" class="toc-link">自动化测试</a></li>
+      <li><a href="#s5" class="toc-link">上线前检查单</a></li>
+      <li><a href="#s6" class="toc-link">速查手册</a></li>
+    </ul>
+
+  </aside>
+</div>
+
+<footer class="site-footer">
+  <a href="../../index.html" style="color:inherit;text-decoration:none;display:flex;align-items:center;gap:6px;">← 返回首页</a>
+  <span>聚合叉的博客</span>
+</footer>
+
+<script>
+  (function () {
+    const sections = ['s1','s2','s3','s4','s5','s6'];
+    const links = document.querySelectorAll('.toc-link');
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          links.forEach(l => l.classList.remove('active'));
+          const active = document.querySelector(`.toc-link[href="#${entry.target.id}"]`);
+          if (active) active.classList.add('active');
+        }
+      });
+    }, { rootMargin: '-30% 0px -60% 0px' });
+    sections.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) observer.observe(el);
+    });
+  })();
+</script>
+</body>
+</html>
