@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python 包管理工具简史：从 distutils 到 uv</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #F7F5F0;
+    --bg-card: #FFFFFF;
+    --bg-code: #F0EDE8;
+    --text-primary: #1A1814;
+    --text-secondary: #5C5850;
+    --text-tertiary: #9A948A;
+    --accent: #C4622A;
+    --accent-light: #FAE8DC;
+    --accent-mid: #E8855A;
+    --info: #185FA5;
+    --info-light: #E6F1FB;
+    --danger: #993C1D;
+    --danger-light: #FAECE7;
+    --success: #0F6E56;
+    --success-light: #E1F5EE;
+    --border: rgba(60,50,40,0.1);
+    --border-strong: rgba(60,50,40,0.2);
+    --serif: 'Noto Serif SC', Georgia, serif;
+    --sans: 'Noto Sans SC', system-ui, sans-serif;
+    --mono: 'JetBrains Mono', monospace;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text-primary);
+    font-family: var(--sans);
+    font-weight: 400;
+    line-height: 1.85;
+    min-height: 100vh;
+  }
+
+  /* ── Header ── */
+  .site-header {
+    border-bottom: 0.5px solid var(--border);
+    padding: 18px 0;
+    position: sticky;
+    top: 0;
+    background: rgba(247,245,240,0.9);
+    backdrop-filter: blur(12px);
+    z-index: 100;
+  }
+  .header-inner {
+    max-width: 1020px;
+    margin: 0 auto;
+    padding: 0 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .site-name { font-family: var(--serif); font-size: 15px; font-weight: 600; color: var(--text-primary); letter-spacing: 0.02em; }
+  .header-tag { font-size: 11px; color: var(--text-tertiary); letter-spacing: 0.15em; text-transform: uppercase; }
+
+  /* ── Hero ── */
+  .hero {
+    max-width: 1020px;
+    margin: 0 auto;
+    padding: 72px 32px 48px;
+    border-bottom: 0.5px solid var(--border);
+  }
+  .kicker {
+    font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--accent); font-weight: 500; margin-bottom: 20px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .kicker::after { content: ''; display: block; height: 1px; width: 40px; background: var(--accent-mid); opacity: 0.5; }
+  .headline { font-family: var(--serif); font-size: 42px; font-weight: 700; line-height: 1.25; color: var(--text-primary); margin-bottom: 20px; letter-spacing: -0.01em; }
+  .headline em { font-style: normal; color: var(--accent); }
+  .deck { font-size: 16px; color: var(--text-secondary); line-height: 1.75; max-width: 560px; margin-bottom: 32px; }
+  .meta-row { display: flex; align-items: center; gap: 20px; font-size: 12px; color: var(--text-tertiary); }
+  .meta-row span { display: flex; align-items: center; gap: 5px; }
+
+  /* ── Layout ── */
+  .content-wrap {
+    max-width: 1020px; margin: 0 auto; padding: 0 32px;
+    display: grid; grid-template-columns: 1fr 260px; gap: 0 56px; align-items: start;
+  }
+  .article-body { padding: 48px 0 80px; min-width: 0; }
+
+  /* ── Sidebar ── */
+  .sidebar { padding: 48px 0 80px; position: sticky; top: 72px; }
+  .toc-label { font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-tertiary); font-weight: 500; margin-bottom: 14px; }
+  .toc-list { list-style: none; border-left: 1px solid var(--border-strong); padding-left: 14px; }
+  .toc-list li { margin-bottom: 8px; }
+  .toc-list a { font-size: 12px; color: var(--text-tertiary); text-decoration: none; transition: color 0.2s; display: block; line-height: 1.5; }
+  .toc-list a:hover { color: var(--accent); }
+  .toc-list a.active { color: var(--accent); font-weight: 500; }
+
+  /* ── Typography ── */
+  .section-label { font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--text-tertiary); font-weight: 500; margin: 52px 0 10px; }
+  .section-heading { font-family: var(--serif); font-size: 22px; font-weight: 600; color: var(--text-primary); margin-bottom: 18px; line-height: 1.4; }
+  .body-text { font-size: 15px; color: var(--text-primary); margin-bottom: 18px; font-weight: 400; line-height: 1.9; }
+  .body-text strong { font-weight: 500; }
+
+  .pull-quote {
+    font-family: var(--serif); font-size: 20px; font-weight: 600; color: var(--text-primary);
+    line-height: 1.6; padding: 32px 0; margin: 36px 0;
+    border-top: 1.5px solid var(--accent); border-bottom: 0.5px solid var(--border); position: relative;
+  }
+  .pull-quote::before {
+    content: '\201C'; font-family: var(--serif); font-size: 72px; color: var(--accent);
+    opacity: 0.15; position: absolute; top: 10px; left: -8px; line-height: 1;
+  }
+
+  /* ── Callout ── */
+  .callout { border-left: 2px solid var(--accent); padding: 16px 20px; background: var(--accent-light); border-radius: 0 8px 8px 0; margin: 28px 0; }
+  .callout p { font-size: 14px; color: var(--danger); font-weight: 400; line-height: 1.75; margin: 0; }
+  .callout.info { border-color: var(--info); background: var(--info-light); }
+  .callout.info p { color: var(--info); }
+  .callout.success { border-color: var(--success); background: var(--success-light); }
+  .callout.success p { color: var(--success); }
+
+  /* ── Diagram blocks ── */
+  .diagram { border: 0.5px solid var(--border-strong); border-radius: 12px; overflow: hidden; margin: 28px 0; background: var(--bg-card); }
+  .diagram-header { padding: 12px 18px; border-bottom: 0.5px solid var(--border); display: flex; align-items: center; gap: 8px; }
+  .diagram-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
+  .diagram-label { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-tertiary); font-weight: 500; }
+  .diagram-body { padding: 20px 18px; }
+
+  /* ── Flow chain ── */
+  .flow-chain { display: flex; align-items: stretch; gap: 0; margin: 16px 0; flex-wrap: wrap; }
+  .flow-step { flex: 1; background: var(--bg); border: 0.5px solid var(--border); border-radius: 8px; padding: 10px 8px; text-align: center; font-size: 11px; color: var(--text-secondary); line-height: 1.45; min-width: 0; }
+  .flow-step.accent { background: var(--accent-light); border-color: rgba(196,98,42,0.25); color: var(--accent); font-weight: 500; }
+  .flow-step.info { background: var(--info-light); border-color: rgba(24,95,165,0.2); color: var(--info); font-weight: 500; }
+  .flow-step.success { background: var(--success-light); border-color: rgba(15,110,86,0.2); color: var(--success); font-weight: 500; }
+  .flow-step span { display: block; font-size: 10px; color: var(--text-tertiary); margin-top: 3px; }
+  .flow-step.accent span { color: rgba(196,98,42,0.6); }
+  .flow-step.info span { color: rgba(24,95,165,0.55); }
+  .flow-step.success span { color: rgba(15,110,86,0.55); }
+  .flow-arrow { display: flex; align-items: center; color: var(--text-tertiary); font-size: 13px; padding: 0 4px; flex-shrink: 0; }
+
+  /* ── Reasons grid ── */
+  .reasons-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .reason-item { background: var(--bg); border: 0.5px solid var(--border); border-radius: 8px; padding: 16px; }
+  .reason-icon { font-size: 20px; margin-bottom: 8px; display: block; }
+  .reason-title { font-size: 13px; font-weight: 500; color: var(--text-primary); margin-bottom: 6px; }
+  .reason-desc { font-size: 12px; color: var(--text-secondary); line-height: 1.65; }
+
+  /* ── Code block ── */
+  .code-block {
+    background: var(--bg-code); border: 0.5px solid var(--border); border-radius: 8px;
+    padding: 16px 18px; margin: 12px 0 0; font-family: var(--mono), var(--sans); font-size: 12px;
+    line-height: 1.75; color: var(--text-primary); overflow-x: auto; white-space: pre;
+  }
+  .code-block .comment { color: var(--text-tertiary); }
+  .code-block .hl { color: var(--accent); font-weight: 500; }
+  .code-block .blue { color: var(--info); }
+  .code-block .kw { color: #7B4CA0; font-weight: 500; }
+  .code-block .str { color: var(--success); }
+
+  /* ── Table ── */
+  .tradeoff-table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 16px 0; }
+  .tradeoff-table th { text-align: left; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-tertiary); font-weight: 500; padding: 8px 12px; border-bottom: 1px solid var(--border-strong); }
+  .tradeoff-table td { padding: 10px 12px; border-bottom: 0.5px solid var(--border); color: var(--text-primary); vertical-align: top; line-height: 1.6; }
+  .tradeoff-table tr:last-child td { border-bottom: none; }
+  .tradeoff-table td:first-child { font-weight: 500; color: var(--text-secondary); white-space: nowrap; width: 130px; }
+
+  .badge { display: inline-block; font-size: 10px; padding: 2px 7px; border-radius: 20px; font-weight: 500; margin-left: 4px; }
+  .badge.good { background: var(--success-light); color: var(--success); }
+  .badge.bad { background: var(--danger-light); color: var(--danger); }
+
+  /* ── Inline code ── */
+  .ic { font-family: var(--mono), var(--sans); font-size: 12px; background: var(--bg-code); padding: 1px 5px; border-radius: 3px; color: var(--text-primary); }
+
+  /* ══════════════════════════════════════════
+     STEP TIMELINE
+  ══════════════════════════════════════════ */
+  .step-timeline { margin: 28px 0; }
+
+  .step-row { display: flex; gap: 16px; }
+
+  .step-gutter {
+    display: flex; flex-direction: column; align-items: center; flex-shrink: 0; width: 32px;
+  }
+
+  .step-num {
+    width: 32px; height: 32px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--mono); font-size: 13px; font-weight: 500; flex-shrink: 0;
+  }
+  .step-num.n1 { background: #CECBF6; color: #3C3489; }
+  .step-num.n2 { background: #B5D4F4; color: #0C447C; }
+  .step-num.n3 { background: #9FE1CB; color: #085041; }
+  .step-num.n4 { background: #C0DD97; color: #27500A; }
+  .step-num.n5 { background: #F5C4B3; color: #712B13; }
+  .step-num.n6 { background: #FAC775; color: #633806; }
+  .step-num.n7 { background: #F6B8CE; color: #7A1642; }
+  .step-num.n8 { background: #D9D4C8; color: #4A4234; }
+
+  .step-line { width: 1px; flex: 1; background: var(--border-strong); margin: 5px 0; min-height: 16px; }
+
+  .step-body { flex: 1; padding-bottom: 32px; min-width: 0; }
+  .step-row:last-child .step-body { padding-bottom: 0; }
+  .step-row:last-child .step-line { display: none; }
+
+  .step-title {
+    font-size: 15px; font-weight: 500; color: var(--text-primary);
+    margin-bottom: 6px; padding-top: 5px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .step-year { font-family: var(--mono); font-size: 11px; color: var(--text-tertiary); font-weight: 400; }
+  .step-desc { font-size: 14px; color: var(--text-secondary); line-height: 1.7; margin-bottom: 10px; }
+
+  /* 命令卡片 */
+  .cmd-card {
+    background: var(--bg-code); border: 0.5px solid var(--border);
+    border-radius: 8px; padding: 12px 16px; margin-bottom: 8px;
+  }
+  .cmd-row { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 4px; }
+  .cmd-row:last-child { margin-bottom: 0; }
+  .cmd-dollar { font-family: var(--mono); font-size: 12px; color: var(--text-tertiary); padding-top: 1px; flex-shrink: 0; user-select: none; }
+  .cmd-text { font-family: var(--mono); font-size: 12px; color: var(--text-primary); flex: 1; }
+  .cmd-text .arg { color: var(--info); }
+  .cmd-text .flag { color: #7B4CA0; }
+  .cmd-text .val { color: var(--success); }
+  .cmd-note { font-size: 11px; color: var(--text-tertiary); margin-top: 2px; padding-left: 20px; }
+  .cmd-sep { height: 0.5px; background: var(--border); margin: 8px 0; }
+
+  /* tip / warn 小提示 */
+  .step-tip { border-left: 2px solid var(--info); background: var(--info-light); border-radius: 0 6px 6px 0; padding: 8px 12px; font-size: 13px; color: var(--info); line-height: 1.6; margin-top: 8px; }
+  .step-warn { border-left: 2px solid var(--accent); background: var(--accent-light); border-radius: 0 6px 6px 0; padding: 8px 12px; font-size: 13px; color: var(--danger); line-height: 1.6; margin-top: 8px; }
+
+  /* ── Tag row & Footer ── */
+  .tag-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 48px; padding-top: 28px; border-top: 0.5px solid var(--border); }
+  .tag { display: inline-block; font-size: 11px; padding: 4px 12px; border: 0.5px solid var(--border-strong); border-radius: 20px; color: var(--text-secondary); text-decoration: none; transition: all 0.2s; letter-spacing: 0.04em; }
+  .tag:hover { border-color: var(--accent); color: var(--accent); }
+  .site-footer { border-top: 0.5px solid var(--border); padding: 24px 32px; max-width: 1020px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; font-size: 12px; color: var(--text-tertiary); }
+
+  @media (max-width: 720px) {
+    .content-wrap { grid-template-columns: 1fr; }
+    .sidebar { display: none; }
+    .headline { font-size: 28px; }
+    .reasons-grid { grid-template-columns: 1fr; }
+    .hero, .content-wrap { padding-left: 20px; padding-right: 20px; }
+    .header-inner { padding: 0 20px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <span class="site-name">聚合叉的博客</span>
+    <span class="header-tag">Engineering</span>
+  </div>
+</header>
+
+<div class="hero">
+  <p class="kicker">Python 生态</p>
+  <h1 class="headline">Python 包管理工具简史：<br>从 distutils 到 <em>uv</em></h1>
+  <p class="deck">二十多年里，Python 社区为了"怎么装一个包"这件小事，先后造出了十几种工具。这篇文章按时间线捋一遍它们各自解决了什么问题、又留下了什么坑，帮你理解今天这套 pyproject.toml 体系是怎么来的。</p>
+  <div class="meta-row">
+    <span>2026-07-07</span>
+    <span>阅读约 9 分钟</span>
+    <span>生态历史</span>
+  </div>
+</div>
+
+<div class="content-wrap">
+<article class="article-body">
+
+  <!-- S1 -->
+  <h2 class="section-heading">一个问题：为什么工具这么多</h2>
+
+  <p class="body-text">如果你是最近一两年才学 Python，大概率会困惑：装个包，网上教程一会儿说 <span class="ic">pip install</span>，一会儿说 <span class="ic">poetry add</span>，最近又冒出个 <span class="ic">uv add</span>。它们不是同一个东西的不同名字，而是<strong>不同时代为解决不同痛点而生的产物</strong>，彼此叠加、替代，最后堆成了今天这个略显混乱的局面。</p>
+
+  <p class="body-text">Python 包管理的历史，本质上是一条不断打补丁的路：先解决"怎么打包"，再解决"怎么装"，再解决"怎么装到隔离的环境里"，再解决"怎么让所有人装出一模一样的环境"。每一代工具，都是在给上一代工具留下的窟窿打补丁。</p>
+
+  <div class="diagram">
+    <div class="diagram-header"><span class="diagram-dot"></span><span class="diagram-label">四个从未被真正解决、只是被逐步缓解的痛点</span></div>
+    <div class="diagram-body">
+      <div class="reasons-grid">
+        <div class="reason-item">
+          <span class="reason-icon">📦</span>
+          <div class="reason-title">打包标准不统一</div>
+          <div class="reason-desc">早期没有统一的元数据格式，每个项目的 setup.py 都是一段可以任意执行的代码。</div>
+        </div>
+        <div class="reason-item">
+          <span class="reason-icon">🔗</span>
+          <div class="reason-title">依赖解析靠运气</div>
+          <div class="reason-desc">"能装上"不等于"版本兼容"，很长一段时间里根本没有真正的依赖解析器。</div>
+        </div>
+        <div class="reason-item">
+          <span class="reason-icon">🧪</span>
+          <div class="reason-title">环境隔离是外挂</div>
+          <div class="reason-desc">Python 默认把所有包装进全局环境，隔离功能是后来一层层加上去的。</div>
+        </div>
+        <div class="reason-item">
+          <span class="reason-icon">🔁</span>
+          <div class="reason-title">无法复现</div>
+          <div class="reason-desc">requirements.txt 记录的是"想要什么"，而不是"实际装了什么"，锁文件的概念来得很晚。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pull-quote">
+    每一个新的 Python 包管理工具诞生的理由，几乎都是同一句话："上一个工具没有依赖解析器"或者"上一个工具的环境不能复现"。
+  </div>
+
+  <!-- S2 -->
+  <p class="section-label" id="s2">时间线</p>
+  <h2 class="section-heading">八个关键节点，一路走来</h2>
+
+  <p class="body-text">下面按时间顺序梳理最重要的八个节点。不是要你记住每一个工具的用法，而是理解<strong>每一个新工具出现时，到底在解决谁的痛</strong>。</p>
+
+  <div class="step-timeline">
+
+    <!-- Step 1 -->
+    <div class="step-row">
+      <div class="step-gutter">
+        <div class="step-num n1">1</div>
+        <div class="step-line"></div>
+      </div>
+      <div class="step-body">
+        <div class="step-title">distutils <span class="step-year">2000 · Python 标准库自带</span></div>
+        <div class="step-desc">Python 2.0 内置的最早的打包工具。它定义了 <span class="ic">setup.py</span> 这种写法——用一段 Python 代码描述"这个包叫什么、依赖谁、怎么编译"。这个设计影响了后面十几年的生态，但问题也从这里开始：<strong>元数据是代码，不是数据</strong>，工具想读取一个包的信息，必须先执行这段代码。</div>
+        <div class="step-tip">distutils 本身甚至不能处理依赖关系——它只管"怎么编译和安装一个包"，完全没有"这个包还需要别的包"的概念。</div>
+      </div>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="step-row">
+      <div class="step-gutter">
+        <div class="step-num n2">2</div>
+        <div class="step-line"></div>
+      </div>
+      <div class="step-body">
+        <div class="step-title">setuptools + easy_install <span class="step-year">2004</span></div>
+        <div class="step-desc">setuptools 是 distutils 的增强版，补上了依赖声明（<span class="ic">install_requires</span>）、自动发现包等能力。配套的 easy_install 是第一个能<strong>自动从网上下载依赖</strong>的安装工具，在当时是很大的进步。</div>
+        <div class="cmd-card">
+          <div class="cmd-row">
+            <span class="cmd-dollar">$</span>
+            <div>
+              <div class="cmd-text">easy_install <span class="val">django</span></div>
+              <div class="cmd-note">曾经的标准装包方式，2004–2011 年间被广泛使用</div>
+            </div>
+          </div>
+        </div>
+        <div class="step-warn">easy_install 无法卸载包、没有真正的依赖解析（版本冲突时谁装得晚谁生效）、也不支持从 requirements 文件批量安装。这些缺陷直接催生了 pip。</div>
+      </div>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="step-row">
+      <div class="step-gutter">
+        <div class="step-num n3">3</div>
+        <div class="step-line"></div>
+      </div>
+      <div class="step-body">
+        <div class="step-title">pip 诞生 <span class="step-year">2008</span></div>
+        <div class="step-desc">pip（最初叫 "pyinstall"）由 Ian Bicking 发起，专门用来解决 easy_install 的痛点：支持卸载、支持从 <span class="ic">requirements.txt</span> 批量安装、错误信息更清晰。2014 年之后 pip 被 CPython 内置（通过 <span class="ic">ensurepip</span>），从此成为事实标准。</div>
+        <div class="cmd-card">
+          <div class="cmd-row">
+            <span class="cmd-dollar">$</span>
+            <div>
+              <div class="cmd-text">pip <span class="flag">install</span> <span class="flag">-r</span> <span class="val">requirements.txt</span></div>
+              <div class="cmd-note">批量安装，pip 带来的标志性能力</div>
+            </div>
+          </div>
+        </div>
+        <div class="step-tip">值得注意：直到 2020 年（pip 20.3），pip 才拥有真正意义上的依赖解析器。在此之前十二年里，pip 采用的是"谁先声明版本要求就用谁"的朴素策略，版本冲突经常在装完之后才暴露。</div>
+      </div>
+    </div>
+
+    <!-- Step 4 -->
+    <div class="step-row">
+      <div class="step-gutter">
+        <div class="step-num n4">4</div>
+        <div class="step-line"></div>
+      </div>
+      <div class="step-body">
+        <div class="step-title">virtualenv 与环境隔离 <span class="step-year">2007 起普及</span></div>
+        <div class="step-desc">pip 解决了"怎么装"，但所有包默认还是装进全局 Python 环境——一台机器上的两个项目如果依赖不同版本的同一个包，就会互相冲突。virtualenv（后来 Python 3.3 起标准库内置的 <span class="ic">venv</span>）通过为每个项目创建独立的 Python 解释器副本，解决了这个问题。</div>
+        <div class="cmd-card">
+          <div class="cmd-row">
+            <span class="cmd-dollar">$</span>
+            <div>
+              <div class="cmd-text">python -m <span class="arg">venv</span> <span class="val">.venv</span></div>
+              <div class="cmd-note">2012 年 PEP 405 之后，venv 成为标准库自带方案</div>
+            </div>
+          </div>
+        </div>
+        <div class="step-tip">这一阶段的组合拳是 "pip + virtualenv + requirements.txt"，这套三件套统治了 Python 社区将近十年，至今仍是很多老项目的标配。</div>
+      </div>
+    </div>
+
+    <!-- Step 5 -->
+    <div class="step-row">
+      <div class="step-gutter">
+        <div class="step-num n5">5</div>
+        <div class="step-line"></div>
+      </div>
+      <div class="step-body">
+        <div class="step-title">Conda 另起炉灶 <span class="step-year">2012 · Anaconda</span></div>
+        <div class="step-desc">前面提到的 pip、virtualenv 全部只解决 Python 包本身的问题——但科学计算领域的痛点更麻烦：NumPy、SciPy 这类库背后依赖大量 C/Fortran 编译产物，在 pip 只能装纯 Python 包的年代，Windows 用户光是装一个 NumPy 就可能因为缺编译器而失败。Continuum Analytics（现 Anaconda 公司）推出 Conda，用一套<strong>完全独立于 PyPI 的二进制包仓库</strong>解决了这个问题：包里直接带上预编译好的二进制文件，不需要用户本地编译。</div>
+        <div class="cmd-card">
+          <div class="cmd-row">
+            <span class="cmd-dollar">$</span>
+            <div>
+              <div class="cmd-text">conda <span class="flag">create</span> <span class="flag">-n</span> <span class="val">myenv</span> <span class="val">numpy</span> <span class="val">scipy</span></div>
+              <div class="cmd-note">环境管理 + 包管理二合一，且不局限于 Python 包</div>
+            </div>
+          </div>
+        </div>
+        <div class="step-tip">Conda 不是 pip 的替代品，而是一个平行世界：它管理的不只是 Python 包，还能装 R、CUDA、编译器这类非 Python 依赖，这也是它至今在数据科学和机器学习圈子里几乎是默认选择的原因。代价是 Conda 的包仓库和 PyPI 是两套独立体系，版本更新往往比 pip 慢，两者混用时也容易出现依赖冲突。</div>
+      </div>
+    </div>
+
+    <!-- Step 6 -->
+    <div class="step-row">
+      <div class="step-gutter">
+        <div class="step-num n6">6</div>
+        <div class="step-line"></div>
+      </div>
+      <div class="step-body">
+        <div class="step-title">Pipenv 尝试统一 <span class="step-year">2017</span></div>
+        <div class="step-desc">requirements.txt 有个根本缺陷：它记录的是"我想要 requests>=2.0"，而不是"我实际装的是 requests==2.28.3，以及它依赖的另外 15 个包各是什么版本"。Pipenv 由 Kenneth Reitz（requests 的作者）主导，引入 <span class="ic">Pipfile</span> 和 <span class="ic">Pipfile.lock</span>，第一次把"锁文件"这个概念带进主流 Python 社区，并把 pip 和 virtualenv 合并成一个命令。</div>
+        <div class="cmd-card">
+          <div class="cmd-row">
+            <span class="cmd-dollar">$</span>
+            <div>
+              <div class="cmd-text">pipenv <span class="flag">install</span> <span class="val">requests</span></div>
+              <div class="cmd-note">自动创建虚拟环境（如果还没有），并写入 Pipfile + Pipfile.lock</div>
+            </div>
+          </div>
+          <div class="cmd-sep"></div>
+          <div class="cmd-row">
+            <span class="cmd-dollar">$</span>
+            <div>
+              <div class="cmd-text">pipenv <span class="flag">install</span> <span class="flag">--dev</span> <span class="val">pytest</span></div>
+              <div class="cmd-note">开发依赖单独分组，写入 Pipfile 的 [dev-packages] 段</div>
+            </div>
+          </div>
+          <div class="cmd-sep"></div>
+          <div class="cmd-row">
+            <span class="cmd-dollar">$</span>
+            <div>
+              <div class="cmd-text">pipenv <span class="flag">shell</span></div>
+              <div class="cmd-note">激活虚拟环境，不用再手动 source .venv/bin/activate</div>
+            </div>
+          </div>
+        </div>
+        <div class="step-warn">Pipenv 曾一度被官方 Python 打包指南推荐为首选工具，但很快因为依赖解析速度慢、维护活跃度下降而失去了社区的信任，不少团队转向了随后出现的 Poetry。</div>
+      </div>
+    </div>
+
+    <!-- Step 7 -->
+    <div class="step-row">
+      <div class="step-gutter">
+        <div class="step-num n7">7</div>
+        <div class="step-line"></div>
+      </div>
+      <div class="step-body">
+        <div class="step-title">Poetry 与 pyproject.toml 标准化 <span class="step-year">2018</span></div>
+        <div class="step-desc">几乎同一时期，PEP 518（2016）定义了 <span class="ic">pyproject.toml</span> 作为构建系统声明的标准文件，PEP 621（2020）进一步把项目元数据也纳入其中。Poetry 抓住了这个标准，把依赖管理、锁文件、虚拟环境、打包发布全部整合到一个 <span class="ic">pyproject.toml</span> 里，并带来了一个更聪明的依赖解析器（基于 SAT 求解思路）。</div>
+        <div class="cmd-card">
+          <div class="cmd-row">
+            <span class="cmd-dollar">$</span>
+            <div>
+              <div class="cmd-text">poetry <span class="flag">add</span> <span class="val">requests</span></div>
+              <div class="cmd-note">自动写入 pyproject.toml 并更新 poetry.lock</div>
+            </div>
+          </div>
+        </div>
+        <div class="step-tip">同期还有 PDM（2019）、Flit（2017）等工具，理念相近，都是"围绕 pyproject.toml、带锁文件、依赖解析更靠谱"这条路线的不同实现。</div>
+      </div>
+    </div>
+
+    <!-- Step 8 -->
+    <div class="step-row">
+      <div class="step-gutter">
+        <div class="step-num n8">8</div>
+      </div>
+      <div class="step-body">
+        <div class="step-title">uv 横空出世 <span class="step-year">2024</span></div>
+        <div class="step-desc">Poetry、PDM 这一代工具解决了"正确性"，但普遍慢——用 Python 写的依赖解析器面对复杂依赖图时经常要跑几十秒。Astral（Ruff 的作者团队）用 Rust 重写了整条工具链，做出了 uv：一个同时替代 pip、pip-tools、virtualenv、Pipenv、Poetry，甚至 pyenv 的全能工具，安装速度通常比 pip 快一个数量级以上。</div>
+
+        <div class="step-desc" style="margin-bottom:4px;"><strong>项目管理：一套命令覆盖从建项目到发布的全流程</strong></div>
+        <div class="cmd-card">
+          <div class="cmd-row">
+            <span class="cmd-dollar">$</span>
+            <div>
+              <div class="cmd-text">uv <span class="flag">init</span> <span class="val">myproject</span></div>
+              <div class="cmd-note">初始化项目，自动生成 pyproject.toml、README、.python-version</div>
+            </div>
+          </div>
+          <div class="cmd-sep"></div>
+          <div class="cmd-row">
+            <span class="cmd-dollar">$</span>
+            <div>
+              <div class="cmd-text">uv <span class="flag">add</span> <span class="val">requests</span> <span class="val">"fastapi>=0.100"</span></div>
+              <div class="cmd-note">添加依赖：自动建虚拟环境、解析版本、写入 pyproject.toml 和 uv.lock</div>
+            </div>
+          </div>
+          <div class="cmd-sep"></div>
+          <div class="cmd-row">
+            <span class="cmd-dollar">$</span>
+            <div>
+              <div class="cmd-text">uv <span class="flag">add</span> <span class="flag">--dev</span> <span class="val">pytest</span> <span class="val">ruff</span></div>
+              <div class="cmd-note">开发依赖单独分组，不会打进最终发布的包里</div>
+            </div>
+          </div>
+          <div class="cmd-sep"></div>
+          <div class="cmd-row">
+            <span class="cmd-dollar">$</span>
+            <div>
+              <div class="cmd-text">uv <span class="flag">remove</span> <span class="val">requests</span></div>
+              <div class="cmd-note">移除依赖并同步更新锁文件</div>
+            </div>
+          </div>
+          <div class="cmd-sep"></div>
+          <div class="cmd-row">
+            <span class="cmd-dollar">$</span>
+            <div>
+              <div class="cmd-text">uv <span class="flag">run</span> <span class="val">python</span> <span class="val">app.py</span></div>
+              <div class="cmd-note">无需手动激活虚拟环境，uv 会自动同步依赖后再执行</div>
+            </div>
+          </div>
+          <div class="cmd-sep"></div>
+          <div class="cmd-row">
+            <span class="cmd-dollar">$</span>
+            <div>
+              <div class="cmd-text">uv <span class="flag">sync</span></div>
+              <div class="cmd-note">按 uv.lock 精确重建环境，用于 CI 或新同事拉取代码后的第一步</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="step-desc" style="margin:14px 0 4px;"><strong>顺带取代的另外两个工具</strong></div>
+        <div class="cmd-card">
+          <div class="cmd-row">
+            <span class="cmd-dollar">$</span>
+            <div>
+              <div class="cmd-text">uv <span class="flag">python</span> <span class="flag">install</span> <span class="val">3.12</span></div>
+              <div class="cmd-note">下载并管理 Python 解释器本身，相当于替代了 pyenv</div>
+            </div>
+          </div>
+          <div class="cmd-sep"></div>
+          <div class="cmd-row">
+            <span class="cmd-dollar">$</span>
+            <div>
+              <div class="cmd-text">uv <span class="flag">tool</span> <span class="flag">install</span> <span class="val">ruff</span></div>
+              <div class="cmd-note">把命令行工具装到独立隔离环境，相当于替代了 pipx</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="step-tip">uv 依然使用标准的 pyproject.toml，这也是它能被快速接受的原因之一——它不是又发明一套新格式，而是把已有的标准执行得更快。它还完全兼容 pip 的命令习惯，老项目可以直接用 <span class="ic">uv pip install -r requirements.txt</span> 无缝替换，不用一次性重构成新的项目结构。</div>
+      </div>
+    </div>
+
+  </div><!-- /step-timeline -->
+
+  <!-- S3 -->
+  <p class="section-label" id="s3">对比</p>
+  <h2 class="section-heading">今天常见的几种工具，各自的定位</h2>
+
+  <div class="diagram">
+    <div class="diagram-header"><span class="diagram-dot"></span><span class="diagram-label">工具对比</span></div>
+    <div class="diagram-body">
+      <table class="tradeoff-table">
+        <thead><tr><th>工具</th><th>核心特点</th><th>依赖解析</th><th>锁文件</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>pip</td>
+            <td>最基础、最通用，几乎所有 Python 环境都有</td>
+            <td>2020 年后有 <span class="badge good">较好</span></td>
+            <td>无（需配合 pip-tools）</td>
+          </tr>
+          <tr>
+            <td>Conda</td>
+            <td>独立于 PyPI 的二进制仓库，能装非 Python 依赖</td>
+            <td>较好，但与 PyPI 生态割裂</td>
+            <td>environment.yml</td>
+          </tr>
+          <tr>
+            <td>Pipenv</td>
+            <td>pip + virtualenv 的早期整合方案</td>
+            <td>较慢 <span class="badge bad">性能弱</span></td>
+            <td>Pipfile.lock</td>
+          </tr>
+          <tr>
+            <td>Poetry</td>
+            <td>依赖管理 + 打包发布一体化，生态成熟</td>
+            <td>较好，但复杂依赖图偶尔慢</td>
+            <td>poetry.lock</td>
+          </tr>
+          <tr>
+            <td>PDM</td>
+            <td>紧跟 PEP 标准，支持 PEP 582 免虚拟环境模式</td>
+            <td>较好 <span class="badge good">标准化</span></td>
+            <td>pdm.lock</td>
+          </tr>
+          <tr>
+            <td>uv</td>
+            <td>Rust 编写，速度极快，意在统一整条工具链</td>
+            <td>快且准确 <span class="badge good">领先</span></td>
+            <td>uv.lock</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="callout info">
+    <p>这里没有绝对的"最好"。老项目和大量遗留代码依然只依赖 pip + requirements.txt；新项目如果追求速度和现代化体验，uv 是目前的热门选择；如果团队更看重生态成熟度和文档，Poetry 依然是稳妥的选项。</p>
+  </div>
+
+  <div class="diagram">
+    <div class="diagram-header"><span class="diagram-dot"></span><span class="diagram-label">操作习惯对照：Conda / Poetry / uv</span></div>
+    <div class="diagram-body">
+      <table class="tradeoff-table">
+        <thead><tr><th>你想做什么</th><th>Conda</th><th>Poetry</th><th>uv</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>建环境</td>
+            <td><span class="ic">conda create -n myenv</span></td>
+            <td><span class="ic">poetry install</span>（首次安装依赖时自动建）</td>
+            <td><span class="ic">uv venv</span>（或 <span class="ic">uv init</span> 时自动建 .venv）</td>
+          </tr>
+          <tr>
+            <td>指定 Python 版本</td>
+            <td><span class="ic">conda create -n myenv python=3.11</span></td>
+            <td>在 pyproject.toml 里声明 <span class="ic">python = "^3.11"</span></td>
+            <td><span class="ic">uv venv --python 3.11</span>（会自动下载对应版本）</td>
+          </tr>
+          <tr>
+            <td>激活环境</td>
+            <td><span class="ic">conda activate myenv</span></td>
+            <td><span class="ic">poetry shell</span></td>
+            <td>没有直接等价物——uv 建议不激活，直接 <span class="ic">uv run xxx</span></td>
+          </tr>
+          <tr>
+            <td>激活后跑脚本</td>
+            <td>直接敲 <span class="ic">python xxx.py</span></td>
+            <td>直接敲 <span class="ic">python xxx.py</span>（或不激活时用 <span class="ic">poetry run python xxx.py</span>）</td>
+            <td><span class="ic">uv run python xxx.py</span>（相当于"临时激活 + 跑完即走"）</td>
+          </tr>
+          <tr>
+            <td>装一个包</td>
+            <td><span class="ic">conda install numpy</span></td>
+            <td><span class="ic">poetry add numpy</span></td>
+            <td><span class="ic">uv add numpy</span></td>
+          </tr>
+          <tr>
+            <td>安装依赖（复现环境）</td>
+            <td><span class="ic">pip install -r requirements.txt</span></td>
+            <td><span class="ic">poetry install</span></td>
+            <td><span class="ic">uv sync</span></td>
+          </tr>
+          <tr>
+            <td>装开发依赖</td>
+            <td>无原生区分，需手动维护第二个 environment 文件</td>
+            <td><span class="ic">poetry add --group dev pytest</span></td>
+            <td><span class="ic">uv add --dev pytest</span></td>
+          </tr>
+          <tr>
+            <td>退出环境</td>
+            <td><span class="ic">conda deactivate</span></td>
+            <td>退出 shell 或 <span class="ic">exit</span></td>
+            <td>不需要，因为你压根没有"进入"一个持续的 shell 状态</td>
+          </tr>
+          <tr>
+            <td>依赖锁定文件</td>
+            <td><span class="ic">environment.yml</span>（需手动 export）</td>
+            <td><span class="ic">poetry.lock</span>（自动维护）</td>
+            <td><span class="ic">uv.lock</span>（自动维护，每次 add/remove 都会更新）</td>
+          </tr>
+          <tr>
+            <td>非 Python 二进制依赖</td>
+            <td>原生支持（CUDA、R、编译器等）</td>
+            <td>不支持，仅限 PyPI 上的 Python 包</td>
+            <td>不支持，仅限 PyPI 上的 Python 包</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="step-tip" style="margin-top:14px;">如果你现在的习惯是"conda 建环境 + 全程只用 pip 装包"，那基本可以直接对照上表切到 Poetry 或 uv，功能上是平替，还多了锁文件；只有真的需要装非 Python 的二进制依赖（CUDA、科学计算库等）时，才有必要继续留着 Conda。「安装依赖」这一行尤其值得注意：<span class="ic">requirements.txt</span> 记录的是版本范围，同一份文件不同时间跑可能装出不同的小版本；而 <span class="ic">uv sync</span> / <span class="ic">poetry install</span> 靠的是锁文件，装出来的版本永远和锁文件里写死的完全一致，这也是锁文件机制真正的价值所在。</div>
+    </div>
+  </div>
+
+  <!-- S4 -->
+  <p class="section-label" id="s4">标准</p>
+  <h2 class="section-heading">背后真正起作用的，是一系列 PEP</h2>
+
+  <p class="body-text">工具会换，但推动这些工具演进的<strong>标准</strong>才是真正的主线。理解这几个 PEP，就能理解为什么今天所有新工具都长得越来越像。</p>
+
+  <div class="diagram">
+    <div class="diagram-header"><span class="diagram-dot"></span><span class="diagram-label">关键 PEP 一览</span></div>
+    <div class="diagram-body">
+      <table class="tradeoff-table">
+        <thead><tr><th>PEP</th><th>年份</th><th>解决了什么</th></tr></thead>
+        <tbody>
+          <tr><td>PEP 427</td><td>2012</td><td>定义 wheel 格式，取代慢得多的从源码构建（sdist）</td></tr>
+          <tr><td>PEP 518</td><td>2016</td><td>引入 pyproject.toml，声明构建系统依赖</td></tr>
+          <tr><td>PEP 517</td><td>2017</td><td>定义标准的构建后端接口，工具不再互相绑定</td></tr>
+          <tr><td>PEP 621</td><td>2020</td><td>把项目元数据（名称、版本、依赖等）也标准化进 pyproject.toml</td></tr>
+          <tr><td>PEP 668</td><td>2023</td><td>标记"外部管理"的环境，防止 pip 意外污染系统 Python</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="pull-quote">
+    如果说前二十年的 Python 打包史是"每个工具各自为战"，那么 pyproject.toml 系列 PEP 做的事情，是第一次让所有工具围绕同一份标准文件说话。
+  </div>
+
+  <!-- S5 -->
+  <p class="section-label" id="s5">现状建议</p>
+  <h2 class="section-heading">新项目该怎么选</h2>
+
+  <p class="body-text">如果你现在要开一个新项目，不用纠结历史包袱，直接按下面的思路选就好。</p>
+
+  <div class="diagram">
+    <div class="diagram-header"><span class="diagram-dot"></span><span class="diagram-label">简单决策参考</span></div>
+    <div class="diagram-body">
+      <div class="reasons-grid">
+        <div class="reason-item">
+          <span class="reason-icon">🚀</span>
+          <div class="reason-title">追求速度和简洁</div>
+          <div class="reason-desc">用 uv。它兼容 pip 的大部分命令习惯，又快又新，社区增长最快。</div>
+        </div>
+        <div class="reason-item">
+          <span class="reason-icon">📚</span>
+          <div class="reason-title">团队更看重成熟稳定</div>
+          <div class="reason-desc">用 Poetry。生态、插件、文档都非常完善，出问题容易查到解决方案。</div>
+        </div>
+        <div class="reason-item">
+          <span class="reason-icon">🧬</span>
+          <div class="reason-title">做数据科学 / 机器学习</div>
+          <div class="reason-desc">优先考虑 Conda（或 mamba），省去手动编译 NumPy/CUDA 这类二进制依赖的麻烦。</div>
+        </div>
+        <div class="reason-item">
+          <span class="reason-icon">🏛️</span>
+          <div class="reason-title">维护老项目 / 极简需求</div>
+          <div class="reason-desc">继续用 pip + venv 完全没问题，不必为了"追新"而重构整个项目。</div>
+        </div>
+        <div class="reason-item">
+          <span class="reason-icon">⚠️</span>
+          <div class="reason-title">尽量避免</div>
+          <div class="reason-desc">easy_install 早已停止维护，Pipenv 活跃度持续走低，新项目不建议再选它们。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout success">
+    <p>不管选哪个工具，只要项目的元数据和依赖最终落在 pyproject.toml 里，你就已经站在了标准这一边——未来即使换工具，迁移成本也会小很多。Conda 是唯一的例外：它服务的是"非 Python 依赖"这个 pyproject.toml 体系目前还没打算解决的问题，两条线大概率会长期并存。</p>
+  </div>
+
+  <div class="tag-row">
+    <a class="tag" href="#">Python</a>
+    <a class="tag" href="#">包管理</a>
+    <a class="tag" href="#">pip</a>
+    <a class="tag" href="#">Poetry</a>
+    <a class="tag" href="#">Conda</a>
+    <a class="tag" href="#">uv</a>
+    <a class="tag" href="#">pyproject.toml</a>
+  </div>
+
+</article>
+
+<aside class="sidebar">
+  <p class="toc-label">目录</p>
+  <ul class="toc-list">
+    <li><a href="#s2" class="toc-link">时间线</a></li>
+    <li><a href="#s3" class="toc-link">工具对比</a></li>
+    <li><a href="#s4" class="toc-link">背后的 PEP 标准</a></li>
+    <li><a href="#s5" class="toc-link">新项目怎么选</a></li>
+  </ul>
+</aside>
+</div>
+
+<footer class="site-footer">
+  <a href="../index.html" style="color:inherit;text-decoration:none;display:flex;align-items:center;gap:6px;">← 返回首页</a>
+  <span>聚合叉的博客</span>
+</footer>
+
+<script>
+  (function () {
+    const sections = ['s2','s3','s4','s5'];
+    const links = document.querySelectorAll('.toc-link');
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          links.forEach(l => l.classList.remove('active'));
+          const active = document.querySelector(`.toc-link[href="#${entry.target.id}"]`);
+          if (active) active.classList.add('active');
+        }
+      });
+    }, { rootMargin: '-30% 0px -60% 0px' });
+    sections.forEach(id => { const el = document.getElementById(id); if (el) observer.observe(el); });
+  })();
+</script>
+</body>
+</html>
