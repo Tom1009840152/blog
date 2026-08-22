@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" role="img" aria-labelledby="title desc">
+  <title id="title">顶光示意图</title><desc id="desc">光源从主体正上方垂直照射。</desc>
+  <defs><linearGradient id="beam" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#ffd67a" stop-opacity=".4"/><stop offset="1" stop-color="#ffd67a" stop-opacity="0"/></linearGradient></defs>
+  <rect width="640" height="360" rx="18" fill="#171922"/><path d="M0 72h640M0 144h640M0 216h640M0 288h640M128 0v360M256 0v360M384 0v360M512 0v360" stroke="#fff" opacity=".045"/>
+  <path d="M249 72h142l49 226H200z" fill="url(#beam)"/><rect x="274" y="39" width="92" height="30" rx="15" fill="#ffd67a"/><g stroke="#ffd67a" stroke-width="3"><path d="M282 77l15 75"/><path d="M320 77v75"/><path d="m358 77-15 75"/></g>
+  <circle cx="320" cy="178" r="43" fill="#d9d3c5"/><path d="M230 300c10-75 40-106 90-106s80 31 90 106" fill="#8fa8ff" opacity=".68"/><path d="M286 188h24M330 188h24" stroke="#171922" stroke-width="10" opacity=".72"/>
+  <text x="32" y="42" fill="#aeb4c8" font-family="sans-serif" font-size="13" letter-spacing="3">TOP LIGHT</text><text x="320" y="338" fill="#ffd67a" text-anchor="middle" font-family="sans-serif" font-size="12">眼窝与下巴形成深重阴影</text>
+</svg>

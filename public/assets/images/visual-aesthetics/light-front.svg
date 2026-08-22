@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" role="img" aria-labelledby="title desc">
+  <title id="title">顺光示意图</title><desc id="desc">光源与镜头位于主体同一方向。</desc>
+  <defs><radialGradient id="g" cx="50%" cy="58%" r="50%"><stop offset="0" stop-color="#ffd67a" stop-opacity=".5"/><stop offset="1" stop-color="#ffd67a" stop-opacity="0"/></radialGradient></defs>
+  <rect width="640" height="360" rx="18" fill="#171922"/><path d="M0 72h640M0 144h640M0 216h640M0 288h640M128 0v360M256 0v360M384 0v360M512 0v360" stroke="#fff" opacity=".045"/>
+  <circle cx="320" cy="176" r="150" fill="url(#g)"/><circle cx="320" cy="138" r="40" fill="#eee8da"/><path d="M242 270c10-69 37-99 78-99s68 30 78 99" fill="#8fa8ff" opacity=".78"/>
+  <g fill="none" stroke="#ffd67a" stroke-width="3"><path d="M258 314 301 194"/><path d="M320 314V194"/><path d="m382 314-43-120"/></g><circle cx="320" cy="318" r="18" fill="#ffd67a"/><path d="M304 318h32" stroke="#171922" stroke-width="5"/>
+  <text x="32" y="42" fill="#aeb4c8" font-family="sans-serif" font-size="13" letter-spacing="3">FRONT LIGHT</text><text x="320" y="344" fill="#ffd67a" text-anchor="middle" font-family="sans-serif" font-size="12">光源与镜头同向</text>
+</svg>

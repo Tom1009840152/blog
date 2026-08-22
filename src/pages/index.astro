@@ -1,0 +1,99 @@
+---
+import { contentDomains } from '../data/content';
+import { sitePath } from '../utils/paths';
+import '../styles/home.css';
+const domains = contentDomains.map(domain => ({
+  ...domain,
+  articleCount: domain.sections.reduce((total, section) => total + section.articles.length, 0)
+}));
+const initialDomain = domains[0];
+---
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="聚合叉的博客：从模型基础、美学、开发与应用实践进入 AI 技术知识网络。" />
+    <meta name="theme-color" content="#f1eee7" />
+    <title>聚合叉的博客 · 知识网络</title>
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href={sitePath('/')} aria-label="聚合叉的博客首页">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <span>聚合叉的博客</span>
+      </a>
+      <span class="header-note">Knowledge domains · 2026</span>
+    </header>
+
+    <main class="transformer-home" data-transformer-home>
+      <section class="home-introduction" aria-labelledby="home-title">
+        <p class="eyebrow">Explore the knowledge graph</p>
+        <h1 class="home-title" id="home-title">从一个<em>域</em>开始，<br />沿知识网络深入</h1>
+        <p class="home-intro">五个知识领域，像一组 Token 进入同一个系统。选择一个领域，观察注意力如何重新分配，再沿结构进入文章。</p>
+      </section>
+
+      <section class="transformer-stage" data-network-stage aria-label="Transformer 知识网络动态视图">
+        <canvas class="neural-canvas" data-neural-canvas aria-hidden="true"></canvas>
+        <div class="architecture-labels" aria-hidden="true">
+          <span style="--label-x:40%">01 · TOKENS</span>
+          <span style="--label-x:51%">02 · EMBEDDING</span>
+          <span style="--label-x:62%">03 · MULTI-HEAD ATTENTION</span>
+          <span style="--label-x:73%">04 · ADD &amp; NORM</span>
+          <span style="--label-x:84%">05 · FEED FORWARD</span>
+          <span style="--label-x:93%">06 · DOMAIN OUTPUT</span>
+        </div>
+        <div class="transformer-topline" aria-hidden="true">
+          <span>Transformer knowledge field online</span>
+          <span>Heads 04 · Layers 12 · Domains 05</span>
+        </div>
+        <div class="transformer-hud">
+          <div class="hud-index" data-network-index-output>{initialDomain.index}</div>
+          <div class="hud-copy">
+            <p class="network-kicker"><span></span>Active domain token</p>
+            <h2 class="network-title" data-network-title-output>{initialDomain.title}</h2>
+            <p class="network-english" data-network-english-output>{initialDomain.englishTitle}</p>
+            <p class="network-status" data-network-status-output>{initialDomain.description} 当前收录 {initialDomain.articleCount} 篇文章。</p>
+          </div>
+        </div>
+        <div class="residual-legend" aria-hidden="true">
+          <span>Residual stream</span>
+          <span>Attention weights</span>
+          <span>Token projection</span>
+        </div>
+      </section>
+
+      <nav class="domain-dock" aria-label="知识领域">
+        {domains.map((domain, index) => (
+          <a
+            class="domain-card"
+            href={sitePath(`/domain/${domain.id}/`)}
+            data-domain-card={domain.id}
+            data-network-title={domain.title}
+            data-network-index={domain.index}
+            data-network-english={domain.englishTitle}
+            data-network-status={`${domain.description} 当前收录 ${domain.articleCount} 篇文章。`}
+            data-active={index === 0 ? 'true' : 'false'}
+            style={`--card-accent:${domain.accent}`}
+          >
+            <span class="domain-index">{domain.index}</span>
+            <span class="domain-copy">
+              <span class="domain-name">{domain.title}</span>
+              <span class="domain-english">{domain.englishTitle}</span>
+            </span>
+            <span class="domain-count">
+              <strong>{String(domain.articleCount).padStart(2, '0')}</strong>
+              <span>ARTICLES</span>
+            </span>
+          </a>
+        ))}
+      </nav>
+    </main>
+
+    <script>
+      import { bootNeuralHero } from '../scripts/neural-network';
+      bootNeuralHero();
+    </script>
+  </body>
+</html>

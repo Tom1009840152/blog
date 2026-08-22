@@ -1,0 +1,27 @@
+---
+import { sitePath } from '../utils/paths';
+---
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>页面没有找到 · 聚合叉的博客</title>
+    <style>
+      :root { color: #191814; background: #f1eee7; font-family: system-ui, sans-serif; }
+      body { display: grid; min-height: 100vh; margin: 0; place-items: center; padding: 30px; text-align: center; }
+      main { max-width: 620px; }
+      p { color: #cf642d; font-family: monospace; font-size: 10px; letter-spacing: .18em; }
+      h1 { margin: 14px 0 30px; font-family: Georgia, serif; font-size: clamp(34px, 7vw, 62px); line-height: 1.2; }
+      a { display: inline-block; padding: 11px 17px; border: 1px solid rgba(39, 34, 27, .14); border-radius: 999px; color: inherit; font-size: 12px; text-decoration: none; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <p>404 · LOST NODE</p>
+      <h1>这条知识连接暂时不存在</h1>
+      <a href={sitePath('/')}>返回知识网络</a>
+    </main>
+  </body>
+</html>

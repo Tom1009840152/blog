@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" role="img" aria-labelledby="title desc">
+  <title id="title">硬光示意图</title><desc id="desc">小面积光源产生边缘清晰的阴影。</desc>
+  <rect width="640" height="360" rx="18" fill="#171922"/><path d="M0 72h640M0 144h640M0 216h640M0 288h640M128 0v360M256 0v360M384 0v360M512 0v360" stroke="#fff" opacity=".045"/>
+  <circle cx="102" cy="96" r="18" fill="#ffd67a"/><path d="M121 102 366 259 221 104z" fill="#ffd67a" opacity=".16"/><path d="m119 104 249 156M122 88l104 15" stroke="#ffd67a" stroke-width="3"/>
+  <rect x="248" y="128" width="112" height="132" rx="7" fill="#d9d3c5"/><path d="m360 260 116 46H367z" fill="#08090c"/><path d="M360 128v132" stroke="#fff3c2" stroke-width="3"/><path d="M367 260h109" stroke="#08090c" stroke-width="5"/>
+  <text x="32" y="42" fill="#aeb4c8" font-family="sans-serif" font-size="13" letter-spacing="3">HARD LIGHT</text><text x="320" y="338" fill="#ffd67a" text-anchor="middle" font-family="sans-serif" font-size="12">小光源 · 清晰边缘 · 强烈反差</text>
+</svg>

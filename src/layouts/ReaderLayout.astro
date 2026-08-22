@@ -1,0 +1,155 @@
+---
+import type { ArticleMeta, DomainMeta } from '../data/content';
+import { sitePath } from '../utils/paths';
+import '../styles/reader.css';
+
+type ArticleLink = {
+  article: ArticleMeta;
+};
+
+interface Props {
+  domain: DomainMeta;
+  currentArticle?: ArticleMeta;
+  previousArticle?: ArticleLink;
+  nextArticle?: ArticleLink;
+  pageTitle: string;
+  description: string;
+}
+
+const {
+  domain,
+  currentArticle,
+  previousArticle,
+  nextArticle,
+  pageTitle,
+  description
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="zh-CN" style={`--domain-accent:${domain.accent}`}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#f1eee7" />
+    <title>{pageTitle} · 聚合叉的博客</title>
+  </head>
+  <body class="reader-body">
+    <header class="reader-topbar">
+      <button class="icon-button mobile-menu-button" type="button" data-mobile-menu aria-label="打开目录" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+      <a class="reader-brand" href={sitePath('/')} aria-label="返回博客主页">
+        <span class="reader-brand-arrow" aria-hidden="true">←</span>
+        <span>返回主页</span>
+      </a>
+      <div class="reader-breadcrumb" aria-label="当前位置">
+        <a href={sitePath('/')}>主页</a>
+        <span>/</span>
+        <a href={sitePath(`/domain/${domain.id}/`)}>{domain.title}</a>
+        {currentArticle && <><span>/</span><span>{currentArticle.title}</span></>}
+      </div>
+    </header>
+
+    <div class="reader-shell" data-reader-shell>
+      <button class="sidebar-overlay" type="button" data-sidebar-overlay aria-label="关闭目录"></button>
+      <aside class="reader-sidebar" aria-label={`${domain.title}文章目录`}>
+        <div class="sidebar-heading">
+          <a class="domain-number" href={sitePath(`/domain/${domain.id}/`)}>{domain.index}</a>
+          <div>
+            <p>{domain.englishTitle}</p>
+            <h1><a href={sitePath(`/domain/${domain.id}/`)}>{domain.title}</a></h1>
+          </div>
+          <button class="sidebar-collapse" type="button" data-sidebar-collapse aria-label="收起左侧栏" title="收起左侧栏">
+            <span aria-hidden="true">‹</span>
+          </button>
+        </div>
+
+        <nav class="sidebar-navigation">
+          {domain.sections.map(section => (
+            <details class="section-group" open>
+              <summary>
+                <span class="section-title">{section.title}</span>
+                <span class="section-count">{String(section.articles.length).padStart(2, '0')}</span>
+              </summary>
+              <div class="article-links">
+                {section.articles.map((article, index) => (
+                  <a
+                    href={sitePath(`/article/${article.id}/`)}
+                    class:list={['article-link', { active: currentArticle?.id === article.id }]}
+                    aria-current={currentArticle?.id === article.id ? 'page' : undefined}
+                  >
+                    <span>{String(index + 1).padStart(2, '0')}</span>
+                    <strong>{article.title}</strong>
+                  </a>
+                ))}
+              </div>
+            </details>
+          ))}
+        </nav>
+
+        <div class="sidebar-footer">
+          <span>{domain.sections.reduce((sum, section) => sum + section.articles.length, 0)} ARTICLES</span>
+          <span>TRANSFORMER KNOWLEDGE MAP</span>
+        </div>
+      </aside>
+
+      <button class="sidebar-restore" type="button" data-sidebar-restore aria-label="展开左侧栏" title="展开左侧栏">
+        <span aria-hidden="true">›</span>
+      </button>
+
+      <main class="reader-main">
+        <slot />
+        {currentArticle && (previousArticle || nextArticle) && (
+          <nav class="article-pagination" aria-label="文章翻页">
+            {previousArticle ? (
+              <a class="pagination-link previous" href={sitePath(`/article/${previousArticle.article.id}/`)}>
+                <span>上一篇</span>
+                <strong>{previousArticle.article.title}</strong>
+              </a>
+            ) : <span></span>}
+            {nextArticle && (
+              <a class="pagination-link next" href={sitePath(`/article/${nextArticle.article.id}/`)}>
+                <span>下一篇</span>
+                <strong>{nextArticle.article.title}</strong>
+              </a>
+            )}
+          </nav>
+        )}
+      </main>
+    </div>
+
+    <script>
+      const shell = document.querySelector<HTMLElement>('[data-reader-shell]');
+      const collapse = document.querySelector<HTMLButtonElement>('[data-sidebar-collapse]');
+      const restore = document.querySelector<HTMLButtonElement>('[data-sidebar-restore]');
+      const menu = document.querySelector<HTMLButtonElement>('[data-mobile-menu]');
+      const overlay = document.querySelector<HTMLButtonElement>('[data-sidebar-overlay]');
+      const storageKey = 'juhecha-reader-sidebar';
+
+      function setMobile(open: boolean) {
+        shell?.toggleAttribute('data-mobile-open', open);
+        menu?.setAttribute('aria-expanded', String(open));
+        document.body.classList.toggle('menu-open', open);
+      }
+
+      if (window.localStorage.getItem(storageKey) === 'collapsed') {
+        shell?.setAttribute('data-sidebar-collapsed', '');
+      }
+      collapse?.addEventListener('click', () => {
+        shell?.setAttribute('data-sidebar-collapsed', '');
+        window.localStorage.setItem(storageKey, 'collapsed');
+      });
+      restore?.addEventListener('click', () => {
+        shell?.removeAttribute('data-sidebar-collapsed');
+        window.localStorage.setItem(storageKey, 'expanded');
+      });
+      menu?.addEventListener('click', () => setMobile(!shell?.hasAttribute('data-mobile-open')));
+      overlay?.addEventListener('click', () => setMobile(false));
+      document.addEventListener('keydown', event => {
+        if (event.key === 'Escape') setMobile(false);
+      });
+    </script>
+  </body>
+</html>

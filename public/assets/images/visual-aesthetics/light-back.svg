@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" role="img" aria-labelledby="title desc">
+  <title id="title">逆光示意图</title><desc id="desc">光源位于主体后方，形成明亮轮廓。</desc>
+  <defs><radialGradient id="halo"><stop offset="0" stop-color="#fff3b2" stop-opacity=".72"/><stop offset=".38" stop-color="#ffd67a" stop-opacity=".22"/><stop offset="1" stop-color="#ffd67a" stop-opacity="0"/></radialGradient></defs>
+  <rect width="640" height="360" rx="18" fill="#171922"/><path d="M0 72h640M0 144h640M0 216h640M0 288h640M128 0v360M256 0v360M384 0v360M512 0v360" stroke="#fff" opacity=".045"/>
+  <circle cx="320" cy="138" r="150" fill="url(#halo)"/><circle cx="320" cy="95" r="26" fill="#ffd67a"/><path d="m278 112 26 46M362 112l-26 46" stroke="#ffd67a" stroke-width="3"/>
+  <circle cx="320" cy="164" r="43" fill="#22242d" stroke="#ffe49a" stroke-width="4"/><path d="M230 286c10-74 40-105 90-105s80 31 90 105" fill="#242632" stroke="#ffe49a" stroke-width="4"/>
+  <path d="M320 320v-32" stroke="#8fa8ff" stroke-width="3"/><path d="m311 299 9-11 9 11" fill="none" stroke="#8fa8ff" stroke-width="3"/>
+  <text x="32" y="42" fill="#aeb4c8" font-family="sans-serif" font-size="13" letter-spacing="3">BACK LIGHT</text><text x="320" y="344" fill="#ffe49a" text-anchor="middle" font-family="sans-serif" font-size="12">轮廓光 · 剪影 · 光晕</text>
+</svg>

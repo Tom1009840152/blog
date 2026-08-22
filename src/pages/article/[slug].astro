@@ -1,0 +1,34 @@
+---
+import NativeArticleContent from '../../components/NativeArticleContent.astro';
+import ReaderLayout from '../../layouts/ReaderLayout.astro';
+import { allArticles, getDomainArticles, type ArticleMeta, type DomainMeta, type SectionMeta } from '../../data/content';
+import { loadNativeArticle } from '../../data/article-content';
+
+export function getStaticPaths() {
+  return allArticles.map(item => ({ params: { slug: item.article.id }, props: item }));
+}
+
+interface Props {
+  article: ArticleMeta;
+  section: SectionMeta;
+  domain: DomainMeta;
+}
+
+const { article, section, domain } = Astro.props;
+const domainArticles = getDomainArticles(domain.id);
+const articleIndex = domainArticles.findIndex(item => item.article.id === article.id);
+const previousArticle = articleIndex > 0 ? domainArticles[articleIndex - 1] : undefined;
+const nextArticle = articleIndex < domainArticles.length - 1 ? domainArticles[articleIndex + 1] : undefined;
+const content = await loadNativeArticle(article.sourceFile);
+---
+
+<ReaderLayout
+  domain={domain}
+  currentArticle={article}
+  previousArticle={previousArticle}
+  nextArticle={nextArticle}
+  pageTitle={article.title}
+  description={`${article.title}：${article.tags.join('、')}`}
+>
+  <NativeArticleContent article={article} section={section} domain={domain} content={content} />
+</ReaderLayout>

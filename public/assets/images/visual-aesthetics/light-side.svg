@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" role="img" aria-labelledby="title desc">
+  <title id="title">侧光示意图</title><desc id="desc">光源从主体侧面照射，制造明暗分界。</desc>
+  <defs><linearGradient id="face"><stop offset="0" stop-color="#fff2c9"/><stop offset=".5" stop-color="#e8dcc0"/><stop offset=".51" stop-color="#555866"/><stop offset="1" stop-color="#292b35"/></linearGradient></defs>
+  <rect width="640" height="360" rx="18" fill="#171922"/><path d="M0 72h640M0 144h640M0 216h640M0 288h640M128 0v360M256 0v360M384 0v360M512 0v360" stroke="#fff" opacity=".045"/>
+  <path d="m83 179 168-75v150z" fill="#ffd67a" opacity=".13"/><g stroke="#ffd67a" stroke-width="3"><path d="m86 148 178 7"/><path d="m86 180 178 0"/><path d="m86 212 178-7"/></g><circle cx="72" cy="180" r="24" fill="#ffd67a"/>
+  <circle cx="320" cy="142" r="46" fill="url(#face)"/><path d="M228 282c12-78 43-109 92-109s80 31 92 109" fill="#8fa8ff" opacity=".72"/><path d="M320 173v109" stroke="#171922" stroke-width="2" opacity=".65"/>
+  <path d="M320 312v-31" stroke="#8fa8ff" stroke-width="3"/><path d="m311 291 9-10 9 10" fill="none" stroke="#8fa8ff" stroke-width="3"/>
+  <text x="32" y="42" fill="#aeb4c8" font-family="sans-serif" font-size="13" letter-spacing="3">SIDE LIGHT</text><text x="320" y="338" fill="#8fa8ff" text-anchor="middle" font-family="sans-serif" font-size="12">一半明亮 · 一半阴影</text>
+</svg>

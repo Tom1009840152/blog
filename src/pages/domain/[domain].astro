@@ -1,0 +1,23 @@
+---
+import DomainOverview from '../../components/DomainOverview.astro';
+import ReaderLayout from '../../layouts/ReaderLayout.astro';
+import { contentDomains, type DomainMeta } from '../../data/content';
+
+export function getStaticPaths() {
+  return contentDomains.map(domain => ({ params: { domain: domain.id }, props: { domain } }));
+}
+
+interface Props {
+  domain: DomainMeta;
+}
+
+const { domain } = Astro.props;
+---
+
+<ReaderLayout
+  domain={domain}
+  pageTitle={domain.title}
+  description={domain.description}
+>
+  <DomainOverview domain={domain} />
+</ReaderLayout>

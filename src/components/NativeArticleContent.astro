@@ -1,0 +1,29 @@
+---
+import type { ArticleMeta, DomainMeta, SectionMeta } from '../data/content';
+import type { NativeArticleContent } from '../data/article-content';
+
+interface Props {
+  article: ArticleMeta;
+  section: SectionMeta;
+  domain: DomainMeta;
+  content: NativeArticleContent;
+}
+
+const { article, section, domain, content } = Astro.props;
+---
+
+<article class="article-page native-article-page">
+  <header class="article-page-header">
+    <p>{domain.title} <span>/</span> {section.title}</p>
+    <h1>{article.title}</h1>
+    <div class="article-tags">
+      {article.tags.map(tag => <span>{tag}</span>)}
+    </div>
+  </header>
+
+  <style is:inline set:html={content.css}></style>
+  <div class="native-article-content">
+    <article class="article-body" set:html={content.html}></article>
+  </div>
+  {content.script && <script is:inline set:html={content.script}></script>}
+</article>
