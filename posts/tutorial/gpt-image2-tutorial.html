@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GPT Image 2 使用教程</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+  :root {
+    --bg:#F7F5F0; --bg-card:#FFFFFF; --bg-code:#F0EDE8;
+    --text-primary:#1A1814; --text-secondary:#5C5850; --text-tertiary:#9A948A;
+    --accent:#C4622A; --accent-light:#FAE8DC; --accent-mid:#E8855A;
+    --violet:#6E4AA5; --violet-light:#F1EBFA; --info:#185FA5; --info-light:#E6F1FB;
+    --success:#0F6E56; --success-light:#E1F5EE; --danger:#993C1D; --danger-light:#FAECE7;
+    --border:rgba(60,50,40,.1); --border-strong:rgba(60,50,40,.2);
+    --serif:'Noto Serif SC',Georgia,serif; --sans:'Noto Sans SC',system-ui,sans-serif; --mono:'JetBrains Mono',monospace;
+  }
+  html { scroll-behavior:smooth; }
+  body { background:var(--bg); color:var(--text-primary); font-family:var(--sans); font-weight:300; line-height:1.85; min-height:100vh; }
+
+  .site-header { border-bottom:.5px solid var(--border); padding:18px 0; position:sticky; top:0; background:rgba(247,245,240,.9); backdrop-filter:blur(12px); z-index:100; }
+  .header-inner { max-width:1020px; margin:0 auto; padding:0 32px; display:flex; align-items:center; justify-content:space-between; }
+  .site-name { font-family:var(--serif); font-size:15px; font-weight:600; color:var(--text-primary); text-decoration:none; }
+  .header-tag { font-size:11px; color:var(--text-tertiary); letter-spacing:.14em; text-transform:uppercase; }
+
+  .hero { max-width:1020px; margin:0 auto; padding:72px 32px 48px; border-bottom:.5px solid var(--border); animation:fadeUp .6s ease both; position:relative; overflow:hidden; }
+  .hero::after { content:''; position:absolute; right:24px; top:36px; width:180px; height:180px; border-radius:50%; background:radial-gradient(circle at 35% 35%,rgba(110,74,165,.18),rgba(196,98,42,.08) 52%,transparent 70%); pointer-events:none; }
+  .kicker { font-size:11px; letter-spacing:.2em; color:var(--accent); font-weight:500; margin-bottom:20px; display:flex; align-items:center; gap:10px; position:relative; z-index:1; }
+  .kicker::after { content:''; width:40px; height:1px; background:var(--accent-mid); opacity:.5; }
+  .headline { font-family:var(--serif); font-size:42px; font-weight:700; line-height:1.28; letter-spacing:-.01em; margin-bottom:20px; position:relative; z-index:1; }
+  .headline em { color:var(--accent); font-style:normal; }
+  .deck { max-width:700px; font-size:16px; color:var(--text-secondary); line-height:1.8; margin-bottom:30px; position:relative; z-index:1; }
+  .meta-row { display:flex; align-items:center; flex-wrap:wrap; gap:8px 20px; font-size:12px; color:var(--text-tertiary); position:relative; z-index:1; }
+
+  .content-wrap { max-width:1020px; margin:0 auto; padding:0 32px; display:grid; grid-template-columns:minmax(0,1fr) 220px; gap:0 48px; align-items:start; }
+  .article-body { padding:48px 0 80px; min-width:0; animation:fadeUp .6s .1s ease both; }
+  .sidebar { padding:48px 0 80px; position:sticky; top:72px; animation:fadeUp .6s .15s ease both; }
+  .toc-label { font-size:10px; letter-spacing:.2em; color:var(--text-tertiary); font-weight:500; margin-bottom:14px; }
+  .toc-list { list-style:none; border-left:1px solid var(--border-strong); padding-left:14px; }
+  .toc-list li { margin-bottom:8px; }
+  .toc-list a { display:block; font-size:12px; line-height:1.55; color:var(--text-tertiary); text-decoration:none; transition:color .2s; }
+  .toc-list a:hover,.toc-list a.active { color:var(--accent); }
+  .toc-list a.active { font-weight:500; }
+
+  .section-label { font-size:10px; letter-spacing:.22em; color:var(--text-tertiary); font-weight:500; margin:52px 0 10px; }
+  .section-label:first-child { margin-top:0; }
+  .section-heading { font-family:var(--serif); font-size:24px; font-weight:600; line-height:1.45; margin-bottom:18px; }
+  .subheading { font-family:var(--serif); font-size:18px; font-weight:600; line-height:1.5; margin:32px 0 12px; }
+  .body-text { font-size:15px; line-height:1.95; margin-bottom:18px; }
+  .body-text strong { font-weight:500; }
+  .source-inline { color:var(--info); text-decoration:none; border-bottom:1px solid rgba(24,95,165,.25); }
+  .source-inline:hover { border-bottom-color:var(--info); }
+
+  .callout { border-left:2px solid var(--accent); padding:16px 20px; background:var(--accent-light); border-radius:0 8px 8px 0; margin:26px 0; }
+  .callout p { margin:0; color:var(--danger); font-size:14px; line-height:1.8; font-weight:400; }
+  .callout.info { border-color:var(--info); background:var(--info-light); }
+  .callout.info p { color:var(--info); }
+  .callout.success { border-color:var(--success); background:var(--success-light); }
+  .callout.success p { color:var(--success); }
+
+  .capability-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:9px; margin:24px 0 28px; }
+  .capability-card { background:var(--bg-card); border:.5px solid var(--border-strong); border-radius:10px; padding:17px 14px; position:relative; overflow:hidden; }
+  .capability-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:var(--accent); }
+  .capability-card:nth-child(2)::before { background:var(--violet); }
+  .capability-card:nth-child(3)::before { background:var(--info); }
+  .capability-card:nth-child(4)::before { background:var(--success); }
+  .capability-icon { font-size:19px; line-height:1; margin-bottom:10px; }
+  .capability-title { font-size:13px; font-weight:500; margin-bottom:5px; }
+  .capability-desc { font-size:11px; line-height:1.65; color:var(--text-tertiary); }
+
+  .surface-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; margin:24px 0 28px; }
+  .surface-card { background:var(--bg-card); border:.5px solid var(--border-strong); border-radius:10px; padding:20px; }
+  .surface-card:first-child { border-top:3px solid var(--accent); }
+  .surface-card:last-child { border-top:3px solid var(--violet); }
+  .surface-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+  .surface-title { font-size:17px; font-weight:500; }
+  .surface-tag { font-family:var(--mono); font-size:9px; letter-spacing:.08em; color:var(--text-tertiary); }
+  .surface-desc { font-size:12.5px; line-height:1.75; color:var(--text-secondary); }
+  .surface-use { padding-top:11px; margin-top:12px; border-top:.5px solid var(--border); font-size:11px; color:var(--accent); }
+
+  .step-list { margin:26px 0 30px; counter-reset:tutorial-step; }
+  .step-item { display:grid; grid-template-columns:38px 1fr; gap:14px; padding:0 0 22px; position:relative; counter-increment:tutorial-step; }
+  .step-item:not(:last-child)::after { content:''; position:absolute; left:18px; top:38px; bottom:0; width:1px; background:var(--border-strong); }
+  .step-num { width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center; background:var(--accent-light); border:1px solid rgba(196,98,42,.25); color:var(--accent); font-family:var(--mono); font-size:11px; font-weight:500; position:relative; z-index:1; }
+  .step-num::before { content:counter(tutorial-step,decimal-leading-zero); }
+  .step-title { font-size:15px; font-weight:500; margin:1px 0 5px; }
+  .step-desc { font-size:13.5px; color:var(--text-secondary); line-height:1.8; }
+
+  .prompt-formula { display:grid; grid-template-columns:repeat(6,1fr); gap:6px; margin:22px 0 16px; }
+  .formula-part { border:.5px solid var(--border-strong); background:var(--bg-card); border-radius:8px; padding:12px 6px; text-align:center; }
+  .formula-index { display:block; font-family:var(--mono); font-size:9px; color:var(--accent); margin-bottom:4px; }
+  .formula-name { display:block; font-size:10.5px; color:var(--text-secondary); }
+  .prompt-example { background:#201E1A; color:#D4D0C8; border-radius:10px; padding:20px; margin:16px 0 26px; font-family:var(--mono); font-size:12px; line-height:1.85; overflow-x:auto; }
+  .prompt-example .label { color:#F1A37E; }
+  .prompt-example .quoted { color:#8FD1BA; }
+  .prompt-example .constraint { color:#D7B8EA; }
+  .prompt-example .prompt-layout { color:#85B8E8; }
+
+  .text-rules { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; margin:22px 0 28px; }
+  .text-rule { background:var(--bg-card); border:.5px solid var(--border); border-radius:9px; padding:16px; }
+  .rule-index { width:24px; height:24px; display:flex; align-items:center; justify-content:center; border-radius:50%; background:var(--violet-light); color:var(--violet); font-family:var(--mono); font-size:9px; margin-bottom:10px; }
+  .rule-title { font-size:13px; font-weight:500; margin-bottom:5px; }
+  .rule-desc { font-size:11.5px; color:var(--text-tertiary); line-height:1.7; }
+
+  .edit-lock { display:grid; grid-template-columns:1fr 56px 1fr; align-items:stretch; gap:10px; margin:22px 0 28px; }
+  .edit-box { border:.5px solid var(--border-strong); border-radius:10px; padding:18px; background:var(--bg-card); }
+  .edit-box.change { border-top:3px solid var(--accent); }
+  .edit-box.lock { border-top:3px solid var(--success); }
+  .edit-arrow { display:flex; align-items:center; justify-content:center; color:var(--text-tertiary); font-size:22px; }
+  .edit-title { font-size:14px; font-weight:500; margin-bottom:9px; }
+  .edit-list { list-style:none; }
+  .edit-list li { font-size:12px; color:var(--text-secondary); line-height:1.75; padding-left:14px; position:relative; }
+  .edit-list li::before { content:'·'; position:absolute; left:2px; color:var(--accent); }
+  .edit-box.lock .edit-list li::before { color:var(--success); }
+
+  .use-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; margin:22px 0 28px; }
+  .use-card { border:.5px solid var(--border); border-radius:9px; background:rgba(255,255,255,.55); padding:15px; }
+  .use-icon { font-size:18px; line-height:1; margin-bottom:9px; }
+  .use-title { font-size:12.5px; font-weight:500; margin-bottom:5px; }
+  .use-desc { font-size:11px; line-height:1.65; color:var(--text-tertiary); }
+
+  .parameter-panel { background:var(--bg-card); border:.5px solid var(--border-strong); border-radius:10px; overflow:hidden; margin:20px 0 28px; }
+  .parameter-title { padding:13px 18px; background:var(--bg-code); border-bottom:.5px solid var(--border); font-size:12px; font-weight:500; }
+  .table-scroll { overflow-x:auto; }
+  .parameter-table { width:100%; border-collapse:collapse; min-width:610px; }
+  .parameter-table th,.parameter-table td { padding:13px 16px; border-bottom:.5px solid var(--border); text-align:left; vertical-align:top; font-size:12px; line-height:1.7; }
+  .parameter-table tr:last-child th,.parameter-table tr:last-child td { border-bottom:0; }
+  .parameter-table th { width:92px; white-space:nowrap; font-weight:500; }
+  .parameter-table td:nth-child(2) { width:175px; color:var(--accent); font-family:var(--mono); font-size:11px; }
+  .parameter-table td:last-child { color:var(--text-secondary); }
+  .code-block { background:#201E1A; color:#D4D0C8; border-radius:10px; padding:20px; margin:16px 0 26px; font-family:var(--mono); font-size:11.5px; line-height:1.8; overflow-x:auto; white-space:pre; }
+  .code-block .key { color:#85B8E8; }
+  .code-block .str { color:#8FD1BA; }
+
+  .practice-list { margin:22px 0 28px; }
+  .practice-row { display:grid; grid-template-columns:120px 1fr; gap:14px; padding:14px 0; border-bottom:.5px solid var(--border); }
+  .practice-row:last-child { border-bottom:0; }
+  .practice-problem { font-size:12px; font-weight:500; color:var(--danger); }
+  .practice-fix { font-size:12.5px; line-height:1.75; color:var(--text-secondary); }
+
+  .checklist { background:var(--bg-card); border:.5px solid var(--border-strong); border-radius:10px; padding:8px 20px; margin:24px 0 30px; }
+  .check-row { display:grid; grid-template-columns:22px 1fr; gap:10px; padding:12px 0; border-bottom:.5px solid var(--border); font-size:13px; color:var(--text-secondary); line-height:1.7; }
+  .check-row:last-child { border-bottom:0; }
+  .check-mark { color:var(--success); font-weight:500; }
+
+  .source-panel { background:var(--info-light); border:.5px solid rgba(24,95,165,.18); border-radius:10px; padding:18px 20px; margin:28px 0; }
+  .source-title { font-size:12px; color:var(--info); font-weight:500; margin-bottom:10px; letter-spacing:.05em; }
+  .source-list { list-style:none; }
+  .source-list li { margin:7px 0; font-size:12.5px; line-height:1.7; color:var(--text-secondary); }
+  .source-list a { color:var(--info); text-decoration:none; border-bottom:1px solid rgba(24,95,165,.25); }
+  .source-list a:hover { border-bottom-color:var(--info); }
+
+  .tag-row { display:flex; flex-wrap:wrap; gap:8px; margin-top:44px; padding-top:24px; border-top:.5px solid var(--border); }
+  .tag { font-size:11px; padding:4px 12px; border-radius:20px; border:.5px solid var(--border-strong); color:var(--text-secondary); text-decoration:none; }
+  .site-footer { max-width:1020px; margin:0 auto; padding:28px 32px; border-top:.5px solid var(--border); display:flex; justify-content:space-between; color:var(--text-tertiary); font-size:12px; }
+
+  @keyframes fadeUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+  @media (max-width:760px) {
+    .content-wrap { grid-template-columns:1fr; padding:0 20px; }
+    .sidebar { display:none; }
+    .hero { padding:40px 20px 32px; }
+    .hero::after { width:120px; height:120px; right:-20px; top:24px; }
+    .header-inner { padding:0 20px; }
+    .headline { font-size:29px; }
+    .capability-grid,.use-grid { grid-template-columns:1fr; }
+    .surface-grid { grid-template-columns:1fr; }
+    .prompt-formula { grid-template-columns:repeat(2,1fr); }
+    .text-rules { grid-template-columns:1fr; }
+    .edit-lock { grid-template-columns:1fr; }
+    .edit-arrow { transform:rotate(90deg); min-height:28px; }
+    .practice-row { grid-template-columns:1fr; gap:5px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <a class="site-name" href="../../index.html">聚合叉的博客</a>
+    <span class="header-tag">模型使用教程 · 03</span>
+  </div>
+</header>
+
+<section class="hero">
+  <p class="kicker">图片 / 视频模型使用教程</p>
+  <h1 class="headline">GPT Image 2 使用教程<br><em>从一句想法到可交付视觉</em></h1>
+  <p class="deck">会“描述画面”只是起点。真正稳定的 Image 2 工作流，是先定义交付物，再拆清布局、文字与不可变项，最后用小步迭代把结果收紧。</p>
+  <div class="meta-row">
+    <span>2026-08-21</span>
+    <span>教程系列 · 第三篇</span>
+    <span>阅读约 15 分钟</span>
+    <span>ChatGPT · 图片生成 · 图片编辑</span>
+  </div>
+</section>
+
+<div class="content-wrap">
+<article class="article-body">
+
+  <p class="body-text">OpenAI 在 2026 年 4 月发布 <a class="source-inline" href="https://openai.com/index/introducing-chatgpt-images-2-0/" target="_blank" rel="noopener">ChatGPT Images 2.0</a>。在 API 中，对应模型名是 <strong>gpt-image-2</strong>：它接受文字和图片输入，可以生成新图，也可以继续编辑已有图片。</p>
+
+  <p class="body-text">根据 <a class="source-inline" href="https://developers.openai.com/cookbook/examples/multimodal/image-gen-models-prompting-guide" target="_blank" rel="noopener">OpenAI 官方提示词指南</a>，这一代的重点并不只是“画得更像”，还包括图片内文字、复杂信息图、多面板构图、参考图保真、风格迁移和透明背景资产。下面先讲普通用户怎样在 ChatGPT 里使用，再给需要批量生产的读者补充 API 参数。</p>
+
+  <p class="section-label" id="s1">01 · 认识 Image 2</p>
+  <h2 class="section-heading">它真正提升的，是对“设计任务”的理解</h2>
+
+  <div class="capability-grid">
+    <div class="capability-card"><div class="capability-icon">✦</div><div class="capability-title">生成与编辑</div><p class="capability-desc">从文字生成新图，也能基于一张或多张参考图继续修改。</p></div>
+    <div class="capability-card"><div class="capability-icon">字</div><div class="capability-title">图片内文字</div><p class="capability-desc">更适合海报、包装、界面与信息图中的清晰文字排版。</p></div>
+    <div class="capability-card"><div class="capability-icon">▦</div><div class="capability-title">复杂构图</div><p class="capability-desc">可以处理信息图、图解、多格漫画和具有层级的版式。</p></div>
+    <div class="capability-card"><div class="capability-icon">◎</div><div class="capability-title">参考图保真</div><p class="capability-desc">编辑时更容易保留身份、材质、标签和关键视觉特征。</p></div>
+  </div>
+
+  <div class="callout info">
+    <p>名称容易混淆：ChatGPT Images 2.0 是面向用户的图片体验，gpt-image-2 是开发者在 API 中调用的模型名。本文说的“Image 2”同时覆盖这两种使用方式。</p>
+  </div>
+
+  <p class="section-label" id="s2">02 · 使用入口</p>
+  <h2 class="section-heading">ChatGPT 与 API，先选适合自己的入口</h2>
+
+  <div class="surface-grid">
+    <div class="surface-card">
+      <div class="surface-top"><span class="surface-title">ChatGPT 对话</span><span class="surface-tag">NO CODE</span></div>
+      <p class="surface-desc">像与设计师沟通一样提出需求、上传参考图、查看结果，再用自然语言逐轮修改。适合单张创作、灵感探索和需要频繁判断的任务。</p>
+      <div class="surface-use">适合：海报、封面、社媒图、照片修改、概念设计</div>
+    </div>
+    <div class="surface-card">
+      <div class="surface-top"><span class="surface-title">gpt-image-2 API</span><span class="surface-tag">AUTOMATION</span></div>
+      <p class="surface-desc">通过代码固定模型、尺寸、质量、格式与透明背景，适合把模板接入产品，或自动生成一批规格一致的资产。</p>
+      <div class="surface-use">适合：电商素材、批量变体、内容流水线、应用内生图</div>
+    </div>
+  </div>
+
+  <p class="body-text">第一次用，建议从 ChatGPT 开始。先确认你能稳定写出一张满意的图，再把已经验证过的提示词和参数迁移到 API。这样能把“创意没想清楚”和“代码参数有问题”分开处理。</p>
+
+  <p class="section-label" id="s3">03 · 第一次生成</p>
+  <h2 class="section-heading">别急着堆形容词，先完成一轮可控闭环</h2>
+
+  <div class="step-list">
+    <div class="step-item"><div class="step-num"></div><div><div class="step-title">先写清交付物</div><p class="step-desc">告诉 ChatGPT 你要的是海报、封面、产品图还是信息图，并给出投放位置。交付物会直接影响构图、留白和文字密度。</p></div></div>
+    <div class="step-item"><div class="step-num"></div><div><div class="step-title">确定画幅与构图</div><p class="step-desc">写明横版、竖版或方图，以及主体位置、文字区、视觉动线和需要保留的安全边距。不要只写“高级感”。</p></div></div>
+    <div class="step-item"><div class="step-num"></div><div><div class="step-title">补全主体、环境与风格</div><p class="step-desc">描述人物或产品、动作、场景、光线、材质、色彩和媒介。风格最好拆成可观察特征，而不是只给一个抽象标签。</p></div></div>
+    <div class="step-item"><div class="step-num"></div><div><div class="step-title">逐字给出画面文案</div><p class="step-desc">需要图片内文字时，把最终文案放进引号，写明只出现一次、不得增删字符，并指定位置、字号层级和字体气质。</p></div></div>
+    <div class="step-item"><div class="step-num"></div><div><div class="step-title">添加约束与禁止项</div><p class="step-desc">列出必须保留和不能出现的内容：不要水印、不要额外文案、不要改变商标、不要裁掉产品等。约束要具体可检查。</p></div></div>
+    <div class="step-item"><div class="step-num"></div><div><div class="step-title">只改一个核心问题</div><p class="step-desc">第一版出来后，优先修最大问题。每轮只改布局、文字、颜色或某个对象中的一项，并重复“其他内容保持不变”。</p></div></div>
+  </div>
+
+  <p class="section-label" id="s4">04 · 提示词公式</p>
+  <h2 class="section-heading">把提示词写成一份迷你设计 Brief</h2>
+
+  <div class="prompt-formula">
+    <div class="formula-part"><span class="formula-index">01</span><span class="formula-name">交付物</span></div>
+    <div class="formula-part"><span class="formula-index">02</span><span class="formula-name">主体场景</span></div>
+    <div class="formula-part"><span class="formula-index">03</span><span class="formula-name">构图布局</span></div>
+    <div class="formula-part"><span class="formula-index">04</span><span class="formula-name">风格光线</span></div>
+    <div class="formula-part"><span class="formula-index">05</span><span class="formula-name">精确文字</span></div>
+    <div class="formula-part"><span class="formula-index">06</span><span class="formula-name">约束条件</span></div>
+  </div>
+
+  <div class="prompt-example"><span class="label">【交付物】</span>
+为一家城市咖啡馆制作 4:5 竖版开业海报，用于社交媒体。
+
+<span class="label">【主体与场景】</span>
+一杯草莓抹茶拿铁放在深色木桌上，能看见真实的抹茶、牛奶与草莓分层；背景是雨后的街角店面。
+
+<span class="prompt-layout">【构图】</span>
+饮品位于画面右下三分之一；左上留出标题区；品牌名在底部居中；层级清晰，四周保留安全边距。
+
+<span class="label">【视觉风格】</span>
+现代日系编辑设计，米白、抹茶绿与草莓红；柔和侧光，纸张颗粒，真实商业摄影与克制排版。
+
+<span class="quoted">【画面文字｜逐字照抄】</span>
+主标题：“春日新店开业”
+副标题：“本周六 · 城南路 18 号”
+品牌名：“MOSS COFFEE”
+
+<span class="constraint">【约束】</span>
+所有文字只出现一次，不得增删字符；不要水印，不要额外标语，不要虚构商标；饮品杯型与分层必须自然可信。</div>
+
+  <p class="body-text">好的提示词不一定长，但要让人能够验收。把“时尚、震撼、高级”换成具体的布局、光线、材质和颜色；把“文字准确”换成引号中的最终文案与不得增删字符。</p>
+
+  <p class="section-label" id="s5">05 · 图片内文字</p>
+  <h2 class="section-heading">想让字更稳，文案和版式要一起写</h2>
+
+  <p class="body-text">OpenAI 官方指南建议：将准确文案放进引号，明确要求逐字呈现、不添加额外字符，并描述文字的位置和字体风格。如果首轮仍有错字，保持文案不变，小幅调整文字密度或布局后再生成。</p>
+
+  <div class="text-rules">
+    <div class="text-rule"><div class="rule-index">01</div><div class="rule-title">锁定精确文案</div><p class="rule-desc">先在外部完成校对，再复制进引号。不要让模型替你临场改写主标题。</p></div>
+    <div class="text-rule"><div class="rule-index">02</div><div class="rule-title">说明层级与位置</div><p class="rule-desc">分别写主标题、副标题、说明文字和品牌名，并指定对齐、大小与所在区域。</p></div>
+    <div class="text-rule"><div class="rule-index">03</div><div class="rule-title">减少一次性密度</div><p class="rule-desc">文字越多，校对成本越高。先生成核心文案，长段说明保留给后期排版工具。</p></div>
+  </div>
+
+  <div class="callout">
+    <p>图片模型的文字能力已经显著增强，但高风险信息仍要人工核对。价格、日期、地址、产品参数、法律说明和数据图表不能只凭“看起来像是对的”。</p>
+  </div>
+
+  <p class="section-label" id="s6">06 · 图片编辑</p>
+  <h2 class="section-heading">编辑最稳的写法：改什么，以及什么绝对不动</h2>
+
+  <p class="body-text">编辑任务最常见的失败不是“没改”，而是<strong>改对一处、漂掉三处</strong>。官方指南反复强调：把变化项与不可变项分开写，并在每轮迭代时重新声明不可变项。</p>
+
+  <div class="edit-lock">
+    <div class="edit-box change">
+      <div class="edit-title">允许改变</div>
+      <ul class="edit-list"><li>只把白天改成冬日晚景</li><li>增加自然降雪与地面湿润反光</li><li>让环境光变冷，窗口灯光变暖</li></ul>
+    </div>
+    <div class="edit-arrow">→</div>
+    <div class="edit-box lock">
+      <div class="edit-title">必须保持</div>
+      <ul class="edit-list"><li>人物身份、表情、姿势和衣服不变</li><li>相机角度、构图与物体位置不变</li><li>海报文字、品牌标识与比例不变</li></ul>
+    </div>
+  </div>
+
+  <div class="prompt-example"><span class="label">【编辑任务】</span>
+把这张街景改成冬日晚景，增加自然降雪、湿润路面反光和暖色窗口灯光。
+
+<span class="constraint">【必须保持】</span>
+不要改变人物的脸、发型、表情、姿势与服装；不要改变相机角度、画面裁切、建筑结构和物体位置；图片中的全部文字与品牌标识逐字保持不变；不要添加新人物或新文字。
+
+只修改天气、时间与环境光，其他内容保持不变。</div>
+
+  <p class="body-text">物体移除也遵循同一原则：“移除右手里的花，其他内容不要改变”通常比一大段风格描述更有效。换装、产品合成和参考图迁移时，则要额外锁定人物身份、产品几何、标签文字、光向和阴影。</p>
+
+  <p class="section-label" id="s7">07 · 实用场景</p>
+  <h2 class="section-heading">这些任务最能发挥 Image 2 的优势</h2>
+
+  <div class="use-grid">
+    <div class="use-card"><div class="use-icon">📊</div><div class="use-title">信息图与图解</div><p class="use-desc">先给出信息层级与准确数据，再定义标题、标签、箭头和配色；生成后逐项核对事实。</p></div>
+    <div class="use-card"><div class="use-icon">🪧</div><div class="use-title">海报与社媒图</div><p class="use-desc">把文案、布局、画幅和视觉风格放在同一份 Brief 中，适合快速探索多种设计方向。</p></div>
+    <div class="use-card"><div class="use-icon">◈</div><div class="use-title">品牌视觉提案</div><p class="use-desc">围绕同一品牌锚点生成标志应用、包装、物料和场景图，但最终规范仍需设计师统一。</p></div>
+    <div class="use-card"><div class="use-icon">▤</div><div class="use-title">UI 与应用概念</div><p class="use-desc">用明确的信息架构、组件类型与状态说明生成概念稿，适合沟通方向，不代替可编辑设计文件。</p></div>
+    <div class="use-card"><div class="use-icon">🎬</div><div class="use-title">分镜与多格叙事</div><p class="use-desc">先锁定角色设定，再逐格写动作、景别和对白；每次迭代重复人物不可变特征。</p></div>
+    <div class="use-card"><div class="use-icon">✂️</div><div class="use-title">产品抠图与合成</div><p class="use-desc">要求保留产品几何和标签，输出干净轮廓；API 可直接请求透明 PNG 或 WebP。</p></div>
+  </div>
+
+  <div class="callout success">
+    <p>把 Image 2 当作“会持续对话的视觉协作者”，而不是一次性抽卡工具：先确定方向，再锁定不变项，最后分轮修文字、布局和细节，通常比反复重写整段提示词更稳定。</p>
+  </div>
+
+  <p class="section-label" id="s8">08 · API 进阶</p>
+  <h2 class="section-heading">需要自动化时，再控制尺寸、质量与透明背景</h2>
+
+  <p class="body-text"><a class="source-inline" href="https://developers.openai.com/api/docs/models/gpt-image-2" target="_blank" rel="noopener">官方模型页</a>把 gpt-image-2 定义为当前用于高质量图片生成与编辑的模型。官方提示词指南还给出了灵活尺寸与透明背景的规则；下表适合做开发时的快速核对。</p>
+
+  <div class="parameter-panel">
+    <div class="parameter-title">gpt-image-2 常用参数速查</div>
+    <div class="table-scroll">
+      <table class="parameter-table">
+        <tbody>
+          <tr><th>质量</th><td>low / medium / high</td><td>低质量适合快速预览和批量探索；对外素材通常从 medium 验证，高精度需求再比较 high。</td></tr>
+          <tr><th>尺寸</th><td>灵活分辨率</td><td>两边必须是 16 的倍数，长短边比例不超过 3:1；官方建议把 2560×1440 视为较可靠的 2K 上界。</td></tr>
+          <tr><th>透明背景</th><td>background: transparent</td><td>当前为预览能力；输出格式使用 PNG 或 WebP，JPEG 不支持透明通道。</td></tr>
+          <tr><th>常用尺寸</th><td>1024² / 1024×1536 / 1536×1024</td><td>分别适合方图、竖图和横图；最终仍应按展示容器与裁切方式选择。</td></tr>
+          <tr><th>输入</th><td>text + image</td><td>既可纯文字生成，也可带图片做编辑、合成、风格迁移与身份敏感修改。</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="code-block">from openai import OpenAI
+
+client = OpenAI()
+
+result = client.images.generate(
+    <span class="key">model</span>=<span class="str">"gpt-image-2"</span>,
+    <span class="key">prompt</span>=<span class="str">"一枚极简珐琅胸针，孤立主体，纯透明背景，不要阴影，不要文字"</span>,
+    <span class="key">size</span>=<span class="str">"1024x1024"</span>,
+    <span class="key">quality</span>=<span class="str">"medium"</span>,
+    <span class="key">background</span>=<span class="str">"transparent"</span>,
+    <span class="key">output_format</span>=<span class="str">"png"</span>,
+)</div>
+
+  <p class="body-text">上面的代码只展示参数组合。实际项目还要按<a class="source-inline" href="https://developers.openai.com/cookbook/examples/multimodal/image-gen-models-prompting-guide" target="_blank" rel="noopener">官方最新指南</a>处理返回结果、鉴权、异常与成本；价格和账户限额会变化，部署前以官方模型页和控制台为准。</p>
+
+  <p class="section-label" id="s9">09 · 稳定出图</p>
+  <h2 class="section-heading">常见问题，不要靠“再抽一次”解决</h2>
+
+  <div class="practice-list">
+    <div class="practice-row"><div class="practice-problem">构图不听话</div><div class="practice-fix">把位置写成可观察的关系：主体在右下三分之一、标题左对齐、上方留 20% 空间。减少同一主体上的冲突指令。</div></div>
+    <div class="practice-row"><div class="practice-problem">图片文字有错</div><div class="practice-fix">将最终文案逐字放进引号，要求只出现一次且不得增删；减少字数，分清标题层级，下一轮只修文字。</div></div>
+    <div class="practice-row"><div class="practice-problem">编辑后人物变了</div><div class="practice-fix">重复锁定脸、发型、肤色、表情、姿势和体型；明确只允许改变的区域，一轮只做一个修改。</div></div>
+    <div class="practice-row"><div class="practice-problem">产品标签被重画</div><div class="practice-fix">要求逐字保留标签与品牌标识，同时锁定产品几何、材质和相机角度；高风险商标仍应人工复核。</div></div>
+    <div class="practice-row"><div class="practice-problem">风格很“AI”</div><div class="practice-fix">删掉空泛词，改写为具体媒介、镜头、光源、色温、材质、颗粒和印刷工艺；降低一次提示中的风格数量。</div></div>
+    <div class="practice-row"><div class="practice-problem">越改越漂</div><div class="practice-fix">回到最近满意版本，从它继续编辑；列出“允许改变 / 必须保持”两栏，并在每一轮重复不可变项。</div></div>
+  </div>
+
+  <h3 class="subheading">点击生成前，最后检查</h3>
+  <div class="checklist">
+    <div class="check-row"><span class="check-mark">✓</span><span>已经写明交付物、使用场景和画幅，而不是只描述画面气氛。</span></div>
+    <div class="check-row"><span class="check-mark">✓</span><span>主体、构图、光线、材质与颜色都能被直接观察和验收。</span></div>
+    <div class="check-row"><span class="check-mark">✓</span><span>所有画面文字都经过校对，并放在引号中逐字给出。</span></div>
+    <div class="check-row"><span class="check-mark">✓</span><span>编辑任务已经分开写清“允许改变”和“必须保持”。</span></div>
+    <div class="check-row"><span class="check-mark">✓</span><span>一轮只解决一个核心问题，避免同时改角色、布局、风格和文案。</span></div>
+    <div class="check-row"><span class="check-mark">✓</span><span>地址、价格、日期、数据、商标和法律文字会在发布前人工复核。</span></div>
+    <div class="check-row"><span class="check-mark">✓</span><span>API 项目已按最新官方文档核对尺寸、格式、质量、价格与账户限额。</span></div>
+  </div>
+
+  <div class="source-panel">
+    <div class="source-title">本文参考资料</div>
+    <ul class="source-list">
+      <li>官方发布：<a href="https://openai.com/index/introducing-chatgpt-images-2-0/" target="_blank" rel="noopener">Introducing ChatGPT Images 2.0</a></li>
+      <li>官方模型信息：<a href="https://developers.openai.com/api/docs/models/gpt-image-2" target="_blank" rel="noopener">GPT Image 2 Model</a></li>
+      <li>官方提示词与参数：<a href="https://developers.openai.com/cookbook/examples/multimodal/image-gen-models-prompting-guide" target="_blank" rel="noopener">GPT Image Generation Models Prompting Guide</a></li>
+      <li>补充实践参考：<a href="https://tosea.ai/blog/gpt-image-2-complete-guide" target="_blank" rel="noopener">Tosea.ai · GPT Image 2 Complete Guide</a></li>
+      <li>资料核对日期：2026-08-21。产品入口、可用性、价格与限制可能继续更新，请以 OpenAI 官方页面和账户内实际界面为准。</li>
+    </ul>
+  </div>
+
+  <div class="tag-row">
+    <a class="tag" href="#">GPT Image 2</a><a class="tag" href="#">ChatGPT</a><a class="tag" href="#">图片生成</a><a class="tag" href="#">图片编辑</a><a class="tag" href="#">信息图</a><a class="tag" href="#">提示词</a><a class="tag" href="#">模型使用教程</a>
+  </div>
+
+</article>
+
+<aside class="sidebar">
+  <p class="toc-label">目录</p>
+  <ul class="toc-list">
+    <li><a href="#s1" class="toc-link">Image 2 核心能力</a></li>
+    <li><a href="#s2" class="toc-link">ChatGPT 与 API</a></li>
+    <li><a href="#s3" class="toc-link">第一次生成</a></li>
+    <li><a href="#s4" class="toc-link">提示词公式</a></li>
+    <li><a href="#s5" class="toc-link">图片内文字</a></li>
+    <li><a href="#s6" class="toc-link">图片编辑</a></li>
+    <li><a href="#s7" class="toc-link">实用场景</a></li>
+    <li><a href="#s8" class="toc-link">API 进阶</a></li>
+    <li><a href="#s9" class="toc-link">稳定出图</a></li>
+  </ul>
+</aside>
+</div>
+
+<footer class="site-footer">
+  <a href="../../index.html" style="color:inherit;text-decoration:none;">← 返回首页</a>
+  <span>聚合叉的博客</span>
+</footer>
+
+</body>
+</html>

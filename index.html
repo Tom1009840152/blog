@@ -60,11 +60,13 @@ body { background: var(--bg); color: var(--text-primary); font-family: var(--san
   font-family: var(--serif); font-size: 15px; font-weight: 700;
   letter-spacing: 0.02em; color: var(--text-primary);
   text-decoration: none; cursor: pointer;
-  transition: color 0.2s; flex-shrink: 0;
+  transition: color 0.2s, width 0.24s ease, min-width 0.24s ease, padding 0.24s ease, opacity 0.18s ease; flex-shrink: 0;
   border-right: 1px solid var(--border);
+  overflow: hidden; white-space: nowrap;
 }
 .topbar-logo:hover { color: var(--accent); }
 .topbar-logo .logo-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
+.topbar-logo .logo-text { white-space: nowrap; }
 
 .topbar-center { flex: 1; display: flex; align-items: center; justify-content: center; }
 
@@ -178,8 +180,42 @@ body { background: var(--bg); color: var(--text-primary); font-family: var(--san
 .nav-empty { padding: 6px 14px 8px 44px; font-size: 13px; color: var(--text-tertiary); font-style: italic; }
 .nav-divider { height: 1px; background: var(--border); margin: 10px 20px 16px; }
 
+.sidebar-collapse-btn {
+  position: fixed;
+  top: calc(var(--topbar-h) + 18px);
+  left: calc(var(--sidebar-w) - 14px);
+  width: 28px; height: 28px;
+  display: flex; align-items: center; justify-content: center;
+  padding: 0;
+  color: var(--text-tertiary);
+  background: rgba(255,255,255,0.94);
+  border: 1px solid var(--border-strong);
+  border-radius: 50%;
+  box-shadow: 0 3px 12px rgba(45,36,28,0.1);
+  cursor: pointer;
+  z-index: 210;
+  transition: left 0.24s ease, color 0.18s, background 0.18s, border-color 0.18s, transform 0.18s;
+}
+.sidebar-collapse-btn:hover {
+  color: var(--accent);
+  background: var(--bg-card);
+  border-color: var(--accent-mid);
+  transform: scale(1.06);
+}
+.sidebar-collapse-btn:focus-visible { outline: 2px solid var(--accent-mid); outline-offset: 3px; }
+.sidebar-collapse-btn .mdi { font-size: 18px; line-height: 1; transition: transform 0.24s ease; }
+
+body.sidebar-collapsed .sidebar-left { transform: translateX(-100%); }
+body.sidebar-collapsed .main { margin-left: 0; }
+body.sidebar-collapsed .topbar-logo {
+  width: 0; min-width: 0; padding-left: 0; padding-right: 0;
+  opacity: 0; border-right-color: transparent; pointer-events: none;
+}
+body.sidebar-collapsed .sidebar-collapse-btn { left: 14px; }
+body.sidebar-collapsed .sidebar-collapse-btn .mdi { transform: rotate(180deg); }
+
 /* ═══ MAIN ═══ */
-.main { margin-left: var(--sidebar-w); flex: 1; min-width: 0; display: flex; justify-content: center; }
+.main { margin-left: var(--sidebar-w); flex: 1; min-width: 0; display: flex; justify-content: center; transition: margin-left 0.24s ease; }
 
 .content-area { display: flex; align-items: flex-start; width: 100%; max-width: calc(var(--content-max) + var(--toc-w) + 60px); }
 
@@ -392,6 +428,9 @@ body { background: var(--bg); color: var(--text-primary); font-family: var(--san
   .sidebar-left.open { transform: translateX(0); }
   .main { margin-left: 0; }
   .topbar-logo { width: auto; min-width: auto; border-right: none; flex: 1; }
+  body.sidebar-collapsed .topbar-logo { width: auto; min-width: auto; padding: 0 20px; opacity: 1; pointer-events: auto; }
+  body.sidebar-collapsed .sidebar-left.open { transform: translateX(0); }
+  .sidebar-collapse-btn { display: none; }
   .topbar-center, .topbar-right { display: none; }
   .topbar-hamburger { display: flex; }
   .article-outer .hero { padding: 36px 20px 28px; }
@@ -425,7 +464,7 @@ body { background: var(--bg); color: var(--text-primary); font-family: var(--san
 
 <header class="topbar">
   <a class="topbar-logo" id="logoBtn">
-    <span class="logo-dot"></span>聚合叉的博客
+    <span class="logo-dot"></span><span class="logo-text">聚合叉的博客</span>
   </a>
   <div class="topbar-center">
     <div class="topbar-nav">
@@ -447,6 +486,11 @@ body { background: var(--bg); color: var(--text-primary); font-family: var(--san
 </header>
 
 <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+<button class="sidebar-collapse-btn" id="sidebarCollapseBtn" type="button"
+        onclick="toggleDesktopSidebar()" aria-label="收起侧栏"
+        aria-controls="sidebarLeft" aria-expanded="true" title="收起侧栏">
+  <span class="mdi mdi-chevron-left" aria-hidden="true"></span>
+</button>
 
 <div class="layout">
   <nav class="sidebar-left" id="sidebarLeft" aria-label="文章导航">
@@ -479,6 +523,13 @@ const DOCS = [
   { category: "视频", icon: `<span class="mdi mdi-play-circle-outline"></span>`, articles: [
       { id: "video-generation", title: "视频生成模型：从扩散噪声到影视级画面", file: "posts/video/video-generation.html", tags: ["AI", "视频生成", "扩散模型", "DiT", "Seedance", "Kling"] },
       { id: "world-model", title: "世界模型：不只是\u201c预测下一帧\u201d", file: "posts/video/world-model.html", tags: ["AI", "视频生成", "世界模型", "具身智能"] }
+    ] },
+  { category: "图片/视频模型使用教程", icon: `<span class="mdi mdi-book-open-page-variant-outline"></span>`, articles: [
+      { id: "seedance2-tutorial", title: "Seedance 2.0 使用教程", file: "posts/tutorial/seedance2-tutorial.html", tags: ["Seedance 2.0", "即梦", "视频生成", "多模态", "使用教程"] },
+      { id: "seedance25-tutorial", title: "Seedance 2.5 使用教程", file: "posts/tutorial/seedance25-tutorial.html", tags: ["Seedance 2.5", "即梦", "视频生成", "长视频", "智能编辑", "使用教程"] },
+      { id: "gpt-image2-tutorial", title: "GPT Image 2 使用教程", file: "posts/tutorial/gpt-image2-tutorial.html", tags: ["GPT Image 2", "ChatGPT", "图片生成", "图片编辑", "提示词", "使用教程"] },
+      { id: "nano-banana2-tutorial", title: "Nano Banana 2 使用教程", file: "posts/tutorial/nano-banana2-tutorial.html", tags: ["Nano Banana 2", "Gemini", "图片生成", "图片编辑", "信息图", "使用教程"] },
+      { id: "midjourney-tutorial", title: "Midjourney 使用教程", file: "posts/tutorial/midjourney-tutorial.html", tags: ["Midjourney", "V8.2", "图片生成", "风格参考", "提示词", "使用教程"] }
     ] },
   { category: "美学&摄影", icon: `<span class="mdi mdi-camera-outline"></span>`, articles: [
       { id: "visual-aesthetics", title: "画面语言：用视觉说话", file: "posts/aesthetics/visual-aesthetics.html", tags: ["美学", "摄影", "构图", "视觉语言"] }
@@ -811,6 +862,44 @@ function initToc() {
   }, { rootMargin: '-20% 0px -65% 0px' });
   ids.forEach(id => { const el = document.getElementById(id); if (el) _obs.observe(el); });
 }
+
+/* ════════ SIDEBAR ════════ */
+const SIDEBAR_COLLAPSE_KEY = 'blog-sidebar-collapsed';
+
+function syncSidebarAccessibility() {
+  const collapsed = document.body.classList.contains('sidebar-collapsed');
+  const desktopCollapsed = window.matchMedia('(min-width: 721px)').matches && collapsed;
+  const sidebar = document.getElementById('sidebarLeft');
+  sidebar.toggleAttribute('inert', desktopCollapsed);
+  desktopCollapsed ? sidebar.setAttribute('aria-hidden', 'true') : sidebar.removeAttribute('aria-hidden');
+}
+
+function setSidebarCollapsed(collapsed, persist = true) {
+  document.body.classList.toggle('sidebar-collapsed', collapsed);
+
+  const btn = document.getElementById('sidebarCollapseBtn');
+  const label = collapsed ? '展开侧栏' : '收起侧栏';
+  btn.setAttribute('aria-expanded', String(!collapsed));
+  btn.setAttribute('aria-label', label);
+  btn.title = label;
+  syncSidebarAccessibility();
+
+  if (persist) {
+    try { localStorage.setItem(SIDEBAR_COLLAPSE_KEY, collapsed ? '1' : '0'); } catch (_) {}
+  }
+}
+
+function toggleDesktopSidebar() {
+  const collapsed = !document.body.classList.contains('sidebar-collapsed');
+  setSidebarCollapsed(collapsed);
+}
+
+try {
+  setSidebarCollapsed(localStorage.getItem(SIDEBAR_COLLAPSE_KEY) === '1', false);
+} catch (_) {
+  setSidebarCollapsed(false, false);
+}
+window.addEventListener('resize', syncSidebarAccessibility);
 
 /* ════════ MOBILE ════════ */
 function toggleSidebar() {

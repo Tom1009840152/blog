@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Seedance 2.0 使用教程</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #F7F5F0;
+    --bg-card: #FFFFFF;
+    --bg-code: #F0EDE8;
+    --text-primary: #1A1814;
+    --text-secondary: #5C5850;
+    --text-tertiary: #9A948A;
+    --accent: #C4622A;
+    --accent-light: #FAE8DC;
+    --accent-mid: #E8855A;
+    --info: #185FA5;
+    --info-light: #E6F1FB;
+    --danger: #993C1D;
+    --danger-light: #FAECE7;
+    --success: #0F6E56;
+    --success-light: #E1F5EE;
+    --border: rgba(60,50,40,0.1);
+    --border-strong: rgba(60,50,40,0.2);
+    --serif: 'Noto Serif SC', Georgia, serif;
+    --sans: 'Noto Sans SC', system-ui, sans-serif;
+    --mono: 'JetBrains Mono', monospace;
+  }
+
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text-primary);
+    font-family: var(--sans);
+    font-weight: 300;
+    line-height: 1.85;
+    min-height: 100vh;
+  }
+
+  .site-header {
+    border-bottom: 0.5px solid var(--border);
+    padding: 18px 0;
+    position: sticky;
+    top: 0;
+    background: rgba(247,245,240,0.9);
+    backdrop-filter: blur(12px);
+    z-index: 100;
+  }
+  .header-inner {
+    max-width: 1020px;
+    margin: 0 auto;
+    padding: 0 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .site-name {
+    font-family: var(--serif);
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-primary);
+    text-decoration: none;
+  }
+  .header-tag {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    font-weight: 400;
+  }
+
+  .hero {
+    max-width: 1020px;
+    margin: 0 auto;
+    padding: 72px 32px 48px;
+    border-bottom: 0.5px solid var(--border);
+    animation: fadeUp 0.6s ease both;
+  }
+  .kicker {
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 500;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .kicker::after {
+    content: '';
+    width: 40px;
+    height: 1px;
+    background: var(--accent-mid);
+    opacity: 0.5;
+  }
+  .headline {
+    font-family: var(--serif);
+    font-size: 42px;
+    font-weight: 700;
+    line-height: 1.28;
+    letter-spacing: -0.01em;
+    margin-bottom: 20px;
+  }
+  .headline em { color: var(--accent); font-style: normal; }
+  .deck {
+    max-width: 700px;
+    font-size: 16px;
+    color: var(--text-secondary);
+    line-height: 1.8;
+    margin-bottom: 30px;
+  }
+  .meta-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px 20px;
+    font-size: 12px;
+    color: var(--text-tertiary);
+  }
+
+  .content-wrap {
+    max-width: 1020px;
+    margin: 0 auto;
+    padding: 0 32px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 220px;
+    gap: 0 48px;
+    align-items: start;
+  }
+  .article-body {
+    padding: 48px 0 80px;
+    min-width: 0;
+    animation: fadeUp 0.6s 0.1s ease both;
+  }
+  .sidebar {
+    padding: 48px 0 80px;
+    position: sticky;
+    top: 72px;
+    animation: fadeUp 0.6s 0.15s ease both;
+  }
+  .toc-label {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--text-tertiary);
+    font-weight: 500;
+    margin-bottom: 14px;
+  }
+  .toc-list {
+    list-style: none;
+    border-left: 1px solid var(--border-strong);
+    padding-left: 14px;
+  }
+  .toc-list li { margin-bottom: 8px; }
+  .toc-list a {
+    display: block;
+    font-size: 12px;
+    line-height: 1.55;
+    color: var(--text-tertiary);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .toc-list a:hover, .toc-list a.active { color: var(--accent); }
+  .toc-list a.active { font-weight: 500; }
+
+  .section-label {
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    color: var(--text-tertiary);
+    font-weight: 500;
+    margin: 52px 0 10px;
+  }
+  .section-label:first-child { margin-top: 0; }
+  .section-heading {
+    font-family: var(--serif);
+    font-size: 24px;
+    font-weight: 600;
+    line-height: 1.45;
+    margin-bottom: 18px;
+  }
+  .subheading {
+    font-family: var(--serif);
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 1.5;
+    margin: 32px 0 12px;
+  }
+  .body-text {
+    font-size: 15px;
+    line-height: 1.95;
+    color: var(--text-primary);
+    margin-bottom: 18px;
+  }
+  .body-text strong { font-weight: 500; }
+  .source-inline {
+    color: var(--info);
+    text-decoration: none;
+    border-bottom: 1px solid rgba(24,95,165,0.25);
+  }
+  .source-inline:hover { border-bottom-color: var(--info); }
+
+  .callout {
+    border-left: 2px solid var(--accent);
+    padding: 16px 20px;
+    background: var(--accent-light);
+    border-radius: 0 8px 8px 0;
+    margin: 26px 0;
+  }
+  .callout p { margin: 0; color: var(--danger); font-size: 14px; line-height: 1.8; font-weight: 400; }
+  .callout.info { border-color: var(--info); background: var(--info-light); }
+  .callout.info p { color: var(--info); }
+  .callout.success { border-color: var(--success); background: var(--success-light); }
+  .callout.success p { color: var(--success); }
+
+  .mode-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    margin: 24px 0 28px;
+  }
+  .mode-card {
+    background: var(--bg-card);
+    border: 0.5px solid var(--border-strong);
+    border-radius: 10px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .mode-card::before {
+    content: '';
+    position: absolute;
+    left: 0; right: 0; top: 0;
+    height: 3px;
+    background: var(--accent);
+  }
+  .mode-card.info::before { background: var(--info); }
+  .mode-badge {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-tertiary);
+    letter-spacing: 0.08em;
+    margin-bottom: 10px;
+  }
+  .mode-title { font-size: 16px; font-weight: 500; margin-bottom: 8px; }
+  .mode-desc { font-size: 13px; line-height: 1.75; color: var(--text-secondary); }
+  .mode-use {
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 0.5px solid var(--border);
+    font-size: 12px;
+    color: var(--text-tertiary);
+  }
+
+  .parameter-panel {
+    background: var(--bg-card);
+    border: 0.5px solid var(--border-strong);
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 24px 0 28px;
+  }
+  .parameter-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 18px;
+    background: var(--bg-code);
+    border-bottom: 0.5px solid var(--border);
+  }
+  .parameter-head strong { font-size: 13px; font-weight: 500; }
+  .parameter-head span { font-family: var(--mono); font-size: 10px; color: var(--text-tertiary); }
+  .table-scroll { overflow-x: auto; }
+  .parameter-table { width: 100%; border-collapse: collapse; min-width: 610px; }
+  .parameter-table th, .parameter-table td {
+    padding: 13px 16px;
+    border-bottom: 0.5px solid var(--border);
+    text-align: left;
+    vertical-align: top;
+    font-size: 12px;
+    line-height: 1.7;
+  }
+  .parameter-table tr:last-child th, .parameter-table tr:last-child td { border-bottom: 0; }
+  .parameter-table th { width: 86px; color: var(--text-primary); font-weight: 500; white-space: nowrap; }
+  .parameter-table td { color: var(--text-secondary); }
+  .parameter-table td:nth-child(2) { width: 128px; color: var(--accent); font-family: var(--mono); font-size: 11px; }
+
+  .step-list {
+    margin: 26px 0 30px;
+    counter-reset: tutorial-step;
+  }
+  .step-item {
+    display: grid;
+    grid-template-columns: 38px 1fr;
+    gap: 14px;
+    padding: 0 0 22px;
+    position: relative;
+    counter-increment: tutorial-step;
+  }
+  .step-item:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    left: 18px;
+    top: 38px;
+    bottom: 0;
+    width: 1px;
+    background: var(--border-strong);
+  }
+  .step-num {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--accent-light);
+    border: 1px solid rgba(196,98,42,0.25);
+    color: var(--accent);
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 500;
+    position: relative;
+    z-index: 1;
+  }
+  .step-num::before { content: counter(tutorial-step, decimal-leading-zero); }
+  .step-title { font-size: 15px; font-weight: 500; margin: 1px 0 5px; }
+  .step-desc { font-size: 13.5px; color: var(--text-secondary); line-height: 1.8; }
+
+  .prompt-anatomy {
+    background: #201E1A;
+    color: #EAE6DF;
+    border-radius: 10px;
+    padding: 18px;
+    margin: 24px 0 16px;
+    font-family: var(--mono);
+    font-size: 12px;
+    line-height: 1.8;
+    overflow-x: auto;
+  }
+  .prompt-line { display: grid; grid-template-columns: 72px 1fr; gap: 10px; padding: 5px 0; }
+  .prompt-key { color: #F1A37E; white-space: nowrap; }
+  .prompt-value { color: #D4D0C8; }
+  .prompt-line:nth-child(2) .prompt-key { color: #85B8E8; }
+  .prompt-line:nth-child(3) .prompt-key { color: #8FD1BA; }
+  .prompt-line:nth-child(4) .prompt-key { color: #D7B8EA; }
+  .prompt-line:nth-child(5) .prompt-key { color: #E4CF78; }
+
+  .prompt-example {
+    background: var(--bg-code);
+    border: 0.5px solid var(--border);
+    border-radius: 8px;
+    padding: 18px 20px;
+    margin: 16px 0 26px;
+    font-family: var(--mono);
+    font-size: 12px;
+    line-height: 1.85;
+    color: var(--text-primary);
+    overflow-x: auto;
+  }
+  .prompt-example .at { color: var(--accent); font-weight: 500; }
+  .prompt-example .time { color: var(--info); font-weight: 500; }
+  .prompt-example .note { color: var(--text-tertiary); }
+
+  .formula-strip {
+    display: flex;
+    align-items: stretch;
+    gap: 6px;
+    margin: 18px 0 24px;
+  }
+  .formula-item {
+    flex: 1;
+    min-width: 0;
+    padding: 10px 8px;
+    border-radius: 7px;
+    border: 0.5px solid var(--border-strong);
+    background: var(--bg-card);
+    text-align: center;
+    font-size: 11px;
+    line-height: 1.5;
+    color: var(--text-secondary);
+  }
+  .formula-plus { align-self: center; color: var(--text-tertiary); font-size: 12px; }
+
+  .workflow-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    margin: 24px 0 30px;
+  }
+  .workflow-card {
+    background: var(--bg-card);
+    border: 0.5px solid var(--border);
+    border-radius: 10px;
+    padding: 18px;
+  }
+  .workflow-icon { font-size: 20px; line-height: 1; margin-bottom: 12px; }
+  .workflow-title { font-size: 14px; font-weight: 500; margin-bottom: 7px; }
+  .workflow-desc { font-size: 12.5px; color: var(--text-secondary); line-height: 1.75; }
+  .workflow-input {
+    margin-top: 10px;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-tertiary);
+    padding-top: 9px;
+    border-top: 0.5px solid var(--border);
+  }
+
+  .iteration-ladder { margin: 24px 0 28px; }
+  .iteration-row {
+    display: grid;
+    grid-template-columns: 76px 1fr;
+    gap: 16px;
+    align-items: start;
+    padding: 14px 0;
+    border-bottom: 0.5px solid var(--border);
+  }
+  .iteration-row:last-child { border-bottom: 0; }
+  .iteration-stage {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--accent);
+    letter-spacing: 0.06em;
+    padding-top: 3px;
+  }
+  .iteration-copy strong { display: block; font-size: 14px; font-weight: 500; margin-bottom: 3px; }
+  .iteration-copy span { display: block; font-size: 12.5px; line-height: 1.75; color: var(--text-secondary); }
+
+  .issue-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin: 20px 0 28px;
+  }
+  .issue-card {
+    border: 0.5px solid var(--border);
+    border-radius: 8px;
+    padding: 15px;
+    background: rgba(255,255,255,0.55);
+  }
+  .issue-title { font-size: 13px; font-weight: 500; color: var(--danger); margin-bottom: 6px; }
+  .issue-fix { font-size: 12px; line-height: 1.7; color: var(--text-secondary); }
+
+  .checklist {
+    background: var(--bg-card);
+    border: 0.5px solid var(--border-strong);
+    border-radius: 10px;
+    padding: 8px 20px;
+    margin: 24px 0 30px;
+  }
+  .check-row {
+    display: grid;
+    grid-template-columns: 22px 1fr;
+    gap: 10px;
+    padding: 12px 0;
+    border-bottom: 0.5px solid var(--border);
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.7;
+  }
+  .check-row:last-child { border-bottom: 0; }
+  .check-mark { color: var(--success); font-weight: 500; }
+
+  .source-panel {
+    background: var(--info-light);
+    border: 0.5px solid rgba(24,95,165,0.18);
+    border-radius: 10px;
+    padding: 18px 20px;
+    margin: 28px 0;
+  }
+  .source-title { font-size: 12px; color: var(--info); font-weight: 500; margin-bottom: 10px; letter-spacing: 0.05em; }
+  .source-list { list-style: none; }
+  .source-list li { margin: 7px 0; font-size: 12.5px; line-height: 1.7; color: var(--text-secondary); }
+  .source-list a { color: var(--info); text-decoration: none; border-bottom: 1px solid rgba(24,95,165,0.25); }
+  .source-list a:hover { border-bottom-color: var(--info); }
+
+  .tag-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 44px;
+    padding-top: 24px;
+    border-top: 0.5px solid var(--border);
+  }
+  .tag {
+    font-size: 11px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    border: 0.5px solid var(--border-strong);
+    color: var(--text-secondary);
+    text-decoration: none;
+  }
+
+  .site-footer {
+    max-width: 1020px;
+    margin: 0 auto;
+    padding: 28px 32px;
+    border-top: 0.5px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    color: var(--text-tertiary);
+    font-size: 12px;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (max-width: 760px) {
+    .content-wrap { grid-template-columns: 1fr; padding: 0 20px; }
+    .sidebar { display: none; }
+    .hero { padding: 40px 20px 32px; }
+    .header-inner { padding: 0 20px; }
+    .headline { font-size: 29px; }
+    .mode-grid, .workflow-grid, .issue-grid { grid-template-columns: 1fr; }
+    .formula-strip { flex-wrap: wrap; }
+    .formula-item { flex: 1 1 30%; }
+    .parameter-panel { margin-left: -2px; margin-right: -2px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <a class="site-name" href="../../index.html">聚合叉的博客</a>
+    <span class="header-tag">模型使用教程 · 01</span>
+  </div>
+</header>
+
+<section class="hero">
+  <p class="kicker">图片 / 视频模型使用教程</p>
+  <h1 class="headline">Seedance 2.0 使用教程<br><em>从素材准备到稳定出片</em></h1>
+  <p class="deck">不只告诉你按钮在哪里，更讲清楚什么时候用首尾帧、什么时候用全能参考，怎样给图片、视频、音频分工，以及一条可控提示词应该怎么写。</p>
+  <div class="meta-row">
+    <span>2026-08-21</span>
+    <span>教程系列 · 第一篇</span>
+    <span>阅读约 14 分钟</span>
+    <span>即梦 · 多模态视频生成</span>
+  </div>
+</section>
+
+<div class="content-wrap">
+<article class="article-body">
+
+  <p class="body-text">Seedance 2.0 的核心变化，不是单纯把画质再提高一点，而是把<strong>图片、视频、音频和文本</strong>放进同一个创作流程：图片负责角色和画面，视频负责动作与镜头，音频负责节奏，文字负责把它们组织起来。</p>
+
+  <p class="body-text">这也意味着，真正决定结果的往往不是“提示词写得多华丽”，而是你有没有给每份素材安排清楚的职责。本文根据字节跳动的<a class="source-inline" href="https://bytedance.larkoffice.com/wiki/Rx8pwmbXjirkvukCnCQcAtH1nSd" target="_blank" rel="noopener">官方使用手册</a>核对参数与交互方式，并结合实际创作中常见的失败模式，整理成一套可以直接照着做的流程。</p>
+
+  <p class="section-label" id="s1">01 · 先选入口</p>
+  <h2 class="section-heading">首尾帧还是全能参考？先做对第一道选择</h2>
+
+  <p class="body-text">Seedance 2.0 在即梦中主要对应两个入口。入口并不是“高级版”和“普通版”的区别，而是两种不同的控制思路。</p>
+
+  <div class="mode-grid">
+    <div class="mode-card">
+      <span class="mode-badge">MODE A</span>
+      <div class="mode-title">首尾帧</div>
+      <p class="mode-desc">用一张首帧图，或首帧 + 尾帧，定义画面从哪里开始、到哪里结束。适合素材少、目标明确的图生视频。</p>
+      <div class="mode-use">适合：单图动起来、产品镜头、简单转场</div>
+    </div>
+    <div class="mode-card info">
+      <span class="mode-badge">MODE B</span>
+      <div class="mode-title">全能参考</div>
+      <p class="mode-desc">把图片、视频、音频与文字组合起来，并用 <code>@素材名</code> 指定各自用途。需要参考动作、运镜、音色或做视频编辑时选它。</p>
+      <div class="mode-use">适合：多角色、动作复刻、卡点、延长与编辑</div>
+    </div>
+  </div>
+
+  <div class="callout info">
+    <p>官方说明：只上传首帧图 + 提示词时，可以走“首尾帧”；需要组合图片、视频、音频时，应进入“全能参考”。Seedance 2.0 当前不从“智能多帧”和“主体参考”入口使用。</p>
+  </div>
+
+  <p class="body-text">如果你是第一次尝试，建议先用<strong>一张图 + 一条短提示词</strong>跑通首尾帧，再进入全能参考。素材越多，控制上限越高，但冲突概率也越大。</p>
+
+  <p class="section-label" id="s2">02 · 素材准备</p>
+  <h2 class="section-heading">先过参数检查，再谈提示词</h2>
+
+  <p class="body-text">很多“上传失败”或“生成不了”并不是模型问题，而是格式、大小或总数超限。下面是当前<a class="source-inline" href="https://bytedance.larkoffice.com/wiki/Rx8pwmbXjirkvukCnCQcAtH1nSd" target="_blank" rel="noopener">官方手册</a>列出的输入边界。</p>
+
+  <div class="parameter-panel">
+    <div class="parameter-head">
+      <strong>Seedance 2.0 素材规格速查</strong>
+      <span>CHECK BEFORE UPLOAD</span>
+    </div>
+    <div class="table-scroll">
+      <table class="parameter-table">
+        <tbody>
+          <tr>
+            <th>图片</th>
+            <td>最多 9 张</td>
+            <td>jpeg / png / webp / bmp / tiff / gif；单个素材小于 30 MB</td>
+          </tr>
+          <tr>
+            <th>视频</th>
+            <td>最多 3 个</td>
+            <td>mp4 / mov；总时长 2–15 秒；单个素材小于 50 MB；输入总像素约在 480p–720p 对应范围</td>
+          </tr>
+          <tr>
+            <th>音频</th>
+            <td>最多 3 个</td>
+            <td>mp3 / wav；总时长不超过 15 秒；单个素材小于 15 MB</td>
+          </tr>
+          <tr>
+            <th>混合输入</th>
+            <td>最多 12 个文件</td>
+            <td>图片、视频、音频合计；优先保留对主体、动作和节奏影响最大的素材</td>
+          </tr>
+          <tr>
+            <th>生成时长</th>
+            <td>4–15 秒</td>
+            <td>可自由选择，成片可以自带音效或配乐</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="callout">
+    <p><strong>写实人脸限制：</strong>由于平台合规要求，官方目前不支持上传包含清晰写实真人脸部的图片或视频素材，系统可能直接拦截并停止生成。优先使用不含可识别人脸的素材、虚构角色或符合平台规范的非写实形象。</p>
+  </div>
+
+  <p class="body-text">选素材时，质量比数量重要。角色图要能看清服装、发型和轮廓；动作参考视频要动作完整、遮挡少；运镜参考最好不要同时包含过强的角色表演，否则模型可能把“镜头怎么动”和“人怎么动”混在一起。</p>
+
+  <p class="section-label" id="s3">03 · 完整流程</p>
+  <h2 class="section-heading">从打开即梦到第一次生成，按这六步走</h2>
+
+  <div class="step-list">
+    <div class="step-item">
+      <div class="step-num"></div>
+      <div>
+        <div class="step-title">进入官方平台</div>
+        <p class="step-desc">打开<a class="source-inline" href="https://jimeng.jianying.com/" target="_blank" rel="noopener">即梦官方网站</a>并登录。进入视频创作区域，在模型选项中确认使用 Seedance 2.0；高峰期可按官方建议尝试 Fast 版本以获得更流畅的排队体验。</p>
+      </div>
+    </div>
+    <div class="step-item">
+      <div class="step-num"></div>
+      <div>
+        <div class="step-title">选择首尾帧或全能参考</div>
+        <p class="step-desc">只有一张起始画面时选首尾帧；涉及动作参考、运镜复刻、配乐、延长或编辑时选全能参考。</p>
+      </div>
+    </div>
+    <div class="step-item">
+      <div class="step-num"></div>
+      <div>
+        <div class="step-title">上传并整理素材</div>
+        <p class="step-desc">先传主体图，再传动作/运镜视频，最后传音频。确认系统给出的“图片1、视频1、音频1”等名称，后面的提示词要用它们进行绑定。</p>
+      </div>
+    </div>
+    <div class="step-item">
+      <div class="step-num"></div>
+      <div>
+        <div class="step-title">用 @素材名 分配职责</div>
+        <p class="step-desc">不要只写“参考这些素材”。明确写出：谁是主体、哪段视频只参考动作或镜头、哪段音频负责配乐或节奏。</p>
+      </div>
+    </div>
+    <div class="step-item">
+      <div class="step-num"></div>
+      <div>
+        <div class="step-title">补齐时间轴与画面要求</div>
+        <p class="step-desc">把关键动作写进 0–3 秒、3–8 秒、8–12 秒这样的时间段，再补充景别、机位、光线、风格与声音要求。</p>
+      </div>
+    </div>
+    <div class="step-item">
+      <div class="step-num"></div>
+      <div>
+        <div class="step-title">选择时长，生成并复盘</div>
+        <p class="step-desc">第一次先做 4–8 秒短片验证角色和运动，满意后再增加时长。复盘时只改一个变量，才能知道是哪条指令真正改善了结果。</p>
+      </div>
+    </div>
+  </div>
+
+  <p class="section-label" id="s4">04 · 提示词</p>
+  <h2 class="section-heading">一条可控提示词，要同时回答五个问题</h2>
+
+  <div class="formula-strip">
+    <div class="formula-item">素材是谁</div><span class="formula-plus">+</span>
+    <div class="formula-item">各自做什么</div><span class="formula-plus">+</span>
+    <div class="formula-item">何时发生</div><span class="formula-plus">+</span>
+    <div class="formula-item">怎么拍</div><span class="formula-plus">+</span>
+    <div class="formula-item">什么质感</div>
+  </div>
+
+  <div class="prompt-anatomy">
+    <div class="prompt-line"><span class="prompt-key">主体绑定</span><span class="prompt-value">@图片1 作为主体，保持服装、发型和面部特征一致</span></div>
+    <div class="prompt-line"><span class="prompt-key">参考分工</span><span class="prompt-value">@视频1 只参考人物动作；@视频2 只参考运镜节奏</span></div>
+    <div class="prompt-line"><span class="prompt-key">时间轴</span><span class="prompt-value">0–3 秒建立场景；3–8 秒完成动作；8–12 秒特写收尾</span></div>
+    <div class="prompt-line"><span class="prompt-key">镜头画面</span><span class="prompt-value">低机位跟拍，浅景深，傍晚逆光，写实电影质感</span></div>
+    <div class="prompt-line"><span class="prompt-key">声音约束</span><span class="prompt-value">@音频1 作为节奏参考，动作在鼓点处完成，环境音自然</span></div>
+  </div>
+
+  <h3 class="subheading">可直接改写的全能参考模板</h3>
+
+  <div class="prompt-example">
+<span class="at">@图片1</span> 作为主体，保持其服装配色、发型和轮廓一致。<br>
+参考 <span class="at">@视频1</span> 中的动作节奏，但保留 <span class="at">@图片1</span> 的角色外观；参考 <span class="at">@视频2</span> 的低机位跟拍方式。<br><br>
+<span class="time">0–3 秒：</span>中景建立环境，主体看向镜头并开始向前奔跑。<br>
+<span class="time">3–8 秒：</span>镜头贴近主体侧后方跟拍，动作连贯，衣物受风自然摆动。<br>
+<span class="time">8–12 秒：</span>主体停下回头，切到面部近景，背景逐渐虚化。<br><br>
+整体为傍晚金色逆光、真实电影摄影、自然运动模糊。<span class="at">@音频1</span> 作为节奏参考，转身动作落在主要鼓点上。<br>
+<span class="note"># 把主体、动作、运镜、时间和声音拆开写，模型更容易执行。</span>
+  </div>
+
+  <div class="callout success">
+    <p>提示词的关键不是堆形容词，而是消除歧义。比起“做得高级、震撼、有电影感”，模型更需要知道“哪个素材控制什么、哪一秒发生什么、镜头位于哪里”。</p>
+  </div>
+
+  <p class="body-text">尽量使用正向、可观察的描述。例如把“不要乱动镜头”改成“固定机位”；把“人物不能变形”改成“角色五官、发型和服装从头到尾保持一致”。否定词可以作为补充，但不应承担主要控制任务。</p>
+
+  <p class="section-label" id="s5">05 · 四种工作流</p>
+  <h2 class="section-heading">从简单到复杂，找到适合你的素材组合</h2>
+
+  <div class="workflow-grid">
+    <div class="workflow-card">
+      <div class="workflow-icon">🖼️</div>
+      <div class="workflow-title">单图变视频</div>
+      <p class="workflow-desc">先锁定主体，再描述一个明确动作和一种镜头。不要第一次就要求连续转场、换装和复杂剧情。</p>
+      <div class="workflow-input">输入：1 张图 + 文本</div>
+    </div>
+    <div class="workflow-card">
+      <div class="workflow-icon">🎥</div>
+      <div class="workflow-title">复刻动作与运镜</div>
+      <p class="workflow-desc">把动作参考和运镜参考分开声明。若只有一段参考视频，也要写清“只参考动作”还是“同时参考镜头”。</p>
+      <div class="workflow-input">输入：主体图 + 参考视频</div>
+    </div>
+    <div class="workflow-card">
+      <div class="workflow-icon">✂️</div>
+      <div class="workflow-title">延长与局部编辑</div>
+      <p class="workflow-desc">说明要承接原视频的哪个动作、光线和机位，再写新增内容。编辑时一次只改角色、动作或物体中的一项。</p>
+      <div class="workflow-input">输入：原视频 + 可选参考图</div>
+    </div>
+    <div class="workflow-card">
+      <div class="workflow-icon">🎵</div>
+      <div class="workflow-title">音乐卡点与氛围</div>
+      <p class="workflow-desc">指出音频控制的是整体氛围、具体卡点还是音色；把关键动作和镜头切换绑定到可识别的节拍位置。</p>
+      <div class="workflow-input">输入：画面素材 + 音频</div>
+    </div>
+  </div>
+
+  <p class="body-text">从真实创作案例看，Seedance 2.0 的应用已经覆盖电商投流、短剧分镜、影视、MV、文旅、Vlog、萌宠与特效复刻。对新手来说，最稳妥的起点不是追逐复杂玩法，而是先把一个角色、一种动作和一个镜头做稳定。</p>
+
+  <p class="section-label" id="s6">06 · 稳定出片</p>
+  <h2 class="section-heading">别反复“抽卡”，用分层迭代找到问题</h2>
+
+  <div class="iteration-ladder">
+    <div class="iteration-row">
+      <div class="iteration-stage">ROUND 01</div>
+      <div class="iteration-copy"><strong>先做基线</strong><span>只用主体图 + 核心动作，验证角色能否稳定、动作是否成立。</span></div>
+    </div>
+    <div class="iteration-row">
+      <div class="iteration-stage">ROUND 02</div>
+      <div class="iteration-copy"><strong>再加运动参考</strong><span>加入一段动作或运镜视频，并明确它只控制哪一部分。</span></div>
+    </div>
+    <div class="iteration-row">
+      <div class="iteration-stage">ROUND 03</div>
+      <div class="iteration-copy"><strong>最后加风格与声音</strong><span>主体和运动稳定后，再加入光线、质感、音乐卡点与环境音。</span></div>
+    </div>
+    <div class="iteration-row">
+      <div class="iteration-stage">ROUND 04</div>
+      <div class="iteration-copy"><strong>只修失败片段</strong><span>定位是角色、动作、镜头还是节奏出错，每轮只调整对应描述。</span></div>
+    </div>
+  </div>
+
+  <div class="issue-grid">
+    <div class="issue-card">
+      <div class="issue-title">角色越拍越不像</div>
+      <p class="issue-fix">减少风格冲突的参考图；用一张主设图做身份锚点，重复强调稳定的服装、发型和轮廓特征。</p>
+    </div>
+    <div class="issue-card">
+      <div class="issue-title">动作与镜头互相打架</div>
+      <p class="issue-fix">拆开写“参考动作”和“参考运镜”，优先只保留一段最关键的视频参考。</p>
+    </div>
+    <div class="issue-card">
+      <div class="issue-title">提示词很长但不执行</div>
+      <p class="issue-fix">删掉同义形容词，保留素材分工、时间轴、动作、镜头和风格五类信息，并按优先级排列。</p>
+    </div>
+    <div class="issue-card">
+      <div class="issue-title">上传后无法生成</div>
+      <p class="issue-fix">先检查格式、大小、总文件数与写实人脸限制；再减少素材逐一排查，不要只反复提交同一组输入。</p>
+    </div>
+  </div>
+
+  <div class="callout info">
+    <p>使用参考视频会增加处理成本，平台高峰期也可能排队。先用短时长验证方案，确认方向后再做 12–15 秒完整版，通常比直接重复生成更省资源。</p>
+  </div>
+
+  <p class="section-label" id="s7">07 · 出片检查单</p>
+  <h2 class="section-heading">点击生成前，花 30 秒检查这六件事</h2>
+
+  <div class="checklist">
+    <div class="check-row"><span class="check-mark">✓</span><span>素材格式、大小、数量和总时长都在官方限制内。</span></div>
+    <div class="check-row"><span class="check-mark">✓</span><span>每个 <code>@图片 / @视频 / @音频</code> 都写清了具体职责。</span></div>
+    <div class="check-row"><span class="check-mark">✓</span><span>关键动作有时间顺序，长镜头已经拆成 2–4 个阶段。</span></div>
+    <div class="check-row"><span class="check-mark">✓</span><span>主体身份、动作参考和运镜参考之间没有相互冲突。</span></div>
+    <div class="check-row"><span class="check-mark">✓</span><span>画幅、景别、机位、光线、风格和声音目标至少写清了关键项。</span></div>
+    <div class="check-row"><span class="check-mark">✓</span><span>素材不包含平台当前限制的清晰写实真人脸部，并符合内容规范。</span></div>
+  </div>
+
+  <div class="source-panel">
+    <div class="source-title">官方资料与体验入口</div>
+    <ul class="source-list">
+      <li>参数、入口和合规限制：<a href="https://bytedance.larkoffice.com/wiki/Rx8pwmbXjirkvukCnCQcAtH1nSd" target="_blank" rel="noopener">字节跳动《即梦 Seedance 2.0 使用手册》</a></li>
+      <li>产品体验：<a href="https://jimeng.jianying.com/" target="_blank" rel="noopener">即梦官方网站</a></li>
+      <li>资料核对日期：2026-08-21。产品参数和入口可能继续更新，实际使用前建议再次查看官方手册。</li>
+    </ul>
+  </div>
+
+  <div class="tag-row">
+    <a class="tag" href="#">Seedance 2.0</a>
+    <a class="tag" href="#">即梦</a>
+    <a class="tag" href="#">视频生成</a>
+    <a class="tag" href="#">多模态</a>
+    <a class="tag" href="#">提示词</a>
+    <a class="tag" href="#">模型使用教程</a>
+  </div>
+
+</article>
+
+<aside class="sidebar">
+  <p class="toc-label">目录</p>
+  <ul class="toc-list">
+    <li><a href="#s1" class="toc-link">先选入口</a></li>
+    <li><a href="#s2" class="toc-link">素材与参数</a></li>
+    <li><a href="#s3" class="toc-link">完整操作流程</a></li>
+    <li><a href="#s4" class="toc-link">提示词写法</a></li>
+    <li><a href="#s5" class="toc-link">四种工作流</a></li>
+    <li><a href="#s6" class="toc-link">稳定出片方法</a></li>
+    <li><a href="#s7" class="toc-link">生成前检查单</a></li>
+  </ul>
+</aside>
+</div>
+
+<footer class="site-footer">
+  <a href="../../index.html" style="color:inherit;text-decoration:none;">← 返回首页</a>
+  <span>聚合叉的博客</span>
+</footer>
+
+</body>
+</html>

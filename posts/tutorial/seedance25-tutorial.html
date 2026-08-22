@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Seedance 2.5 使用教程</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg:#F7F5F0; --bg-card:#FFFFFF; --bg-code:#F0EDE8;
+    --text-primary:#1A1814; --text-secondary:#5C5850; --text-tertiary:#9A948A;
+    --accent:#C4622A; --accent-light:#FAE8DC; --accent-mid:#E8855A;
+    --info:#185FA5; --info-light:#E6F1FB; --success:#0F6E56; --success-light:#E1F5EE;
+    --danger:#993C1D; --danger-light:#FAECE7;
+    --border:rgba(60,50,40,.1); --border-strong:rgba(60,50,40,.2);
+    --serif:'Noto Serif SC',Georgia,serif; --sans:'Noto Sans SC',system-ui,sans-serif; --mono:'JetBrains Mono',monospace;
+  }
+  html { scroll-behavior:smooth; }
+  body { background:var(--bg); color:var(--text-primary); font-family:var(--sans); font-weight:300; line-height:1.85; min-height:100vh; }
+
+  .site-header { border-bottom:.5px solid var(--border); padding:18px 0; position:sticky; top:0; background:rgba(247,245,240,.9); backdrop-filter:blur(12px); z-index:100; }
+  .header-inner { max-width:1020px; margin:0 auto; padding:0 32px; display:flex; align-items:center; justify-content:space-between; }
+  .site-name { font-family:var(--serif); font-size:15px; font-weight:600; color:var(--text-primary); text-decoration:none; }
+  .header-tag { font-size:11px; color:var(--text-tertiary); letter-spacing:.14em; text-transform:uppercase; }
+
+  .hero { max-width:1020px; margin:0 auto; padding:72px 32px 48px; border-bottom:.5px solid var(--border); animation:fadeUp .6s ease both; }
+  .kicker { font-size:11px; letter-spacing:.2em; color:var(--accent); font-weight:500; margin-bottom:20px; display:flex; align-items:center; gap:10px; }
+  .kicker::after { content:''; width:40px; height:1px; background:var(--accent-mid); opacity:.5; }
+  .headline { font-family:var(--serif); font-size:42px; font-weight:700; line-height:1.28; letter-spacing:-.01em; margin-bottom:20px; }
+  .headline em { color:var(--accent); font-style:normal; }
+  .deck { max-width:700px; font-size:16px; color:var(--text-secondary); line-height:1.8; margin-bottom:30px; }
+  .meta-row { display:flex; align-items:center; flex-wrap:wrap; gap:8px 20px; font-size:12px; color:var(--text-tertiary); }
+
+  .content-wrap { max-width:1020px; margin:0 auto; padding:0 32px; display:grid; grid-template-columns:minmax(0,1fr) 220px; gap:0 48px; align-items:start; }
+  .article-body { padding:48px 0 80px; min-width:0; animation:fadeUp .6s .1s ease both; }
+  .sidebar { padding:48px 0 80px; position:sticky; top:72px; animation:fadeUp .6s .15s ease both; }
+  .toc-label { font-size:10px; letter-spacing:.2em; color:var(--text-tertiary); font-weight:500; margin-bottom:14px; }
+  .toc-list { list-style:none; border-left:1px solid var(--border-strong); padding-left:14px; }
+  .toc-list li { margin-bottom:8px; }
+  .toc-list a { display:block; font-size:12px; line-height:1.55; color:var(--text-tertiary); text-decoration:none; transition:color .2s; }
+  .toc-list a:hover,.toc-list a.active { color:var(--accent); }
+  .toc-list a.active { font-weight:500; }
+
+  .section-label { font-size:10px; letter-spacing:.22em; color:var(--text-tertiary); font-weight:500; margin:52px 0 10px; }
+  .section-label:first-child { margin-top:0; }
+  .section-heading { font-family:var(--serif); font-size:24px; font-weight:600; line-height:1.45; margin-bottom:18px; }
+  .subheading { font-family:var(--serif); font-size:18px; font-weight:600; line-height:1.5; margin:32px 0 12px; }
+  .body-text { font-size:15px; line-height:1.95; margin-bottom:18px; }
+  .body-text strong { font-weight:500; }
+  .source-inline { color:var(--info); text-decoration:none; border-bottom:1px solid rgba(24,95,165,.25); }
+  .source-inline:hover { border-bottom-color:var(--info); }
+
+  .callout { border-left:2px solid var(--accent); padding:16px 20px; background:var(--accent-light); border-radius:0 8px 8px 0; margin:26px 0; }
+  .callout p { margin:0; color:var(--danger); font-size:14px; line-height:1.8; font-weight:400; }
+  .callout.info { border-color:var(--info); background:var(--info-light); }
+  .callout.info p { color:var(--info); }
+  .callout.success { border-color:var(--success); background:var(--success-light); }
+  .callout.success p { color:var(--success); }
+
+  .upgrade-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; margin:24px 0 28px; }
+  .upgrade-card { background:var(--bg-card); border:.5px solid var(--border-strong); border-radius:10px; padding:18px; position:relative; overflow:hidden; }
+  .upgrade-card::before { content:''; position:absolute; left:0; right:0; top:0; height:3px; background:var(--accent); }
+  .upgrade-card:nth-child(2)::before { background:var(--info); }
+  .upgrade-card:nth-child(3)::before { background:var(--success); }
+  .upgrade-num { font-family:var(--serif); font-size:30px; font-weight:700; line-height:1; color:var(--accent); margin-bottom:9px; }
+  .upgrade-card:nth-child(2) .upgrade-num { color:var(--info); }
+  .upgrade-card:nth-child(3) .upgrade-num { color:var(--success); }
+  .upgrade-title { font-size:13px; font-weight:500; margin-bottom:5px; }
+  .upgrade-desc { font-size:11.5px; color:var(--text-tertiary); line-height:1.65; }
+
+  .compare-panel { background:var(--bg-card); border:.5px solid var(--border-strong); border-radius:10px; overflow:hidden; margin:24px 0 28px; }
+  .compare-head { display:grid; grid-template-columns:150px 1fr 1fr; background:var(--bg-code); border-bottom:.5px solid var(--border); }
+  .compare-head span { padding:12px 16px; font-size:11px; font-weight:500; }
+  .compare-head span:nth-child(2) { color:var(--text-tertiary); }
+  .compare-head span:nth-child(3) { color:var(--accent); }
+  .compare-row { display:grid; grid-template-columns:150px 1fr 1fr; border-bottom:.5px solid var(--border); }
+  .compare-row:last-child { border-bottom:0; }
+  .compare-row > div { padding:13px 16px; font-size:12px; line-height:1.7; color:var(--text-secondary); }
+  .compare-row > div:first-child { color:var(--text-primary); font-weight:500; }
+  .compare-row > div:last-child { background:rgba(250,232,220,.3); color:var(--text-primary); }
+
+  .mode-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; margin:24px 0 28px; }
+  .mode-card { background:var(--bg-card); border:.5px solid var(--border); border-radius:10px; padding:18px; }
+  .mode-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:9px; }
+  .mode-icon { font-size:20px; line-height:1; }
+  .mode-tag { font-family:var(--mono); font-size:9px; letter-spacing:.08em; color:var(--text-tertiary); }
+  .mode-title { font-size:15px; font-weight:500; margin-bottom:6px; }
+  .mode-desc { font-size:12.5px; color:var(--text-secondary); line-height:1.75; }
+  .mode-use { margin-top:10px; padding-top:9px; border-top:.5px solid var(--border); font-size:11px; color:var(--accent); }
+
+  .material-bar { display:grid; grid-template-columns:3fr 1fr 1fr; height:48px; border-radius:8px; overflow:hidden; margin:20px 0 10px; color:white; }
+  .material-part { display:flex; align-items:center; justify-content:center; gap:6px; font-size:12px; font-weight:500; }
+  .material-part span { font-family:var(--mono); font-size:10px; opacity:.78; }
+  .material-part.image { background:var(--accent); }
+  .material-part.video { background:var(--info); }
+  .material-part.audio { background:var(--success); }
+  .material-caption { text-align:center; font-size:11px; color:var(--text-tertiary); margin-bottom:24px; }
+
+  .parameter-panel { background:var(--bg-card); border:.5px solid var(--border-strong); border-radius:10px; overflow:hidden; margin:20px 0 28px; }
+  .parameter-title { padding:13px 18px; background:var(--bg-code); border-bottom:.5px solid var(--border); font-size:12px; font-weight:500; }
+  .table-scroll { overflow-x:auto; }
+  .parameter-table { width:100%; border-collapse:collapse; min-width:610px; }
+  .parameter-table th,.parameter-table td { padding:13px 16px; border-bottom:.5px solid var(--border); text-align:left; vertical-align:top; font-size:12px; line-height:1.7; }
+  .parameter-table tr:last-child th,.parameter-table tr:last-child td { border-bottom:0; }
+  .parameter-table th { width:90px; white-space:nowrap; font-weight:500; }
+  .parameter-table td:nth-child(2) { width:130px; color:var(--accent); font-family:var(--mono); font-size:11px; }
+  .parameter-table td:last-child { color:var(--text-secondary); }
+
+  .step-list { margin:26px 0 30px; counter-reset:tutorial-step; }
+  .step-item { display:grid; grid-template-columns:38px 1fr; gap:14px; padding:0 0 22px; position:relative; counter-increment:tutorial-step; }
+  .step-item:not(:last-child)::after { content:''; position:absolute; left:18px; top:38px; bottom:0; width:1px; background:var(--border-strong); }
+  .step-num { width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center; background:var(--accent-light); border:1px solid rgba(196,98,42,.25); color:var(--accent); font-family:var(--mono); font-size:11px; font-weight:500; position:relative; z-index:1; }
+  .step-num::before { content:counter(tutorial-step,decimal-leading-zero); }
+  .step-title { font-size:15px; font-weight:500; margin:1px 0 5px; }
+  .step-desc { font-size:13.5px; color:var(--text-secondary); line-height:1.8; }
+
+  .prompt-formula { display:grid; grid-template-columns:repeat(4,1fr); gap:7px; margin:22px 0 16px; }
+  .formula-part { border:.5px solid var(--border-strong); background:var(--bg-card); border-radius:8px; padding:12px 8px; text-align:center; }
+  .formula-index { display:block; font-family:var(--mono); font-size:9px; color:var(--accent); margin-bottom:4px; }
+  .formula-name { display:block; font-size:11px; color:var(--text-secondary); }
+  .prompt-example { background:#201E1A; color:#D4D0C8; border-radius:10px; padding:20px; margin:16px 0 26px; font-family:var(--mono); font-size:12px; line-height:1.85; overflow-x:auto; }
+  .prompt-example .label { color:#F1A37E; }
+  .prompt-example .time { color:#85B8E8; font-weight:500; }
+  .prompt-example .at { color:#8FD1BA; font-weight:500; }
+  .prompt-example .global { color:#D7B8EA; }
+
+  .storyboard { display:grid; grid-template-columns:repeat(5,1fr); gap:6px; margin:22px 0 28px; }
+  .story-beat { min-height:96px; background:var(--bg-card); border:.5px solid var(--border); border-radius:8px; padding:11px; }
+  .beat-time { font-family:var(--mono); font-size:9px; color:var(--accent); margin-bottom:7px; }
+  .beat-title { font-size:12px; font-weight:500; margin-bottom:4px; }
+  .beat-copy { font-size:10.5px; color:var(--text-tertiary); line-height:1.55; }
+
+  .decision-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; margin:24px 0 28px; }
+  .decision-card { border:.5px solid var(--border-strong); border-radius:10px; padding:20px; background:var(--bg-card); }
+  .decision-card:first-child { border-top:3px solid var(--info); }
+  .decision-card:last-child { border-top:3px solid var(--accent); }
+  .decision-title { font-size:16px; font-weight:500; margin-bottom:8px; }
+  .decision-desc { font-size:12.5px; color:var(--text-secondary); line-height:1.75; }
+  .decision-rule { margin-top:12px; padding-top:10px; border-top:.5px solid var(--border); font-size:11px; color:var(--text-tertiary); }
+
+  .feature-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; margin:22px 0 28px; }
+  .feature-card { border:.5px solid var(--border); border-radius:9px; background:rgba(255,255,255,.55); padding:15px; }
+  .feature-icon { font-size:18px; line-height:1; margin-bottom:9px; }
+  .feature-title { font-size:12.5px; font-weight:500; margin-bottom:5px; }
+  .feature-desc { font-size:11px; line-height:1.65; color:var(--text-tertiary); }
+
+  .practice-list { margin:22px 0 28px; }
+  .practice-row { display:grid; grid-template-columns:110px 1fr; gap:14px; padding:14px 0; border-bottom:.5px solid var(--border); }
+  .practice-row:last-child { border-bottom:0; }
+  .practice-problem { font-size:12px; font-weight:500; color:var(--danger); }
+  .practice-fix { font-size:12.5px; line-height:1.75; color:var(--text-secondary); }
+
+  .checklist { background:var(--bg-card); border:.5px solid var(--border-strong); border-radius:10px; padding:8px 20px; margin:24px 0 30px; }
+  .check-row { display:grid; grid-template-columns:22px 1fr; gap:10px; padding:12px 0; border-bottom:.5px solid var(--border); font-size:13px; color:var(--text-secondary); line-height:1.7; }
+  .check-row:last-child { border-bottom:0; }
+  .check-mark { color:var(--success); font-weight:500; }
+
+  .source-panel { background:var(--info-light); border:.5px solid rgba(24,95,165,.18); border-radius:10px; padding:18px 20px; margin:28px 0; }
+  .source-title { font-size:12px; color:var(--info); font-weight:500; margin-bottom:10px; letter-spacing:.05em; }
+  .source-list { list-style:none; }
+  .source-list li { margin:7px 0; font-size:12.5px; line-height:1.7; color:var(--text-secondary); }
+  .source-list a { color:var(--info); text-decoration:none; border-bottom:1px solid rgba(24,95,165,.25); }
+  .source-list a:hover { border-bottom-color:var(--info); }
+
+  .tag-row { display:flex; flex-wrap:wrap; gap:8px; margin-top:44px; padding-top:24px; border-top:.5px solid var(--border); }
+  .tag { font-size:11px; padding:4px 12px; border-radius:20px; border:.5px solid var(--border-strong); color:var(--text-secondary); text-decoration:none; }
+  .site-footer { max-width:1020px; margin:0 auto; padding:28px 32px; border-top:.5px solid var(--border); display:flex; justify-content:space-between; color:var(--text-tertiary); font-size:12px; }
+
+  @keyframes fadeUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+  @media (max-width:760px) {
+    .content-wrap { grid-template-columns:1fr; padding:0 20px; }
+    .sidebar { display:none; }
+    .hero { padding:40px 20px 32px; }
+    .header-inner { padding:0 20px; }
+    .headline { font-size:29px; }
+    .upgrade-grid,.feature-grid { grid-template-columns:1fr; }
+    .mode-grid,.decision-grid { grid-template-columns:1fr; }
+    .compare-head,.compare-row { grid-template-columns:100px 1fr 1fr; min-width:600px; }
+    .compare-panel { overflow-x:auto; }
+    .prompt-formula { grid-template-columns:repeat(2,1fr); }
+    .storyboard { grid-template-columns:1fr; }
+    .story-beat { min-height:0; }
+    .practice-row { grid-template-columns:1fr; gap:5px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <a class="site-name" href="../../index.html">聚合叉的博客</a>
+    <span class="header-tag">模型使用教程 · 02</span>
+  </div>
+</header>
+
+<section class="hero">
+  <p class="kicker">图片 / 视频模型使用教程</p>
+  <h1 class="headline">Seedance 2.5 使用教程<br><em>从 30 秒叙事到 180 秒长视频</em></h1>
+  <p class="deck">2.5 不只是“生成更久”：它把多模态参考、时间戳控制、智能编辑和超长视频放进同一套工作流。本文帮你选对模式、组织素材，并写出真正适合长叙事的提示词。</p>
+  <div class="meta-row">
+    <span>2026-08-21</span>
+    <span>教程系列 · 第二篇</span>
+    <span>阅读约 16 分钟</span>
+    <span>即梦 · 长视频 · 智能编辑</span>
+  </div>
+</section>
+
+<div class="content-wrap">
+<article class="article-body">
+
+  <p class="body-text">如果说 Seedance 2.0 解决的是“怎样同时参考图片、视频和音频”，那么 2.5 继续解决了两个更难的问题：<strong>怎样把故事讲得更长，以及怎样对生成结果做更精确的修改</strong>。</p>
+
+  <p class="body-text">根据当前<a class="source-inline" href="https://waytoagi.feishu.cn/wiki/PXmgwhty9i4LRak2yLIcidpZnle" target="_blank" rel="noopener">Seedance 2.5 使用手册</a>与<a class="source-inline" href="https://waytoagi.feishu.cn/wiki/NgylwyGvJij6udkITrwcrD83nDe" target="_blank" rel="noopener">全量上线说明</a>，2.5 的原生生成时长从 15 秒提高到 30 秒，并提供 30–180 秒超长视频模式；单次多模态参考上限扩大到 50 个素材。</p>
+
+  <p class="section-label" id="s1">01 · 版本变化</p>
+  <h2 class="section-heading">从 2.0 到 2.5，真正值得关注的是什么</h2>
+
+  <div class="upgrade-grid">
+    <div class="upgrade-card">
+      <div class="upgrade-num">30s</div>
+      <div class="upgrade-title">原生单段视频</div>
+      <p class="upgrade-desc">标准模式最长 30 秒，时间戳可以精确控制动作和转场。</p>
+    </div>
+    <div class="upgrade-card">
+      <div class="upgrade-num">180s</div>
+      <div class="upgrade-title">超长叙事模式</div>
+      <p class="upgrade-desc">一次生成 30–180 秒长视频，不必手动拼接多个短片。</p>
+    </div>
+    <div class="upgrade-card">
+      <div class="upgrade-num">50</div>
+      <div class="upgrade-title">多模态参考素材</div>
+      <p class="upgrade-desc">最多 30 张图片、10 条视频和 10 条音频。</p>
+    </div>
+  </div>
+
+  <div class="compare-panel">
+    <div class="compare-head"><span>核心维度</span><span>Seedance 2.0</span><span>Seedance 2.5</span></div>
+    <div class="compare-row"><div>标准生成</div><div>4–15 秒</div><div>4–30 秒</div></div>
+    <div class="compare-row"><div>超长视频</div><div>依靠分段延长</div><div>单次 30–180 秒</div></div>
+    <div class="compare-row"><div>参考上限</div><div>混合输入最多 12 个</div><div>多模态最多 50 个</div></div>
+    <div class="compare-row"><div>控制方式</div><div>素材分工 + 时间段</div><div>精确时间戳 + 多帧编辑</div></div>
+    <div class="compare-row"><div>编辑能力</div><div>延长、替换、增删</div><div>智能编辑、圈选、视角修改、BGM 分离</div></div>
+  </div>
+
+  <div class="callout info">
+    <p>“上限提高”不等于“每次都应该用满”。50 个参考素材是复杂项目的容量，不是普通任务的推荐数量。多数短片从 3–6 个职责明确的素材开始，反而更稳。</p>
+  </div>
+
+  <p class="section-label" id="s2">02 · 模式选择</p>
+  <h2 class="section-heading">四种入口，分别解决四类任务</h2>
+
+  <div class="mode-grid">
+    <div class="mode-card">
+      <div class="mode-top"><span class="mode-icon">🖼️</span><span class="mode-tag">START / END FRAME</span></div>
+      <div class="mode-title">首尾帧</div>
+      <p class="mode-desc">用首帧或首尾帧控制视频的起点与终点。目标明确、素材简单时最直接。</p>
+      <div class="mode-use">适合：图生视频、产品镜头、定向转场</div>
+    </div>
+    <div class="mode-card">
+      <div class="mode-top"><span class="mode-icon">🎛️</span><span class="mode-tag">MULTIMODAL</span></div>
+      <div class="mode-title">全能参考</div>
+      <p class="mode-desc">通过 @图片、@视频、@音频 给角色、场景、动作、运镜和声音分配职责。</p>
+      <div class="mode-use">适合：多角色、动作复刻、音色与风格参考</div>
+    </div>
+    <div class="mode-card">
+      <div class="mode-top"><span class="mode-icon">✂️</span><span class="mode-tag">SMART EDIT</span></div>
+      <div class="mode-title">智能编辑</div>
+      <p class="mode-desc">针对已有视频进行局部消除、角色/物体替换、视角修改、BGM 分离或创意迁移。</p>
+      <div class="mode-use">适合：修片、换背景、去物体、后期调整</div>
+    </div>
+    <div class="mode-card">
+      <div class="mode-top"><span class="mode-icon">🎬</span><span class="mode-tag">30–180 SECONDS</span></div>
+      <div class="mode-title">超长视频</div>
+      <p class="mode-desc">从脚本出发，一次生成 30–180 秒视频。需要按场景和故事节拍组织提示词。</p>
+      <div class="mode-use">适合：短剧、广告故事、MV、知识内容</div>
+    </div>
+  </div>
+
+  <p class="body-text">此外还有“视频延长”：它不是从零创作，而是承接一条已经满意的视频继续拍。当前手册提示，只有<strong>时长在 30 秒以内的原视频</strong>可以进入延长流程。</p>
+
+  <p class="section-label" id="s3">03 · 参数与素材</p>
+  <h2 class="section-heading">容量扩大以后，更要给素材建立秩序</h2>
+
+  <div class="material-bar">
+    <div class="material-part image">图片 <span>30</span></div>
+    <div class="material-part video">视频 <span>10</span></div>
+    <div class="material-part audio">音频 <span>10</span></div>
+  </div>
+  <p class="material-caption">单次最多 50 个多模态参考素材</p>
+
+  <div class="parameter-panel">
+    <div class="parameter-title">Seedance 2.5 关键规格速查</div>
+    <div class="table-scroll">
+      <table class="parameter-table">
+        <tbody>
+          <tr><th>图片</th><td>最多 30 张</td><td>支持 jpeg / png / webp / bmp / tiff / gif / heic / heif；单张小于 30 MB，宽高比约 0.4–2.5。</td></tr>
+          <tr><th>视频</th><td>最多 10 条</td><td>mp4 / mov；单条约 2–30 秒，支持 480p–4K、24–60 FPS；多条总时长以页面实时校验为准。</td></tr>
+          <tr><th>音频</th><td>最多 10 条</td><td>可以承担音色、配乐、节奏或声音事件参考；2.5 新增纯音频驱动场景。</td></tr>
+          <tr><th>标准输出</th><td>4–30 秒</td><td>当前资料列出的常规输出分辨率为 480p、720p。</td></tr>
+          <tr><th>超长输出</th><td>30–180 秒</td><td>在“超长视频”模式中设置，不需要先生成短片再手动拼接。</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <p class="body-text">建议给素材先做一张“职责表”：角色设定图只负责身份，分镜图负责构图，动作视频负责运动，音频负责节奏。不要让同一个参考素材同时控制角色、风格、动作和镜头。</p>
+
+  <div class="callout">
+    <p>参考素材越多，发生冲突的机会越大。先确定一份“主锚点”，再添加辅助参考；若结果漂移，第一步应当删素材，而不是继续增加提示词。</p>
+  </div>
+
+  <p class="section-label" id="s4">04 · 完整流程</p>
+  <h2 class="section-heading">第一次使用，按这六步完成</h2>
+
+  <div class="step-list">
+    <div class="step-item"><div class="step-num"></div><div><div class="step-title">进入即梦并选择模型</div><p class="step-desc">打开<a class="source-inline" href="https://jimeng.jianying.com/" target="_blank" rel="noopener">即梦官方网站</a>，进入“视频生成”，在模型中选择 Seedance 2.5。</p></div></div>
+    <div class="step-item"><div class="step-num"></div><div><div class="step-title">根据任务选择模式</div><p class="step-desc">短片生成选首尾帧或全能参考；修改成片选智能编辑；30 秒以上的新故事选超长视频。</p></div></div>
+    <div class="step-item"><div class="step-num"></div><div><div class="step-title">上传最小必要素材</div><p class="step-desc">先放角色和场景锚点，再加动作、运镜和声音参考。每份素材都应当有唯一、可描述的职责。</p></div></div>
+    <div class="step-item"><div class="step-num"></div><div><div class="step-title">写一句话概述</div><p class="step-desc">先用“主体 + 地点 + 事件 + 风格 + 特殊运镜”讲清全片，再展开时间轴，避免一开始就堆细节。</p></div></div>
+    <div class="step-item"><div class="step-num"></div><div><div class="step-title">填写时间轴与全局约束</div><p class="step-desc">每个时间段写画面、动作、镜头、台词和音效；结尾再次强调角色一致性、机位、光影、字幕与 BGM 要求。</p></div></div>
+    <div class="step-item"><div class="step-num"></div><div><div class="step-title">设置画幅、分辨率和时长</div><p class="step-desc">短片先用 6–10 秒验证，长片先做分镜和故事节拍，再选择 30–180 秒。生成后按问题类型做局部迭代。</p></div></div>
+  </div>
+
+  <p class="section-label" id="s5">05 · 提示词</p>
+  <h2 class="section-heading">2.5 的提示词，是一份简化的拍摄执行单</h2>
+
+  <p class="body-text">使用手册给出的基础结构可以浓缩成四段：<strong>素材描述 + 一句话概述 + 具体情节 + 全局补充</strong>。其中，30 秒以上内容最重要的是“具体情节”——必须把故事拆成可执行的时间段。</p>
+
+  <div class="prompt-formula">
+    <div class="formula-part"><span class="formula-index">01</span><span class="formula-name">素材描述</span></div>
+    <div class="formula-part"><span class="formula-index">02</span><span class="formula-name">一句话概述</span></div>
+    <div class="formula-part"><span class="formula-index">03</span><span class="formula-name">分段情节</span></div>
+    <div class="formula-part"><span class="formula-index">04</span><span class="formula-name">全局补充</span></div>
+  </div>
+
+  <div class="prompt-example">
+<span class="label">【素材描述】</span><br>
+<span class="at">@图片1</span> 是主角身份锚点，保持其短发、深蓝夹克和银色耳机；<span class="at">@图片2</span> 参考城市天台场景；<span class="at">@视频1</span> 只参考环绕运镜；<span class="at">@音频1</span> 负责节奏与氛围。<br><br>
+<span class="label">【一句话概述】</span><br>
+未来都市悬疑短片：主角在暴雨后的天台发现异常信号，镜头由远景推进到环绕近景，冷色电影质感。<br><br>
+<span class="label">【具体情节】</span><br>
+<span class="time">0–5 秒：</span>远景建立城市天际线，主角背对镜头站在天台边缘。<br>
+<span class="time">5–12 秒：</span>镜头缓慢推进，耳机指示灯闪烁，主角转身寻找信号来源。<br>
+<span class="time">12–22 秒：</span>参考 <span class="at">@视频1</span> 环绕主角，远处广告牌依次熄灭，音乐逐渐增强。<br>
+<span class="time">22–28 秒：</span>主角抬头，云层中出现巨大光环，切到惊讶表情特写。<br>
+<span class="time">28–30 秒：</span>画面在鼓点处快速切黑，只保留风声。<br><br>
+<span class="global">【全局补充】</span><br>
+全程保持主角外观一致；冷蓝色雨夜、地面反光、真实电影光影；不要字幕，不要额外 BGM，使用 <span class="at">@音频1</span>。
+  </div>
+
+  <p class="body-text">2.5 对负向要求有所优化。与其把“不要字幕、不要 BGM”散落在每个时间段，建议在对应镜头写一次，并在<strong>全局补充</strong>中再次强调。对重要的声音或字幕要求，最好同时给出正向替代，例如“只保留环境风声”。</p>
+
+  <h3 class="subheading">30 秒故事的通用五段式</h3>
+  <div class="storyboard">
+    <div class="story-beat"><div class="beat-time">0–5s</div><div class="beat-title">建立</div><p class="beat-copy">交代人物、地点与目标。</p></div>
+    <div class="story-beat"><div class="beat-time">5–12s</div><div class="beat-title">触发</div><p class="beat-copy">出现事件，角色开始行动。</p></div>
+    <div class="story-beat"><div class="beat-time">12–22s</div><div class="beat-title">发展</div><p class="beat-copy">推进动作，扩大冲突或信息。</p></div>
+    <div class="story-beat"><div class="beat-time">22–28s</div><div class="beat-title">高潮</div><p class="beat-copy">完成最关键的动作或反转。</p></div>
+    <div class="story-beat"><div class="beat-time">28–30s</div><div class="beat-title">收束</div><p class="beat-copy">用动作、声音或转场结束。</p></div>
+  </div>
+
+  <p class="section-label" id="s6">06 · 长视频</p>
+  <h2 class="section-heading">视频延长与超长视频，应该怎么选</h2>
+
+  <div class="decision-grid">
+    <div class="decision-card">
+      <div class="decision-title">视频延长：接着拍</div>
+      <p class="decision-desc">已经有一段满意成片，希望从最后一帧继续动作、剧情和镜头。提示词重点写“承接什么”和“接下来发生什么”。</p>
+      <div class="decision-rule">选择它：原视频 ≤ 30 秒，且必须保留现有结果</div>
+    </div>
+    <div class="decision-card">
+      <div class="decision-title">超长视频：从头拍</div>
+      <p class="decision-desc">手里有完整脚本，希望一次生成 30–180 秒长片。提示词要按场景与故事节拍组织，而不是逐秒堆动作。</p>
+      <div class="decision-rule">选择它：新项目，目标时长 30–180 秒</div>
+    </div>
+  </div>
+
+  <div class="callout success">
+    <p>长视频的关键不是写更多，而是建立层级：先写全片主题，再按场景写目标，然后给场景内安排镜头。每个场景保留同一组角色、服装、场景和光影锚点，连续性会更好。</p>
+  </div>
+
+  <p class="body-text">使用超长视频时，在模式菜单选择“超长视频”，再通过时钟图标设置 30–180 秒时长。建议先把脚本拆成 10–30 秒一个场景，每个场景只完成一个叙事目标；场景之间用明确的地点变化、动作承接或声音过渡连接。</p>
+
+  <p class="section-label" id="s7">07 · 智能编辑</p>
+  <h2 class="section-heading">2.5 不只负责生成，也开始接管后期修改</h2>
+
+  <div class="feature-grid">
+    <div class="feature-card"><div class="feature-icon">✂️</div><div class="feature-title">局部消除与替换</div><p class="feature-desc">移除画面中的对象，替换人物、服装或道具，并补全背景。</p></div>
+    <div class="feature-card"><div class="feature-icon">🎥</div><div class="feature-title">空间视角修改</div><p class="feature-desc">改变观察角度和机位，让原片拥有新的空间呈现。</p></div>
+    <div class="feature-card"><div class="feature-icon">🎵</div><div class="feature-title">BGM 分离 / 移除</div><p class="feature-desc">获得更干净的基础素材，方便重新配乐和声音设计。</p></div>
+    <div class="feature-card"><div class="feature-icon">🟩</div><div class="feature-title">绿幕编辑</div><p class="feature-desc">生成适合后期抠像、换背景与特效合成的素材。</p></div>
+    <div class="feature-card"><div class="feature-icon">📐</div><div class="feature-title">白模与多宫格分镜</div><p class="feature-desc">用简洁预演约束站位、轨迹、构图、景别和运镜。</p></div>
+    <div class="feature-card"><div class="feature-icon">🔗</div><div class="feature-title">视频无缝转场</div><p class="feature-desc">输入前后两段视频，让模型补全中间过程与过渡方式。</p></div>
+  </div>
+
+  <p class="body-text">编辑任务最好一次只下达一个核心修改，例如“移除桌面上的杯子并自然补全木纹”。需要同时改角色、镜头、背景和声音时，先分成多轮执行，避免模型无法判断修改优先级。</p>
+
+  <p class="section-label" id="s8">08 · 稳定出片</p>
+  <h2 class="section-heading">素材更多、视频更长以后，怎样避免失控</h2>
+
+  <div class="practice-list">
+    <div class="practice-row"><div class="practice-problem">角色逐渐漂移</div><div class="practice-fix">为每个角色保留一张主设图，并在每个场景重复角色名、服装、发型和识别特征；多人场景给角色编号，避免只写“两个女生”。</div></div>
+    <div class="practice-row"><div class="practice-problem">时间戳不执行</div><div class="practice-fix">减少同一时间段内的动作数量，给每段只安排一个主要事件；把精确时刻写在句首，并避免时间段互相重叠。</div></div>
+    <div class="practice-row"><div class="practice-problem">参考素材打架</div><div class="practice-fix">回到最小组合：1 个身份锚点 + 1 个动作参考 + 1 个声音参考。确认稳定后逐个添加，而不是一次塞满 50 个素材。</div></div>
+    <div class="practice-row"><div class="practice-problem">长片节奏松散</div><div class="practice-fix">先写五段式或场景表，每 10–30 秒设置一个叙事目标，并给场景结束安排一个动作、声音或视觉钩子。</div></div>
+    <div class="practice-row"><div class="practice-problem">出现字幕或多余 BGM</div><div class="practice-fix">在具体镜头和全局补充中同时写明“不要字幕 / 不要额外 BGM”，再给出正向声音方案，例如“只保留环境音”。</div></div>
+  </div>
+
+  <p class="section-label" id="s9">09 · 生成前检查</p>
+  <h2 class="section-heading">点击生成前，最后核对这七项</h2>
+
+  <div class="checklist">
+    <div class="check-row"><span class="check-mark">✓</span><span>已经根据任务选对首尾帧、全能参考、智能编辑或超长视频。</span></div>
+    <div class="check-row"><span class="check-mark">✓</span><span>每个 @图片、@视频、@音频都有唯一且明确的职责。</span></div>
+    <div class="check-row"><span class="check-mark">✓</span><span>一句话概述能说清主体、地点、事件、风格和主要镜头。</span></div>
+    <div class="check-row"><span class="check-mark">✓</span><span>30 秒短片有 3–5 个时间段；超长视频已经按场景拆分。</span></div>
+    <div class="check-row"><span class="check-mark">✓</span><span>角色身份、服装、场景、光影和声音等全局锚点写在提示词结尾。</span></div>
+    <div class="check-row"><span class="check-mark">✓</span><span>不需要的字幕、BGM 或元素已经明确写出，并提供了正向替代方案。</span></div>
+    <div class="check-row"><span class="check-mark">✓</span><span>素材格式、时长、数量与分辨率符合当前页面的实时校验。</span></div>
+  </div>
+
+  <div class="source-panel">
+    <div class="source-title">本文参考资料</div>
+    <ul class="source-list">
+      <li>参数、模式与提示词结构：<a href="https://waytoagi.feishu.cn/wiki/PXmgwhty9i4LRak2yLIcidpZnle" target="_blank" rel="noopener">《Seedance 2.5 使用手册》</a></li>
+      <li>全量上线能力摘要：<a href="https://waytoagi.feishu.cn/wiki/NgylwyGvJij6udkITrwcrD83nDe" target="_blank" rel="noopener">《即梦 Seedance 2.5 视频模型全量上线》</a></li>
+      <li>产品体验：<a href="https://jimeng.jianying.com/" target="_blank" rel="noopener">即梦官方网站</a></li>
+      <li>资料核对日期：2026-08-21。产品能力与输入限制可能继续更新，使用前请以即梦页面和最新手册为准。</li>
+    </ul>
+  </div>
+
+  <div class="tag-row">
+    <a class="tag" href="#">Seedance 2.5</a><a class="tag" href="#">即梦</a><a class="tag" href="#">长视频</a><a class="tag" href="#">多模态</a><a class="tag" href="#">智能编辑</a><a class="tag" href="#">提示词</a><a class="tag" href="#">模型使用教程</a>
+  </div>
+
+</article>
+
+<aside class="sidebar">
+  <p class="toc-label">目录</p>
+  <ul class="toc-list">
+    <li><a href="#s1" class="toc-link">2.5 核心变化</a></li>
+    <li><a href="#s2" class="toc-link">四种模式怎么选</a></li>
+    <li><a href="#s3" class="toc-link">参数与素材</a></li>
+    <li><a href="#s4" class="toc-link">完整操作流程</a></li>
+    <li><a href="#s5" class="toc-link">提示词写法</a></li>
+    <li><a href="#s6" class="toc-link">长视频工作流</a></li>
+    <li><a href="#s7" class="toc-link">智能编辑</a></li>
+    <li><a href="#s8" class="toc-link">稳定出片</a></li>
+    <li><a href="#s9" class="toc-link">生成前检查</a></li>
+  </ul>
+</aside>
+</div>
+
+<footer class="site-footer">
+  <a href="../../index.html" style="color:inherit;text-decoration:none;">← 返回首页</a>
+  <span>聚合叉的博客</span>
+</footer>
+
+</body>
+</html>
