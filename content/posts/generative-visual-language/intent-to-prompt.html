@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>从视觉意图到提示词：生成影像的描述语法</title>
+  <style>
+    .prompt-hero,
+    .article-body {
+      --vp-ink: #211d1a;
+      --vp-muted: #675f58;
+      --vp-faint: #958b82;
+      --vp-line: rgba(74, 58, 46, .14);
+      --vp-paper: rgba(255, 253, 248, .92);
+      --vp-orange: #d36b35;
+      --vp-orange-deep: #a84c24;
+      --vp-orange-soft: rgba(250, 233, 222, .62);
+      --vp-blue: #456d98;
+      --vp-blue-soft: rgba(228, 237, 247, .66);
+      --vp-green: #517766;
+      --vp-green-soft: rgba(226, 238, 230, .62);
+      --vp-gold: #a97929;
+      --vp-gold-soft: rgba(250, 240, 214, .64);
+      --vp-red: #a7524a;
+      --vp-red-soft: rgba(244, 229, 226, .58);
+      --vp-serif: "Noto Serif SC", "Songti SC", serif;
+      --vp-mono: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+    }
+    .article-body { max-width: 760px; color: var(--vp-ink); }
+    .article-body p { margin: 0 0 20px; }
+    .article-body strong { color: #171411; font-weight: 650; }
+    .article-body a { color: var(--vp-orange-deep); text-decoration-thickness: 1px; text-underline-offset: 3px; }
+    .article-body a:hover { color: var(--vp-blue); }
+
+    .prompt-hero { max-width: 980px; margin: 0 auto; padding: 62px 28px 42px; color: var(--vp-ink); }
+    .prompt-kicker { color: var(--vp-orange); font: 600 10px/1.3 var(--vp-mono); letter-spacing: .19em; }
+    .prompt-headline { max-width: 850px; margin: 18px 0 17px; font-family: var(--vp-serif); font-size: 46px; line-height: 1.22; font-weight: 650; letter-spacing: -.025em; }
+    .prompt-deck { max-width: 760px; margin: 0; color: #6f665e; font-size: 16px; line-height: 1.85; }
+    .meta-row { display: flex; flex-wrap: wrap; gap: 8px 20px; margin-top: 24px; color: var(--vp-faint); font-size: 13px; }
+    .prompt-wrap { max-width: 980px; margin: 0 auto; padding: 0 28px 88px; }
+
+    .vp-section-label { margin: 60px 0 9px; color: var(--vp-faint); font: 500 10px/1.2 var(--vp-mono); letter-spacing: .2em; text-transform: uppercase; }
+    .vp-section-heading { margin: 0 0 22px; font-family: var(--vp-serif); font-size: 26px; line-height: 1.43; font-weight: 650; letter-spacing: -.01em; }
+    .vp-subheading { margin: 35px 0 12px; font-family: var(--vp-serif); font-size: 20px; line-height: 1.5; font-weight: 650; }
+    .vp-lead-block { margin: 2px 0 34px; padding: 22px 25px 23px; border: 1px solid rgba(211, 107, 53, .18); border-left: 3px solid var(--vp-orange); border-radius: 0 11px 11px 0; background: linear-gradient(110deg, rgba(250, 233, 222, .76), rgba(255, 253, 248, .34)); }
+    .vp-lead-label { display: block; margin-bottom: 10px; color: var(--vp-orange); font: 600 10px/1.3 var(--vp-mono); letter-spacing: .15em; text-transform: uppercase; }
+    .vp-lead { margin: 0 !important; color: #332d28; font-family: var(--vp-serif); font-size: 17.5px; line-height: 1.88; }
+    .vp-thesis { margin: 32px 0; padding: 24px 27px; border-left: 3px solid var(--vp-blue); background: linear-gradient(100deg, rgba(228, 237, 247, .82), rgba(255, 253, 248, .22)); font-family: var(--vp-serif); font-size: 20px; line-height: 1.75; font-weight: 600; }
+    .vp-note { margin: 27px 0; padding: 20px 22px; border: 1px solid var(--vp-line); border-radius: 11px; background: var(--vp-paper); }
+    .vp-note-title { display: block; margin-bottom: 8px; color: var(--vp-orange); font: 600 10px/1.4 var(--vp-mono); letter-spacing: .13em; text-transform: uppercase; }
+    .vp-note p:last-child { margin-bottom: 0; }
+    .vp-note.blue { border-color: rgba(69, 109, 152, .22); background: var(--vp-blue-soft); }
+    .vp-note.blue .vp-note-title { color: var(--vp-blue); }
+    .vp-note.warning { border-color: rgba(169, 121, 41, .23); background: var(--vp-gold-soft); }
+    .vp-note.warning .vp-note-title { color: var(--vp-gold); }
+
+    .translation-map { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 29px 0 38px; }
+    .translation-layer { position: relative; min-height: 215px; padding: 20px; border: 1px solid var(--vp-line); border-radius: 11px; background: var(--vp-paper); }
+    .translation-layer:not(:last-child)::after { content: '→'; position: absolute; z-index: 2; right: -12px; top: 48%; width: 22px; color: var(--vp-orange); background: #faf7f1; font: 650 15px/22px var(--vp-mono); text-align: center; }
+    .translation-layer small { color: var(--vp-faint); font: 650 9px/1 var(--vp-mono); letter-spacing: .12em; }
+    .translation-layer h3 { margin: 12px 0 9px; font-size: 16px; }
+    .translation-layer p { margin: 0 0 11px; color: var(--vp-muted); font-size: 13px; line-height: 1.72; }
+    .translation-layer ul { margin: 0; padding-left: 17px; color: var(--vp-muted); font-size: 12px; line-height: 1.75; }
+    .translation-layer:nth-child(1) { border-top: 3px solid var(--vp-orange); }
+    .translation-layer:nth-child(2) { border-top: 3px solid var(--vp-blue); }
+    .translation-layer:nth-child(3) { border-top: 3px solid var(--vp-green); }
+
+    .prompt-equation { margin: 29px 0 38px; padding: 25px; border: 1px solid rgba(69,109,152,.21); border-radius: 12px; background: var(--vp-blue-soft); }
+    .prompt-equation-main { color: #365d83; font: 650 17px/1.85 var(--vp-mono); text-align: center; }
+    .prompt-equation-note { margin: 15px 0 0 !important; padding-top: 14px; border-top: 1px solid rgba(69,109,152,.16); color: var(--vp-muted); font-size: 12.5px; line-height: 1.72; text-align: center; }
+
+    .dimension-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 28px 0 38px; }
+    .dimension-card { padding: 19px; border-left: 3px solid var(--vp-orange); border-radius: 0 10px 10px 0; background: var(--vp-orange-soft); }
+    .dimension-card:nth-child(3n+2) { border-left-color: var(--vp-blue); background: var(--vp-blue-soft); }
+    .dimension-card:nth-child(3n) { border-left-color: var(--vp-green); background: var(--vp-green-soft); }
+    .dimension-card small { color: var(--vp-faint); font: 650 9px/1 var(--vp-mono); letter-spacing: .1em; }
+    .dimension-card h3 { margin: 9px 0 6px; font-size: 15px; }
+    .dimension-card p { margin: 0; color: var(--vp-muted); font-size: 13px; line-height: 1.7; }
+
+    .vp-table-wrap { margin: 28px 0 38px; overflow-x: auto; border: 1px solid var(--vp-line); border-radius: 11px; }
+    .vp-table { width: 100%; min-width: 720px; border-collapse: collapse; background: var(--vp-paper); font-size: 13.5px; }
+    .vp-table th,.vp-table td { padding: 14px 15px; border-bottom: 1px solid var(--vp-line); text-align: left; vertical-align: top; line-height: 1.68; }
+    .vp-table tr:last-child td { border-bottom: 0; }
+    .vp-table th { color: var(--vp-muted); font-size: 11px; letter-spacing: .06em; background: rgba(211,107,53,.055); }
+    .vp-table td:first-child { color: var(--vp-orange-deep); font-family: var(--vp-mono); font-size: 11px; white-space: nowrap; }
+
+    .binding-demo { margin: 29px 0 38px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .binding-case { padding: 20px; border: 1px solid rgba(167,82,74,.19); border-radius: 11px; background: var(--vp-red-soft); }
+    .binding-case.good { border-color: rgba(81,119,102,.21); background: var(--vp-green-soft); }
+    .binding-case small { color: var(--vp-red); font: 650 9px/1 var(--vp-mono); letter-spacing: .11em; }
+    .binding-case.good small { color: var(--vp-green); }
+    .binding-case blockquote { margin: 13px 0 10px; color: #352f2a; font-family: var(--vp-serif); font-size: 15px; line-height: 1.72; }
+    .binding-case p { margin: 0; color: var(--vp-muted); font-size: 12.5px; line-height: 1.7; }
+
+    .model-spectrum { margin: 29px 0 38px; padding: 22px; border: 1px solid var(--vp-line); border-radius: 12px; background: var(--vp-paper); }
+    .spectrum-line { position: relative; height: 8px; margin: 33px 16px 15px; border-radius: 8px; background: linear-gradient(90deg,var(--vp-orange),var(--vp-blue),var(--vp-green)); }
+    .spectrum-line::before,.spectrum-line::after { position: absolute; top: -29px; color: var(--vp-muted); font: 600 10px/1 var(--vp-mono); }
+    .spectrum-line::before { content: 'EXPLORE'; left: -8px; }
+    .spectrum-line::after { content: 'CONTROL'; right: -8px; }
+    .spectrum-copy { display: grid; grid-template-columns: repeat(3,1fr); gap: 18px; color: var(--vp-muted); font-size: 12.5px; line-height: 1.68; }
+    .spectrum-copy strong { display: block; margin-bottom: 4px; }
+
+    .prompt-block { margin: 29px 0 38px; overflow: hidden; border: 1px solid rgba(69,109,152,.23); border-radius: 12px; background: #252c34; color: #e9edf0; }
+    .prompt-block-head { display: flex; justify-content: space-between; gap: 16px; padding: 12px 18px; border-bottom: 1px solid rgba(255,255,255,.09); color: #aab9c8; font: 600 10px/1.4 var(--vp-mono); letter-spacing: .09em; }
+    .prompt-lines { margin: 0; padding: 21px 22px 23px; white-space: pre-wrap; color: #e9edf0; font: 400 12.5px/1.85 var(--vp-mono); }
+    .prompt-key { color: #ed9b6d; }
+    .prompt-value { color: #d9e6ef; }
+    .prompt-limit { color: #a8c9b4; }
+
+    .video-formula { margin: 28px 0 38px; padding: 23px; border: 1px solid rgba(81,119,102,.22); border-radius: 12px; background: var(--vp-green-soft); }
+    .video-formula-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 8px; }
+    .video-formula-row span { padding: 8px 10px; border-radius: 7px; background: rgba(255,255,255,.78); color: #3f6755; font: 650 10px/1.35 var(--vp-mono); }
+    .video-formula-row i { color: var(--vp-green); font-style: normal; }
+    .video-formula p { margin: 17px 0 0 !important; padding-top: 15px; border-top: 1px solid rgba(81,119,102,.17); color: var(--vp-muted); font-size: 12.5px; line-height: 1.72; }
+
+    .timeline { margin: 29px 0 38px; padding: 23px; border: 1px solid var(--vp-line); border-radius: 12px; background: var(--vp-paper); }
+    .timeline-title { margin-bottom: 17px; color: var(--vp-green); font: 650 10px/1.3 var(--vp-mono); letter-spacing: .12em; }
+    .timeline-track { display: grid; grid-template-columns: 1fr 2fr 1fr; gap: 5px; height: 9px; margin-bottom: 17px; }
+    .timeline-track span { border-radius: 5px; background: var(--vp-orange); }
+    .timeline-track span:nth-child(2) { background: var(--vp-blue); }
+    .timeline-track span:nth-child(3) { background: var(--vp-green); }
+    .timeline-grid { display: grid; grid-template-columns: 1fr 2fr 1fr; gap: 15px; }
+    .timeline-step small { color: var(--vp-faint); font: 650 9px/1 var(--vp-mono); }
+    .timeline-step b { display: block; margin: 7px 0 4px; font-size: 13px; }
+    .timeline-step span { display: block; color: var(--vp-muted); font-size: 11.5px; line-height: 1.62; }
+
+    .reference-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 28px 0 38px; }
+    .reference-card { padding: 19px; border: 1px solid var(--vp-line); border-radius: 11px; background: var(--vp-paper); }
+    .reference-card small { color: var(--vp-blue); font: 650 9px/1 var(--vp-mono); letter-spacing: .11em; }
+    .reference-card h3 { margin: 10px 0 7px; font-size: 15px; }
+    .reference-card p { margin: 0; color: var(--vp-muted); font-size: 13px; line-height: 1.7; }
+
+    .diagnosis-list { margin: 28px 0 38px; border-top: 1px solid var(--vp-line); }
+    .diagnosis-row { display: grid; grid-template-columns: 145px 1fr; gap: 20px; padding: 17px 0; border-bottom: 1px solid var(--vp-line); }
+    .diagnosis-row b { color: var(--vp-red); font-size: 13px; }
+    .diagnosis-row p { margin: 0; color: var(--vp-muted); font-size: 13px; line-height: 1.72; }
+
+    .iteration-loop { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 28px 0 38px; padding: 22px; border: 1px solid rgba(69,109,152,.2); border-radius: 12px; background: var(--vp-blue-soft); }
+    .iteration-step { position: relative; min-height: 118px; padding: 15px 13px; border-radius: 9px; background: rgba(255,255,255,.8); }
+    .iteration-step:not(:last-child)::after { content: '→'; position: absolute; right: -9px; top: 49%; z-index: 2; color: var(--vp-blue); font: 650 14px/1 var(--vp-mono); }
+    .iteration-step em { color: var(--vp-blue); font: 650 9px/1 var(--vp-mono); font-style: normal; }
+    .iteration-step b { display: block; margin: 10px 0 5px; font-size: 13px; }
+    .iteration-step span { display: block; color: var(--vp-muted); font-size: 11.5px; line-height: 1.62; }
+
+    .myth-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 28px 0 38px; }
+    .myth-card { padding: 19px; border: 1px solid rgba(167,82,74,.19); border-radius: 10px; background: rgba(167,82,74,.035); }
+    .myth-card b { display: block; margin-bottom: 6px; color: var(--vp-red); font-size: 14px; }
+    .myth-card p { margin: 0; color: var(--vp-muted); font-size: 13px; line-height: 1.72; }
+
+    .exercise-list { margin: 28px 0 38px; counter-reset: prompt-exercise; }
+    .exercise-row { display: grid; grid-template-columns: 48px 1fr; gap: 14px; padding: 18px 0; border-bottom: 1px solid var(--vp-line); }
+    .exercise-row:first-child { border-top: 1px solid var(--vp-line); }
+    .exercise-row::before { counter-increment: prompt-exercise; content: counter(prompt-exercise, decimal-leading-zero); color: var(--vp-orange); font: 650 11px/1.7 var(--vp-mono); }
+    .exercise-row h3 { margin: 0 0 5px; font-size: 15px; }
+    .exercise-row p { margin: 0; color: var(--vp-muted); font-size: 13.5px; line-height: 1.75; }
+
+    .source-list { margin: 25px 0 36px; padding: 0; list-style: none; }
+    .source-list li { display: grid; grid-template-columns: 32px 1fr; gap: 13px; padding: 14px 0; border-bottom: 1px solid var(--vp-line); }
+    .source-list li:first-child { border-top: 1px solid var(--vp-line); }
+    .source-no { color: var(--vp-faint); font: 500 10px/1.8 var(--vp-mono); }
+    .source-list a { font-weight: 600; }
+    .source-list span { display: block; margin-top: 3px; color: var(--vp-faint); font-size: 12px; line-height: 1.6; }
+    .prompt-closing { margin-top: 48px; padding-top: 27px; border-top: 2px solid var(--vp-ink); font-family: var(--vp-serif); font-size: 20px; line-height: 1.82; }
+
+    @media (max-width: 720px) {
+      .prompt-hero { padding: 48px 20px 34px; }
+      .prompt-headline { font-size: 35px; }
+      .prompt-wrap { padding: 0 20px 70px; }
+      .translation-map,.dimension-grid,.binding-demo,.reference-grid,.myth-grid { grid-template-columns: 1fr; }
+      .translation-layer:not(:last-child)::after { content: '↓'; right: 50%; top: auto; bottom: -18px; transform: translateX(50%); }
+      .spectrum-copy { grid-template-columns: 1fr; gap: 10px; }
+      .timeline-grid { grid-template-columns: 1fr; }
+      .timeline-track { display: none; }
+      .diagnosis-row { grid-template-columns: 1fr; gap: 6px; }
+      .iteration-loop { grid-template-columns: 1fr 1fr; }
+      .iteration-step:nth-child(2)::after { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <header class="prompt-hero">
+    <div class="prompt-kicker">GENERATIVE VISUAL LANGUAGE · INTENT TO PROMPT</div>
+    <h1 class="prompt-headline">从视觉意图到提示词：<br>生成影像的描述语法</h1>
+    <p class="prompt-deck">提示词不是形容词的堆叠，也不是某个模型的秘密口令。它更接近一份压缩后的视觉创作简报：说明要表达什么、画面里发生什么、观众从哪里观看，以及哪些条件不能被改变。</p>
+    <div class="meta-row">
+      <span>2026-08-23</span>
+      <span>生成影像语言 · 基础方法</span>
+      <span>阅读约 24 分钟</span>
+      <span>视觉意图 · 提示词 · 图像生成 · 视频生成</span>
+    </div>
+  </header>
+
+  <main class="prompt-wrap">
+    <article class="article-body prompt-language-article">
+      <div class="vp-lead-block">
+        <span class="vp-lead-label">导言 · Introduction</span>
+        <p class="lead vp-lead">“孤独、电影感、高级、梦幻”表达的是创作愿望，却不是完整的画面说明。模型还需要知道：谁在何处，正在做什么，主体与环境怎样排列，光从哪里来，镜头是否移动，最终结果又要用于什么。提示词写作的核心，正是把不可见的意图翻译成可观察、可生成、可检查的视觉条件。</p>
+      </div>
+
+      <p>自然语言可以启动生成，但它不会像程序代码那样确定每一个像素。模型会把文本、参考图和参数转化为生成条件，再在训练所得的视觉分布中寻找一种可能结果。相同提示词可能得到不同构图；不同模型也可能以不同方式理解同一组词。</p>
+
+      <p>因此，提示词能力不是记忆一张“万能词表”，而是建立一种翻译能力：先辨认视觉意图，再把意图拆成画面变量，最后用清晰的语言组织这些变量。输出不符合预期时，还要能判断究竟是主体、关系、构图、风格还是时间运动出了问题。</p>
+
+      <div class="vp-thesis">好的提示词不负责把想象完整搬进模型，而是把最重要的创作决定变成模型可利用的条件，也把成败标准变成创作者可以逐项检查的问题。</div>
+
+      <section>
+        <div class="vp-section-label">01 · CONDITION, NOT CODE</div>
+        <h2 class="vp-section-heading">提示词是一组生成条件，不是确定性代码</h2>
+        <p>图像生成模型并非先理解一句话，再按名词清单逐一绘制。文本通常会被编码成内部表征，与图像生成过程共同作用。Google 的 Imagen 研究发现，扩大预训练语言模型对图文一致性的改善，超过单纯扩大图像生成网络的收益，说明语言理解对文本生成图像十分关键。相关研究同时使用包含空间关系、数量、属性和长文本的 DrawBench 来检验模型，而不是只检查画面是否“好看”。参见 <a href="https://imagen.research.google/" target="_blank" rel="noopener">Google Research：Imagen</a>。</p>
+
+        <p>OpenAI 的 DALL·E 3 研究则从训练数据的描述质量入手：使用更详细的合成图像说明进行训练，提高模型对文本的遵循能力。但论文也明确指出，空间关系、计数等问题并未因此彻底解决。参见 <a href="https://cdn.openai.com/papers/dall-e-3.pdf" target="_blank" rel="noopener">Improving Image Generation with Better Captions</a>。</p>
+
+        <div class="vp-note blue">
+          <span class="vp-note-title">一个重要边界 · Probabilistic Output</span>
+          <p>提示词更像“给生成分布加条件”，而不是“向渲染器提交完整场景文件”。它可以提高某类结果出现的概率，却不能保证每个属性、文字、手势或镜头参数都被精确执行。需要高一致性、高可复现或像素级准确时，还要结合参考图、编辑、遮罩、分镜、后期排版与人工验收。</p>
+        </div>
+      </section>
+
+      <section>
+        <div class="vp-section-label">02 · THREE-LAYER TRANSLATION</div>
+        <h2 class="vp-section-heading">先做三层翻译：意图、画面与执行</h2>
+        <p>直接从“想表达什么”跳到“输入什么词”，中间缺少了画面设计。稳定的方法是分三层思考。第一层定义沟通目的，第二层把目的变成可见证据，第三层补充交付与约束。三层之间不是同义改写，而是逐步减少歧义。</p>
+
+        <div class="translation-map">
+          <article class="translation-layer">
+            <small>LAYER 01</small>
+            <h3>意图层：为什么生成</h3>
+            <p>定义作品要传递的核心判断，以及它服务于什么场景。</p>
+            <ul><li>用途与受众</li><li>情绪与叙事</li><li>信息优先级</li><li>观看后的预期感受</li></ul>
+          </article>
+          <article class="translation-layer">
+            <small>LAYER 02</small>
+            <h3>画面层：看见什么</h3>
+            <p>为抽象意图寻找可观察的视觉证据。</p>
+            <ul><li>主体、动作与关系</li><li>环境、构图与视点</li><li>光线、色彩与材质</li><li>运动、节奏与变化</li></ul>
+          </article>
+          <article class="translation-layer">
+            <small>LAYER 03</small>
+            <h3>执行层：怎样交付</h3>
+            <p>说明模型入口、画幅、参考素材与不可改变项。</p>
+            <ul><li>图像或视频及用途</li><li>画幅与时长</li><li>参考图各自职责</li><li>保留项与排除项</li></ul>
+          </article>
+        </div>
+
+        <p>例如，意图“让一款户外水壶显得可靠”仍然不可见。进入画面层后，可以变成：壶体落有细密水珠，硬质涂层没有明显划痕，戴手套的手牢固握住把手，背景是低温清晨的山脊，低角度近景强调结构，冷灰环境中保留一处暖色识别色。进入执行层后，再补充横版广告图、主体右置、左侧保留文案空间、商标形态必须保留等条件。</p>
+      </section>
+
+      <section>
+        <div class="vp-section-label">03 · A STABLE GRAMMAR</div>
+        <h2 class="vp-section-heading">建立稳定语法：从主体到约束</h2>
+        <p>不同模型没有统一的提示词语法，但视觉描述可以保持稳定。OpenAI 的官方图像提示指南建议按一致顺序组织背景与场景、主体、关键细节和约束，并说明预期用途；Google 的 Imagen 指南把主体、背景或情境、风格作为清晰的起点。两者共同指向一个实用原则：先交代画面的骨架，再添加真正影响结果的细节。参见 <a href="https://developers.openai.com/cookbook/examples/multimodal/image-gen-models-prompting-guide" target="_blank" rel="noopener">OpenAI：GPT Image Prompting Guide</a> 与 <a href="https://docs.cloud.google.com/vertex-ai/generative-ai/docs/image/img-gen-prompt-guide?hl=zh-CN" target="_blank" rel="noopener">Google Cloud：Imagen 提示词指南</a>。</p>
+
+        <div class="prompt-equation">
+          <div class="prompt-equation-main">交付物 ＋ 主体 ＋ 动作与关系 ＋ 环境<br>＋ 构图与视点 ＋ 光线与色彩 ＋ 媒介与材质 ＋ 约束</div>
+          <p class="prompt-equation-note">这是一张检查清单，不是必须逐项填满的公式。某项不影响创作判断时，可以省略；两个条件互相冲突时，应先确定优先级。</p>
+        </div>
+
+        <div class="dimension-grid">
+          <article class="dimension-card"><small>01 · DELIVERABLE</small><h3>交付物与用途</h3><p>电影静帧、商品主图、概念设计、分镜草图或 8 秒单镜头。用途会改变构图密度、留白和完成度。</p></article>
+          <article class="dimension-card"><small>02 · SUBJECT</small><h3>主体与识别属性</h3><p>主体数量、年龄段、服装、形态、材质和独特标志。优先保留能区分对象的属性。</p></article>
+          <article class="dimension-card"><small>03 · ACTION</small><h3>动作、状态与关系</h3><p>正在做什么、看向哪里、与何物接触、谁遮挡谁。动词通常比情绪形容词更能组织场景。</p></article>
+          <article class="dimension-card"><small>04 · SETTING</small><h3>环境与时空</h3><p>地点、时间、天气、季节、空间尺度和背景活动。环境为主体提供因果与氛围。</p></article>
+          <article class="dimension-card"><small>05 · COMPOSITION</small><h3>构图、景别与视点</h3><p>全景或近景，平视或俯拍，主体位于何处，前中后景怎样分层，哪里需要留白。</p></article>
+          <article class="dimension-card"><small>06 · LIGHT &amp; COLOR</small><h3>光线与色彩</h3><p>光源方向、软硬、光比、色温、主辅色和饱和度。描述光如何塑造物体，而不只是写“氛围光”。</p></article>
+          <article class="dimension-card"><small>07 · MEDIUM</small><h3>媒介、风格与材质</h3><p>摄影、版画、3D、拼贴或手绘；表面是粗糙、透明、镜面还是纤维。媒介决定画面如何被制造。</p></article>
+          <article class="dimension-card"><small>08 · CONSTRAINT</small><h3>保留项与排除项</h3><p>必须保留的人物、产品形态、镜头方向和版式空间，以及不能出现的文字、对象或视觉干扰。</p></article>
+        </div>
+
+        <p>信息顺序主要服务于维护。OpenAI 的指南明确指出，提示词可以是短句、段落、带标签的分区，甚至接近 JSON 的结构；关键在于意图和约束清楚，生产模板容易复用，而不是寻找某种神奇标点。</p>
+      </section>
+
+      <section>
+        <div class="vp-section-label">04 · MAKE ABSTRACT VISIBLE</div>
+        <h2 class="vp-section-heading">把抽象形容词翻译成可见证据</h2>
+        <p>“高级”“电影感”“治愈”不是错误词语，但它们覆盖的视觉可能性过多。更可靠的做法是先保留意图词，再补充一组能让这种感受成立的观察条件。以下映射不是固定词典，而是创作假设；题材、文化语境和传播目的改变后，映射也要调整。</p>
+
+        <div class="vp-table-wrap">
+          <table class="vp-table">
+            <thead><tr><th>抽象意图</th><th>可观察的画面变量</th><th>需要避免的误解</th></tr></thead>
+            <tbody>
+              <tr><td>高级</td><td>克制的综合色数；清洁留白；高光受控；材质边缘清晰；信息层级少而明确。</td><td>并不等于全黑、金色、豪华酒店或无限降低饱和度。</td></tr>
+              <tr><td>电影感</td><td>明确景别与机位；有动机的光源；前后景分离；环境中的空气感；统一的色彩方向。</td><td>单独添加 cinematic、胶片颗粒或宽银幕比例，不能自动形成叙事。</td></tr>
+              <tr><td>梦幻</td><td>柔和逆光；低反差亮部；薄雾或半透明前景；浅景深；缓慢、连续的环境运动。</td><td>发光、星尘、粉紫色同时堆叠，可能遮蔽主体与空间结构。</td></tr>
+              <tr><td>紧张</td><td>受限画框；硬侧光或局部高反差；倾斜方向；稀少警示色；急促或不稳定运动。</td><td>高饱和红色只是一个信号，不足以单独建立紧张关系。</td></tr>
+              <tr><td>极简</td><td>单一视觉焦点；有限色彩；干净轮廓；大面积负空间；表面细节受到控制。</td><td>极简不是“没有设计”，仍需精确决定比例、位置与材质。</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p>翻译时可以连续追问三次：这种感受从哪一种<strong>空间关系</strong>产生？由哪一种<strong>光色与材质</strong>支持？观众通过怎样的<strong>视点和时间节奏</strong>体验它？回答越能落到可观察现象，提示词越容易被诊断。</p>
+      </section>
+
+      <section>
+        <div class="vp-section-label">05 · BIND ATTRIBUTES</div>
+        <h2 class="vp-section-heading">明确属性归属：谁是什么，谁在何处</h2>
+        <p>多主体场景的困难不只是“模型漏掉了词”，还包括属性绑定错误。T2I-CompBench 将组合能力拆为颜色、形状、纹理等属性绑定，空间与非空间关系，以及更复杂的组合。测试中的典型问题是：对象都出现了，但颜色、材质或位置分配给了错误对象。参见 NeurIPS 2023 论文 <a href="https://papers.neurips.cc/paper_files/paper/2023/file/f8ad010cdd9143dbb0e9308c093aff24-Paper-Datasets_and_Benchmarks.pdf" target="_blank" rel="noopener">T2I-CompBench</a>。</p>
+
+        <div class="binding-demo">
+          <article class="binding-case">
+            <small>AMBIGUOUS</small>
+            <blockquote>“一只红色和蓝色的杯子与书，放在桌面上。”</blockquote>
+            <p>颜色可能属于杯子、书或两者；数量、左右位置和遮挡关系也没有确定。</p>
+          </article>
+          <article class="binding-case good">
+            <small>BOUND</small>
+            <blockquote>“左侧是一只哑光红色陶瓷杯；右侧是一本钴蓝色硬壳书。杯子压住书的左下角，两者都完整可辨。”</blockquote>
+            <p>属性紧跟对象，并使用左右、压住、完整可辨等关系词减少歧义。</p>
+          </article>
+        </div>
+
+        <h3 class="vp-subheading">绑定关系的四个写法</h3>
+        <p><strong>属性靠近名词：</strong>不要把所有颜色、材质集中放在句尾。<strong>对象分句描述：</strong>每个主要对象先形成独立单元。<strong>关系使用具体介词和动词：</strong>左侧、背后、悬挂于、遮挡、握住，比“在一起”更明确。<strong>数量与可见范围同时说明：</strong>“三只完整可见的玻璃杯”比“几只杯子”更容易验收，但计数仍是模型常见弱项。</p>
+
+        <div class="vp-note warning">
+          <span class="vp-note-title">复杂度预算 · Complexity Budget</span>
+          <p>每增加一个主体、属性、空间关系或动作，组合难度都在上升。关键对象过多时，优先拆成多次生成、局部编辑或分层合成，而不是继续加长句子。语言更精确可以降低歧义，却不能消除模型能力边界。</p>
+        </div>
+      </section>
+
+      <section>
+        <div class="vp-section-label">06 · LENGTH AND MODEL DIFFERENCES</div>
+        <h2 class="vp-section-heading">提示词多长合适：没有跨模型的唯一答案</h2>
+        <p>不同产品对文本的处理、参数入口和默认美学不同。Midjourney 的官方基础指南认为，短而简单的提示词通常更有效；细节越少，变化空间越大，控制力也越低。OpenAI 的图像指南则支持更结构化的生产简报，强调用途、构图、约束和小步迭代。二者并不矛盾：一个更靠近探索，一个更靠近控制。参见 <a href="https://docs.midjourney.com/hc/en-us/articles/32023408776205-Prompt-Basics" target="_blank" rel="noopener">Midjourney：Prompt Basics</a>。</p>
+
+        <div class="model-spectrum">
+          <div class="spectrum-line"></div>
+          <div class="spectrum-copy">
+            <div><strong>短提示：扩大探索</strong>只定义主体、情境和一种视觉方向，适合寻找意外构图与风格。</div>
+            <div><strong>中等描述：建立方向</strong>加入动作、关系、构图、光色，适合多数单幅图像任务。</div>
+            <div><strong>结构化简报：加强控制</strong>加入交付用途、明确约束、参考职责和验收条件，适合连续迭代与团队协作。</div>
+          </div>
+        </div>
+
+        <p>更实用的判断标准不是字数，而是<strong>最短但不丢失关键约束</strong>：某条描述如果能减少重要歧义，就保留；如果只是同义词叠加，或模型已有参数单独控制，就删除。先用最小可行提示词生成基线，再根据输出缺陷增加信息，通常比一次写满所有细节更容易定位问题。</p>
+      </section>
+
+      <section>
+        <div class="vp-section-label">07 · IMAGE EXAMPLE</div>
+        <h2 class="vp-section-heading">完整示例：把“雨夜等待的孤独”写成画面</h2>
+        <p>原始意图只有一句：“一个人在雨夜等车，很孤独，很有电影感。”它已经提供主体、环境和情绪，但缺少观看位置、人物行为、环境关系与光线来源。先不急于添加更多风格词，而是把孤独翻译成空间与动作：人物独自站在候车亭边缘，周围有大量空位；他不看镜头，只看向尚未到来的车；冷色雨幕包围人物，远处车辆只留下模糊暖色光。</p>
+
+        <div class="prompt-block">
+          <div class="prompt-block-head"><span>IMAGE BRIEF</span><span>16:9 · REALISTIC FILM STILL</span></div>
+          <pre class="prompt-lines"><span class="prompt-key">交付物：</span><span class="prompt-value">一张 16:9 的现实主义电影静帧，用于短片情绪提案。</span>
+
+<span class="prompt-key">主体：</span><span class="prompt-value">一名穿深灰长外套的成年人独自站在公交候车亭右侧边缘，双手收在衣袋里，微微缩肩，侧脸看向画面左侧的空路。</span>
+
+<span class="prompt-key">环境与关系：</span><span class="prompt-value">深夜小雨，候车亭其余座位完全空着；湿润路面延伸到左侧远处，背景没有可辨认的人群。</span>
+
+<span class="prompt-key">构图与视点：</span><span class="prompt-value">中远景，平视机位，人物位于右三分之一，左侧保留大面积负空间；亭柱形成前景框架，人物与远处道路有明显层次。</span>
+
+<span class="prompt-key">光线与色彩：</span><span class="prompt-value">候车亭顶部冷白荧光灯作为主光，人物面部处于微弱侧光；远处一辆未入画车辆留下柔和琥珀色散景，整体低饱和蓝灰。</span>
+
+<span class="prompt-key">质感：</span><span class="prompt-value">自然雨丝、潮湿织物、受控高光、细微空气雾感，不过度磨皮，不过量胶片颗粒。</span>
+
+<span class="prompt-key">验收约束：</span><span class="prompt-limit">只出现一名完整可辨的人物；不看镜头；不出现文字、水印、雨伞；左侧负空间保持干净。</span></pre>
+        </div>
+
+        <p>这份提示词没有声称某个精确焦距一定会被物理还原，而是说明中远景、平视、人物位置、前景框架和空间层次。OpenAI 的官方指南也提醒，详细相机规格可能被宽松理解，更适合用来表达整体观感与构图，而不能当作精确光学模拟。</p>
+
+        <h3 class="vp-subheading">不要一次改完所有问题</h3>
+        <p>如果结果“太热闹”，第一轮只减少背景人物与广告牌；如果“孤独感仍然不足”，第二轮只扩大左侧负空间或缩小人物比例；如果“像棚拍”，第三轮再调整主光动机与路面反射。每轮只改变一个主变量，才能知道哪项描述真正影响了结果。</p>
+      </section>
+
+      <section>
+        <div class="vp-section-label">08 · ADD TIME FOR VIDEO</div>
+        <h2 class="vp-section-heading">从图像到视频：在画面语法上增加时间</h2>
+        <p>视频提示词不仅要描述“这一帧长什么样”，还要说明状态如何变化。Google 的 Veo 指南将场景、运镜、镜头与光学效果、视觉风格和时间元素分别说明；Adobe Firefly 的官方指南给出“景别＋角色＋动作＋地点＋美学”的简洁结构，并强调使用具体动作、运镜和节奏。参见 <a href="https://docs.cloud.google.com/vertex-ai/generative-ai/docs/video/video-gen-prompt-guide?hl=zh-CN" target="_blank" rel="noopener">Google Cloud：Veo 视频提示词指南</a> 与 <a href="https://helpx.adobe.com/ee/firefly/web/work-with-audio-and-video/work-with-video/writing-effective-text-prompts-for-video-generation.html" target="_blank" rel="noopener">Adobe Firefly：视频提示词指南</a>。</p>
+
+        <div class="video-formula">
+          <div class="video-formula-row"><span>初始状态</span><i>＋</i><span>主体动作</span><i>＋</i><span>相机运动</span><i>＋</i><span>环境运动</span><i>＋</i><span>节奏与演化</span><i>＋</i><span>结束状态</span></div>
+          <p>服装、人物身份、光线方向、天气和空间方位等贯穿镜头的条件，需要单独列为连续性约束。模型对时间段和运镜词的执行程度会随产品、模式与素材而变化，时间轴应被视为清晰意图，而不是逐帧保证。</p>
+        </div>
+
+        <div class="timeline">
+          <div class="timeline-title">8-SECOND SINGLE SHOT · 雨夜候车</div>
+          <div class="timeline-track"><span></span><span></span><span></span></div>
+          <div class="timeline-grid">
+            <div class="timeline-step"><small>0–2 SEC</small><b>建立空间</b><span>中远景静止起镜。人物在候车亭右侧，左侧道路空旷，雨丝稳定落下。</span></div>
+            <div class="timeline-step"><small>2–6 SEC</small><b>动作与推进</b><span>相机非常缓慢地向前推近。人物听到远处车辆声后抬头，暖色车灯反射从左向右扫过湿地。</span></div>
+            <div class="timeline-step"><small>6–8 SEC</small><b>形成结束状态</b><span>停在中景。车辆没有进入画面，人物轻微失望地垂下视线，仍位于右侧。</span></div>
+          </div>
+        </div>
+
+        <h3 class="vp-subheading">一个镜头只保留一个主运镜</h3>
+        <p>“推近、环绕、俯冲、快速摇摄、再突然拉远”同时出现，容易形成互相竞争的指令。短视频先确定一种主运镜，再把主体动作和环境变化放进同一空间逻辑。多次视点变化更适合拆成多个镜头，用分镜分别生成。</p>
+      </section>
+
+      <section>
+        <div class="vp-section-label">09 · REFERENCES AND EDITS</div>
+        <h2 class="vp-section-heading">参考图不是万能答案：先说明每张图控制什么</h2>
+        <p>参考图可以承担不同职责：内容参考决定对象，身份参考保持人物，构图参考规定空间布局，风格参考提供材质与色彩方向。多张参考图混用时，若没有说明各自角色，模型可能同时复制不需要的内容，或把风格误当成构图。</p>
+
+        <div class="reference-grid">
+          <article class="reference-card"><small>CONTENT</small><h3>内容参考</h3><p>“使用图 A 的产品形态与标签位置，不继承背景、光线和手部姿势。”</p></article>
+          <article class="reference-card"><small>IDENTITY</small><h3>身份参考</h3><p>“保持图 B 的面部身份与发型，服装改为深灰外套，表情转为克制。”</p></article>
+          <article class="reference-card"><small>COMPOSITION</small><h3>构图参考</h3><p>“只采用图 C 的右侧主体和左侧留白关系，不复制其建筑或人物。”</p></article>
+          <article class="reference-card"><small>STYLE</small><h3>风格参考</h3><p>“借用图 D 的低饱和色彩、潮湿高光与空气雾感，不复制具体对象。”</p></article>
+        </div>
+
+        <p>编辑任务还要把“改什么”和“保留什么”分开。OpenAI 的官方指南建议用类似“只改变 X”的指令，并列出应保持不变的内容。与其写“把背景换成海边”，更稳定的表达是：“只把室内背景替换为阴天海岸；保持人物身份、姿势、服装、画面裁切和主光方向不变；新增背景与人物边缘的光色要自然一致。”</p>
+      </section>
+
+      <section>
+        <div class="vp-section-label">10 · DIAGNOSE THE OUTPUT</div>
+        <h2 class="vp-section-heading">输出不对时，先诊断问题属于哪一层</h2>
+        <p>有效迭代不是在原提示词末尾继续添加“更准确、更专业、更完美”，而是比较目标与输出，找出偏差所在。GenEval 把文本生成图像的对象共现、数量、颜色与位置分别评估，说明“总体相似”不足以判断提示词遵循。参见 <a href="https://arxiv.org/abs/2310.11513" target="_blank" rel="noopener">GenEval：An Object-Focused Framework for Evaluating Text-to-Image Alignment</a>。</p>
+
+        <div class="diagnosis-list">
+          <div class="diagnosis-row"><b>主体缺失或数量错误</b><p>减少竞争对象；把关键对象提前；写明数量与完整可见；复杂场景改为分层生成或局部编辑。</p></div>
+          <div class="diagnosis-row"><b>颜色、材质互换</b><p>让属性紧跟对象；每个对象单独成句；补充左右、前后、遮挡等关系；删除含混并列词。</p></div>
+          <div class="diagnosis-row"><b>构图位置错误</b><p>同时说明景别、主体画面位置与留白用途；使用“左三分之一”等相对关系，不依赖抽象的“平衡构图”。</p></div>
+          <div class="diagnosis-row"><b>风格吞没了内容</b><p>先固定主体和构图，再添加一种主要媒介或风格方向；删除同义风格词堆叠，明确参考图只控制什么。</p></div>
+          <div class="diagnosis-row"><b>光线没有动机</b><p>指出主光源的位置与性质，说明它照亮主体哪一侧，以及环境中哪种反射或实景光支持它。</p></div>
+          <div class="diagnosis-row"><b>视频动作或运镜冲突</b><p>一个镜头只保留一个主运镜；用时间顺序写主体动作；减少同时发生、方向相反或无法连续完成的事件。</p></div>
+          <div class="diagnosis-row"><b>人物或物体持续漂移</b><p>重申身份、服装、材质、光向等不变量；缩短镜头；使用参考图、首尾帧、遮罩或产品提供的一致性工具。</p></div>
+        </div>
+
+        <div class="iteration-loop">
+          <article class="iteration-step"><em>01</em><b>定义验收</b><span>生成前列出 3–5 个必须满足的可见条件。</span></article>
+          <article class="iteration-step"><em>02</em><b>生成基线</b><span>先用最小提示词观察模型默认理解与变化范围。</span></article>
+          <article class="iteration-step"><em>03</em><b>单变量修改</b><span>每轮只处理一个主要偏差，保留可比较性。</span></article>
+          <article class="iteration-step"><em>04</em><b>记录版本</b><span>保存模型、模式、参数、参考图、提示词和结果。</span></article>
+        </div>
+      </section>
+
+      <section>
+        <div class="vp-section-label">11 · COMMON PITFALLS</div>
+        <h2 class="vp-section-heading">六个常见误区：语言精确不等于结果必然精确</h2>
+        <div class="myth-grid">
+          <article class="myth-card"><b>把提示词写成形容词串</b><p>词很多但关系很少，模型只得到模糊风格方向。先补主体、动作、空间与光源。</p></article>
+          <article class="myth-card"><b>迷信固定顺序和标点</b><p>结构的价值在于减少遗漏、便于维护，并非逗号、括号或权重符号具有跨模型通用含义。</p></article>
+          <article class="myth-card"><b>堆叠摄影参数</b><p>焦距、光圈和胶片型号可以表达观感，但模型未必进行严格光学模拟。优先描述画面效果。</p></article>
+          <article class="myth-card"><b>同时要求相反结果</b><p>“极简但信息丰富”“静止同时高速运动”需要明确主次，或拆分为不同版本与镜头。</p></article>
+          <article class="myth-card"><b>只写不要什么</b><p>排除项要与正向目标配套。先说明理想画面，再删除最可能破坏结果的少量元素。</p></article>
+          <article class="myth-card"><b>把一次好结果当成方法</b><p>偶然样本无法证明提示词稳定。用多次生成、单变量对照和验收表检验可复现性。</p></article>
+        </div>
+
+        <p>精确文字、品牌标识、复杂手部交互、多人身份一致、严格产品结构和长镜头连续性，仍然需要重点复核。涉及公开传播或商业交付时，还要检查肖像、版权、商标、素材授权、误导性内容与所用平台的政策；提示词方法不能替代合规判断。</p>
+      </section>
+
+      <section>
+        <div class="vp-section-label">12 · PRACTICE</div>
+        <h2 class="vp-section-heading">五个练习：把词汇积累变成视觉判断</h2>
+        <div class="exercise-list">
+          <div class="exercise-row"><div><h3>一种意图，三种视觉翻译</h3><p>选择“安静”或“压迫”等意图，分别用空间、光色、视点三种路径各写一版提示词。比较它们是否产生不同但成立的画面。</p></div></div>
+          <div class="exercise-row"><div><h3>属性绑定压力测试</h3><p>设置两个对象、两种颜色、两种材质和一个遮挡关系。先写含混版本，再写分句绑定版本，每版生成多张并记录错误类型。</p></div></div>
+          <div class="exercise-row"><div><h3>单变量迭代</h3><p>固定主体、环境和风格，只改变主体在画面中的大小；再恢复原设置，只改变主光方向。训练辨认每个变量的视觉作用。</p></div></div>
+          <div class="exercise-row"><div><h3>静态描述改为时间描述</h3><p>把一张静态画面扩展为 6–8 秒单镜头，写清初始状态、一个主体动作、一个主运镜和结束状态，避免加入第二场景。</p></div></div>
+          <div class="exercise-row"><div><h3>反向描述与删减</h3><p>选择一张构图清晰的参考图，按主体、关系、构图、光色、媒介重新描述；随后逐项删除，判断哪些信息真正决定了图像识别。</p></div></div>
+        </div>
+
+        <div class="vp-note">
+          <span class="vp-note-title">建议记录 · Prompt Notebook</span>
+          <p>每次练习保存意图、模型与模式、参考素材、完整提示词、关键参数、输出缩略图、问题分类和下一轮只改变的变量。提示词库若只有“成功文本”而没有上下文与失败记录，很难迁移到另一题材或另一模型。</p>
+        </div>
+      </section>
+
+      <section>
+        <div class="vp-section-label">13 · FURTHER READING</div>
+        <h2 class="vp-section-heading">继续学习：从产品指南进入组合生成研究</h2>
+        <p>后续学习可以分为三条线：用官方产品指南理解具体入口与参数；用视觉基础校准构图、光线、色彩和镜头词汇；用论文理解文本—图像对齐、属性绑定、空间关系与评估边界。产品行为会持续变化，具体语法与功能应以当前官方文档为准。</p>
+        <ul class="source-list">
+          <li><div class="source-no">01</div><div><a href="https://developers.openai.com/cookbook/examples/multimodal/image-gen-models-prompting-guide" target="_blank" rel="noopener">OpenAI · GPT Image Prompting Guide</a><span>从提示词结构、构图、人物、约束、编辑保留项到小步迭代的官方方法指南。</span></div></li>
+          <li><div class="source-no">02</div><div><a href="https://docs.cloud.google.com/vertex-ai/generative-ai/docs/image/img-gen-prompt-guide?hl=zh-CN" target="_blank" rel="noopener">Google Cloud · Imagen 提示词指南</a><span>围绕主体、背景与风格组织图像提示词，并提供摄影与艺术媒介词汇。</span></div></li>
+          <li><div class="source-no">03</div><div><a href="https://docs.midjourney.com/hc/en-us/articles/32023408776205-Prompt-Basics" target="_blank" rel="noopener">Midjourney · Prompt Basics</a><span>说明短提示的探索性，以及主体、媒介、环境、光线、色彩、情绪和构图等描述维度。</span></div></li>
+          <li><div class="source-no">04</div><div><a href="https://docs.cloud.google.com/vertex-ai/generative-ai/docs/video/video-gen-prompt-guide?hl=zh-CN" target="_blank" rel="noopener">Google Cloud · Veo 视频提示词指南</a><span>覆盖场景、机位、运镜、镜头效果、视觉风格和时间元素。</span></div></li>
+          <li><div class="source-no">05</div><div><a href="https://helpx.adobe.com/ee/firefly/web/work-with-audio-and-video/work-with-video/writing-effective-text-prompts-for-video-generation.html" target="_blank" rel="noopener">Adobe Firefly · Writing effective prompts for video generation</a><span>以景别、角色、动作、地点与美学组织视频提示，并讨论运镜与时间变化。</span></div></li>
+          <li><div class="source-no">06</div><div><a href="https://imagen.research.google/paper.pdf" target="_blank" rel="noopener">Google Research · Photorealistic Text-to-Image Diffusion Models with Deep Language Understanding</a><span>讨论语言模型规模、文本—图像对齐与 DrawBench 组合能力测试。</span></div></li>
+          <li><div class="source-no">07</div><div><a href="https://cdn.openai.com/papers/dall-e-3.pdf" target="_blank" rel="noopener">OpenAI · Improving Image Generation with Better Captions</a><span>解释更详细的图像描述如何改善提示词遵循，以及仍然存在的空间关系和计数局限。</span></div></li>
+          <li><div class="source-no">08</div><div><a href="https://papers.neurips.cc/paper_files/paper/2023/file/f8ad010cdd9143dbb0e9308c093aff24-Paper-Datasets_and_Benchmarks.pdf" target="_blank" rel="noopener">NeurIPS 2023 · T2I-CompBench</a><span>用属性绑定、对象关系和复杂组合系统评估文本生成图像模型。</span></div></li>
+          <li><div class="source-no">09</div><div><a href="https://arxiv.org/abs/2310.11513" target="_blank" rel="noopener">GenEval · An Object-Focused Framework for Evaluating Text-to-Image Alignment</a><span>把对象、数量、颜色和位置拆分为可诊断的图文一致性问题。</span></div></li>
+        </ul>
+      </section>
+
+      <p class="prompt-closing">提示词写作真正积累的，不应只是词汇数量，而是把意图转成视觉证据、把对象写成明确关系、把运动组织成时间，并在结果偏离时知道下一步只该改什么。词汇会随模型变化，视觉判断与诊断方法则更容易迁移。</p>
+    </article>
+  </main>
+</body>
+</html>

@@ -127,30 +127,6 @@
   .toc-list a:hover { color: var(--accent); }
   .toc-list a.active { color: var(--accent); font-weight: 500; }
 
-  .series-nav {
-    border: 0.5px solid var(--border-strong); border-radius: 10px;
-    overflow: hidden; background: var(--bg-card);
-  }
-  .series-nav-label {
-    font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase;
-    color: var(--text-tertiary); font-weight: 500;
-    padding: 12px 14px 10px; border-bottom: 0.5px solid var(--border);
-  }
-  .series-nav-item {
-    display: block; padding: 10px 14px; font-size: 12px;
-    color: var(--text-secondary); text-decoration: none;
-    border-bottom: 0.5px solid var(--border);
-    line-height: 1.55; transition: background 0.15s;
-  }
-  .series-nav-item:last-child { border-bottom: none; }
-  .series-nav-item:hover { background: var(--accent-light); color: var(--accent); }
-  .series-nav-item.current { background: var(--accent-light); color: var(--accent); font-weight: 500; }
-  .series-nav-item .ep {
-    display: block; font-size: 10px; color: var(--text-tertiary);
-    margin-bottom: 2px; letter-spacing: 0.08em;
-  }
-  .series-nav-item.current .ep { color: var(--accent-mid); }
-
   /* ── Typography ── */
   .section-label {
     font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase;
@@ -334,7 +310,6 @@
   /* ── Chat bubble ── */
   .chat-scene { display: flex; flex-direction: column; gap: 10px; padding: 4px 0; }
   .chat-row { display: flex; align-items: flex-start; gap: 10px; }
-  .chat-row.right { flex-direction: row-reverse; }
   .chat-avatar {
     width: 28px; height: 28px; border-radius: 50%;
     background: var(--bg-code); border: 0.5px solid var(--border-strong);
@@ -405,35 +380,6 @@
   }
 
   /* ── Role grid ── */
-  .role-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 10px;
-    margin: 12px 0;
-  }
-  .role-card {
-    background: var(--bg);
-    border: 0.5px solid var(--border);
-    border-radius: 8px;
-    padding: 12px;
-    text-align: center;
-  }
-  .role-card-icon {
-    font-size: 18px;
-    margin-bottom: 6px;
-    display: block;
-  }
-  .role-card-name {
-    font-size: 11px;
-    font-weight: 500;
-    color: var(--text-primary);
-    margin-bottom: 3px;
-  }
-  .role-card-doing {
-    font-size: 11px;
-    color: var(--text-tertiary);
-    line-height: 1.5;
-  }
 
   /* ── Progress bar ── */
   .progress-wrap { margin: 16px 0; }
@@ -491,7 +437,6 @@
     .content-wrap { padding: 0 20px; }
     .header-inner { padding: 0 20px; }
     .site-footer { padding: 28px 20px; }
-    .role-grid { grid-template-columns: 1fr 1fr; }
     .prd-row { grid-template-columns: 1fr; gap: 2px; }
   }
 </style>

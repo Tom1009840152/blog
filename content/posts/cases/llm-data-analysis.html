@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LLM 与数据分析：从写 SQL 到可信问数</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+
+  :root {
+    --paper: #fffdf8;
+    --ink: #1b1a17;
+    --muted: #69645c;
+    --faint: #999289;
+    --line: rgba(62, 55, 45, .14);
+    --blue: #4d719b;
+    --blue-deep: #294e77;
+    --blue-soft: #e8f0f7;
+    --green: #2f8069;
+    --green-soft: #e6f2ed;
+    --amber: #b66b28;
+    --amber-soft: #f8eadb;
+    --red: #b14f47;
+    --red-soft: #f8e7e4;
+    --serif: "Noto Serif SC", "Songti SC", Georgia, serif;
+    --sans: "Noto Sans SC", system-ui, sans-serif;
+    --mono: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
+  }
+
+  .hero { max-width: 980px; margin: 0 auto; padding: 64px 28px 42px; }
+  .kicker { color: var(--green); font: 600 12px/1.4 var(--mono); letter-spacing: .16em; text-transform: uppercase; }
+  .headline { margin: 16px 0; font-family: var(--serif); font-size: 44px; line-height: 1.22; letter-spacing: -.025em; }
+  .deck { max-width: 735px; color: var(--muted); font-size: 17px; line-height: 1.85; }
+  .meta-row { display: flex; flex-wrap: wrap; gap: 8px 20px; margin-top: 25px; color: var(--faint); font-size: 13px; }
+  .content-wrap { max-width: 980px; margin: 0 auto; padding: 0 28px 88px; }
+
+  .article-body { max-width: 760px; color: var(--ink); }
+  .article-body p { margin: 0 0 20px; }
+  .article-body strong { color: #11100e; font-weight: 650; }
+  .article-body a { color: var(--blue-deep); text-decoration-thickness: 1px; text-underline-offset: 3px; }
+  .article-body a:hover { color: var(--green); }
+  .article-body code { padding: 2px 5px; border-radius: 4px; color: var(--blue-deep); background: var(--blue-soft); font-family: var(--mono); font-size: .88em; }
+
+  .section-label { margin: 60px 0 9px; color: var(--faint); font: 500 10px/1.2 var(--mono); letter-spacing: .2em; text-transform: uppercase; }
+  .section-heading { margin: 0 0 22px; font-family: var(--serif); font-size: 26px; line-height: 1.43; font-weight: 650; letter-spacing: -.01em; }
+  .lead-block { margin: 2px 0 34px; padding: 22px 25px 23px; border: 1px solid rgba(47, 128, 105, .17); border-left: 3px solid var(--green); border-radius: 0 11px 11px 0; background: linear-gradient(110deg, rgba(230, 242, 237, .76), rgba(255, 253, 248, .34)); }
+  .lead-label { display: block; margin-bottom: 10px; color: var(--green); font: 600 10px/1.3 var(--mono); letter-spacing: .15em; text-transform: uppercase; }
+  .lead-block .lead { margin: 0; color: #302d28; font-family: var(--serif); font-size: 17.5px; line-height: 1.88; }
+  .thesis { margin: 32px 0; padding: 25px 27px; border-left: 3px solid var(--blue); background: linear-gradient(100deg, rgba(232, 240, 247, .9), rgba(255, 253, 248, .2)); font-family: var(--serif); font-size: 20px; line-height: 1.75; font-weight: 600; }
+  .case-note { margin: 27px 0; padding: 20px 22px; border: 1px solid rgba(182, 107, 40, .22); border-radius: 11px; color: #65492f; background: var(--amber-soft); }
+  .case-note strong { display: block; margin-bottom: 7px; color: var(--amber); font: 600 11px/1.4 var(--mono); letter-spacing: .12em; text-transform: uppercase; }
+
+  .workflow { margin: 29px 0 38px; padding: 24px; border: 1px solid rgba(77, 113, 155, .2); border-radius: 13px; background: rgba(232, 240, 247, .46); }
+  .workflow-title { margin-bottom: 16px; color: var(--faint); font: 600 10px/1 var(--mono); letter-spacing: .15em; text-transform: uppercase; }
+  .workflow-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
+  .workflow-node { position: relative; min-height: 104px; padding: 16px 12px; border-radius: 9px; background: rgba(255,255,255,.9); text-align: center; box-shadow: 0 5px 18px rgba(40, 51, 92, .04); }
+  .workflow-node:not(:last-child)::after { content: '→'; position: absolute; top: 50%; right: -15px; transform: translateY(-50%); color: var(--blue); font-family: var(--mono); }
+  .workflow-node b { display: block; font-size: 13px; }
+  .workflow-node span { display: block; margin-top: 7px; color: var(--faint); font-size: 10.5px; line-height: 1.55; }
+  .workflow-foot { margin-top: 16px; padding-top: 14px; border-top: 1px solid rgba(77,113,155,.13); color: var(--muted); font-size: 12px; line-height: 1.7; }
+
+  .process-list { margin: 28px 0 37px; counter-reset: process; }
+  .process-row { display: grid; grid-template-columns: 48px 1fr; gap: 14px; padding: 18px 0; border-bottom: 1px solid var(--line); }
+  .process-row:first-child { border-top: 1px solid var(--line); }
+  .process-row::before { counter-increment: process; content: counter(process, decimal-leading-zero); color: var(--green); font: 650 11px/1.7 var(--mono); }
+  .process-row h3 { margin: 0 0 5px; font-size: 15px; }
+  .process-row p { margin: 0; color: var(--muted); font-size: 13.5px; line-height: 1.75; }
+
+  .pain-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 27px 0 37px; }
+  .pain-card { min-height: 210px; padding: 20px; border: 1px solid var(--line); border-top: 3px solid var(--amber); border-radius: 10px; background: var(--paper); }
+  .pain-no { color: var(--amber); font: 650 10px/1 var(--mono); letter-spacing: .12em; }
+  .pain-card h3 { margin: 12px 0 9px; font-size: 16px; line-height: 1.45; }
+  .pain-card p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.75; }
+
+  .loop-figure { display: grid; grid-template-columns: 1fr 36px 1fr 36px 1fr; gap: 8px; align-items: center; margin: 28px 0 37px; padding: 24px; border-radius: 12px; background: #202827; color: #eef5f1; }
+  .loop-node { padding: 17px 13px; border: 1px solid rgba(255,255,255,.11); border-radius: 9px; text-align: center; }
+  .loop-node b { display: block; font-size: 13px; }
+  .loop-node span { display: block; margin-top: 6px; color: rgba(238,245,241,.57); font-size: 10.5px; line-height: 1.5; }
+  .loop-arrow { color: #8bcab8; font: 500 18px/1 var(--mono); text-align: center; }
+  .loop-caption { grid-column: 1 / -1; margin-top: 10px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,.1); color: rgba(238,245,241,.62); font-size: 12px; line-height: 1.7; }
+
+  .capability-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; margin: 27px 0 37px; }
+  .capability-card { padding: 20px; border: 1px solid var(--line); border-radius: 11px; background: var(--paper); }
+  .capability-card:nth-child(odd) { border-left: 3px solid var(--green); }
+  .capability-card:nth-child(even) { border-left: 3px solid var(--blue); }
+  .capability-card span { color: var(--faint); font: 600 10px/1 var(--mono); letter-spacing: .12em; }
+  .capability-card h3 { margin: 10px 0 8px; font-size: 16px; line-height: 1.45; }
+  .capability-card p { margin: 0; color: var(--muted); font-size: 13.5px; line-height: 1.75; }
+
+  .architecture { margin: 30px 0 39px; overflow: hidden; border: 1px solid rgba(77,113,155,.22); border-radius: 13px; background: var(--paper); }
+  .architecture-head { display: flex; justify-content: space-between; gap: 18px; padding: 15px 19px; border-bottom: 1px solid var(--line); color: var(--faint); font: 600 10px/1.4 var(--mono); letter-spacing: .13em; }
+  .architecture-body { padding: 23px; }
+  .architecture-lane { display: grid; grid-template-columns: 118px 1fr; gap: 14px; align-items: stretch; margin-bottom: 10px; }
+  .architecture-lane:last-child { margin-bottom: 0; }
+  .architecture-label { display: flex; align-items: center; padding: 13px; border-radius: 8px; color: var(--blue-deep); background: var(--blue-soft); font: 650 10px/1.5 var(--mono); }
+  .architecture-lane:nth-child(2) .architecture-label { color: var(--green); background: var(--green-soft); }
+  .architecture-lane:nth-child(3) .architecture-label { color: #825127; background: var(--amber-soft); }
+  .architecture-items { display: grid; grid-template-columns: repeat(3, 1fr); gap: 9px; }
+  .architecture-item { padding: 13px; border: 1px solid var(--line); border-radius: 8px; }
+  .architecture-item b { display: block; font-size: 12.5px; }
+  .architecture-item span { display: block; margin-top: 5px; color: var(--faint); font-size: 10.5px; line-height: 1.5; }
+
+  .company-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; margin: 27px 0 37px; }
+  .company-card { padding: 23px; border: 1px solid var(--line); border-radius: 11px; background: var(--paper); }
+  .company-card:first-child { border-top: 3px solid var(--green); }
+  .company-card:last-child { border-top: 3px solid var(--blue); }
+  .company-card .status { display: inline-block; padding: 4px 8px; border-radius: 4px; color: var(--green); background: var(--green-soft); font: 600 9px/1.4 var(--mono); letter-spacing: .08em; }
+  .company-card:last-child .status { color: var(--blue-deep); background: var(--blue-soft); }
+  .company-card h3 { margin: 13px 0 9px; font-family: var(--serif); font-size: 18px; }
+  .company-card p { margin: 0 0 12px; color: var(--muted); font-size: 13.5px; line-height: 1.77; }
+  .company-card p:last-child { margin-bottom: 0; }
+
+  .equation { margin: 29px 0 37px; padding: 27px 24px; border: 1px solid rgba(177,79,71,.2); border-radius: 12px; background: linear-gradient(140deg, var(--red-soft), rgba(255,253,248,.7)); text-align: center; }
+  .equation-main { color: var(--red); font: 650 22px/1.5 var(--mono); }
+  .equation-copy { max-width: 610px; margin: 13px auto 0; color: var(--muted); font-size: 12.5px; line-height: 1.75; }
+
+  .semantic-schema { margin: 28px 0 37px; overflow: hidden; border-radius: 12px; color: #eef5f1; background: #202827; }
+  .semantic-head { padding: 14px 19px; border-bottom: 1px solid rgba(255,255,255,.1); color: #8bcab8; font: 600 10px/1 var(--mono); letter-spacing: .14em; }
+  .semantic-grid { display: grid; grid-template-columns: repeat(2, 1fr); padding: 8px 20px 19px; gap: 0 22px; }
+  .semantic-item { padding: 13px 0; border-bottom: 1px solid rgba(255,255,255,.09); color: rgba(238,245,241,.68); font-size: 12.5px; line-height: 1.6; }
+  .semantic-item b { display: inline-block; min-width: 92px; color: #f6faf7; font: 600 10px/1.4 var(--mono); }
+
+  .debt-list { margin: 28px 0 37px; }
+  .debt-row { display: grid; grid-template-columns: 112px 1fr; gap: 18px; padding: 17px 0; border-bottom: 1px solid var(--line); }
+  .debt-row:first-child { border-top: 1px solid var(--line); }
+  .debt-name { color: var(--amber); font: 650 10px/1.6 var(--mono); letter-spacing: .07em; }
+  .debt-copy { color: var(--muted); font-size: 13.5px; line-height: 1.74; }
+  .debt-copy strong { display: block; margin-bottom: 4px; font-size: 13px; }
+
+  .table-wrap { margin: 28px 0 37px; overflow-x: auto; border: 1px solid var(--line); border-radius: 11px; }
+  .data-table { width: 100%; min-width: 780px; border-collapse: collapse; background: var(--paper); font-size: 13.5px; }
+  .data-table th, .data-table td { padding: 14px 15px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; line-height: 1.68; }
+  .data-table tr:last-child td { border-bottom: 0; }
+  .data-table th { color: var(--muted); font-size: 11px; letter-spacing: .06em; background: rgba(77,113,155,.06); }
+  .data-table td:first-child { color: var(--blue-deep); font-family: var(--mono); font-size: 11px; white-space: nowrap; }
+
+  .metric-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 26px 0 37px; }
+  .metric-card { padding: 18px; border: 1px solid var(--line); border-radius: 10px; background: rgba(255,253,248,.78); }
+  .metric-card h3 { margin: 0 0 8px; font-size: 14px; }
+  .metric-card p { margin: 0; color: var(--muted); font-size: 12.5px; line-height: 1.7; }
+
+  .guardrail { margin: 28px 0 37px; padding: 21px 22px; border-left: 3px solid var(--amber); background: var(--amber-soft); }
+  .guardrail h3 { margin: 0 0 8px; color: #70451f; font-size: 15px; }
+  .guardrail p { margin: 0; color: #765335; font-size: 13.5px; line-height: 1.8; }
+
+  .roadmap { position: relative; margin: 28px 0 38px; padding-left: 29px; }
+  .roadmap::before { content: ''; position: absolute; left: 7px; top: 9px; bottom: 9px; width: 1px; background: rgba(47,128,105,.3); }
+  .roadmap-step { position: relative; margin-bottom: 23px; }
+  .roadmap-step::before { content: ''; position: absolute; left: -27px; top: 7px; width: 11px; height: 11px; border-radius: 50%; background: var(--paper); border: 2px solid var(--green); }
+  .roadmap-step h3 { margin: 0 0 5px; font-size: 15px; }
+  .roadmap-step p { margin: 0; color: var(--muted); font-size: 13.5px; line-height: 1.75; }
+
+  .source-list { margin: 25px 0 36px; padding: 0; list-style: none; }
+  .source-list li { display: grid; grid-template-columns: 32px 1fr; gap: 13px; padding: 14px 0; border-bottom: 1px solid var(--line); }
+  .source-list li:first-child { border-top: 1px solid var(--line); }
+  .source-no { color: var(--faint); font: 500 10px/1.8 var(--mono); }
+  .source-list a { font-weight: 600; }
+  .source-list span { display: block; margin-top: 3px; color: var(--faint); font-size: 12px; line-height: 1.6; }
+  .closing { margin-top: 48px; padding-top: 27px; border-top: 2px solid var(--ink); font-family: var(--serif); font-size: 20px; line-height: 1.82; }
+
+  @media (max-width: 720px) {
+    .hero { padding: 48px 20px 34px; }
+    .headline { font-size: 35px; }
+    .content-wrap { padding: 0 20px 70px; }
+    .workflow-row { grid-template-columns: 1fr 1fr; }
+    .workflow-node:nth-child(2)::after { display: none; }
+    .pain-grid, .metric-grid { grid-template-columns: 1fr; }
+    .pain-card { min-height: auto; }
+    .loop-figure { grid-template-columns: 1fr; }
+    .loop-arrow { transform: rotate(90deg); }
+    .loop-caption { grid-column: 1; }
+    .capability-grid, .company-grid { grid-template-columns: 1fr; }
+    .architecture-lane { grid-template-columns: 1fr; }
+    .architecture-items { grid-template-columns: 1fr; }
+    .semantic-grid { grid-template-columns: 1fr; }
+    .debt-row { grid-template-columns: 1fr; gap: 6px; }
+  }
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="kicker">REAL-WORLD CASE · DATA INTELLIGENCE</div>
+  <h1 class="headline">LLM 与数据分析：<br>从写 SQL 到可信问数</h1>
+  <p class="deck">大模型可以缩短找表、写 SQL 和解释结果的时间，却无法自动消除历史数据债务。酒店集团的实践说明，智能问数的真正基础不是更强的模型，而是可检索的元数据、统一的业务口径和受治理的执行链路。</p>
+  <div class="meta-row">
+    <span>2026-08-22</span>
+    <span>真实案例 · 第二篇</span>
+    <span>阅读约 15 分钟</span>
+    <span>LLM · 数据分析 · Text-to-SQL · 数据治理</span>
+  </div>
+</header>
+
+<main class="content-wrap">
+<article class="article-body">
+  <div class="lead-block">
+    <span class="lead-label">导言 · Introduction</span>
+    <p class="lead">传统数据分析的主要产物看似是一段 SQL 或一张报表，实际工作却包含需求澄清、指标定义、数据发现、字段理解、查询编写、结果验证与多轮沟通。LLM 能够加速其中的语言和代码环节，但如果表找不到、字段没有定义、业务周期没有统一，模型只会更快地产生一个语法正确却业务错误的答案。</p>
+  </div>
+
+  <div class="case-note">
+    <strong>案例口径 · Scope</strong>
+    本文依据当前案例材料复盘华住与携程的数据分析实践，并结合公开资料补充技术边界。公开材料能够确认两家公司已在受控环境中使用大模型基础设施，但没有完整披露 Text-to-SQL 的覆盖范围、准确率和节省工时。因此，文中不填写未经确认的内部指标；华住“正在尝试”、携程“2025 年已用于内部 SQL 辅助”的表述，暂按案例材料记录，后续可随更多流程和数据继续修订。
+  </div>
+
+  <div class="thesis">LLM 可以减少数据分析流程中的机械劳动，但不能替代数据语义。企业真正需要建设的不是一个“会写 SQL 的聊天框”，而是一套能够理解指标、查找证据、约束执行并解释结果的可信问数系统。</div>
+
+  <section>
+    <div class="section-label">01 · TRADITIONAL WORKFLOW</div>
+    <h2 class="section-heading">传统数据分析流程：从业务问题到可用数据</h2>
+    <p>以酒店集团为例，一次分析通常从业务或产品团队提出需求开始。需求可能是“最近两周华东区域的入住率为什么下降”，也可能只是“拉一份活动酒店的经营数据”。数据分析师首先需要判断问题是否清晰、指标是否已有定义，以及完成分析需要哪些数据。</p>
+
+    <div class="process-list">
+      <div class="process-row"><div><h3>理解需求与确定指标</h3><p>明确分析对象、时间范围、对比基准、筛选条件、粒度和交付形式。模糊的“收入”“订单”“入住率”必须拆成可计算口径。</p></div></div>
+      <div class="process-row"><div><h3>寻找数据表与字段</h3><p>若所需数据属于常用主题，分析师可以直接选择熟悉的表；若涉及陌生业务，则需要与数仓团队沟通，确认来源表、汇总表、关联键和更新周期。</p></div></div>
+      <div class="process-row"><div><h3>编写 SQL 并提取样本</h3><p>先查询少量数据，检查字段取值、空值、重复、时间跨度与数量级，再判断表和口径是否符合需求。</p></div></div>
+      <div class="process-row"><div><h3>组合分析数据集</h3><p>根据需求筛选字段，完成多表关联、指标计算、分组聚合和异常处理，构造最终数据集或报表。</p></div></div>
+      <div class="process-row"><div><h3>解释结果并继续迭代</h3><p>业务查看第一版结果后，常会补充条件、改变统计范围或提出新的拆分方式，分析师随后重新查表、改 SQL、取数和解释。</p></div></div>
+    </div>
+
+    <div class="workflow">
+      <div class="workflow-title">Traditional Analytics Pipeline</div>
+      <div class="workflow-row">
+        <div class="workflow-node"><b>业务需求</b><span>问题、指标<br>时间与粒度</span></div>
+        <div class="workflow-node"><b>数据发现</b><span>找表、问数仓<br>确认字段口径</span></div>
+        <div class="workflow-node"><b>SQL 与验证</b><span>抽样、关联<br>检查数据质量</span></div>
+        <div class="workflow-node"><b>分析交付</b><span>数据集、图表<br>结论与下一轮</span></div>
+      </div>
+      <div class="workflow-foot">SQL 只是流程中间的一步。其上游依赖需求和业务语义，下游还需要数据验证、解释与决策沟通。</div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-label">02 · BOTTLENECKS</div>
+    <h2 class="section-heading">三个主要难点：找不到、说不清、反复改</h2>
+    <div class="pain-grid">
+      <article class="pain-card">
+        <span class="pain-no">01 · DISCOVERY</span>
+        <h3>数据分散，找表本身就很耗时</h3>
+        <p>订单、房态、会员、价格、渠道、活动和酒店主数据分布在不同主题域。表名不一定表达业务含义，同一概念还可能存在明细表、快照表、汇总表和历史版本。</p>
+      </article>
+      <article class="pain-card">
+        <span class="pain-no">02 · METADATA</span>
+        <h3>元数据存在，但没有业务解释</h3>
+        <p>字段类型和注释不足以说明数据如何产生。某个收入字段是否含税、是否扣除退款、按预订日还是入住日归属，往往只存在于旧 SQL、报表逻辑或个人经验中。</p>
+      </article>
+      <article class="pain-card">
+        <span class="pain-no">03 · COMMUNICATION</span>
+        <h3>业务需求需要通过数据逐步成形</h3>
+        <p>业务不一定预先知道需要哪些字段和拆分维度。第一版数据常常只是问题探索的开始，查看分布后才会产生更具体的需求，形成反复取数与沟通。</p>
+      </article>
+    </div>
+
+    <p>这些问题会把数据分析师变成组织内部的“数据翻译器”：既要理解业务问题，又要记住表与字段，还要解释历史口径。分析能力被大量消耗在搜索、确认和重复改写上，真正用于提出假设、判断因果与解释业务的时间反而被压缩。</p>
+
+    <div class="loop-figure">
+      <div class="loop-node"><b>业务先提一个问题</b><span>目标和数据形态尚不完整</span></div>
+      <div class="loop-arrow">→</div>
+      <div class="loop-node"><b>分析师先拉一版数据</b><span>通过真实分布澄清问题</span></div>
+      <div class="loop-arrow">↺</div>
+      <div class="loop-node"><b>业务继续补充需求</b><span>增加维度、口径或筛选条件</span></div>
+      <div class="loop-caption">多轮沟通并非需求方或分析师能力不足，而是分析问题具有探索性。风险在于每一轮探索都必须重新经过人工找表、写 SQL 和解释字段，导致反馈周期过长。</div>
+    </div>
+
+    <p>携程技术较早公开过其数据血缘建设实践：企业数据会经过 Hive、Spark、Presto、DataX 等多种引擎和工具流转，需要建立表级与字段级血缘，才能支持溯源、影响分析、生命周期和安全管控。这个案例说明，数据发现和元数据治理在大模型出现之前已经是独立且长期的工程问题。参见<a href="https://docs.c-ctrip.com/files/6/ctriptech/1gw291200099iy5uyCC5B.pdf" target="_blank" rel="noopener">《携程数据血缘构建及应用》</a>。</p>
+  </section>
+
+  <section>
+    <div class="section-label">03 · LLM INTERVENTION</div>
+    <h2 class="section-heading">引入 LLM：不是只把自然语言翻译成 SQL</h2>
+    <p>最直观的应用是 Text-to-SQL：业务用自然语言提问，模型生成查询语句。但企业分析系统需要处理的远不止语法转换。一个有价值的 LLM 数据助手，应当覆盖需求澄清、数据发现、字段解释、SQL 生成、执行校验和结果解读。</p>
+
+    <div class="capability-grid">
+      <article class="capability-card"><span>01 · CLARIFY</span><h3>需求澄清</h3><p>识别问题中的指标、维度、时间、粒度和对比关系；遇到“收入”“本周”“有效订单”等歧义时，先给出候选口径并请求确认。</p></article>
+      <article class="capability-card"><span>02 · DISCOVER</span><h3>智能找表</h3><p>从数据目录、字段注释、血缘、历史 SQL、报表和文档中检索候选表，解释推荐依据，并展示负责人、更新频率与上下游关系。</p></article>
+      <article class="capability-card"><span>03 · GENERATE</span><h3>SQL 生成与修改</h3><p>根据受控上下文生成 SQL，解释关联键、过滤条件与指标公式；分析师可以继续用自然语言要求增加字段、改变粒度或优化性能。</p></article>
+      <article class="capability-card"><span>04 · VALIDATE</span><h3>查询验证</h3><p>进行语法检查、权限检查、扫描成本预估、危险操作拦截，并通过小样本执行、结果约束和历史查询对比发现异常。</p></article>
+      <article class="capability-card"><span>05 · EXPLAIN</span><h3>结果解释</h3><p>总结趋势、异常和维度贡献，同时保留 SQL、口径、来源表和运行时间，使结论能够追溯到计算证据。</p></article>
+      <article class="capability-card"><span>06 · ITERATE</span><h3>对话式迭代</h3><p>保存当前分析上下文，支持“只看华东”“按品牌拆分”“排除新开店”等连续修改，缩短业务与数据之间的反馈回路。</p></article>
+    </div>
+
+    <div class="architecture">
+      <div class="architecture-head"><span>TRUSTED ANALYTICS ARCHITECTURE</span><span>QUESTION → EVIDENCE → SQL → RESULT</span></div>
+      <div class="architecture-body">
+        <div class="architecture-lane">
+          <div class="architecture-label">交互与理解层</div>
+          <div class="architecture-items">
+            <div class="architecture-item"><b>问题解析</b><span>指标、维度、时间、粒度</span></div>
+            <div class="architecture-item"><b>歧义澄清</b><span>候选口径与追问</span></div>
+            <div class="architecture-item"><b>结果解释</b><span>图表、结论与证据</span></div>
+          </div>
+        </div>
+        <div class="architecture-lane">
+          <div class="architecture-label">语义与检索层</div>
+          <div class="architecture-items">
+            <div class="architecture-item"><b>数据目录</b><span>表、字段、血缘、owner</span></div>
+            <div class="architecture-item"><b>指标语义层</b><span>公式、维度、业务日历</span></div>
+            <div class="architecture-item"><b>历史知识</b><span>SQL、报表、Wiki、代码</span></div>
+          </div>
+        </div>
+        <div class="architecture-lane">
+          <div class="architecture-label">执行与治理层</div>
+          <div class="architecture-items">
+            <div class="architecture-item"><b>SQL Agent</b><span>生成、修订、解释</span></div>
+            <div class="architecture-item"><b>安全网关</b><span>只读、权限、成本、审计</span></div>
+            <div class="architecture-item"><b>查询引擎</b><span>小样本、正式执行、缓存</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p>2025 年的 LinkedIn 企业 Text-to-SQL 研究采用了类似思路：先把数据库元数据、历史查询、Wiki 和代码组织成知识图谱，再由 Agent 检索上下文、生成 SQL 并修正语法或幻觉。其内部评测中，专家认为正确或接近正确的回答约占 53%。这不是一个可以直接横向比较的行业准确率，却说明即使拥有企业知识图谱和自动修正，生产级问数仍远未达到完全自治。参见<a href="https://arxiv.org/abs/2507.14372" target="_blank" rel="noopener">Text-to-SQL for Enterprise Data Analytics</a>。</p>
+  </section>
+
+  <section>
+    <div class="section-label">04 · COMPANY PRACTICE</div>
+    <h2 class="section-heading">华住与携程：从探索到内部辅助</h2>
+    <div class="company-grid">
+      <article class="company-card">
+        <span class="status">EXPLORATION · 案例材料</span>
+        <h3>华住集团：尝试让 LLM 查表、写 SQL 和回答业务问题</h3>
+        <p>按照当前案例材料，华住的探索方向是把 LLM 接入数据分析流程，让模型根据业务问题查找相关表、生成 SQL，并基于查询结果回答问题。目标是降低业务自助取数门槛，同时减少数据分析师在重复找表和改写查询上的投入。</p>
+        <p>华住的<a href="https://ir.hworld.com/static-files/9b513aa6-4bc9-45ce-bbda-af3c59d7f4ca" target="_blank" rel="noopener">《2025 可持续发展报告》</a>公开说明，其 AI 模型运行在自建 VPC 环境并集成多家国产大模型，以确保数据在受控环境中处理。报告能够支持其内部大模型基础设施与安全方向，但没有披露智能问数的具体范围和效果。</p>
+      </article>
+      <article class="company-card">
+        <span class="status">INTERNAL ASSISTANT · 2025 案例材料</span>
+        <h3>携程集团：内部部署 LLM 辅助 SQL 编写</h3>
+        <p>按照当前案例材料，携程在 2025 年已经使用内部部署的大模型协助分析师编写 SQL，主要价值是缩短查询草稿、字段组合和反复修改的时间，让分析师把更多精力放在需求判断与结果解释上。</p>
+        <p>携程研发总监在 2025 年公开演讲中介绍，内部 AI 网关同时接入外部商业模型与内部自研模型，并运行在企业内部 Kubernetes 集群；这为敏感数据场景中的模型调用和统一治理提供了基础。该公开演讲没有披露 SQL 助手的覆盖率或节省工时，本文不据此推算。参见<a href="https://segmentfault.com/a/1190000047259332" target="_blank" rel="noopener">携程 AI 网关实践公开演讲整理</a>。</p>
+      </article>
+    </div>
+
+    <p>这两条路径的共同点不是让业务直接绕过数据团队，而是先把 LLM 配置为分析助手：帮助理解需求、发现数据和生成查询，再由分析师确认口径与结果。节省的是可重复的检索和编码时间，保留的是业务判断、数据责任和最终解释权。</p>
+  </section>
+
+  <section>
+    <div class="section-label">05 · UNSOLVED DEBT</div>
+    <h2 class="section-heading">仍未解决的问题：历史数据债务不会被模型自动消除</h2>
+    <p>LLM 能够读取元数据，却不能补回从未记录的业务知识。企业数仓中的多数困难并不是 SQL 写法，而是同一个指标存在多种口径、历史逻辑缺少负责人、字段与报表长期漂移。模型会把这些不确定性吸收进回答，甚至用流畅语言掩盖冲突。</p>
+
+    <div class="equation">
+      <div class="equation-main">SQL 可执行 ≠ 数据正确 ≠ 业务结论可信</div>
+      <div class="equation-copy">语法正确只说明数据库可以运行查询。表是否选对、关联是否重复、时间是否按业务周期截取、指标是否符合组织定义，决定了结果能否用于经营判断。</div>
+    </div>
+
+    <div class="debt-list">
+      <div class="debt-row"><div class="debt-name">TABLE DEBT</div><div class="debt-copy"><strong>表的数量与历史版本持续增加</strong>同一主题存在明细、快照、宽表、临时表和废弃表。没有生命周期和使用热度时，LLM 同样难以判断哪个表才是当前可信来源。</div></div>
+      <div class="debt-row"><div class="debt-name">METADATA DEBT</div><div class="debt-copy"><strong>字段注释缺少计算和业务含义</strong>名称为 <code>revenue</code> 的字段可能是含税收入、净收入或确认收入；类型信息无法表达退款、取消和跨日归属规则。</div></div>
+      <div class="debt-row"><div class="debt-name">CALENDAR DEBT</div><div class="debt-copy"><strong>酒店业务的时间不是自然日历的简单映射</strong>营业日可能跨越自然日；“周”可能遵循企业经营周期；预订日、入住日、离店日和收入确认日会产生不同分析结果。</div></div>
+      <div class="debt-row"><div class="debt-name">METRIC DEBT</div><div class="debt-copy"><strong>指标定义散落在报表和个人 SQL 中</strong>入住率、平均房价、RevPAR、取消率等指标依赖过滤条件、可售房口径、分母选择和异常订单处理。</div></div>
+      <div class="debt-row"><div class="debt-name">OWNERSHIP DEBT</div><div class="debt-copy"><strong>旧逻辑失去维护者</strong>分析师能够找到一段历史 SQL，却无法确认它为何这样计算、是否仍然有效，以及变更后会影响哪些下游报表。</div></div>
+    </div>
+
+    <p>Spider 2.0 将企业级 Text-to-SQL 任务扩展到真实数据工作流：数据库常包含超过 1,000 个字段，任务还需要理解元数据、方言文档和项目代码，并可能生成超过 100 行的多段 SQL。论文中的代码 Agent 在该评测上只解决了 17.0% 的任务，远低于其在传统 Spider 1.0 上的结果。这个差距表明，真实企业环境的困难主要来自复杂上下文和业务工程，而不仅是模型是否会写 SELECT。参见<a href="https://arxiv.org/abs/2411.07763" target="_blank" rel="noopener">Spider 2.0</a>。</p>
+  </section>
+
+  <section>
+    <div class="section-label">06 · SEMANTIC LAYER</div>
+    <h2 class="section-heading">关键解法：为 LLM 建立可治理的语义层</h2>
+    <p>如果模型直接面对数千张原始表，只靠向量检索选择 schema，生成结果很容易随提示和候选表变化。更稳定的做法是在数据库与 LLM 之间建立语义层，把业务术语、指标公式、允许关联、时间日历、权限和负责人集中管理。</p>
+
+    <div class="semantic-schema">
+      <div class="semantic-head">GOVERNED METRIC · HOTEL_OCCUPANCY_RATE</div>
+      <div class="semantic-grid">
+        <div class="semantic-item"><b>business_name</b>酒店入住率</div>
+        <div class="semantic-item"><b>formula</b>已售房晚 / 可售房晚</div>
+        <div class="semantic-item"><b>grain</b>hotel_id × business_date</div>
+        <div class="semantic-item"><b>calendar</b>酒店营业日，不直接等同自然日</div>
+        <div class="semantic-item"><b>filters</b>取消单、测试单与维修房规则</div>
+        <div class="semantic-item"><b>dimensions</b>品牌、区域、城市、渠道</div>
+        <div class="semantic-item"><b>source</b>受治理事实表与版本</div>
+        <div class="semantic-item"><b>owner</b>收益管理 / 数据产品负责人</div>
+        <div class="semantic-item"><b>lineage</b>上游字段、任务与下游报表</div>
+        <div class="semantic-item"><b>validity</b>生效时间、变更记录与状态</div>
+      </div>
+    </div>
+
+    <p>语义层不是专门为 LLM 创建的新文档，而是企业原本就需要的数据产品。它让分析师、报表、API 和 AI Agent 使用同一套指标定义。Thoughtworks 在 2025 年将无人监督 Text-to-SQL 调整为“Hold”，建议通过受治理的数据抽象或语义层限制直接数据库访问；其理由正是模型可能因为 schema 和领域理解不足而生成错误查询。参见<a href="https://www.thoughtworks.com/zh-cn/radar/techniques/text-to-sql" target="_blank" rel="noopener">Technology Radar：Text to SQL</a>。</p>
+
+    <div class="guardrail">
+      <h3>不要让 LLM 直接拥有不受限制的生产库权限</h3>
+      <p>生产系统至少需要只读账号、行列级权限、敏感字段脱敏、查询超时、扫描量限制、SQL AST 检查、危险函数拦截、结果行数限制和完整审计。高风险查询应先展示 SQL、口径与预计成本，由分析师确认后执行。</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-label">07 · EVALUATION</div>
+    <h2 class="section-heading">如何评估：不能只统计 SQL 是否执行成功</h2>
+    <p>可信问数需要端到端评测。评测问题应来自真实业务请求，保存标准口径、允许表、参考 SQL、预期结果约束和必要澄清项，并按照简单取数、复杂关联、业务日历、长尾指标和高风险数据分层。</p>
+
+    <div class="metric-grid">
+      <article class="metric-card"><h3>数据发现</h3><p>正确表 Top-K 召回率、字段召回率、血缘引用正确率与找表耗时。</p></article>
+      <article class="metric-card"><h3>语义理解</h3><p>指标识别、时间口径、粒度、过滤条件和歧义澄清的准确率。</p></article>
+      <article class="metric-card"><h3>SQL 质量</h3><p>语法执行率、结果一致率、关联正确率、扫描成本与性能。</p></article>
+      <article class="metric-card"><h3>答案可信度</h3><p>结论是否由查询结果支持，是否附带口径、来源、SQL 和时间戳。</p></article>
+      <article class="metric-card"><h3>安全治理</h3><p>越权查询拦截率、敏感字段泄露率、危险 SQL 率和审计完整度。</p></article>
+      <article class="metric-card"><h3>业务效率</h3><p>首次可用结果时间、往返轮次、分析师修改量、问题解决率和节省工时。</p></article>
+    </div>
+
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead><tr><th>错误类型</th><th>表面现象</th><th>根因</th><th>优先改进</th></tr></thead>
+        <tbody>
+          <tr><td>Schema 错误</td><td>查询了名称相近但不适用的表</td><td>数据目录不全、缺少领域与生命周期信息</td><td>补元数据、使用热度、owner 与可信表等级</td></tr>
+          <tr><td>Join 错误</td><td>结果行数异常放大或重复</td><td>主键、粒度和允许关联没有表达</td><td>维护实体关系、grain 与 join policy</td></tr>
+          <tr><td>时间错误</td><td>周报与业务报表不一致</td><td>自然日、营业日、预订日和入住日混淆</td><td>建立业务日历与指标时间语义</td></tr>
+          <tr><td>指标错误</td><td>SQL 可运行，但数字口径错误</td><td>公式与过滤散落在历史 SQL</td><td>建设指标语义层和版本治理</td></tr>
+          <tr><td>需求错误</td><td>回答了一个合理但并非原始的问题</td><td>模型未识别歧义，直接生成查询</td><td>定义必须澄清的触发规则与候选口径</td></tr>
+          <tr><td>解释错误</td><td>结论超出查询结果能够支持的范围</td><td>把相关关系写成原因，或遗漏样本限制</td><td>约束结论模板，绑定证据并保留不确定性</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-label">08 · IMPLEMENTATION</div>
+    <h2 class="section-heading">落地路线：先做分析师助手，再做业务自助问数</h2>
+    <div class="roadmap">
+      <div class="roadmap-step"><h3>阶段一 · 选择一个数据治理较好的主题域</h3><p>从酒店经营、渠道或会员等单一领域开始，限定可信表、指标和用户群，不直接接入全集团全部数据。</p></div>
+      <div class="roadmap-step"><h3>阶段二 · 上线分析师 Copilot</h3><p>先提供找表、字段解释、历史 SQL 检索和查询草稿。SQL 由分析师审核执行，收集修改前后的差异作为评测与改进数据。</p></div>
+      <div class="roadmap-step"><h3>阶段三 · 补齐语义与数据债务</h3><p>根据失败样本补充指标公式、业务日历、表粒度、关联规则、负责人和血缘；让每次模型失败推动数据资产变得更清晰。</p></div>
+      <div class="roadmap-step"><h3>阶段四 · 建立受控执行链路</h3><p>引入只读沙箱、权限、扫描成本、AST 校验、结果约束与审计。先允许低风险聚合查询自动执行，高风险请求继续人工确认。</p></div>
+      <div class="roadmap-step"><h3>阶段五 · 向业务开放有限自助问数</h3><p>只开放已治理的指标与维度，答案必须展示口径和来源。遇到歧义、异常或未治理领域时转回分析师，而不是由模型猜测。</p></div>
+      <div class="roadmap-step"><h3>阶段六 · 建立反馈与版本闭环</h3><p>记录问题、检索上下文、生成 SQL、修改、执行结果与用户反馈；模型、语义层和评测集分别版本化，避免改动后无法追责。</p></div>
+    </div>
+
+    <p>这一顺序保留了分析师作为质量控制点，也能较快产生价值。模型最先替代的是复制表名、查字段、改 SQL 和整理说明等重复步骤；随着语义资产和评测体系成熟，系统才逐步承担低风险的自动取数。若一开始就让业务自然语言直接驱动生产查询，错误会在最难审计的位置发生。</p>
+  </section>
+
+  <section>
+    <div class="section-label">09 · PRIMARY SOURCES</div>
+    <h2 class="section-heading">公开资料与延伸阅读</h2>
+    <ul class="source-list">
+      <li><div class="source-no">01</div><div><a href="https://docs.c-ctrip.com/files/6/ctriptech/1gw291200099iy5uyCC5B.pdf" target="_blank" rel="noopener">携程技术 2021 年度合辑 · 携程数据血缘构建及应用</a><span>表级与字段级血缘、元数据溯源、影响分析、生命周期与安全管控实践。</span></div></li>
+      <li><div class="source-no">02</div><div><a href="https://ir.hworld.com/static-files/9b513aa6-4bc9-45ce-bbda-af3c59d7f4ca" target="_blank" rel="noopener">华住集团 2025 可持续发展报告</a><span>AI 应用、自建 VPC、国产大模型集成与受控数据处理的公司公开口径。</span></div></li>
+      <li><div class="source-no">03</div><div><a href="https://segmentfault.com/a/1190000047259332" target="_blank" rel="noopener">稳定支撑大规模模型调用，携程旅游的 AI 网关实践</a><span>携程研发总监 2025 年公开演讲整理；内部 AI 网关、商业模型与自研模型接入。</span></div></li>
+      <li><div class="source-no">04</div><div><a href="https://arxiv.org/abs/2507.14372" target="_blank" rel="noopener">Text-to-SQL for Enterprise Data Analytics</a><span>LinkedIn，2025。企业元数据知识图谱、上下文检索、SQL Agent 与内部评测。</span></div></li>
+      <li><div class="source-no">05</div><div><a href="https://arxiv.org/abs/2411.07763" target="_blank" rel="noopener">Spider 2.0: Evaluating Language Models on Real-World Enterprise Text-to-SQL Workflows</a><span>企业级数据库、复杂元数据、SQL 工作流与真实任务难度。</span></div></li>
+      <li><div class="source-no">06</div><div><a href="https://www.thoughtworks.com/zh-cn/radar/techniques/text-to-sql" target="_blank" rel="noopener">Thoughtworks Technology Radar · Text to SQL</a><span>2025 年对无人监督 Text-to-SQL 的风险判断，以及使用受治理语义层的建议。</span></div></li>
+    </ul>
+  </section>
+
+  <p class="closing">LLM 进入数据分析后，最容易被看见的是 SQL 生成，最重要的变化却发生在数据与业务之间：需求可以更快澄清，元数据可以被自然语言检索，历史查询可以被复用，结果可以在同一对话中继续拆解。但这些能力只有建立在统一指标、业务日历、数据血缘、权限和评测之上，才会从“快速写出一段 SQL”变成“稳定回答一个经营问题”。</p>
+</article>
+</main>
+</body>
+</html>

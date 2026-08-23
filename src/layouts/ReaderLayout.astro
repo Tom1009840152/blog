@@ -5,6 +5,7 @@ import '../styles/reader.css';
 
 type ArticleLink = {
   article: ArticleMeta;
+  href?: string;
 };
 
 interface Props {
@@ -52,7 +53,7 @@ const {
       </div>
     </header>
 
-    <div class="reader-shell" data-reader-shell>
+    <div class="reader-shell" data-reader-shell data-domain-id={domain.id}>
       <button class="sidebar-overlay" type="button" data-sidebar-overlay aria-label="关闭目录"></button>
       <aside class="reader-sidebar" aria-label={`${domain.title}文章目录`}>
         <div class="sidebar-heading">
@@ -67,8 +68,16 @@ const {
         </div>
 
         <nav class="sidebar-navigation">
+          <a
+            href={sitePath(`/domain/${domain.id}/`)}
+            class:list={['article-link', 'domain-introduction-link', { active: currentArticle?.id === domain.introduction.id }]}
+            aria-current={currentArticle?.id === domain.introduction.id ? 'page' : undefined}
+          >
+            <span>00</span>
+            <strong>{domain.introduction.title}</strong>
+          </a>
           {domain.sections.map(section => (
-            <details class="section-group" open>
+            <details class="section-group" data-section-id={section.id} open>
               <summary>
                 <span class="section-title">{section.title}</span>
                 <span class="section-count">{String(section.articles.length).padStart(2, '0')}</span>
@@ -90,7 +99,7 @@ const {
         </nav>
 
         <div class="sidebar-footer">
-          <span>{domain.sections.reduce((sum, section) => sum + section.articles.length, 0)} ARTICLES</span>
+          <span>{domain.sections.reduce((sum, section) => sum + section.articles.length, 1)} ARTICLES</span>
           <span>TRANSFORMER KNOWLEDGE MAP</span>
         </div>
       </aside>
@@ -104,13 +113,13 @@ const {
         {currentArticle && (previousArticle || nextArticle) && (
           <nav class="article-pagination" aria-label="文章翻页">
             {previousArticle ? (
-              <a class="pagination-link previous" href={sitePath(`/article/${previousArticle.article.id}/`)}>
+              <a class="pagination-link previous" href={sitePath(previousArticle.href || `/article/${previousArticle.article.id}/`)}>
                 <span>上一篇</span>
                 <strong>{previousArticle.article.title}</strong>
               </a>
             ) : <span></span>}
             {nextArticle && (
-              <a class="pagination-link next" href={sitePath(`/article/${nextArticle.article.id}/`)}>
+              <a class="pagination-link next" href={sitePath(nextArticle.href || `/article/${nextArticle.article.id}/`)}>
                 <span>下一篇</span>
                 <strong>{nextArticle.article.title}</strong>
               </a>
@@ -127,6 +136,44 @@ const {
       const menu = document.querySelector<HTMLButtonElement>('[data-mobile-menu]');
       const overlay = document.querySelector<HTMLButtonElement>('[data-sidebar-overlay]');
       const storageKey = 'juhecha-reader-sidebar';
+      const sectionGroups = Array.from(document.querySelectorAll<HTMLDetailsElement>('.section-group[data-section-id]'));
+      const sectionStorageKey = `juhecha-reader-sections:${shell?.dataset.domainId || 'unknown'}`;
+
+      try {
+        const storedSectionState = window.localStorage.getItem(sectionStorageKey);
+        if (storedSectionState) {
+          const sectionState = JSON.parse(storedSectionState) as Record<string, boolean>;
+          sectionGroups.forEach(group => {
+            const sectionId = group.dataset.sectionId;
+            if (sectionId && typeof sectionState[sectionId] === 'boolean') {
+              group.open = sectionState[sectionId];
+            }
+          });
+        }
+      } catch {
+        // Storage can be unavailable or contain stale data; keep the default state in that case.
+      }
+
+      function saveSectionState() {
+        try {
+          const sectionState = Object.fromEntries(
+            sectionGroups.flatMap(section => {
+              const sectionId = section.dataset.sectionId;
+              return sectionId ? [[sectionId, section.open]] : [];
+            })
+          );
+          window.localStorage.setItem(sectionStorageKey, JSON.stringify(sectionState));
+        } catch {
+          // The directory still works when storage is unavailable; only persistence is skipped.
+        }
+      }
+
+      sectionGroups.forEach(group => {
+        group.addEventListener('toggle', saveSectionState);
+      });
+      document.querySelectorAll<HTMLAnchorElement>('.sidebar-navigation a').forEach(link => {
+        link.addEventListener('click', saveSectionState);
+      });
 
       function setMobile(open: boolean) {
         shell?.toggleAttribute('data-mobile-open', open);

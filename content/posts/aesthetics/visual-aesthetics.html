@@ -81,29 +81,7 @@
   .diagram-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
   .diagram-body { padding: 20px 18px; }
 
-  .compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  .compare-card { background: var(--bg); border: 0.5px solid var(--border); border-radius: 8px; padding: 16px; }
-  .compare-card-title { font-size: 12px; font-weight: 500; margin-bottom: 8px; color: var(--text-secondary); }
-  .compare-card-title.accent-t { color: var(--accent); }
-  .compare-card-title.info-t { color: var(--info); }
-  .compare-card-title.success-t { color: var(--success); }
-  .compare-card-title.danger-t { color: var(--danger); }
-  .card-desc { font-size: 12px; color: var(--text-secondary); line-height: 1.65; font-weight: 400; }
-
-  .reasons-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  .reason-item { background: var(--bg); border: 0.5px solid var(--border); border-radius: 8px; padding: 16px; }
-  .reason-icon { font-size: 20px; margin-bottom: 8px; display: block; }
-  .reason-title { font-size: 13px; font-weight: 500; color: var(--text-primary); margin-bottom: 6px; }
-  .reason-desc { font-size: 12px; color: var(--text-secondary); line-height: 1.65; font-weight: 400; }
-
   /* Shot size image grid */
-  .shot-img-card { border-radius: 8px; overflow: hidden; border: 0.5px solid var(--border); background: var(--bg-card); }
-  .shot-img-wrap { position: relative; width: 100%; padding-top: 100%; background: var(--bg-code); overflow: hidden; }
-  .shot-img-wrap img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
-  .shot-img-placeholder { display: none; position: absolute; inset: 0; align-items: center; justify-content: center; background: var(--bg-code); }
-  .shot-img-placeholder span { font-size: 12px; color: var(--text-tertiary); font-family: var(--sans); }
-  .shot-img-label { padding: 6px 10px 8px; font-size: 12px; font-weight: 500; color: var(--text-secondary); text-align: center; border-top: 0.5px solid var(--border); }
-  .shot-img-label span { font-size: 10px; color: var(--text-tertiary); font-family: var(--mono); margin-left: 4px; font-weight: 400; }
 
   /* Angle diagram */
   .angle-list { display: flex; flex-direction: column; gap: 0; }
@@ -127,16 +105,8 @@
   .badge.cool { background: var(--info-light); color: var(--info); }
 
   /* Composition grid */
-  .comp-canvas-wrap { position: relative; background: #2a2520; border-radius: 8px; overflow: hidden; margin: 0 0 10px; }
-  .comp-canvas-wrap canvas { display: block; width: 100%; }
-  .comp-label { font-size: 11px; font-weight: 500; color: var(--text-secondary); text-align: center; }
 
   /* Lighting row */
-  .light-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 16px 0; }
-  .light-card { border-radius: 8px; overflow: hidden; border: 0.5px solid var(--border); background: var(--bg-card); }
-  .light-vis { height: 72px; display: flex; align-items: center; justify-content: center; font-size: 24px; }
-  .light-name { padding: 6px 10px 8px; font-size: 11px; font-weight: 500; color: var(--text-secondary); text-align: center; border-top: 0.5px solid var(--border); background: var(--bg-card); }
-  .light-sub  { font-size: 10px; color: var(--text-tertiary); display: block; margin-top: 1px; font-weight: 400; }
 
   /* Mood board */
   .mood-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 16px 0; }
@@ -170,8 +140,7 @@
     .content-wrap { grid-template-columns: 1fr; }
     .sidebar { display: none; }
     .headline { font-size: 28px; }
-    .compare-grid, .reasons-grid, .shot-strip, .angle-grid, .light-row, .mood-grid { grid-template-columns: 1fr 1fr; }
-    .shot-strip { grid-template-columns: repeat(3, 1fr); }
+    .mood-grid { grid-template-columns: 1fr 1fr; }
     .hero { padding: 40px 20px 32px; }
     .content-wrap { padding: 0 20px; }
     .header-inner { padding: 0 20px; }
@@ -188,11 +157,12 @@
 </header>
 
 <section class="hero">
-  <p class="kicker">美学基础入门</p>
+  <p class="kicker">视觉创作入门</p>
   <h1 class="headline">画面语言：<br>用<em>视觉</em>说话</h1>
   <p class="deck">景别、机位、镜头焦段、构图、光线、氛围——这六个维度，构成了摄影与影像创作的基础语法。读懂它们，你就能读懂每一帧画面想说的话。</p>
   <div class="meta-row">
     <span>2026-05-27</span>
+    <span>视觉语言 · 基础导览</span>
     <span>阅读约 10 分钟</span>
     <span>美学 · 摄影 · 影像语言 · 构图</span>
   </div>
@@ -540,14 +510,14 @@
         <span class="diagram-label">色温情绪速查</span>
       </div>
       <div class="diagram-body">
-        <div style="display:flex;align-items:center;gap:0;border-radius:8px;overflow:hidden;height:36px;margin-bottom:10px;">
-          <div style="flex:1;background:#ff8c42;"></div>
-          <div style="flex:1;background:#ffb347;"></div>
-          <div style="flex:1;background:#fff4e0;"></div>
-          <div style="flex:1;background:#fffaf0;"></div>
-          <div style="flex:1;background:#e8f4f8;"></div>
-          <div style="flex:1;background:#b3d9f5;"></div>
-          <div style="flex:1;background:#7ec8e3;"></div>
+        <div style="display:flex;align-items:stretch;gap:0;border:1px solid rgba(31,35,48,.12);border-radius:8px;overflow:hidden;height:36px;margin-bottom:10px;">
+          <div style="flex:1;height:100%;background:#ff8c42;"></div>
+          <div style="flex:1;height:100%;background:#ffb347;"></div>
+          <div style="flex:1;height:100%;background:#fff4e0;"></div>
+          <div style="flex:1;height:100%;background:#fffaf0;"></div>
+          <div style="flex:1;height:100%;background:#e8f4f8;"></div>
+          <div style="flex:1;height:100%;background:#b3d9f5;"></div>
+          <div style="flex:1;height:100%;background:#7ec8e3;"></div>
         </div>
         <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-tertiary);">
           <span>1800K 烛光</span>

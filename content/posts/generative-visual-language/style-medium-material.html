@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>风格、媒介与材质：生成模型常用视觉词汇</title>
+  <style>
+    .vocab-hero,
+    .article-body {
+      --vm-ink: #211d1a;
+      --vm-muted: #675f58;
+      --vm-faint: #958b82;
+      --vm-line: rgba(74,58,46,.14);
+      --vm-paper: rgba(255,253,248,.92);
+      --vm-orange: #d36b35;
+      --vm-orange-deep: #a84c24;
+      --vm-orange-soft: rgba(250,233,222,.64);
+      --vm-blue: #456d98;
+      --vm-blue-soft: rgba(228,237,247,.67);
+      --vm-green: #517766;
+      --vm-green-soft: rgba(226,238,230,.64);
+      --vm-gold: #a97929;
+      --vm-gold-soft: rgba(250,240,214,.66);
+      --vm-red: #a7524a;
+      --vm-red-soft: rgba(244,229,226,.58);
+      --vm-serif: "Noto Serif SC", "Songti SC", serif;
+      --vm-mono: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+    }
+    .article-body { max-width: 760px; color: var(--vm-ink); }
+    .article-body p { margin: 0 0 20px; }
+    .article-body strong { color: #171411; font-weight: 650; }
+    .article-body a { color: var(--vm-orange-deep); text-decoration-thickness: 1px; text-underline-offset: 3px; }
+    .article-body a:hover { color: var(--vm-blue); }
+
+    .vocab-hero { max-width: 980px; margin: 0 auto; padding: 62px 28px 42px; color: var(--vm-ink); }
+    .vocab-kicker { color: var(--vm-orange); font: 600 10px/1.3 var(--vm-mono); letter-spacing: .19em; }
+    .vocab-headline { max-width: 870px; margin: 18px 0 17px; font-family: var(--vm-serif); font-size: 46px; line-height: 1.22; font-weight: 650; letter-spacing: -.025em; }
+    .vocab-deck { max-width: 780px; margin: 0; color: #6f665e; font-size: 16px; line-height: 1.85; }
+    .meta-row { display: flex; flex-wrap: wrap; gap: 8px 20px; margin-top: 24px; color: var(--vm-faint); font-size: 13px; }
+    .vocab-wrap { max-width: 980px; margin: 0 auto; padding: 0 28px 88px; }
+
+    .vm-section-label { margin: 60px 0 9px; color: var(--vm-faint); font: 500 10px/1.2 var(--vm-mono); letter-spacing: .2em; text-transform: uppercase; }
+    .vm-section-heading { margin: 0 0 22px; font-family: var(--vm-serif); font-size: 26px; line-height: 1.43; font-weight: 650; letter-spacing: -.01em; }
+    .vm-subheading { margin: 35px 0 12px; font-family: var(--vm-serif); font-size: 20px; line-height: 1.5; font-weight: 650; }
+    .vm-lead-block { margin: 2px 0 34px; padding: 22px 25px 23px; border: 1px solid rgba(211,107,53,.18); border-left: 3px solid var(--vm-orange); border-radius: 0 11px 11px 0; background: linear-gradient(110deg,rgba(250,233,222,.76),rgba(255,253,248,.34)); }
+    .vm-lead-label { display: block; margin-bottom: 10px; color: var(--vm-orange); font: 600 10px/1.3 var(--vm-mono); letter-spacing: .15em; text-transform: uppercase; }
+    .vm-lead { margin: 0 !important; color: #332d28; font-family: var(--vm-serif); font-size: 17.5px; line-height: 1.88; }
+    .vm-thesis { margin: 32px 0; padding: 24px 27px; border-left: 3px solid var(--vm-blue); background: linear-gradient(100deg,rgba(228,237,247,.82),rgba(255,253,248,.22)); font-family: var(--vm-serif); font-size: 20px; line-height: 1.75; font-weight: 600; }
+    .vm-note { margin: 27px 0; padding: 20px 22px; border: 1px solid var(--vm-line); border-radius: 11px; background: var(--vm-paper); }
+    .vm-note-title { display: block; margin-bottom: 8px; color: var(--vm-orange); font: 600 10px/1.4 var(--vm-mono); letter-spacing: .13em; text-transform: uppercase; }
+    .vm-note p:last-child { margin-bottom: 0; }
+    .vm-note.blue { border-color: rgba(69,109,152,.22); background: var(--vm-blue-soft); }
+    .vm-note.blue .vm-note-title { color: var(--vm-blue); }
+    .vm-note.warning { border-color: rgba(169,121,41,.23); background: var(--vm-gold-soft); }
+    .vm-note.warning .vm-note-title { color: var(--vm-gold); }
+
+    .term-map { display: grid; grid-template-columns: repeat(5,1fr); gap: 9px; margin: 29px 0 38px; }
+    .term-cell { min-height: 170px; padding: 16px 13px; border: 1px solid var(--vm-line); border-top: 3px solid var(--vm-orange); border-radius: 10px; background: var(--vm-paper); }
+    .term-cell:nth-child(2) { border-top-color: var(--vm-blue); }
+    .term-cell:nth-child(3) { border-top-color: var(--vm-green); }
+    .term-cell:nth-child(4) { border-top-color: var(--vm-gold); }
+    .term-cell:nth-child(5) { border-top-color: var(--vm-red); }
+    .term-cell small { color: var(--vm-faint); font: 650 8px/1 var(--vm-mono); letter-spacing: .08em; }
+    .term-cell h3 { margin: 10px 0 6px; font-size: 14px; }
+    .term-cell p { margin: 0; color: var(--vm-muted); font-size: 11.5px; line-height: 1.65; }
+
+    .descriptor-stack { margin: 29px 0 38px; padding: 22px; border: 1px solid rgba(69,109,152,.21); border-radius: 12px; background: var(--vm-blue-soft); }
+    .descriptor-row { display: grid; grid-template-columns: 120px 1fr; gap: 15px; padding: 11px 0; border-bottom: 1px solid rgba(69,109,152,.14); }
+    .descriptor-row:last-child { border-bottom: 0; }
+    .descriptor-row b { color: var(--vm-blue); font: 650 10px/1.7 var(--vm-mono); }
+    .descriptor-row span { color: var(--vm-muted); font-size: 13px; line-height: 1.7; }
+
+    .medium-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 12px; margin: 28px 0 38px; }
+    .medium-card { padding: 19px; border-left: 3px solid var(--vm-orange); border-radius: 0 10px 10px 0; background: var(--vm-orange-soft); }
+    .medium-card:nth-child(3n+2) { border-left-color: var(--vm-blue); background: var(--vm-blue-soft); }
+    .medium-card:nth-child(3n) { border-left-color: var(--vm-green); background: var(--vm-green-soft); }
+    .medium-card small { color: var(--vm-faint); font: 650 9px/1 var(--vm-mono); letter-spacing: .1em; }
+    .medium-card h3 { margin: 9px 0 6px; font-size: 15px; }
+    .medium-card p { margin: 0; color: var(--vm-muted); font-size: 13px; line-height: 1.7; }
+
+    .process-strip { margin: 29px 0 38px; display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; }
+    .process-card { padding: 18px 15px; border: 1px solid var(--vm-line); border-radius: 10px; background: var(--vm-paper); }
+    .process-card small { color: var(--vm-orange); font: 650 9px/1 var(--vm-mono); }
+    .process-card h3 { margin: 10px 0 6px; font-size: 14px; }
+    .process-card p { margin: 0; color: var(--vm-muted); font-size: 12px; line-height: 1.68; }
+
+    .mark-table-wrap,.vocab-table-wrap,.material-table-wrap { margin: 28px 0 38px; overflow-x: auto; border: 1px solid var(--vm-line); border-radius: 11px; }
+    .mark-table,.vocab-table,.material-table { width: 100%; min-width: 740px; border-collapse: collapse; background: var(--vm-paper); font-size: 13px; }
+    .mark-table th,.mark-table td,.vocab-table th,.vocab-table td,.material-table th,.material-table td { padding: 14px 15px; border-bottom: 1px solid var(--vm-line); text-align: left; vertical-align: top; line-height: 1.68; }
+    .mark-table tr:last-child td,.vocab-table tr:last-child td,.material-table tr:last-child td { border-bottom: 0; }
+    .mark-table th,.vocab-table th,.material-table th { color: var(--vm-muted); font-size: 11px; letter-spacing: .06em; background: rgba(211,107,53,.055); }
+    .mark-table td:first-child,.vocab-table td:first-child,.material-table td:first-child { color: var(--vm-orange-deep); font-family: var(--vm-mono); font-size: 11px; white-space: nowrap; }
+
+    .material-demo { display: grid; grid-template-columns: repeat(4,1fr); gap: 11px; margin: 29px 0 38px; }
+    .material-sample { padding: 16px; border: 1px solid var(--vm-line); border-radius: 11px; background: var(--vm-paper); text-align: center; }
+    .sample-ball { position: relative; width: 88px; height: 88px; margin: 4px auto 15px; border-radius: 50%; }
+    .sample-ball.gloss { background: radial-gradient(circle at 32% 27%,#fff 0 5%,#d7dfe2 7%,#75858f 34%,#29343a 74%); box-shadow: 14px 17px 22px rgba(40,46,48,.2); }
+    .sample-ball.rough { background: radial-gradient(circle at 35% 30%,#c9aa8a,#9d7858 45%,#68503e 80%); box-shadow: inset 0 0 0 2px rgba(255,255,255,.12); }
+    .sample-ball.transmit { background: radial-gradient(circle at 36% 28%,rgba(255,255,255,.9),rgba(151,204,204,.5) 32%,rgba(44,112,121,.48) 72%); box-shadow: inset -12px -14px 17px rgba(30,91,98,.22),0 13px 21px rgba(44,112,121,.16); }
+    .sample-ball.fabric { background-color: #7e6d66; background-image: repeating-linear-gradient(45deg,rgba(255,255,255,.15) 0 1px,transparent 1px 4px),repeating-linear-gradient(-45deg,rgba(0,0,0,.1) 0 1px,transparent 1px 4px); box-shadow: inset -10px -12px 18px rgba(45,35,31,.16); }
+    .material-sample h3 { margin: 0 0 6px; font-size: 14px; }
+    .material-sample p { margin: 0; color: var(--vm-muted); font-size: 11.5px; line-height: 1.62; text-align: left; }
+
+    .surface-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 12px; margin: 28px 0 38px; }
+    .surface-card { padding: 19px; border: 1px solid var(--vm-line); border-radius: 11px; background: var(--vm-paper); }
+    .surface-card small { color: var(--vm-green); font: 650 9px/1 var(--vm-mono); letter-spacing: .1em; }
+    .surface-card h3 { margin: 10px 0 7px; font-size: 15px; }
+    .surface-card p { margin: 0; color: var(--vm-muted); font-size: 13px; line-height: 1.7; }
+
+    .style-formula { margin: 29px 0 38px; padding: 23px; border: 1px solid rgba(81,119,102,.22); border-radius: 12px; background: var(--vm-green-soft); }
+    .style-formula-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 8px; }
+    .style-formula-row span { padding: 8px 10px; border-radius: 7px; background: rgba(255,255,255,.8); color: #3f6755; font: 650 10px/1.35 var(--vm-mono); }
+    .style-formula-row i { color: var(--vm-green); font-style: normal; }
+    .style-formula p { margin: 17px 0 0 !important; padding-top: 15px; border-top: 1px solid rgba(81,119,102,.17); color: var(--vm-muted); font-size: 12.5px; line-height: 1.72; }
+
+    .example-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 29px 0 38px; }
+    .example-card { padding: 20px; border: 1px solid rgba(167,82,74,.19); border-radius: 11px; background: var(--vm-red-soft); }
+    .example-card.good { border-color: rgba(81,119,102,.21); background: var(--vm-green-soft); }
+    .example-card small { color: var(--vm-red); font: 650 9px/1 var(--vm-mono); letter-spacing: .1em; }
+    .example-card.good small { color: var(--vm-green); }
+    .example-card blockquote { margin: 13px 0 10px; color: #352f2a; font-family: var(--vm-serif); font-size: 15px; line-height: 1.72; }
+    .example-card p { margin: 0; color: var(--vm-muted); font-size: 12.5px; line-height: 1.7; }
+
+    .prompt-block { margin: 29px 0 38px; overflow: hidden; border: 1px solid rgba(69,109,152,.23); border-radius: 12px; background: #252c34; color: #e9edf0; }
+    .prompt-head { display: flex; justify-content: space-between; gap: 16px; padding: 12px 18px; border-bottom: 1px solid rgba(255,255,255,.09); color: #aab9c8; font: 600 10px/1.4 var(--vm-mono); letter-spacing: .09em; }
+    .prompt-block pre { margin: 0; padding: 21px 22px 23px; white-space: pre-wrap; color: #e9edf0; font: 400 12.5px/1.85 var(--vm-mono); }
+    .prompt-block .key { color: #ed9b6d; }
+    .prompt-block .value { color: #d9e6ef; }
+    .prompt-block .limit { color: #a8c9b4; }
+
+    .diagnosis-list { margin: 28px 0 38px; border-top: 1px solid var(--vm-line); }
+    .diagnosis-row { display: grid; grid-template-columns: 155px 1fr; gap: 20px; padding: 17px 0; border-bottom: 1px solid var(--vm-line); }
+    .diagnosis-row b { color: var(--vm-red); font-size: 13px; }
+    .diagnosis-row p { margin: 0; color: var(--vm-muted); font-size: 13px; line-height: 1.72; }
+
+    .exercise-list { margin: 28px 0 38px; counter-reset: vocab-exercise; }
+    .exercise-row { display: grid; grid-template-columns: 48px 1fr; gap: 14px; padding: 18px 0; border-bottom: 1px solid var(--vm-line); }
+    .exercise-row:first-child { border-top: 1px solid var(--vm-line); }
+    .exercise-row::before { counter-increment: vocab-exercise; content: counter(vocab-exercise,decimal-leading-zero); color: var(--vm-orange); font: 650 11px/1.7 var(--vm-mono); }
+    .exercise-row h3 { margin: 0 0 5px; font-size: 15px; }
+    .exercise-row p { margin: 0; color: var(--vm-muted); font-size: 13.5px; line-height: 1.75; }
+
+    .source-list { margin: 25px 0 36px; padding: 0; list-style: none; }
+    .source-list li { display: grid; grid-template-columns: 32px 1fr; gap: 13px; padding: 14px 0; border-bottom: 1px solid var(--vm-line); }
+    .source-list li:first-child { border-top: 1px solid var(--vm-line); }
+    .source-no { color: var(--vm-faint); font: 500 10px/1.8 var(--vm-mono); }
+    .source-list a { font-weight: 600; }
+    .source-list span { display: block; margin-top: 3px; color: var(--vm-faint); font-size: 12px; line-height: 1.6; }
+    .vocab-closing { margin-top: 48px; padding-top: 27px; border-top: 2px solid var(--vm-ink); font-family: var(--vm-serif); font-size: 20px; line-height: 1.82; }
+
+    @media (max-width: 720px) {
+      .vocab-hero { padding: 48px 20px 34px; }
+      .vocab-headline { font-size: 35px; }
+      .vocab-wrap { padding: 0 20px 70px; }
+      .term-map { grid-template-columns: 1fr 1fr; }
+      .medium-grid,.surface-grid,.example-pair { grid-template-columns: 1fr; }
+      .process-strip,.material-demo { grid-template-columns: 1fr 1fr; }
+      .descriptor-row,.diagnosis-row { grid-template-columns: 1fr; gap: 6px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="vocab-hero">
+    <div class="vocab-kicker">GENERATIVE VISUAL LANGUAGE · STYLE &amp; MATERIAL</div>
+    <h1 class="vocab-headline">风格、媒介与材质：<br>生成模型常用视觉词汇</h1>
+    <p class="vocab-deck">“油画风、纸张质感、磨砂金属”分别指向艺术传统、制作媒介和物体表面。把它们混成一串风格词，模型只能猜测；分清层级，视觉词汇才会变成可组合、可诊断的描述工具。</p>
+    <div class="meta-row">
+      <span>2026-08-23</span>
+      <span>生成影像语言 · 视觉词汇</span>
+      <span>阅读约 26 分钟</span>
+      <span>风格 · 媒介 · 技法 · 材质</span>
+    </div>
+  </header>
+
+  <main class="vocab-wrap">
+    <article class="article-body">
+      <div class="vm-lead-block">
+        <span class="vm-lead-label">导言 · Introduction</span>
+        <p class="lead vm-lead">视觉词汇的价值不在于让提示词显得专业，而在于指出画面究竟如何形成：材料是什么，使用什么技法留下痕迹，表面怎样与光发生作用，这些选择又如何共同构成一种风格。</p>
+      </div>
+
+      <p>生成模型常用的“风格词”来源非常混杂：艺术史时期、摄影类型、印刷工艺、绘画材料、3D 渲染参数、纸张表面和情绪形容词经常并列出现。例如“复古、胶片、哑光、丝网印刷、极简主义”同时包含时间感、媒介、表面、工艺和形式倾向。</p>
+
+      <p>这些词并非不能组合，但必须知道每个词在控制什么。Getty 的 Art &amp; Architecture Thesaurus 把风格与时期、材料、活动或技法、物体类型和物理属性组织在不同层级，说明专业词汇本来就不是一个平面标签列表。参见 <a href="https://www.getty.edu/research/tools/vocabularies/index.html" target="_blank" rel="noopener">Getty Vocabularies</a>。</p>
+
+      <div class="vm-thesis">风格是多个视觉决定反复共同出现后的整体倾向；媒介说明作品由什么系统制造；技法说明材料如何被处理；材质说明对象或画面的表面怎样回应光。</div>
+
+      <section>
+        <div class="vm-section-label">01 · FIVE DIFFERENT TERMS</div>
+        <h2 class="vm-section-heading">先分清五个概念：风格、媒介、材料、技法与表面</h2>
+        <p>The Metropolitan Museum of Art 将 medium 解释为创作者制作作品所使用的材料与技法，并强调理解具体材料的特性和限制，会改变对作品外观的认识。参见 <a href="https://www.metmuseum.org/it/perspectives/series/materials-and-techniques" target="_blank" rel="noopener">The Met：Materials and Techniques</a>。在生成影像中，可以进一步把常见词汇拆成五层。</p>
+
+        <div class="term-map">
+          <article class="term-cell"><small>STYLE</small><h3>风格</h3><p>一组稳定的形式倾向，如构图、色彩、线条、题材和制作痕迹共同形成的整体面貌。</p></article>
+          <article class="term-cell"><small>MEDIUM</small><h3>媒介</h3><p>作品所属的制造系统，如摄影、油画、木刻、拼贴、3D 渲染或定格动画。</p></article>
+          <article class="term-cell"><small>MATERIAL</small><h3>材料</h3><p>构成对象或作品的物质，如纸、铜、玻璃、陶瓷、油彩、织物和塑料。</p></article>
+          <article class="term-cell"><small>TECHNIQUE</small><h3>技法</h3><p>处理材料的方法，如厚涂、干刷、蚀刻、丝网印刷、撕贴、压印和喷涂。</p></article>
+          <article class="term-cell"><small>FINISH</small><h3>表面</h3><p>可见和可触的最终状态，如哑光、镜面、粗糙、起毛、龟裂、氧化或潮湿。</p></article>
+        </div>
+
+        <div class="example-pair">
+          <article class="example-card"><small>MIXED LABELS</small><blockquote>“复古油画材质，电影风，金属质感，高级艺术。”</blockquote><p>每个词的控制对象不清楚，“油画”究竟是画面媒介还是物体材质也存在歧义。</p></article>
+          <article class="example-card good"><small>LAYERED DESCRIPTION</small><blockquote>“编辑肖像摄影；克制的 1970 年代综合色；背景像亚麻画布，但人物保持真实皮肤；黄铜耳饰为拉丝哑光表面。”</blockquote><p>媒介、时期倾向、背景材料和物体表面分别绑定到明确对象。</p></article>
+        </div>
+      </section>
+
+      <section>
+        <div class="vm-section-label">02 · A DESCRIPTOR STACK</div>
+        <h2 class="vm-section-heading">用描述栈组织词汇，而不是无限堆叠同义词</h2>
+        <p>稳定的提示词可以从大到小建立描述栈：先确定交付和媒介，再选择制作过程与形式语言，最后描述具体材质和表面状态。每层只保留真正改变画面的词。</p>
+
+        <div class="descriptor-stack">
+          <div class="descriptor-row"><b>01 · 交付与用途</b><span>海报、社论插图、商品静物、电影静帧、角色设定或 3D 产品渲染。</span></div>
+          <div class="descriptor-row"><b>02 · 主媒介</b><span>摄影、绘画、版画、拼贴、平面插画、3D、纤维艺术或混合媒介。</span></div>
+          <div class="descriptor-row"><b>03 · 制作过程</b><span>蚀刻、木刻、厚涂、干刷、丝网套色、暗房放大、撕贴、程序化渲染。</span></div>
+          <div class="descriptor-row"><b>04 · 形式语言</b><span>轮廓、笔触、形状、构图、色域、明暗、边缘、图案和空间处理。</span></div>
+          <div class="descriptor-row"><b>05 · 对象材质</b><span>黄铜、磨砂玻璃、釉面陶瓷、粗纺羊毛、未涂层纸、半透明树脂。</span></div>
+          <div class="descriptor-row"><b>06 · 表面状态</b><span>粗糙度、光泽、透明度、划痕、褶皱、氧化、灰尘、水迹与边缘磨损。</span></div>
+          <div class="descriptor-row"><b>07 · 光线验证</b><span>用侧光、轮廓光、软箱反射或掠射光，让材质差异真正可见。</span></div>
+        </div>
+
+        <p>“光线验证”是容易遗漏的一层。没有合适光线，哑光与高光、平整与粗糙、透明与半透明可能无法在画面中区分。材质描述不是物体背后的数据库标签，而是物体在当前照明与视角中表现出的视觉现象。</p>
+      </section>
+
+      <section>
+        <div class="vm-section-label">03 · MEDIUM FAMILIES</div>
+        <h2 class="vm-section-heading">主媒介决定画面如何被制造</h2>
+        <p>选择媒介时，应追问它在画面中留下哪些必然或常见痕迹。MoMA 的艺术术语库覆盖材料、技法、运动和主题，并把 tempera、intaglio、collage、photogram 等作为不同概念解释。参见 <a href="https://www.moma.org/collection/terms/" target="_blank" rel="noopener">MoMA：Art terms</a>。</p>
+
+        <div class="medium-grid">
+          <article class="medium-card"><small>PHOTOGRAPHY</small><h3>摄影</h3><p>镜头视点、景深、曝光、运动模糊、传感器或胶片响应，以及真实光源与表面的关系。</p></article>
+          <article class="medium-card"><small>PAINTING</small><h3>绘画</h3><p>颜料覆盖、透明罩染、笔触方向、底材纹理、边缘处理和层层叠加的痕迹。</p></article>
+          <article class="medium-card"><small>DRAWING</small><h3>绘图</h3><p>线条压力、排线密度、纸张齿纹、擦除、晕染和工具颗粒决定明暗与轮廓。</p></article>
+          <article class="medium-card"><small>PRINTMAKING</small><h3>版画</h3><p>版材、制版方法、墨如何转移到纸上，以及套色偏移、压痕和边缘渗墨。</p></article>
+          <article class="medium-card"><small>COLLAGE</small><h3>拼贴</h3><p>材料片段的边缘、比例冲突、遮挡、胶痕和来源差异会主动破坏统一空间。</p></article>
+          <article class="medium-card"><small>3D RENDER</small><h3>三维渲染</h3><p>几何、着色、材质参数、环境光、相机和渲染风格共同决定对象的物理可信度。</p></article>
+          <article class="medium-card"><small>GRAPHIC</small><h3>平面插画</h3><p>形状、色块、轮廓、网格和字体形成高控制度的二维秩序，通常弱化真实光学。</p></article>
+          <article class="medium-card"><small>MIXED MEDIA</small><h3>混合媒介</h3><p>两种以上媒介有意并置。提示词应说明哪个媒介控制主体，哪个只影响背景或局部。</p></article>
+        </div>
+
+        <div class="vm-note blue">
+          <span class="vm-note-title">媒介不是滤镜 · Medium Is a Process</span>
+          <p>“木刻风格”不只是黑白高反差。木版凸起部分着墨、凹下部分留白，导致线条和黑白形状具有切削感；“蚀刻”则依靠金属版凹线存墨，更容易形成细密交叉排线。理解过程，才能知道哪些视觉痕迹应当出现。</p>
+        </div>
+      </section>
+
+      <section>
+        <div class="vm-section-label">04 · PRINTMAKING</div>
+        <h2 class="vm-section-heading">版画词汇：先辨认制版与着墨方式</h2>
+        <p>The Met 的“Materials and Techniques”系列把木刻、雕版、蚀刻、石版与丝网印刷分别解释为不同制作过程。木刻是凸版：留下的凸起表面着墨；蚀刻是凹版：酸腐蚀出的凹线存墨；石版是平版：利用油水相斥在平面石材或金属版上成像。参见 <a href="https://www.metmuseum.org/fr/perspectives/materials-and-techniques-printmaking-woodcut" target="_blank" rel="noopener">The Met：Woodcut</a>、<a href="https://www.metmuseum.org/fr/perspectives/materials-and-techniques-printmaking-etching" target="_blank" rel="noopener">Etching</a> 与 <a href="https://www.metmuseum.org/de/perspectives/materials-and-techniques-printmaking-lithograph" target="_blank" rel="noopener">Lithograph</a>。</p>
+
+        <div class="process-strip">
+          <article class="process-card"><small>RELIEF</small><h3>木刻 Woodcut</h3><p>刀刻边缘、粗壮黑白形、沿木纹产生的阻力感，凹处通常不着墨。</p></article>
+          <article class="process-card"><small>INTAGLIO</small><h3>蚀刻 Etching</h3><p>金属凹线、细密排线、墨色深浅与版边压痕，适合精细线性调子。</p></article>
+          <article class="process-card"><small>PLANOGRAPHIC</small><h3>石版 Lithograph</h3><p>蜡笔般笔触、油墨颗粒与较自然的手绘过渡，多色版需要精确套准。</p></article>
+          <article class="process-card"><small>STENCIL</small><h3>丝网 Screenprint</h3><p>平整色块、网版边缘、有限套色和可能出现的轻微套印偏移。</p></article>
+        </div>
+
+        <p>因此，与其写“复古版画”，不如选择一种明确机制：“双色木刻，粗刀切出的不规则轮廓，大块黑色负形，米白纤维纸，少量墨迹不均”；或“铜版蚀刻，细密交叉排线建立阴影，暖灰纸张，清晰版边压痕”。</p>
+      </section>
+
+      <section>
+        <div class="vm-section-label">05 · MARK MAKING</div>
+        <h2 class="vm-section-heading">绘画与绘图：描述痕迹、覆盖和边缘</h2>
+        <p>绘画词汇常被简化为“水彩感”或“油画感”，但同一媒介内部仍有非常不同的技法。提示词可以沿三条线展开：工具如何留下痕迹，颜料如何覆盖底材，边缘怎样过渡。</p>
+
+        <div class="mark-table-wrap">
+          <table class="mark-table">
+            <thead><tr><th>术语</th><th>视觉特征</th><th>适合补充</th></tr></thead>
+            <tbody>
+              <tr><td>厚涂 Impasto</td><td>颜料堆积，有可见高度，笔刷或刮刀痕迹捕捉侧光。</td><td>笔触方向、颜料峰谷、掠射光；不是把所有细节都变成浮雕。</td></tr>
+              <tr><td>罩染 Glazing</td><td>透明或半透明薄层叠加，底层颜色透出，形成深而发光的色彩。</td><td>层数感、透明度、底色与上层综合色。</td></tr>
+              <tr><td>干刷 Dry brush</td><td>颜料不足的刷毛掠过粗糙表面，只在凸处留下断续痕迹。</td><td>底材纹理、断裂边缘、笔触方向。</td></tr>
+              <tr><td>湿画 Wet-on-wet</td><td>湿颜料在湿底上融合，边缘柔软并出现不可完全控制的色彩扩散。</td><td>色块相遇方式、扩散范围、保留少量清晰焦点。</td></tr>
+              <tr><td>点描 Stippling</td><td>以点的密度建立明暗或色彩混合，近看离散、远看整合。</td><td>点大小、密度、方向性与纸面留白。</td></tr>
+              <tr><td>排线 Hatching</td><td>平行或交叉线条以密度和方向塑造体积。</td><td>单向或交叉、线条压力、轮廓是否封闭。</td></tr>
+              <tr><td>晕染 Smudging</td><td>石墨、炭笔或粉彩被摩擦形成柔和明暗，常保留手工不均。</td><td>纸张齿纹、擦除亮部、边缘软硬对照。</td></tr>
+              <tr><td>洗染 Wash</td><td>稀释颜料形成透明大色面，水分与吸收导致边缘深浅变化。</td><td>纸张吸水、回流边、色层叠加与留白。</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p>边缘比“细节丰富”更容易建立媒介感。水彩常见渗化软边、干燥水痕与纸白；矢量插画常见精确封闭边缘和均匀色块；炭笔的轮廓可能破碎，明暗通过颗粒与擦抹过渡。说明哪些边缘清晰、哪些边缘消失，画面会比统一加纹理更可信。</p>
+      </section>
+
+      <section>
+        <div class="vm-section-label">06 · COLLAGE AND PHOTOGRAPHY</div>
+        <h2 class="vm-section-heading">拼贴与摄影：保留来源差异，而不是抹平一切</h2>
+        <p>MoMA 将 collage 定义为把纸张和其他材料片段安排、粘贴到支撑面上的技法与作品；其摄影材料词汇还区分相纸表面、暗房处理、负片、摄影拼贴、摄影蒙太奇和无相机摄影等过程。参见 <a href="https://www.moma.org/collection/terms/?filter=C&amp;flag_sanity_art_terms_index=true" target="_blank" rel="noopener">MoMA：Collage</a> 与 <a href="https://www.moma.org/interactives/objectphoto/materials/glossary.html" target="_blank" rel="noopener">MoMA Conservation：Photographic materials glossary</a>。</p>
+
+        <div class="surface-grid">
+          <article class="surface-card"><small>COLLAGE</small><h3>纸本拼贴</h3><p>撕裂或裁切边缘、纸张厚度、重叠阴影、胶痕、折痕和不同印刷网点共同证明材料被组合。</p></article>
+          <article class="surface-card"><small>PHOTOMONTAGE</small><h3>摄影蒙太奇</h3><p>摄影片段被重新剪接，比例、视点与光线可以有意冲突；若完全无缝，更接近合成摄影。</p></article>
+          <article class="surface-card"><small>PHOTOGRAM</small><h3>物影照片</h3><p>物体直接置于感光材料上曝光，形成轮廓、半透明影和接触距离变化，不依赖相机镜头。</p></article>
+          <article class="surface-card"><small>HALFTONE</small><h3>网点印刷</h3><p>连续明暗被规则网点转译；需要说明网点尺寸、角度、套色偏移和纸张吸墨，而不只是“颗粒”。</p></article>
+        </div>
+
+        <p>摄影“复古感”也应落到具体过程：黑白银盐照片、即时成像、彩色负片、低保真数码或报纸网点的色彩、动态范围、颗粒和表面各不相同。胶片颗粒属于感光材料与显影结果，不等同于数字噪点；旧相纸的折痕、银镜化和褪色又属于保存状态，不应自动附加到所有胶片画面。</p>
+      </section>
+
+      <section>
+        <div class="vm-section-label">07 · MATERIAL BEHAVIOR</div>
+        <h2 class="vm-section-heading">材质不是颜色：它描述表面怎样与光相互作用</h2>
+        <p>同样是灰色，哑光陶瓷、拉丝铝、石墨、羊毛和烟色玻璃的视觉差异主要来自反射、粗糙度、透射、微结构与边缘厚度。Adobe 与 Autodesk 推动的 OpenPBR 把常见材料行为区分为非金属、金属、透明或透射、次表面和涂层等，并强调表面细节尤其是粗糙度对外观的重要性。参见 <a href="https://experienceleague.adobe.com/en/docs/substance-3d/general-knowledge/openpbr/openpbr-overview" target="_blank" rel="noopener">Adobe Substance 3D：OpenPBR overview</a>。</p>
+
+        <div class="material-demo">
+          <article class="material-sample"><div class="sample-ball gloss"></div><h3>光滑反射</h3><p>高光边缘清晰，环境倒影可辨；曲率与缺陷会直接改变反射形状。</p></article>
+          <article class="material-sample"><div class="sample-ball rough"></div><h3>粗糙漫散</h3><p>高光更宽、更柔，表面微结构明显；并不等于没有任何反射。</p></article>
+          <article class="material-sample"><div class="sample-ball transmit"></div><h3>透明与透射</h3><p>光穿过材料，厚度、折射、吸收和内部杂质共同影响颜色与清晰度。</p></article>
+          <article class="material-sample"><div class="sample-ball fabric"></div><h3>纤维与方向</h3><p>编织尺度、绒毛、褶皱和方向性高光决定织物是丝绸、羊毛还是帆布。</p></article>
+        </div>
+
+        <div class="material-table-wrap">
+          <table class="material-table">
+            <thead><tr><th>属性</th><th>观察问题</th><th>描述示例</th></tr></thead>
+            <tbody>
+              <tr><td>基材</td><td>物体主要由什么构成，是否有涂层或复合结构？</td><td>未上釉陶土；清漆覆盖的深色木材；喷漆钢板。</td></tr>
+              <tr><td>粗糙度</td><td>高光是尖锐还是宽散，表面微小起伏是否可见？</td><td>细腻哑光；半光；镜面抛光；不均匀磨砂。</td></tr>
+              <tr><td>反射</td><td>倒影是否清晰，反射有没有颜色和方向性？</td><td>冷色镜面钢；拉丝铝的长条高光；珍珠般柔和反射。</td></tr>
+              <tr><td>透射</td><td>光能否穿过，内部是否清晰，边缘是否因厚度变深？</td><td>清澈透明玻璃；乳白半透明树脂；烟灰色厚玻璃边缘。</td></tr>
+              <tr><td>次表面</td><td>光是否进入表面后在内部散射，再从附近位置逸出？</td><td>蜡、玉石、皮肤或薄叶在逆光下出现柔和内部发亮。</td></tr>
+              <tr><td>微结构</td><td>毛孔、纤维、颗粒、拉丝或压纹的尺度与方向如何？</td><td>细密横向拉丝；粗纺经纬；砂岩颗粒；皮革毛孔。</td></tr>
+              <tr><td>状态变化</td><td>材料是否被使用、氧化、沾湿、烧灼或开裂？</td><td>边缘自然磨损；局部铜绿；未干水迹；釉面细小开片。</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="vm-note warning">
+          <span class="vm-note-title">避免物理矛盾 · Material Coherence</span>
+          <p>“完全透明的实心金属”“粗糙镜面且倒影极清晰”包含相互竞争的表面行为。创作可以有意违反物理规律，但需要说明这是超现实设定；若目标是可信产品图，应先确定基材，再选择合理的涂层、粗糙度与磨损。</p>
+        </div>
+      </section>
+
+      <section>
+        <div class="vm-section-label">08 · SURFACE AND AGE</div>
+        <h2 class="vm-section-heading">表面状态：磨损必须服从材料、结构与使用历史</h2>
+        <p>“做旧”不是在所有区域平均添加划痕。磨损通常发生在接触、摩擦、暴露与积水位置：金属把手的凸起处被抛亮，鞋底边缘沾泥，木桌前沿比桌面中央更容易碰伤，雨水在水平凹槽积聚并留下痕迹。</p>
+
+        <div class="surface-grid">
+          <article class="surface-card"><small>CONTACT</small><h3>接触磨损</h3><p>边角、把手、按钮和经常握持的位置出现抛光、掉漆、油脂或浅划痕。</p></article>
+          <article class="surface-card"><small>ENVIRONMENT</small><h3>环境侵蚀</h3><p>日晒导致褪色，潮湿促成水迹与腐蚀，灰尘在水平面和缝隙聚集。</p></article>
+          <article class="surface-card"><small>MANUFACTURE</small><h3>制造痕迹</h3><p>模具分型线、焊缝、车削纹、纸张压痕和刷涂方向说明对象如何被制造。</p></article>
+          <article class="surface-card"><small>SCALE</small><h3>尺度一致</h3><p>划痕、纤维、木纹和颗粒必须与物体尺寸匹配；过大纹理会让产品像微缩模型。</p></article>
+        </div>
+
+        <p>Getty 对单色涂层表面的研究指出，颜色、光泽和表面拓扑共同影响外观，特定刷痕也会改变对颜色与镜面反射的感知。参见 <a href="https://www.getty.edu/conservation/publications_resources/pdf_publications/pdf/documenting_painted_surfaces.pdf" target="_blank" rel="noopener">Getty Conservation Institute：The Conservation of Outdoor Painted Sculpture</a>。这也说明材质不能只靠一个“texture”词完成。</p>
+      </section>
+
+      <section>
+        <div class="vm-section-label">09 · BUILDING STYLE</div>
+        <h2 class="vm-section-heading">风格应被拆成形式系统，而不是只写一个名字</h2>
+        <p>风格可以来自历史时期、艺术运动、地区传统、设计系统、类型惯例或个人实践。Getty AAT 把“风格与时期”作为独立层级，并区分一般方法与具体历史运动。生成提示词中，风格名可以作为方向锚点，但应继续说明当前作品真正采用哪些形式特征。</p>
+
+        <div class="style-formula">
+          <div class="style-formula-row"><span>时期或方向</span><i>＋</i><span>主媒介</span><i>＋</i><span>形式语言</span><i>＋</i><span>色彩与光线</span><i>＋</i><span>材料与表面</span><i>＋</i><span>完成度与缺陷</span></div>
+          <p>例如“现代主义海报”仍然范围很大。加入严格网格、少量几何形、无衬线大字、黑红米白三色、丝网印刷平整色块与轻微套色偏移后，风格才成为可观察的系统。</p>
+        </div>
+
+        <h3 class="vm-subheading">以形式描述替代人名依赖</h3>
+        <p>只输入艺术家姓名，会把构图、题材、时期、媒介和色彩压缩成一个不透明标签，也难以说明究竟需要继承什么。更可维护的写法是分析参考作品：平视还是俯视，形状是否几何化，线条是否连续，色彩是否局限，笔触是否覆盖轮廓，空间是扁平还是有纵深。这样既能跨模型迁移，也能避免无意复制某件具体作品。</p>
+      </section>
+
+      <section>
+        <div class="vm-section-label">10 · WORKING VOCABULARY</div>
+        <h2 class="vm-section-heading">一组可组合的视觉词汇：每个词都要绑定对象</h2>
+        <p>词汇表最适合作为观察清单，而不是整列粘贴进提示词。每次只从需要控制的维度选择少量词，并说明它属于主体、背景、媒介还是某个具体物体。</p>
+
+        <div class="vocab-table-wrap">
+          <table class="vocab-table">
+            <thead><tr><th>维度</th><th>常用词汇</th><th>观察重点</th></tr></thead>
+            <tbody>
+              <tr><td>线条</td><td>连续轮廓、断裂线、书法性、几何直线、交叉排线、细密蚀刻线</td><td>线的压力、方向、密度和是否封闭形状。</td></tr>
+              <tr><td>形状</td><td>有机、几何、块面化、剪影、扁平色块、碎片化、重复模块</td><td>形状之间如何接触、重叠和分配尺度。</td></tr>
+              <tr><td>边缘</td><td>硬边、软边、渗化边、撕裂边、毛边、压印边、磨损边</td><td>边缘由工具、材料还是光学景深产生。</td></tr>
+              <tr><td>表面</td><td>哑光、半光、镜面、粉状、蜡质、起绒、颗粒、釉面、龟裂</td><td>高光形状、微结构尺度与触感暗示。</td></tr>
+              <tr><td>透明</td><td>透明、半透明、乳浊、烟色、折射、雾化、内部散射</td><td>背景是否可见，边缘厚度和内部杂质如何表现。</td></tr>
+              <tr><td>纸张</td><td>未涂层、棉质、再生纤维、新闻纸、宣纸、卡纸、压纹纸</td><td>纤维、吸墨、折痕、厚度与边缘。</td></tr>
+              <tr><td>金属</td><td>抛光钢、拉丝铝、氧化铜、锤纹黄铜、喷砂钛、涂漆钢</td><td>反射颜色、粗糙度方向、涂层与基材关系。</td></tr>
+              <tr><td>织物</td><td>粗纺羊毛、丝绸、帆布、亚麻、天鹅绒、尼龙、针织</td><td>编织尺度、垂坠、绒毛、褶皱和方向性高光。</td></tr>
+              <tr><td>印刷</td><td>凸版压痕、凹版线、网点、套色偏移、漏墨、边缘渗墨、油墨不均</td><td>缺陷是否来自真实工艺，是否服从套版与纸张。</td></tr>
+              <tr><td>绘画</td><td>厚涂、罩染、干刷、湿画、洗染、点描、刮刀、擦除</td><td>工具痕迹、层次、覆盖关系和底材露出。</td></tr>
+              <tr><td>状态</td><td>崭新、使用痕迹、氧化、褪色、潮湿、积尘、烧灼、开片、剥落</td><td>状态变化出现在哪里，是否符合使用与环境逻辑。</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section>
+        <div class="vm-section-label">11 · THREE EXAMPLES</div>
+        <h2 class="vm-section-heading">三个示例：从模糊风格词变成可执行描述</h2>
+        <h3 class="vm-subheading">示例一：不是“高级金属产品图”</h3>
+        <div class="prompt-block">
+          <div class="prompt-head"><span>PRODUCT STILL LIFE</span><span>MATERIAL-FIRST</span></div>
+          <pre><span class="key">媒介：</span><span class="value">高控制度摄影棚产品静物，深灰无缝背景。</span>
+<span class="key">对象：</span><span class="value">一只圆柱形便携音箱，深色喷砂铝外壳，顶部为细密黑色织物网罩。</span>
+<span class="key">材质：</span><span class="value">铝壳为均匀细颗粒哑光，边缘只有窄而柔和的轮廓高光；织物网罩有可辨但不过大的经纬纹理，不出现塑料般镜面反射。</span>
+<span class="key">光线：</span><span class="value">左后方大型软箱形成纵向渐变反射，右前方弱补光保留轮廓；背景与产品之间有清楚明度分离。</span>
+<span class="key">完成度：</span><span class="limit">全新状态，无划痕、灰尘、文字和水滴；轮廓精确，材质尺度可信。</span></pre>
+        </div>
+
+        <h3 class="vm-subheading">示例二：不是“复古拼贴风”</h3>
+        <p>“社论纸本拼贴：黑白人物照片从报纸上手工撕下，边缘露出白色纸纤维；人物背后叠放一块暗红丝网印刷色块和一张蓝灰网格票据；各纸片有轻微厚度与短阴影，局部保留胶痕和折痕；整体遵循清晰左对齐网格，不做无缝照片合成。”</p>
+
+        <h3 class="vm-subheading">示例三：不是“梦幻 3D 材质”</h3>
+        <p>“半透明乳白树脂雕塑，内部散射让逆光在薄边处发亮，厚处呈温暖象牙色；表面细腻磨砂，高光宽而柔，内部含少量悬浮气泡；雕塑置于冷灰石材台座，台座粗糙、完全不透明，以材质反差突出树脂的透光性。”</p>
+      </section>
+
+      <section>
+        <div class="vm-section-label">12 · DIAGNOSIS AND PRACTICE</div>
+        <h2 class="vm-section-heading">输出诊断与练习：让术语能够被验证</h2>
+        <div class="diagnosis-list">
+          <div class="diagnosis-row"><b>风格词互相覆盖</b><p>只保留一个主要媒介和一种形式方向；将其他词重新绑定到背景、局部或表面。</p></div>
+          <div class="diagnosis-row"><b>所有物体同一种质感</b><p>分别描述每个对象的基材、粗糙度和反射；用光线制造材质对比。</p></div>
+          <div class="diagnosis-row"><b>材质像贴图</b><p>补充厚度、边缘、接缝、微结构尺度与光线响应，不只写表面图案。</p></div>
+          <div class="diagnosis-row"><b>做旧分布随机</b><p>把磨损绑定到接触边、把灰尘绑定到缝隙、把水迹绑定到重力和积水路径。</p></div>
+          <div class="diagnosis-row"><b>绘画只剩统一滤镜</b><p>说明笔触方向、覆盖层次、底材露出与边缘变化，让制作过程参与形体塑造。</p></div>
+          <div class="diagnosis-row"><b>纹理尺度错误</b><p>加入对象尺寸参照；说明纤维、木纹、网点或划痕是细密、粗大还是肉眼刚可辨。</p></div>
+        </div>
+
+        <div class="exercise-list">
+          <div class="exercise-row"><div><h3>同一构图，六种媒介</h3><p>固定主体和构图，分别写成摄影、水彩、木刻、纸本拼贴、矢量插画和 3D 渲染。每版只使用该媒介会留下的痕迹。</p></div></div>
+          <div class="exercise-row"><div><h3>材质球观察</h3><p>选择金属、玻璃、陶瓷和织物，在同一侧光下描述高光边缘、反射、透射与微结构，不使用“有质感”。</p></div></div>
+          <div class="exercise-row"><div><h3>工艺逆向分析</h3><p>从博物馆藏品中选择一幅版画或绘画，判断其版材、着墨、笔触、纸张和边缘痕迹，再对照馆方材料说明。</p></div></div>
+          <div class="exercise-row"><div><h3>删除艺术家姓名</h3><p>选择一个熟悉的视觉方向，不写姓名，只用形状、线条、构图、色彩、媒介、表面和完成度重建其形式规律。</p></div></div>
+          <div class="exercise-row"><div><h3>合理做旧</h3><p>为同一个物体分别设定“长期室内使用”和“户外风雨暴露”两种历史，推导磨损、灰尘、褪色与腐蚀应该出现的位置。</p></div></div>
+        </div>
+
+        <div class="vm-note">
+          <span class="vm-note-title">建立个人词汇库 · Vocabulary Notebook</span>
+          <p>每个词条至少记录定义、制作机制、可见特征、适用对象、容易混淆的近义词和一张可信参考。没有观察依据的词只是一种标签；能够指出高光、边缘、颗粒、覆盖和尺度的词，才可以进入提示词。</p>
+        </div>
+      </section>
+
+      <section>
+        <div class="vm-section-label">13 · FURTHER READING</div>
+        <h2 class="vm-section-heading">继续学习：从术语表进入材料、工艺与表面科学</h2>
+        <p>后续学习可以沿三条路径推进：用博物馆术语库建立艺术史与工艺词汇；用馆藏材料研究观察真实作品如何制造；用 PBR 文档理解三维表面怎样通过反射、粗糙度、透射与内部散射呈现。生成模型会改变，但真实媒介和材料提供的视觉因果不会迅速过时。</p>
+        <ul class="source-list">
+          <li><div class="source-no">01</div><div><a href="https://www.getty.edu/research/tools/vocabularies/index.html" target="_blank" rel="noopener">Getty Research Institute · Getty Vocabularies</a><span>包含作品类型、材料、风格、文化和技法的多语言受控词汇与层级关系。</span></div></li>
+          <li><div class="source-no">02</div><div><a href="https://www.moma.org/collection/terms/" target="_blank" rel="noopener">MoMA · Art terms</a><span>现代与当代艺术的材料、技法、运动和主题术语入口。</span></div></li>
+          <li><div class="source-no">03</div><div><a href="https://www.metmuseum.org/it/perspectives/series/materials-and-techniques" target="_blank" rel="noopener">The Met · Materials and Techniques</a><span>从制作过程解释木刻、蚀刻、雕版、石版和丝网印刷等媒介的外观来源。</span></div></li>
+          <li><div class="source-no">04</div><div><a href="https://www.moma.org/interactives/objectphoto/materials/glossary.html" target="_blank" rel="noopener">MoMA Conservation · Materials glossary</a><span>摄影相纸、暗房工艺、表面与保存状态的专业词汇。</span></div></li>
+          <li><div class="source-no">05</div><div><a href="https://www.nga.gov/educational-resources/elements-art/elements-art-texture" target="_blank" rel="noopener">National Gallery of Art · The Elements of Art: Texture</a><span>从作品观察材料与技法如何形成真实纹理和视觉纹理。</span></div></li>
+          <li><div class="source-no">06</div><div><a href="https://experienceleague.adobe.com/en/docs/substance-3d/general-knowledge/openpbr/openpbr-overview" target="_blank" rel="noopener">Adobe Substance 3D · OpenPBR overview</a><span>解释非金属、金属、粗糙度、透射、次表面与涂层等通用材料行为。</span></div></li>
+          <li><div class="source-no">07</div><div><a href="https://docs.blender.org/manual/en/latest/render/shader_nodes/shader/principled.html" target="_blank" rel="noopener">Blender Manual · Principled BSDF</a><span>把基础色、金属、粗糙度、透射、次表面、光泽和涂层转成可实验的着色参数。</span></div></li>
+          <li><div class="source-no">08</div><div><a href="https://www.getty.edu/conservation/publications_resources/pdf_publications/pdf/documenting_painted_surfaces.pdf" target="_blank" rel="noopener">Getty Conservation Institute · Documenting painted surfaces</a><span>讨论颜色、光泽和表面拓扑如何共同决定涂层外观。</span></div></li>
+          <li><div class="source-no">09</div><div><a href="https://developers.openai.com/cookbook/examples/multimodal/image-gen-models-prompting-guide" target="_blank" rel="noopener">OpenAI · GPT Image Prompting Guide</a><span>强调使用具体材料、形状、纹理与媒介，并以结构化约束组织图像提示。</span></div></li>
+        </ul>
+      </section>
+
+      <p class="vocab-closing">真正有用的视觉词汇，会解释画面为何呈现这种外观：木刻来自凸版切削，厚涂来自颜料堆积，拉丝金属来自方向性微结构，拼贴来自材料边缘和层叠。理解这些因果后，提示词不再依赖“风格感”，而能够准确说明作品应当怎样被制造、被照亮和被观看。</p>
+    </article>
+  </main>
+</body>
+</html>

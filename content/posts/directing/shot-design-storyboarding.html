@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>镜头设计与分镜：把场景变成可执行的镜头序列</title>
+  <style>
+    .shot-hero,.article-body{--sh-ink:#211d1a;--sh-muted:#675f58;--sh-faint:#958b82;--sh-line:rgba(74,58,46,.15);--sh-paper:rgba(255,253,248,.92);--sh-blue:#4c7095;--sh-blue-deep:#355878;--sh-blue-soft:rgba(225,236,247,.75);--sh-orange:#c36b3d;--sh-orange-soft:rgba(248,231,220,.72);--sh-green:#557866;--sh-green-soft:rgba(227,239,231,.72);--sh-gold:#9c772d;--sh-gold-soft:rgba(249,240,214,.72);--sh-serif:"Noto Serif SC","Songti SC",serif;--sh-mono:"IBM Plex Mono","SFMono-Regular",Consolas,monospace}
+    .article-body{max-width:760px;color:var(--sh-ink)}.article-body p{margin:0 0 20px}.article-body strong{color:#171411;font-weight:650}.article-body a{color:var(--sh-blue-deep);text-decoration-thickness:1px;text-underline-offset:3px}.article-body a:hover{color:var(--sh-orange)}
+    .shot-hero{max-width:980px;margin:0 auto;padding:62px 28px 42px;color:var(--sh-ink)}.shot-kicker{color:var(--sh-blue);font:600 10px/1.3 var(--sh-mono);letter-spacing:.19em}.shot-headline{max-width:910px;margin:18px 0 17px;font-family:var(--sh-serif);font-size:46px;line-height:1.22;font-weight:650;letter-spacing:-.025em}.shot-deck{max-width:800px;margin:0;color:#6f665e;font-size:16px;line-height:1.85}.meta-row{display:flex;flex-wrap:wrap;gap:8px 20px;margin-top:24px;color:var(--sh-faint);font-size:13px}.shot-wrap{max-width:980px;margin:0 auto;padding:0 28px 88px}
+    .sh-label{margin:60px 0 9px;color:var(--sh-faint);font:500 10px/1.2 var(--sh-mono);letter-spacing:.2em;text-transform:uppercase}.sh-heading{margin:0 0 22px;font-family:var(--sh-serif);font-size:26px;line-height:1.43;font-weight:650}.sh-subheading{margin:35px 0 12px;font-family:var(--sh-serif);font-size:20px;line-height:1.5;font-weight:650}
+    .sh-lead-block{margin:2px 0 34px;padding:22px 25px 23px;border:1px solid rgba(76,112,149,.22);border-left:3px solid var(--sh-blue);border-radius:0 11px 11px 0;background:linear-gradient(110deg,var(--sh-blue-soft),rgba(255,253,248,.35))}.sh-lead-label{display:block;margin-bottom:10px;color:var(--sh-blue);font:600 10px/1.3 var(--sh-mono);letter-spacing:.15em}.sh-lead{margin:0!important;font-family:var(--sh-serif);font-size:17.5px;line-height:1.88}.sh-thesis{margin:32px 0;padding:24px 27px;border-left:3px solid var(--sh-orange);background:linear-gradient(100deg,var(--sh-orange-soft),rgba(255,253,248,.24));font-family:var(--sh-serif);font-size:20px;line-height:1.75;font-weight:600}
+    .sh-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin:28px 0 38px}.sh-card{padding:20px;border:1px solid var(--sh-line);border-top:3px solid var(--sh-blue);border-radius:10px;background:var(--sh-paper)}.sh-card:nth-child(2n){border-top-color:var(--sh-orange)}.sh-card small{color:var(--sh-faint);font:650 9px/1 var(--sh-mono);letter-spacing:.1em}.sh-card h3{margin:10px 0 7px;font-size:15px}.sh-card p{margin:0;color:var(--sh-muted);font-size:13px;line-height:1.72}
+    .sh-function{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:28px 0 38px}.sh-function-card{padding:18px 16px;border-radius:10px;background:var(--sh-blue-soft)}.sh-function-card:nth-child(3n+2){background:var(--sh-orange-soft)}.sh-function-card:nth-child(3n){background:var(--sh-green-soft)}.sh-function-card b{display:block;margin-bottom:6px;font-size:14px}.sh-function-card span{color:var(--sh-muted);font-size:12.5px;line-height:1.7}
+    .sh-table-wrap{margin:28px 0 38px;overflow-x:auto;border:1px solid var(--sh-line);border-radius:11px}.sh-table{width:100%;min-width:780px;border-collapse:collapse;background:var(--sh-paper);font-size:13px}.sh-table th,.sh-table td{padding:14px 15px;border-bottom:1px solid var(--sh-line);text-align:left;vertical-align:top;line-height:1.68}.sh-table tr:last-child td{border-bottom:0}.sh-table th{color:var(--sh-muted);font-size:11px;background:rgba(76,112,149,.055)}.sh-table td:first-child{color:var(--sh-blue-deep);font-family:var(--sh-mono);font-size:11px;white-space:nowrap}
+    .sh-storyboard{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:29px 0 38px}.sh-board{overflow:hidden;border:1px solid var(--sh-line);border-radius:10px;background:var(--sh-paper)}.sh-frame{position:relative;aspect-ratio:16/9;overflow:hidden;background:#ded8cf}.sh-frame::before{content:'';position:absolute;left:0;right:0;bottom:0;height:32%;background:#c6b59e}.sh-frame .counter{position:absolute;left:26%;right:8%;top:48%;height:18%;background:#a98d69}.sh-frame .person{position:absolute;z-index:2;width:17px;height:42px;border-radius:9px 9px 4px 4px;background:var(--sh-orange)}.sh-frame .person.father{background:var(--sh-green)}.sh-frame.wide .person.lin{left:30%;bottom:18%}.sh-frame.wide .person.father{right:18%;bottom:29%}.sh-frame.medium .person.lin{left:42%;bottom:10%;transform:scale(1.7);transform-origin:bottom}.sh-frame.detail::after{content:'';position:absolute;left:39%;top:37%;width:23%;height:18%;border-radius:4px;background:#45413d;box-shadow:28px 3px 0 -7px #bd8a44}.sh-frame.exit .person.lin{left:15%;bottom:11%;transform:scale(1.25);transform-origin:bottom}.sh-frame.exit .person.father{right:22%;bottom:28%}.sh-frame.empty .person.father{right:20%;bottom:28%}.sh-board-copy{padding:12px 13px 14px}.sh-board-copy small{color:var(--sh-blue);font:650 9px/1 var(--sh-mono)}.sh-board-copy b{display:block;margin:7px 0 4px;font-size:13px}.sh-board-copy span{display:block;color:var(--sh-muted);font-size:11.5px;line-height:1.55}
+    .sh-shotlist{margin:29px 0 38px;border:1px solid var(--sh-line);border-radius:12px;background:var(--sh-paper);overflow:hidden}.sh-shotrow{display:grid;grid-template-columns:64px 92px 1fr;gap:14px;padding:16px 20px;border-bottom:1px solid var(--sh-line)}.sh-shotrow:last-child{border-bottom:0}.sh-shotrow small{color:var(--sh-blue);font:650 10px/1.7 var(--sh-mono)}.sh-shotrow b{font-size:13px;line-height:1.7}.sh-shotrow p{margin:0;color:var(--sh-muted);font-size:12.8px;line-height:1.7}
+    .sh-note{margin:27px 0;padding:20px 22px;border:1px solid var(--sh-line);border-radius:11px;background:var(--sh-paper)}.sh-note-title{display:block;margin-bottom:8px;color:var(--sh-blue);font:600 10px/1.4 var(--sh-mono);letter-spacing:.13em}.sh-note p:last-child{margin-bottom:0}.sh-note.warning{border-color:rgba(156,119,45,.24);background:var(--sh-gold-soft)}.sh-note.warning .sh-note-title{color:var(--sh-gold)}
+    .sh-exercises{margin:28px 0 38px;counter-reset:sh-ex}.sh-exercise{display:grid;grid-template-columns:48px 1fr;gap:14px;padding:18px 0;border-bottom:1px solid var(--sh-line)}.sh-exercise:first-child{border-top:1px solid var(--sh-line)}.sh-exercise::before{counter-increment:sh-ex;content:counter(sh-ex,decimal-leading-zero);color:var(--sh-blue);font:650 11px/1.7 var(--sh-mono)}.sh-exercise h3{margin:0 0 5px;font-size:15px}.sh-exercise p{margin:0;color:var(--sh-muted);font-size:13.5px;line-height:1.75}
+    .sh-sources{margin:25px 0 36px;padding:0;list-style:none}.sh-sources li{display:grid;grid-template-columns:32px 1fr;gap:13px;padding:14px 0;border-bottom:1px solid var(--sh-line)}.sh-sources li:first-child{border-top:1px solid var(--sh-line)}.sh-no{color:var(--sh-faint);font:500 10px/1.8 var(--sh-mono)}.sh-sources a{font-weight:600}.sh-sources span{display:block;margin-top:3px;color:var(--sh-faint);font-size:12px;line-height:1.6}.sh-closing{margin-top:48px;padding-top:27px;border-top:2px solid var(--sh-ink);font-family:var(--sh-serif);font-size:20px;line-height:1.82}
+    @media(max-width:720px){.shot-hero{padding:48px 20px 34px}.shot-headline{font-size:35px}.shot-wrap{padding:0 20px 70px}.sh-grid{grid-template-columns:1fr}.sh-function{grid-template-columns:1fr 1fr}.sh-storyboard{grid-template-columns:1fr 1fr}.sh-shotrow{grid-template-columns:52px 1fr}.sh-shotrow p{grid-column:1/-1}}
+  </style>
+</head>
+<body>
+  <header class="shot-hero">
+    <div class="shot-kicker">DIRECTING FOUNDATIONS · SHOT DESIGN &amp; STORYBOARDING</div>
+    <h1 class="shot-headline">镜头设计与分镜：<br>把场景变成可执行的镜头序列</h1>
+    <p class="shot-deck">镜头不是景别名称，而是一段有起点和终点的观看。分镜也不是精美插画，而是用低成本图像检验信息、空间、动作与切换能否共同完成场景。</p>
+    <div class="meta-row"><span>2026-08-23</span><span>导演思维 · 第四篇</span><span>阅读约 22 分钟</span><span>镜头设计 · 分镜 · 镜头表 · 覆盖</span></div>
+  </header>
+
+  <main class="shot-wrap">
+    <article class="article-body">
+      <div class="sh-lead-block"><span class="sh-lead-label">导言 · Introduction</span><p class="lead sh-lead">“全景—中景—特写”是一组可用的素材安排，却不是镜头设计。真正的问题是：全景建立哪种关系，中景让哪个行动变得清楚，特写在什么时刻改变观众理解，以及这些镜头是否能被剪成一段连续的经验。</p></div>
+
+      <p>前几篇已经确定场景变化、人物目标、节拍与调度。镜头设计要把这些决定转为连续观看单位：摄影机从哪里开始，包含哪些信息，何时发生变化，为什么结束。分镜、镜头表和动态预演则把方案变成可以沟通、测试和修改的工作文件。</p>
+
+      <p>Pixar in a Box 将 shot 定义为人物行动在时间中的视觉呈现，并建议先把小节拍拆成一个或多个镜头，再绘制分镜。这个顺序很重要：故事节拍先于画格。参见 <a href="https://www.khanacademy.org/humanities/hass-storytelling/storytelling-pixar-in-a-box/ah-piab-film-grammar/v/major-minor-beats" target="_blank" rel="noopener">Pixar in a Box · Major vs. Minor Beats</a>。</p>
+
+      <div class="sh-thesis">一个镜头至少要回答四件事：它让观众从哪里观看，主要提供什么信息，镜内发生哪次变化，以及为什么在这个时刻结束。</div>
+
+      <section>
+        <div class="sh-label">01 · SHOT FUNCTION</div>
+        <h2 class="sh-heading">先写镜头功能，再写景别、机位和运动</h2>
+        <p>镜头功能不是“拍人物”或“交代环境”，而是它对观众理解做了什么。一个镜头可以同时承担多项功能，但最好有一个首要任务；否则画面会在建立空间、表现情绪、展示道具和制造风格之间争夺注意。</p>
+
+        <div class="sh-function">
+          <div class="sh-function-card"><b>建立 · Orient</b><span>说明人物、目标与空间的相对位置，让之后的移动有方向。</span></div>
+          <div class="sh-function-card"><b>识别 · Identify</b><span>让观众确认人物、物件或行为是什么，避免关键信息只在背景闪过。</span></div>
+          <div class="sh-function-card"><b>强调 · Emphasize</b><span>重新分配注意力，使某个反应、细节或决定成为当前重音。</span></div>
+          <div class="sh-function-card"><b>揭示 · Reveal</b><span>让新信息进入画面，并改变对已有信息的理解。</span></div>
+          <div class="sh-function-card"><b>比较 · Compare</b><span>在同框或相邻镜头中呈现人物、时间或图形之间的关系。</span></div>
+          <div class="sh-function-card"><b>转场 · Transition</b><span>把观众从一个空间、时间、视点或情绪状态带到另一个状态。</span></div>
+        </div>
+
+        <div class="sh-note"><span class="sh-note-title">镜头功能句</span><p>建议用“这个镜头让观众……”开头，例如：“这个镜头让观众在林岚之前注意到桌角的电池，但暂时不知道它为何出现。”如果只能写“这个镜头很有氛围”，功能仍不清楚。</p></div>
+      </section>
+
+      <section>
+        <div class="sh-label">02 · SHOT VARIABLES</div>
+        <h2 class="sh-heading">景别、视点、焦段和运动是联动变量</h2>
+        <p>景别控制人物与环境在画面中的信息比例；机位与视点决定观看关系；焦段和摄影距离共同塑造透视与空间压缩；摄影机运动改变观看位置与信息显露顺序。单独背诵任何一个术语，都不足以预测镜头意义。</p>
+
+        <div class="sh-table-wrap"><table class="sh-table"><thead><tr><th>变量</th><th>首先观察</th><th>导演问题</th><th>常见误区</th></tr></thead><tbody>
+          <tr><td>景别</td><td>主体占比、环境信息、表情与动作可读性</td><td>此刻最需要读动作、关系还是细节</td><td>特写自动等于情绪强</td></tr>
+          <tr><td>机位</td><td>高度、方位、与动作轴的关系</td><td>观众是在参与、观察还是被限制</td><td>低机位自动等于强大</td></tr>
+          <tr><td>焦段与距离</td><td>透视、前后景比例、遮挡和运动视差</td><td>空间应当开放、压缩还是产生变形张力</td><td>只写毫米数，不说明相机距离</td></tr>
+          <tr><td>焦点</td><td>哪些层次清楚，焦点是否在时间中转移</td><td>观众何时注意到第二项信息</td><td>浅景深自动等于电影感</td></tr>
+          <tr><td>运动</td><td>机位是否真正改变，起止点和速度曲线</td><td>移动是在跟随行动、揭示空间还是改变距离</td><td>一个镜头叠加多种无关运镜</td></tr>
+          <tr><td>时长</td><td>信息何时被读完，动作何时完成</td><td>继续停留会增加什么，提前切走会失去什么</td><td>按固定秒数代替节拍判断</td></tr>
+        </tbody></table></div>
+
+        <p>Yale Film Analysis 的摄影指南把景别、角度、移动、镜头、焦点与曝光放在同一摄影系统中，适合用来建立准确术语。参见 <a href="https://filmanalysis.yale.edu/cinematography/" target="_blank" rel="noopener">Yale Film Analysis · Cinematography</a>。更深入的焦段与透视关系可回到本站“美学与摄影”中的《镜头与空间》。</p>
+      </section>
+
+      <section>
+        <div class="sh-label">03 · SHOT BEGINNING AND END</div>
+        <h2 class="sh-heading">镜头的开始和结束，都应有可描述的状态</h2>
+        <p>分镜常只画一个代表画面，但动态镜头至少包含起始、变化和结束。人物可能进入构图，焦点可能转移，摄影机可能从遮挡后揭示空间。若只画最漂亮的中间帧，执行时便缺少动作路径和剪辑接口。</p>
+
+        <div class="sh-grid">
+          <article class="sh-card"><small>START</small><h3>开始状态</h3><p>观众已经知道什么，主体在哪里，画面主要重点是什么，动作是否已经开始。</p></article>
+          <article class="sh-card"><small>CHANGE</small><h3>镜内变化</h3><p>人物、摄影机、焦点、光线或信息中，哪一项是主要变化，什么事件触发它。</p></article>
+          <article class="sh-card"><small>END</small><h3>结束状态</h3><p>新重点落在哪里，人物和空间形成什么关系，动作是否提供自然切点。</p></article>
+          <article class="sh-card"><small>HANDOFF</small><h3>交接条件</h3><p>下一镜接住动作、视线、声音、图形还是问题；需要保留哪些连续性。</p></article>
+        </div>
+
+        <p>这套描述也直接适用于视频生成：首帧固定初始条件，提示词说明一次主要变化，尾帧或结束状态为下一段提供明确边界。</p>
+      </section>
+
+      <section>
+        <div class="sh-label">04 · COVERAGE</div>
+        <h2 class="sh-heading">覆盖不是“多拍一些”：它为剪辑提供选择</h2>
+        <p>coverage 指从不同距离和角度记录一场行动，为剪辑提供表演、信息与节奏选择。常见的主镜头加覆盖方法，先用能够容纳主要行动的镜头建立地理，再拍人物单镜、过肩、反应和细节。但它是一种可靠方法，不是唯一正确语言。</p>
+
+        <div class="sh-grid">
+          <article class="sh-card"><small>MASTER</small><h3>主镜头</h3><p>从头到尾覆盖主要行动，建立人物和空间关系，也可作为连续性安全基础。</p></article>
+          <article class="sh-card"><small>SINGLE</small><h3>人物单镜</h3><p>选择某人的行动和反应，调整观众与人物的距离及视点归属。</p></article>
+          <article class="sh-card"><small>INSERT</small><h3>插入细节</h3><p>让关键物件或动作变得可识别；必须确认它在场景中的时间和手位连续。</p></article>
+          <article class="sh-card"><small>CUTAWAY</small><h3>切出镜头</h3><p>展示旁观者、环境结果或相关信息，也能跨越时间，但不能只是遮盖缺失素材。</p></article>
+        </div>
+
+        <p>Loyola Marymount University 的开放教材将 master shot 描述为能够覆盖完整行动、建立地理和走位的镜头，将 coverage 描述为从其他位置和距离补充同一行动的素材。参见 <a href="https://lmu.pressbooks.pub/filmmaking/chapter/continuity/" target="_blank" rel="noopener">No-Nonsense Filmmaking · Continuity</a>。</p>
+
+        <div class="sh-note warning"><span class="sh-note-title">覆盖的代价</span><p>更多镜头意味着更多时间、连续性和生成一致性成本。先区分“完成场景不可缺少的镜头”和“用于改变节奏或解决风险的备选镜头”，不要把所有可能角度都列入。</p></div>
+      </section>
+
+      <section>
+        <div class="sh-label">05 · STORYBOARD</div>
+        <h2 class="sh-heading">分镜的任务是暴露问题，不是证明会画画</h2>
+        <p>有效分镜应传达画幅、人物位置、视线、动作方向、摄影机变化和镜头顺序。火柴人、照片拼贴和简单 3D 预演都可以使用；只要团队能读懂，就比精美却缺少动作信息的概念图更有价值。</p>
+
+        <div class="sh-storyboard">
+          <div class="sh-board"><div class="sh-frame wide"><span class="person lin"></span><span class="person father"></span><span class="counter"></span></div><div class="sh-board-copy"><small>01 · WIDE</small><b>建立分隔</b><span>柜台和纵深同时显示两人距离。</span></div></div>
+          <div class="sh-board"><div class="sh-frame medium"><span class="person lin"></span><span class="counter"></span></div><div class="sh-board-copy"><small>02 · MEDIUM</small><b>动作受阻</b><span>林岚尝试启动录音机，父亲留在画外。</span></div></div>
+          <div class="sh-board"><div class="sh-frame detail"></div><div class="sh-board-copy"><small>03 · INSERT</small><b>发现电池</b><span>机器与电池建立清楚的空间邻接。</span></div></div>
+          <div class="sh-board"><div class="sh-frame medium"><span class="person lin"></span><span class="counter"></span></div><div class="sh-board-copy"><small>04 · REACTION</small><b>重新理解</b><span>不要求哭泣，只保留手停下和视线变化。</span></div></div>
+          <div class="sh-board"><div class="sh-frame exit"><span class="person lin"></span><span class="person father"></span></div><div class="sh-board-copy"><small>05 · EXIT</small><b>接受但离开</b><span>她带走电池，从父亲所在空间退出。</span></div></div>
+          <div class="sh-board"><div class="sh-frame empty"><span class="person father"></span><span class="counter"></span></div><div class="sh-board-copy"><small>06 · HOLD</small><b>留下结果</b><span>摄影机停留在钥匙与父亲形成的空位。</span></div></div>
+        </div>
+
+        <p>Fitchburg State University 的开放教材明确指出，分镜不必画得好看，核心是向制作团队传达每个镜头将如何呈现；可以使用绘画、拼贴或现场照片。参见 <a href="https://openbooks.fitchburgstate.edu/preproduction/chapter/storyboards/" target="_blank" rel="noopener">Pre-Production for Film and Video · Storyboards</a>。</p>
+
+        <h3 class="sh-subheading">画箭头，但要说明谁在动</h3>
+        <p>人物路径、摄影机路径和摇摄方向应使用不同箭头或文字，否则执行者无法判断箭头表示主体移动、摄影机移动还是视线方向。每格还应标明镜头号、景别、简要动作和声音重点。</p>
+      </section>
+
+      <section>
+        <div class="sh-label">06 · SHOT LIST</div>
+        <h2 class="sh-heading">镜头表把视觉方案变成可追踪的执行清单</h2>
+        <p>分镜擅长展示构图和顺序，镜头表擅长记录编号、景别、机位、运动、人物动作、声音、道具与连续性。二者互补：只有分镜容易漏掉执行条件，只有镜头表则难以快速判断空间和画面关系。</p>
+
+        <div class="sh-shotlist">
+          <div class="sh-shotrow"><small>1A</small><b>双人全景</b><p>固定机位，入口一侧。林岚入店直达柜台，父亲退到暗房边。完整覆盖节拍 1，保留出入画方向。</p></div>
+          <div class="sh-shotrow"><small>1B</small><b>林岚中近景</b><p>柜台对侧，录音机与双手可见。两次尝试开机，第二次后停顿；父亲台词来自画外。</p></div>
+          <div class="sh-shotrow"><small>1C</small><b>父亲中景</b><p>暗房门边，不越过人物轴。说完后只向前一步，在林岚抬头前停住。</p></div>
+          <div class="sh-shotrow"><small>1D</small><b>物件插入</b><p>录音机、电池与林岚手部。手进入画面后先触碰机器，再停向电池；记录道具方向。</p></div>
+          <div class="sh-shotrow"><small>1E</small><b>出口双人景</b><p>林岚把钥匙放在柜台后离开；父亲不追。环境声延续到空镜。</p></div>
+          <div class="sh-shotrow"><small>1F</small><b>结果空镜</b><p>钥匙在前景，父亲后景失焦后缓慢清楚；不新增动作，作为场景结束与声音过渡。</p></div>
+        </div>
+
+        <p>Fitchburg State 的镜头表教材列出 scale、angle、camera movement、blocking 与 script notations 等字段，并强调镜头数量会直接影响预算与日程。参见 <a href="https://openbooks.fitchburgstate.edu/preproduction/chapter/the-shot-list/" target="_blank" rel="noopener">Short Film Screenwriting and Pre-Production Planning · The Shot List</a>。</p>
+      </section>
+
+      <section>
+        <div class="sh-label">07 · EDITING ON PAPER</div>
+        <h2 class="sh-heading">在纸面上先剪一次：检查镜头之间的关系</h2>
+        <p>分镜排列不是拍摄顺序清单，而是一次低成本剪辑。把画格缩小排列，检查每一格是否提供新信息、视觉重点是否跳得过远、动作方向是否对应、同一节拍是否被切得过碎，以及删掉一个镜头后场景是否仍然成立。</p>
+
+        <div class="sh-grid">
+          <article class="sh-card"><small>INFORMATION</small><h3>每一剪是否更新信息</h3><p>若连续三个镜头只重复“人物在难过”，可能缺少行动或递进。</p></article>
+          <article class="sh-card"><small>GEOGRAPHY</small><h3>空间是否可重建</h3><p>人物左右、视线、出入口和物件位置是否提供足够线索。</p></article>
+          <article class="sh-card"><small>EMPHASIS</small><h3>重音是否落在正确时刻</h3><p>过早给细节会失去发现，过晚给反应会失去因果。</p></article>
+          <article class="sh-card"><small>ECONOMY</small><h3>是否存在无功能镜头</h3><p>漂亮但不增加信息、关系、节奏或转场价值的画格应被质疑。</p></article>
+        </div>
+
+        <p>Pixar 的分镜课程强调反复绘制、讲述、获得反馈、重新分镜，再由 editorial 加入对白、音乐、声音与时间形成 story reel。这说明分镜是迭代工具，而不是一次定稿。参见 <a href="https://www.khanacademy.org/computing/pixar/storytelling" target="_blank" rel="noopener">Pixar in a Box · Pitching and Feedback</a>。</p>
+      </section>
+
+      <section>
+        <div class="sh-label">08 · GENERATIVE PREVIS</div>
+        <h2 class="sh-heading">用生成模型做预演：让参考图各自承担明确任务</h2>
+        <p>生成图适合快速比较构图、空间层次、光色和美术方向；短视频适合测试单个动作和运镜。但生成结果不应因为完成度高就直接成为方案，仍需检查它是否遵循人物轴、道具位置、身份和节拍。</p>
+
+        <div class="sh-table-wrap"><table class="sh-table"><thead><tr><th>材料</th><th>控制什么</th><th>不要默认控制</th></tr></thead><tbody>
+          <tr><td>空间参考</td><td>门、柜台、暗房和通路的相对位置</td><td>人物身份、最终光色和表演</td></tr>
+          <tr><td>角色参考</td><td>面部、发型、服装与识别特征</td><td>构图、姿势和镜头距离</td></tr>
+          <tr><td>分镜画格</td><td>景别、人物位置、视线与画幅关系</td><td>精细材质和最终表情</td></tr>
+          <tr><td>风格参考</td><td>综合色、对比、媒介痕迹与完成度</td><td>场景结构和动作路径</td></tr>
+          <tr><td>首尾帧</td><td>一个镜头的起止状态</td><td>中间路径的自然因果</td></tr>
+        </tbody></table></div>
+
+        <div class="sh-note warning"><span class="sh-note-title">先粗后精</span><p>在镜头逻辑尚未稳定时追求高分辨率与复杂风格，会提高重做成本。先用低完成度分镜或预演解决顺序、空间和动作，再固定角色与视觉风格。</p></div>
+      </section>
+
+      <section>
+        <div class="sh-label">09 · COMMON PITFALLS</div>
+        <h2 class="sh-heading">六个常见误区：分镜的价值在可修改，而非看起来完整</h2>
+        <div class="sh-grid">
+          <article class="sh-card"><small>PITFALL 01</small><h3>按景别公式自动覆盖</h3><p>每场戏都套全中近特，忽略实际节拍和视点，得到完整但缺乏重点的素材。</p></article>
+          <article class="sh-card"><small>PITFALL 02</small><h3>一格代表整段复杂动作</h3><p>没有起止状态、路径和停点，执行时无法判断人物与摄影机如何变化。</p></article>
+          <article class="sh-card"><small>PITFALL 03</small><h3>把分镜画成概念图</h3><p>细节精美却没有镜头号、动作方向和连续关系，难以用于拍摄或生成。</p></article>
+          <article class="sh-card"><small>PITFALL 04</small><h3>只考虑单镜，不预想切换</h3><p>视线、动作、光线和画面重心无法交接，剪辑只能依靠跳切或额外素材补救。</p></article>
+          <article class="sh-card"><small>PITFALL 05</small><h3>把覆盖理解成无限备份</h3><p>多角度增加制作与一致性成本。每个备选镜头都应说明提供哪种剪辑自由。</p></article>
+          <article class="sh-card"><small>PITFALL 06</small><h3>被生成完成度说服</h3><p>漂亮预演可能改变空间、人物和叙事重点。评审仍需回到镜头功能与场景变化。</p></article>
+        </div>
+      </section>
+
+      <section>
+        <div class="sh-label">10 · PRACTICE</div>
+        <h2 class="sh-heading">五个练习：从镜头名词进入镜头设计</h2>
+        <div class="sh-exercises">
+          <div class="sh-exercise"><div><h3>一节拍三方案</h3><p>为同一“发现”节拍分别设计同框发现、先反应后揭示、先细节后反应三版，比较信息与视点。</p></div></div>
+          <div class="sh-exercise"><div><h3>六格限制</h3><p>用不超过六格分镜讲清一个双人场景，每格写一句镜头功能，删掉功能重复的画格。</p></div></div>
+          <div class="sh-exercise"><div><h3>只用一个景别</h3><p>固定中景，只通过人物调度、焦点和画内进入离开建立重音，理解景别不是唯一工具。</p></div></div>
+          <div class="sh-exercise"><div><h3>分镜转镜头表</h3><p>把六格分镜转为镜头号、景别、机位、运动、动作、声音和连续性字段，寻找遗漏。</p></div></div>
+          <div class="sh-exercise"><div><h3>低清预演</h3><p>使用手机、火柴人或低成本生成制作 story reel，只评估顺序、时长和空间，不评价最终美术。</p></div></div>
+        </div>
+      </section>
+
+      <section>
+        <div class="sh-label">11 · FURTHER READING</div>
+        <h2 class="sh-heading">继续学习：从电影语法进入预演与制作计划</h2>
+        <ul class="sh-sources">
+          <li><div class="sh-no">01</div><div><a href="https://www.khanacademy.org/computing/pixar/storytelling/film-grammar/v/storyboarding-scene" target="_blank" rel="noopener">Pixar in a Box · Storyboarding</a><span>通过具体场景展示构图、人物关系和权力变化如何进入分镜。</span></div></li>
+          <li><div class="sh-no">02</div><div><a href="https://www.khanacademy.org/computing/pixar/storytelling/film-grammar/a/exercise-5-film" target="_blank" rel="noopener">Pixar in a Box · Storyboarding Activity</a><span>把节拍、走位、取景和运动转成简化画格的入门练习。</span></div></li>
+          <li><div class="sh-no">03</div><div><a href="https://openbooks.fitchburgstate.edu/preproduction/chapter/storyboards/" target="_blank" rel="noopener">Pre-Production for Film and Video · Storyboards</a><span>说明分镜的功能、媒介选择和与镜头表的配合。</span></div></li>
+          <li><div class="sh-no">04</div><div><a href="https://openbooks.fitchburgstate.edu/preproduction/chapter/the-shot-list/" target="_blank" rel="noopener">Pre-Production Planning · The Shot List</a><span>镜头表字段、景别、角度、运动、走位与剧本标记的实践方法。</span></div></li>
+          <li><div class="sh-no">05</div><div><a href="https://filmanalysis.yale.edu/cinematography/" target="_blank" rel="noopener">Yale Film Analysis · Cinematography</a><span>用于校准景别、机位、焦点、镜头与摄影机运动等术语。</span></div></li>
+          <li><div class="sh-no">06</div><div><a href="https://lmu.pressbooks.pub/filmmaking/chapter/continuity/" target="_blank" rel="noopener">No-Nonsense Filmmaking · Continuity</a><span>理解主镜头、覆盖、动作轴和连续拍摄如何为剪辑提供材料。</span></div></li>
+        </ul>
+      </section>
+
+      <p class="sh-closing">分镜不是把脑中的电影画出来，而是把尚未解决的问题暴露出来。能够被重排、删减和验证的粗略镜头序列，比一组无法执行的精美画面更接近真正的导演方案。</p>
+    </article>
+  </main>
+</body>
+</html>

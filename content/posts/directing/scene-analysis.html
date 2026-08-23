@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>场景拆解：人物目标、冲突、节拍与信息变化</title>
+  <style>
+    .scene-hero,.article-body{--sc-ink:#211d1a;--sc-muted:#685f58;--sc-faint:#958b82;--sc-line:rgba(74,58,46,.15);--sc-paper:rgba(255,253,248,.92);--sc-red:#ad5746;--sc-red-deep:#863d31;--sc-red-soft:rgba(246,226,220,.7);--sc-blue:#4d7192;--sc-blue-soft:rgba(226,237,246,.72);--sc-green:#557764;--sc-green-soft:rgba(227,239,231,.72);--sc-gold:#9a762e;--sc-gold-soft:rgba(249,240,214,.74);--sc-serif:"Noto Serif SC","Songti SC",serif;--sc-mono:"IBM Plex Mono","SFMono-Regular",Consolas,monospace}
+    .article-body{max-width:760px;color:var(--sc-ink)}.article-body p{margin:0 0 20px}.article-body strong{color:#171411;font-weight:650}.article-body a{color:var(--sc-red-deep);text-decoration-thickness:1px;text-underline-offset:3px}.article-body a:hover{color:var(--sc-blue)}
+    .scene-hero{max-width:980px;margin:0 auto;padding:62px 28px 42px;color:var(--sc-ink)}.scene-kicker{color:var(--sc-red);font:600 10px/1.3 var(--sc-mono);letter-spacing:.19em}.scene-headline{max-width:900px;margin:18px 0 17px;font-family:var(--sc-serif);font-size:46px;line-height:1.22;font-weight:650;letter-spacing:-.025em}.scene-deck{max-width:790px;margin:0;color:#6f665e;font-size:16px;line-height:1.85}.meta-row{display:flex;flex-wrap:wrap;gap:8px 20px;margin-top:24px;color:var(--sc-faint);font-size:13px}.scene-wrap{max-width:980px;margin:0 auto;padding:0 28px 88px}
+    .sc-label{margin:60px 0 9px;color:var(--sc-faint);font:500 10px/1.2 var(--sc-mono);letter-spacing:.2em;text-transform:uppercase}.sc-heading{margin:0 0 22px;font-family:var(--sc-serif);font-size:26px;line-height:1.43;font-weight:650}
+    .sc-lead-block{margin:2px 0 34px;padding:22px 25px 23px;border:1px solid rgba(173,87,70,.2);border-left:3px solid var(--sc-red);border-radius:0 11px 11px 0;background:linear-gradient(110deg,var(--sc-red-soft),rgba(255,253,248,.35))}.sc-lead-label{display:block;margin-bottom:10px;color:var(--sc-red);font:600 10px/1.3 var(--sc-mono);letter-spacing:.15em}.sc-lead{margin:0!important;font-family:var(--sc-serif);font-size:17.5px;line-height:1.88}.sc-thesis{margin:32px 0;padding:24px 27px;border-left:3px solid var(--sc-blue);background:linear-gradient(100deg,var(--sc-blue-soft),rgba(255,253,248,.24));font-family:var(--sc-serif);font-size:20px;line-height:1.75;font-weight:600}
+    .sc-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin:28px 0 38px}.sc-card{padding:20px;border:1px solid var(--sc-line);border-top:3px solid var(--sc-red);border-radius:10px;background:var(--sc-paper)}.sc-card:nth-child(2n){border-top-color:var(--sc-blue)}.sc-card small{color:var(--sc-faint);font:650 9px/1 var(--sc-mono);letter-spacing:.1em}.sc-card h3{margin:10px 0 7px;font-size:15px}.sc-card p{margin:0;color:var(--sc-muted);font-size:13px;line-height:1.72}
+    .sc-formula{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:8px;margin:28px 0 38px;padding:24px;border:1px solid rgba(85,119,100,.22);border-radius:12px;background:var(--sc-green-soft)}.sc-formula span{padding:9px 11px;border-radius:7px;background:rgba(255,255,255,.82);color:#3f6755;font:650 10px/1.35 var(--sc-mono)}.sc-formula i{color:var(--sc-green);font-style:normal}
+    .sc-table-wrap{margin:28px 0 38px;overflow-x:auto;border:1px solid var(--sc-line);border-radius:11px}.sc-table{width:100%;min-width:760px;border-collapse:collapse;background:var(--sc-paper);font-size:13px}.sc-table th,.sc-table td{padding:14px 15px;border-bottom:1px solid var(--sc-line);text-align:left;vertical-align:top;line-height:1.68}.sc-table tr:last-child td{border-bottom:0}.sc-table th{color:var(--sc-muted);font-size:11px;background:rgba(173,87,70,.055)}.sc-table td:first-child{color:var(--sc-red-deep);font-family:var(--sc-mono);font-size:11px;white-space:nowrap}
+    .sc-beats{margin:29px 0 38px;border:1px solid var(--sc-line);border-radius:12px;background:var(--sc-paper);overflow:hidden}.sc-beat{display:grid;grid-template-columns:68px 110px 1fr;gap:15px;padding:17px 20px;border-bottom:1px solid var(--sc-line)}.sc-beat:last-child{border-bottom:0}.sc-beat small{color:var(--sc-red);font:650 10px/1.7 var(--sc-mono)}.sc-beat b{font-size:13px;line-height:1.7}.sc-beat p{margin:0;color:var(--sc-muted);font-size:13px;line-height:1.7}
+    .sc-case{margin:29px 0 38px;overflow:hidden;border:1px solid rgba(77,113,146,.23);border-radius:12px;background:var(--sc-paper)}.sc-case-head{padding:13px 19px;color:var(--sc-blue);background:var(--sc-blue-soft);font:650 10px/1.4 var(--sc-mono);letter-spacing:.1em}.sc-case-body{padding:22px}.sc-case-body p:last-child{margin-bottom:0}
+    .sc-note{margin:27px 0;padding:20px 22px;border:1px solid var(--sc-line);border-radius:11px;background:var(--sc-paper)}.sc-note-title{display:block;margin-bottom:8px;color:var(--sc-red);font:600 10px/1.4 var(--sc-mono);letter-spacing:.13em}.sc-note p:last-child{margin-bottom:0}.sc-note.warning{border-color:rgba(154,118,46,.24);background:var(--sc-gold-soft)}.sc-note.warning .sc-note-title{color:var(--sc-gold)}
+    .sc-diagnosis{margin:28px 0 38px;border-top:1px solid var(--sc-line)}.sc-diagnosis-row{display:grid;grid-template-columns:155px 1fr;gap:20px;padding:17px 0;border-bottom:1px solid var(--sc-line)}.sc-diagnosis-row b{color:var(--sc-red);font-size:13px}.sc-diagnosis-row p{margin:0;color:var(--sc-muted);font-size:13px;line-height:1.72}
+    .sc-exercises{margin:28px 0 38px;counter-reset:sc-ex}.sc-exercise{display:grid;grid-template-columns:48px 1fr;gap:14px;padding:18px 0;border-bottom:1px solid var(--sc-line)}.sc-exercise:first-child{border-top:1px solid var(--sc-line)}.sc-exercise::before{counter-increment:sc-ex;content:counter(sc-ex,decimal-leading-zero);color:var(--sc-red);font:650 11px/1.7 var(--sc-mono)}.sc-exercise h3{margin:0 0 5px;font-size:15px}.sc-exercise p{margin:0;color:var(--sc-muted);font-size:13.5px;line-height:1.75}
+    .sc-sources{margin:25px 0 36px;padding:0;list-style:none}.sc-sources li{display:grid;grid-template-columns:32px 1fr;gap:13px;padding:14px 0;border-bottom:1px solid var(--sc-line)}.sc-sources li:first-child{border-top:1px solid var(--sc-line)}.sc-no{color:var(--sc-faint);font:500 10px/1.8 var(--sc-mono)}.sc-sources a{font-weight:600}.sc-sources span{display:block;margin-top:3px;color:var(--sc-faint);font-size:12px;line-height:1.6}.sc-closing{margin-top:48px;padding-top:27px;border-top:2px solid var(--sc-ink);font-family:var(--sc-serif);font-size:20px;line-height:1.82}
+    @media(max-width:720px){.scene-hero{padding:48px 20px 34px}.scene-headline{font-size:35px}.scene-wrap{padding:0 20px 70px}.sc-grid{grid-template-columns:1fr}.sc-beat{grid-template-columns:55px 1fr}.sc-beat p{grid-column:1/-1}.sc-diagnosis-row{grid-template-columns:1fr;gap:6px}}
+  </style>
+</head>
+<body>
+  <header class="scene-hero">
+    <div class="scene-kicker">DIRECTING FOUNDATIONS · SCENE ANALYSIS</div>
+    <h1 class="scene-headline">场景拆解：<br>人物目标、冲突、节拍与信息变化</h1>
+    <p class="scene-deck">场景不是一段地点相同的对白，而是人物在具体条件下采取行动、遇到阻力并被迫改变的过程。先找到这条行动线，镜头才知道应该捕捉什么。</p>
+    <div class="meta-row"><span>2026-08-23</span><span>导演思维 · 第二篇</span><span>阅读约 20 分钟</span><span>场景分析 · 人物目标 · 冲突 · 节拍</span></div>
+  </header>
+
+  <main class="scene-wrap">
+    <article class="article-body">
+      <div class="sc-lead-block"><span class="sc-lead-label">导言 · Introduction</span><p class="lead sc-lead">一段对白可以有三页，却没有任何事情发生；一个人把杯子推回桌子，也可能完成整场戏最重要的决定。场景分析的任务，是从台词和情节说明中找出行动、阻力、转折与新状态。</p></div>
+
+      <p>初学者常在读完剧本后直接列景别：全景交代环境，中景拍对话，特写拍情绪。这种做法能够获得基本素材，却没有回答哪个瞬间值得被强调、人物为什么改变策略、镜头何时应该重新组织空间。</p>
+
+      <p>佐治亚大学导演课程的教学大纲把人物目标、节拍、既定情境、身体行动、障碍、潜台词和逐时刻的行动—反应列为导演分析的核心内容。这些概念源于表演与戏剧训练，但对摄影、动画和生成影像同样有效，因为它们把“人物心里怎么想”转成了可观察的行为。参见 <a href="https://bulletin.uga.edu/Course/Details/41640" target="_blank" rel="noopener">University of Georgia · Directing course outline</a>。</p>
+
+      <div class="sc-thesis">场景的基本动力可以写成：人物想改变某件事，现实或他人阻止这种改变，人物于是更换行动策略；当信息、权力或关系发生变化，一个新节拍开始。</div>
+
+      <section>
+        <div class="sc-label">01 · SCENE, SHOT, SEQUENCE</div>
+        <h2 class="sc-heading">先区分场景、镜头与段落：三个单位解决不同问题</h2>
+        <p><strong>镜头</strong>是一次连续记录或一个连续生成片段；<strong>场景</strong>通常围绕一个连续的时空和一项主要戏剧行动展开；<strong>段落</strong>则可以组合多个场景，完成更大的叙事任务。边界并非绝对：一场戏可以只有一个长镜头，一个蒙太奇段落也可以跨越许多地点。</p>
+
+        <div class="sc-grid">
+          <article class="sc-card"><small>SHOT</small><h3>镜头问“看什么”</h3><p>从哪个位置、以何种距离、持续多久观察一个动作或信息。</p></article>
+          <article class="sc-card"><small>SCENE</small><h3>场景问“发生什么变化”</h3><p>谁想影响谁，遇到什么阻力，结束时关系和信息怎样不同。</p></article>
+          <article class="sc-card"><small>SEQUENCE</small><h3>段落问“完成什么阶段”</h3><p>多个场景怎样共同完成追踪、准备、失败、逃离或一次关系推进。</p></article>
+          <article class="sc-card"><small>FRAME</small><h3>画格问“这一瞬如何呈现”</h3><p>构图、光线、姿态与材质在某一时刻提供哪些视觉证据。</p></article>
+        </div>
+
+        <p>把场景误当成镜头，会试图用一条提示词塞入过多地点与转折；把镜头误当成场景，则会得到许多漂亮片段，却没有完整的行动变化。</p>
+      </section>
+
+      <section>
+        <div class="sc-label">02 · GIVEN CIRCUMSTANCES</div>
+        <h2 class="sc-heading">既定情境：人物不是在真空里做决定</h2>
+        <p>分析先从事实开始，而不是给人物贴情绪标签。所谓既定情境，是人物此刻不能随意抹去的条件：地点、时间、身份、关系历史、刚刚发生的事、必须完成的事，以及身体和社会限制。</p>
+
+        <div class="sc-table-wrap"><table class="sc-table"><thead><tr><th>问题</th><th>需要确认的事实</th><th>容易误写成什么</th></tr></thead><tbody>
+          <tr><td>此前发生什么</td><td>谁先到场，人物是否已经知道某条信息，上一次见面如何结束</td><td>“两人关系复杂”</td></tr>
+          <tr><td>此刻在哪里</td><td>空间是否公开、拥挤、危险，有哪些出口、遮挡和可使用物件</td><td>“有氛围的室内”</td></tr>
+          <tr><td>时间压力</td><td>必须在何时之前完成，等待会造成什么后果</td><td>“节奏紧张”</td></tr>
+          <tr><td>关系与规则</td><td>谁有权留下、询问、拒绝或离开，什么行为会越界</td><td>“一个强势、一个弱势”</td></tr>
+          <tr><td>身体条件</td><td>人物是否疲惫、受伤、携带物品，动作范围是否受限</td><td>“状态不好”</td></tr>
+        </tbody></table></div>
+
+        <p>既定情境不会替导演决定结果，但会排除没有因果的动作。若人物赶在拆除前取回物品，持续闲聊就需要额外理由；若门外有人等待，人物的停顿会同时具有情绪和时间成本。</p>
+      </section>
+
+      <section>
+        <div class="sc-label">03 · OBJECTIVE</div>
+        <h2 class="sc-heading">人物目标：用行动对象代替情绪说明</h2>
+        <p>目标不是“感到悲伤”，而是人物试图让自己、他人或环境发生什么变化。有效的场景目标通常能够写成一个主动句：让父亲停止追问、说服对方交出钥匙、隐藏自己已经看见信件、尽快离开房间。</p>
+
+        <div class="sc-formula"><span>人物</span><i>+</i><span>想让谁／什么改变</span><i>+</i><span>使用何种行动</span><i>+</i><span>在什么限制下</span></div>
+
+        <p>目标还应区分层级。人物可能长期想修复关系，但在当前场景只想拿走录音机而不发生谈话。长期需要解释方向，场景目标驱动眼前行动；两者冲突时，人物才显得复杂。</p>
+
+        <div class="sc-note"><span class="sc-note-title">写目标的三个检查</span><p>目标是否指向一个可以改变的对象？是否能通过动作被尝试？如果失败，场景是否产生具体后果？若三个问题都答不上来，“目标”很可能只是人物状态或作者主题。</p></div>
+
+        <p>BYU 的剧本分析教学将 objective 与 tactic、beat 共同训练，并要求在角色改变策略或主导关系变化时重新标记节拍。参见 <a href="https://tedb-old.byu.edu/?page_id=5144" target="_blank" rel="noopener">Brigham Young University · Script Analysis: Objectives, Beats, Tactics</a>。</p>
+      </section>
+
+      <section>
+        <div class="sc-label">04 · OBSTACLE AND CONFLICT</div>
+        <h2 class="sc-heading">冲突不等于争吵：阻力使目标变得可见</h2>
+        <p>只有当行动受到阻力，观众才能看见人物如何选择。阻力可以来自另一个人物，也可以来自空间、时间、规则、缺失的信息或人物自己的矛盾需求。安静场景同样可以拥有强冲突。</p>
+
+        <div class="sc-grid">
+          <article class="sc-card"><small>INTERPERSONAL</small><h3>人际阻力</h3><p>对方拥有不同目标、拒绝配合、误解行动，或以沉默迫使人物继续尝试。</p></article>
+          <article class="sc-card"><small>PHYSICAL</small><h3>物理阻力</h3><p>锁住的门、过远的距离、拥挤空间、破损设备和天气改变行动路径。</p></article>
+          <article class="sc-card"><small>INFORMATION</small><h3>信息阻力</h3><p>人物不知道物品在哪里、不确定对方是否知情，或不能公开说明真正目的。</p></article>
+          <article class="sc-card"><small>INTERNAL</small><h3>内部矛盾</h3><p>人物想接近又害怕暴露，想离开又需要确认；内部矛盾必须通过犹豫、改口和替代行动显现。</p></article>
+        </div>
+
+        <p>芝加哥大学出版社的戏剧行动练习把冲突直接放在“目标遭遇障碍”的关系中，并进一步讨论人物会更换策略去追求目标。参见 <a href="https://press.uchicago.edu/dam/ucp/books/pdf/course_intro/978-0-226-49408-1_course_intro.pdf" target="_blank" rel="noopener">The Architecture of Story · Course Introduction</a>。</p>
+      </section>
+
+      <section>
+        <div class="sc-label">05 · TACTICS</div>
+        <h2 class="sc-heading">策略：人物不是表达情绪，而是在对别人做事</h2>
+        <p>“更伤心一点”“表现得愤怒”容易让表演只剩结果。策略则描述人物为了目标正在做的事：试探、拖延、安抚、逼问、引诱、转移、否认、威胁、交换、装作不在意。策略可以失败，失败后人物才需要改变。</p>
+
+        <div class="sc-table-wrap"><table class="sc-table"><thead><tr><th>结果式指令</th><th>可行动的替代</th><th>可能出现的外部证据</th></tr></thead><tbody>
+          <tr><td>“表现得冷漠”</td><td>让对方相信这件事不值得谈</td><td>继续收拾物品，不回答开放问题，只纠正事实</td></tr>
+          <tr><td>“更加生气”</td><td>迫使对方承认隐瞒</td><td>缩短距离，重复具体问题，阻止对方离开</td></tr>
+          <tr><td>“有点心软”</td><td>给对方一次不必道歉的退路</td><td>移开挡路物件，把需要的东西放到可拿位置</td></tr>
+        </tbody></table></div>
+
+        <p>这并不意味着导演必须规定每一个手势。行动目标提供方向，演员、动画师或生成方案仍可以提出更可信的身体实现。导演需要判断的是：动作是否真的在影响关系。</p>
+      </section>
+
+      <section>
+        <div class="sc-label">06 · BEATS</div>
+        <h2 class="sc-heading">节拍：当行动方向改变，一个新单位开始</h2>
+        <p>节拍不是固定时长，也不是剪辑节奏的同义词。它是场景内部一次有意义的变化：出现新信息、目标改变、策略失效、权力转移、人物作出决定，或某个行动产生了无法忽略的结果。</p>
+
+        <div class="sc-beats">
+          <div class="sc-beat"><small>BEAT 01</small><b>行动开始</b><p>人物以当前策略追求目标，场景建立基本方向。</p></div>
+          <div class="sc-beat"><small>BEAT 02</small><b>阻力显现</b><p>原策略不能顺利奏效，人物必须付出更多或改变方式。</p></div>
+          <div class="sc-beat"><small>BEAT 03</small><b>信息更新</b><p>一句话、一个物件或反应改变人物和观众对局面的理解。</p></div>
+          <div class="sc-beat"><small>BEAT 04</small><b>策略改变</b><p>人物采用不同动作，关系中的主导权可能随之转移。</p></div>
+          <div class="sc-beat"><small>BEAT 05</small><b>新状态形成</b><p>目标实现、失败或被重新定义，场景获得可以离开的状态。</p></div>
+        </div>
+
+        <p>Pixar in a Box 的电影语法课程把 major beat、minor beat 与镜头设计连接起来：先把故事拆成行动和情绪上的关键变化，再为每个小节拍设计一个或多个镜头，而不是先画一串好看的画格。参见 <a href="https://www.khanacademy.org/humanities/hass-storytelling/storytelling-pixar-in-a-box/ah-piab-film-grammar/v/major-minor-beats" target="_blank" rel="noopener">Pixar in a Box · Major vs. Minor Beats</a>。</p>
+      </section>
+
+      <section>
+        <div class="sc-label">07 · INFORMATION CHANGE</div>
+        <h2 class="sc-heading">信息变化：人物知道什么，观众又知道什么</h2>
+        <p>节拍不仅由人物行动产生，也由信息重新分配产生。观众、角色 A、角色 B 可以掌握不同事实。场景的张力经常来自这种不对称：观众知道父亲已准备电池，女儿尚未发现；或者观众与女儿同时发现，于是电池成为一次关系重读。</p>
+
+        <div class="sc-grid">
+          <article class="sc-card"><small>QUESTION</small><h3>提出问题</h3><p>为什么父亲已经在店里？桌上的物品为谁准备？问题让普通细节获得等待中的意义。</p></article>
+          <article class="sc-card"><small>ANSWER</small><h3>提供答案</h3><p>答案最好同时改变行动，而不是暂停场景进行解释。</p></article>
+          <article class="sc-card"><small>REVISION</small><h3>修正理解</h3><p>新事实使先前的沉默、位置或物件获得不同含义。</p></article>
+          <article class="sc-card"><small>RESIDUE</small><h3>留下余问</h3><p>场景可以解决眼前目标，同时保留更大的关系问题继续发展。</p></article>
+        </div>
+      </section>
+
+      <section>
+        <div class="sc-label">08 · CASE BREAKDOWN</div>
+        <h2 class="sc-heading">旧照相馆场景：从一句梗概拆成五个节拍</h2>
+        <div class="sc-case"><div class="sc-case-head">WORKING EXAMPLE · 虚构教学场景</div><div class="sc-case-body">
+          <p><strong>既定情境：</strong>店铺当天拆除；林岚三年没有回来；她只带一个小包，网约车在门外等待；父亲知道她要取录音机，但两人没有约定见面。</p>
+          <p><strong>林岚的场景目标：</strong>在不谈过去的情况下拿走录音机并离开。<br><strong>父亲的场景目标：</strong>让她能够听到录音，而不迫使她接受道歉。</p>
+        </div></div>
+
+        <div class="sc-beats">
+          <div class="sc-beat"><small>BEAT 01</small><b>绕开</b><p>林岚进店后直接寻找录音机，不问父亲为何在场；父亲退到暗房门口，让出路径。</p></div>
+          <div class="sc-beat"><small>BEAT 02</small><b>受阻</b><p>录音机无法开机。林岚反复按键，时间压力与不得不求助的可能同时增加。</p></div>
+          <div class="sc-beat"><small>BEAT 03</small><b>试探</b><p>父亲说“带子应该还在”，没有靠近。林岚回答“我只拿机器”，继续维持边界。</p></div>
+          <div class="sc-beat"><small>BEAT 04</small><b>发现</b><p>林岚看见机器旁两节新电池，意识到父亲预先测试并准备过。她对父亲行动的理解发生变化。</p></div>
+          <div class="sc-beat"><small>BEAT 05</small><b>接受但不和解</b><p>她把电池一起装入包中，没有道谢；离开前把旧店钥匙放在柜台。双方目标都只实现了一部分。</p></div>
+        </div>
+
+        <p>每个节拍都有可见动作、阻力或信息变化，因此下一篇才能进一步设计人物和摄影机的位置。若先写“父女都很悲伤”，调度与镜头只会围绕表情打转。</p>
+      </section>
+
+      <section>
+        <div class="sc-label">09 · FROM BEATS TO GENERATION</div>
+        <h2 class="sc-heading">转入生成工作流：一个节拍只承担一次主要变化</h2>
+        <p>当前视频生成对复杂人物交互、精确道具传递和长时间身份一致性仍有限制。场景拆解可以把长段落转为较短、可验证的状态变化：每段明确开始状态、一个主要动作、触发信息和结束状态。</p>
+
+        <div class="sc-table-wrap"><table class="sc-table"><thead><tr><th>节拍</th><th>开始状态</th><th>主要变化</th><th>结束状态</th></tr></thead><tbody>
+          <tr><td>受阻</td><td>林岚独自在柜台前，父亲保持远处</td><td>她尝试开机两次，机器没有反应</td><td>她停下，第一次必须考虑父亲的存在</td></tr>
+          <tr><td>发现</td><td>录音机与电池同处柜台，但电池不是视觉重点</td><td>她的手在机器旁停住，视线转向电池</td><td>电池成为新的叙事重点，父亲仍不靠近</td></tr>
+          <tr><td>接受</td><td>她握着录音机，电池留在台面</td><td>短暂停顿后把电池一同收入包中</td><td>关系发生微小变化，但身体距离没有突然消失</td></tr>
+        </tbody></table></div>
+
+        <p>这种拆分不是为了迁就模型而牺牲戏剧，而是把模糊情绪还原为动作结构。即使使用真人拍摄，它也能帮助分镜、表演和剪辑共享同一条场景逻辑。</p>
+      </section>
+
+      <section>
+        <div class="sc-label">10 · DIAGNOSIS</div>
+        <h2 class="sc-heading">场景为什么“平”：从四个位置诊断</h2>
+        <div class="sc-diagnosis">
+          <div class="sc-diagnosis-row"><b>目标不可行动</b><p>人物只是“想被理解”或“感到难过”。改写为他试图让谁做什么、停止什么或承认什么。</p></div>
+          <div class="sc-diagnosis-row"><b>阻力没有升级</b><p>人物反复使用同一策略，场景只能重复。让失败带来新成本或迫使人物改变行动。</p></div>
+          <div class="sc-diagnosis-row"><b>节拍只按台词分段</b><p>换话题不一定是节拍。检查信息、目标、策略或权力是否真的改变。</p></div>
+          <div class="sc-diagnosis-row"><b>结束状态与开始相同</b><p>即使事件没有解决，人物也应获得新信息、作出决定或失去某种可能。</p></div>
+          <div class="sc-diagnosis-row"><b>所有内容都被解释</b><p>潜台词和动作没有空间。把一部分事实交给物件、停顿、位置和选择承担。</p></div>
+          <div class="sc-diagnosis-row"><b>人物服务于预设镜头</b><p>为了完成炫技运镜而无故走动。先恢复行动线，再判断运动是否必要。</p></div>
+        </div>
+      </section>
+
+      <section>
+        <div class="sc-label">11 · BOUNDARIES</div>
+        <h2 class="sc-heading">概念边界：目标—阻力不是唯一的场景模型</h2>
+        <p>观察性纪录、散文电影、氛围段落和某些实验影像未必以人物目标和冲突为中心；场景也可能通过持续、重复、质感或观看本身产生意义。目标—阻力—策略模型最适合分析人物行动明确的叙事场景，不应被当成所有影像的唯一公式。</p>
+
+        <div class="sc-note warning"><span class="sc-note-title">使用原则</span><p>若素材的核心不是人物改变局面，可以改问：观众在持续观看中逐渐察觉了什么？时间、空间或声音发生了怎样的结构变化？工具应服务于作品，而不是迫使所有作品长成同一种戏剧。</p></div>
+      </section>
+
+      <section>
+        <div class="sc-label">12 · PRACTICE</div>
+        <h2 class="sc-heading">五个练习：让场景从文字变成行动</h2>
+        <div class="sc-exercises">
+          <div class="sc-exercise"><div><h3>目标改写</h3><p>收集十个情绪式描述，如“很孤独”“想被爱”，分别改成带对象和结果的主动句。</p></div></div>
+          <div class="sc-exercise"><div><h3>无争吵冲突</h3><p>写一场两人始终保持礼貌的场景，但让双方目标互不相容，并通过物件和空间制造阻力。</p></div></div>
+          <div class="sc-exercise"><div><h3>策略阶梯</h3><p>让人物为同一目标依次使用请求、交换、转移和拒绝四种策略，每次改变都由上一次失败触发。</p></div></div>
+          <div class="sc-exercise"><div><h3>节拍标记</h3><p>选择一段三分钟以内的场景，只在信息、策略、目标或权力改变处划线，再与实际剪辑点比较。</p></div></div>
+          <div class="sc-exercise"><div><h3>四状态生成</h3><p>把一个场景拆成四个起止状态，每段只包含一次主要变化，检查单独观看时是否清楚、相连时是否推进。</p></div></div>
+        </div>
+      </section>
+
+      <section>
+        <div class="sc-label">13 · FURTHER READING</div>
+        <h2 class="sc-heading">继续学习：从剧本分析进入行动与节拍</h2>
+        <ul class="sc-sources">
+          <li><div class="sc-no">01</div><div><a href="https://bulletin.uga.edu/Course/Details/41640" target="_blank" rel="noopener">University of Georgia · Directing course outline</a><span>把人物目标、障碍、节拍、身体行动、潜台词与视觉化放入导演训练框架。</span></div></li>
+          <li><div class="sc-no">02</div><div><a href="https://tedb-old.byu.edu/?page_id=5144" target="_blank" rel="noopener">BYU · Script Analysis: Objectives, Beats, Tactics</a><span>面向初学者的目标、策略和节拍标记练习。</span></div></li>
+          <li><div class="sc-no">03</div><div><a href="https://press.uchicago.edu/dam/ucp/books/pdf/course_intro/978-0-226-49408-1_course_intro.pdf" target="_blank" rel="noopener">University of Chicago Press · The Architecture of Story</a><span>从既定情境、目标、障碍、策略与场景行动建立系统练习。</span></div></li>
+          <li><div class="sc-no">04</div><div><a href="https://www.khanacademy.org/humanities/hass-storytelling/storytelling-pixar-in-a-box/ah-piab-film-grammar/v/major-minor-beats" target="_blank" rel="noopener">Pixar in a Box · Major vs. Minor Beats</a><span>说明如何把较大故事变化拆成场景节拍，再转化为镜头。</span></div></li>
+          <li><div class="sc-no">05</div><div><a href="https://pages.uoregon.edu/jlesage/Juliafolder/screenwriting/scene.htm" target="_blank" rel="noopener">University of Oregon · Writing the Scene</a><span>围绕场景目的、因果、节拍、时间组织和非语言行动的教学提纲。</span></div></li>
+          <li><div class="sc-no">06</div><div><a href="https://downloads.bbc.co.uk/writersroom/scripts/screenplay.pdf" target="_blank" rel="noopener">BBC Writersroom · Screenplay Format</a><span>理解剧本行动描述应聚焦屏幕上能够发生和被看见的内容。</span></div></li>
+        </ul>
+      </section>
+
+      <p class="sc-closing">镜头不能替场景制造变化。先找到人物要什么、什么阻止他、何时改变策略，以及观众在哪个瞬间重新理解局面；摄影机随后才有值得靠近、隐藏或等待的对象。</p>
+    </article>
+  </main>
+</body>
+</html>

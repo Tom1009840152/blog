@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>动态影像语言：运镜、调度、节奏与连续性</title>
+  <style>
+    .motion-hero,
+    .article-body {
+      --mv-ink: #211d1a;
+      --mv-muted: #675f58;
+      --mv-faint: #958b82;
+      --mv-line: rgba(74, 58, 46, .14);
+      --mv-paper: rgba(255, 253, 248, .92);
+      --mv-orange: #d36b35;
+      --mv-orange-deep: #a84c24;
+      --mv-orange-soft: rgba(250, 233, 222, .64);
+      --mv-blue: #456d98;
+      --mv-blue-soft: rgba(228, 237, 247, .67);
+      --mv-green: #517766;
+      --mv-green-soft: rgba(226, 238, 230, .64);
+      --mv-gold: #a97929;
+      --mv-gold-soft: rgba(250, 240, 214, .66);
+      --mv-red: #a7524a;
+      --mv-red-soft: rgba(244, 229, 226, .58);
+      --mv-serif: "Noto Serif SC", "Songti SC", serif;
+      --mv-mono: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+    }
+    .article-body { max-width: 760px; color: var(--mv-ink); }
+    .article-body p { margin: 0 0 20px; }
+    .article-body strong { color: #171411; font-weight: 650; }
+    .article-body a { color: var(--mv-orange-deep); text-decoration-thickness: 1px; text-underline-offset: 3px; }
+    .article-body a:hover { color: var(--mv-blue); }
+
+    .motion-hero { max-width: 980px; margin: 0 auto; padding: 62px 28px 42px; color: var(--mv-ink); }
+    .motion-kicker { color: var(--mv-orange); font: 600 10px/1.3 var(--mv-mono); letter-spacing: .19em; }
+    .motion-headline { max-width: 860px; margin: 18px 0 17px; font-family: var(--mv-serif); font-size: 46px; line-height: 1.22; font-weight: 650; letter-spacing: -.025em; }
+    .motion-deck { max-width: 770px; margin: 0; color: #6f665e; font-size: 16px; line-height: 1.85; }
+    .meta-row { display: flex; flex-wrap: wrap; gap: 8px 20px; margin-top: 24px; color: var(--mv-faint); font-size: 13px; }
+    .motion-wrap { max-width: 980px; margin: 0 auto; padding: 0 28px 88px; }
+
+    .mv-section-label { margin: 60px 0 9px; color: var(--mv-faint); font: 500 10px/1.2 var(--mv-mono); letter-spacing: .2em; text-transform: uppercase; }
+    .mv-section-heading { margin: 0 0 22px; font-family: var(--mv-serif); font-size: 26px; line-height: 1.43; font-weight: 650; letter-spacing: -.01em; }
+    .mv-subheading { margin: 35px 0 12px; font-family: var(--mv-serif); font-size: 20px; line-height: 1.5; font-weight: 650; }
+    .mv-lead-block { margin: 2px 0 34px; padding: 22px 25px 23px; border: 1px solid rgba(211,107,53,.18); border-left: 3px solid var(--mv-orange); border-radius: 0 11px 11px 0; background: linear-gradient(110deg,rgba(250,233,222,.76),rgba(255,253,248,.34)); }
+    .mv-lead-label { display: block; margin-bottom: 10px; color: var(--mv-orange); font: 600 10px/1.3 var(--mv-mono); letter-spacing: .15em; text-transform: uppercase; }
+    .mv-lead { margin: 0 !important; color: #332d28; font-family: var(--mv-serif); font-size: 17.5px; line-height: 1.88; }
+    .mv-thesis { margin: 32px 0; padding: 24px 27px; border-left: 3px solid var(--mv-blue); background: linear-gradient(100deg,rgba(228,237,247,.82),rgba(255,253,248,.22)); font-family: var(--mv-serif); font-size: 20px; line-height: 1.75; font-weight: 600; }
+    .mv-note { margin: 27px 0; padding: 20px 22px; border: 1px solid var(--mv-line); border-radius: 11px; background: var(--mv-paper); }
+    .mv-note-title { display: block; margin-bottom: 8px; color: var(--mv-orange); font: 600 10px/1.4 var(--mv-mono); letter-spacing: .13em; text-transform: uppercase; }
+    .mv-note p:last-child { margin-bottom: 0; }
+    .mv-note.blue { border-color: rgba(69,109,152,.22); background: var(--mv-blue-soft); }
+    .mv-note.blue .mv-note-title { color: var(--mv-blue); }
+    .mv-note.warning { border-color: rgba(169,121,41,.23); background: var(--mv-gold-soft); }
+    .mv-note.warning .mv-note-title { color: var(--mv-gold); }
+
+    .motion-system { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; margin: 29px 0 38px; }
+    .motion-source { min-height: 188px; padding: 18px 16px; border: 1px solid var(--mv-line); border-top: 3px solid var(--mv-orange); border-radius: 10px; background: var(--mv-paper); }
+    .motion-source:nth-child(2) { border-top-color: var(--mv-blue); }
+    .motion-source:nth-child(3) { border-top-color: var(--mv-green); }
+    .motion-source:nth-child(4) { border-top-color: var(--mv-gold); }
+    .motion-source small { color: var(--mv-faint); font: 650 9px/1 var(--mv-mono); letter-spacing: .1em; }
+    .motion-source h3 { margin: 11px 0 7px; font-size: 15px; }
+    .motion-source p { margin: 0; color: var(--mv-muted); font-size: 12.5px; line-height: 1.7; }
+
+    .movement-table-wrap { margin: 28px 0 38px; overflow-x: auto; border: 1px solid var(--mv-line); border-radius: 11px; }
+    .movement-table { width: 100%; min-width: 780px; border-collapse: collapse; background: var(--mv-paper); font-size: 13px; }
+    .movement-table th,.movement-table td { padding: 14px 15px; border-bottom: 1px solid var(--mv-line); text-align: left; vertical-align: top; line-height: 1.68; }
+    .movement-table tr:last-child td { border-bottom: 0; }
+    .movement-table th { color: var(--mv-muted); font-size: 11px; letter-spacing: .06em; background: rgba(211,107,53,.055); }
+    .movement-table td:first-child { color: var(--mv-orange-deep); font-family: var(--mv-mono); font-size: 11px; white-space: nowrap; }
+
+    .function-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 12px; margin: 28px 0 38px; }
+    .function-card { padding: 19px; border-left: 3px solid var(--mv-orange); border-radius: 0 10px 10px 0; background: var(--mv-orange-soft); }
+    .function-card:nth-child(3n+2) { border-left-color: var(--mv-blue); background: var(--mv-blue-soft); }
+    .function-card:nth-child(3n) { border-left-color: var(--mv-green); background: var(--mv-green-soft); }
+    .function-card small { color: var(--mv-faint); font: 650 9px/1 var(--mv-mono); letter-spacing: .1em; }
+    .function-card h3 { margin: 9px 0 6px; font-size: 15px; }
+    .function-card p { margin: 0; color: var(--mv-muted); font-size: 13px; line-height: 1.7; }
+
+    .blocking-stage { position: relative; height: 290px; margin: 29px 0 38px; overflow: hidden; border: 1px solid var(--mv-line); border-radius: 12px; background-color: #f2ede5; background-image: linear-gradient(rgba(74,58,46,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(74,58,46,.045) 1px,transparent 1px); background-size: 30px 30px; }
+    .blocking-camera { position: absolute; left: 28px; bottom: 28px; width: 39px; height: 27px; border-radius: 5px; background: var(--mv-blue); }
+    .blocking-camera::after { content: ''; position: absolute; right: -14px; top: 6px; border-left: 15px solid var(--mv-blue); border-top: 8px solid transparent; border-bottom: 8px solid transparent; }
+    .blocking-subject { position: absolute; z-index: 2; width: 34px; height: 34px; border-radius: 50%; color: #fff; font: 650 11px/34px var(--mv-mono); text-align: center; }
+    .blocking-subject.a { left: 44%; top: 30%; background: var(--mv-orange); }
+    .blocking-subject.b { right: 18%; top: 54%; background: var(--mv-green); }
+    .blocking-path { position: absolute; z-index: 1; height: 3px; transform-origin: left center; border-radius: 4px; }
+    .blocking-path.a { left: 46%; top: 38%; width: 31%; transform: rotate(25deg); background: linear-gradient(90deg,var(--mv-orange),transparent); }
+    .blocking-path.b { right: 19%; top: 62%; width: 28%; transform: rotate(150deg); background: linear-gradient(90deg,var(--mv-green),transparent); }
+    .blocking-axis { position: absolute; left: 37%; top: 47%; width: 47%; height: 1px; transform: rotate(23deg); border-top: 1px dashed rgba(167,82,74,.65); }
+    .blocking-zone { position: absolute; right: 15px; top: 15px; padding: 6px 9px; border-radius: 5px; color: var(--mv-red); background: rgba(255,255,255,.8); font: 650 9px/1.2 var(--mv-mono); }
+    .blocking-caption { position: absolute; left: 20px; right: 20px; bottom: 76px; color: var(--mv-muted); font-size: 12px; line-height: 1.65; }
+
+    .rhythm-panel { margin: 29px 0 38px; padding: 23px; border: 1px solid rgba(69,109,152,.21); border-radius: 12px; background: var(--mv-blue-soft); }
+    .rhythm-line { display: flex; align-items: center; gap: 5px; height: 70px; padding: 0 7px; }
+    .rhythm-line i { display: block; flex: 1; min-width: 4px; border-radius: 5px; background: var(--mv-blue); }
+    .rhythm-line i:nth-child(1),.rhythm-line i:nth-child(12) { height: 15px; }
+    .rhythm-line i:nth-child(2),.rhythm-line i:nth-child(11) { height: 25px; }
+    .rhythm-line i:nth-child(3),.rhythm-line i:nth-child(10) { height: 37px; }
+    .rhythm-line i:nth-child(4),.rhythm-line i:nth-child(9) { height: 50px; }
+    .rhythm-line i:nth-child(5),.rhythm-line i:nth-child(8) { height: 62px; background: var(--mv-orange); }
+    .rhythm-line i:nth-child(6),.rhythm-line i:nth-child(7) { height: 30px; background: var(--mv-green); }
+    .rhythm-legend { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(69,109,152,.16); }
+    .rhythm-legend b { display: block; margin-bottom: 4px; font-size: 13px; }
+    .rhythm-legend span { color: var(--mv-muted); font-size: 12px; line-height: 1.65; }
+
+    .motion-formula { margin: 29px 0 38px; padding: 23px; border: 1px solid rgba(81,119,102,.22); border-radius: 12px; background: var(--mv-green-soft); }
+    .motion-formula-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 8px; }
+    .motion-formula-row span { padding: 8px 10px; border-radius: 7px; background: rgba(255,255,255,.8); color: #3f6755; font: 650 10px/1.35 var(--mv-mono); }
+    .motion-formula-row i { color: var(--mv-green); font-style: normal; }
+    .motion-formula p { margin: 17px 0 0 !important; padding-top: 15px; border-top: 1px solid rgba(81,119,102,.17); color: var(--mv-muted); font-size: 12.5px; line-height: 1.72; }
+
+    .motion-prompt { margin: 29px 0 38px; overflow: hidden; border: 1px solid rgba(69,109,152,.23); border-radius: 12px; background: #252c34; color: #e9edf0; }
+    .motion-prompt-head { display: flex; justify-content: space-between; gap: 16px; padding: 12px 18px; border-bottom: 1px solid rgba(255,255,255,.09); color: #aab9c8; font: 600 10px/1.4 var(--mv-mono); letter-spacing: .09em; }
+    .motion-prompt pre { margin: 0; padding: 21px 22px 23px; white-space: pre-wrap; color: #e9edf0; font: 400 12.5px/1.85 var(--mv-mono); }
+    .motion-prompt .key { color: #ed9b6d; }
+    .motion-prompt .value { color: #d9e6ef; }
+    .motion-prompt .limit { color: #a8c9b4; }
+
+    .continuity-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 12px; margin: 28px 0 38px; }
+    .continuity-card { padding: 19px; border: 1px solid var(--mv-line); border-radius: 11px; background: var(--mv-paper); }
+    .continuity-card small { color: var(--mv-blue); font: 650 9px/1 var(--mv-mono); letter-spacing: .1em; }
+    .continuity-card h3 { margin: 10px 0 7px; font-size: 15px; }
+    .continuity-card p { margin: 0; color: var(--mv-muted); font-size: 13px; line-height: 1.7; }
+
+    .shot-list { margin: 29px 0 38px; padding: 23px; border: 1px solid var(--mv-line); border-radius: 12px; background: var(--mv-paper); }
+    .shot-row { display: grid; grid-template-columns: 66px 90px 1fr; gap: 14px; padding: 15px 0; border-bottom: 1px solid var(--mv-line); }
+    .shot-row:last-child { border-bottom: 0; }
+    .shot-row small { color: var(--mv-orange); font: 650 10px/1.7 var(--mv-mono); }
+    .shot-row b { font-size: 13px; line-height: 1.7; }
+    .shot-row p { margin: 0; color: var(--mv-muted); font-size: 12.5px; line-height: 1.7; }
+
+    .diagnosis-list { margin: 28px 0 38px; border-top: 1px solid var(--mv-line); }
+    .diagnosis-row { display: grid; grid-template-columns: 150px 1fr; gap: 20px; padding: 17px 0; border-bottom: 1px solid var(--mv-line); }
+    .diagnosis-row b { color: var(--mv-red); font-size: 13px; }
+    .diagnosis-row p { margin: 0; color: var(--mv-muted); font-size: 13px; line-height: 1.72; }
+
+    .myth-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 28px 0 38px; }
+    .myth-card { padding: 19px; border: 1px solid rgba(167,82,74,.19); border-radius: 10px; background: rgba(167,82,74,.035); }
+    .myth-card b { display: block; margin-bottom: 6px; color: var(--mv-red); font-size: 14px; }
+    .myth-card p { margin: 0; color: var(--mv-muted); font-size: 13px; line-height: 1.72; }
+
+    .exercise-list { margin: 28px 0 38px; counter-reset: motion-exercise; }
+    .exercise-row { display: grid; grid-template-columns: 48px 1fr; gap: 14px; padding: 18px 0; border-bottom: 1px solid var(--mv-line); }
+    .exercise-row:first-child { border-top: 1px solid var(--mv-line); }
+    .exercise-row::before { counter-increment: motion-exercise; content: counter(motion-exercise,decimal-leading-zero); color: var(--mv-orange); font: 650 11px/1.7 var(--mv-mono); }
+    .exercise-row h3 { margin: 0 0 5px; font-size: 15px; }
+    .exercise-row p { margin: 0; color: var(--mv-muted); font-size: 13.5px; line-height: 1.75; }
+
+    .source-list { margin: 25px 0 36px; padding: 0; list-style: none; }
+    .source-list li { display: grid; grid-template-columns: 32px 1fr; gap: 13px; padding: 14px 0; border-bottom: 1px solid var(--mv-line); }
+    .source-list li:first-child { border-top: 1px solid var(--mv-line); }
+    .source-no { color: var(--mv-faint); font: 500 10px/1.8 var(--mv-mono); }
+    .source-list a { font-weight: 600; }
+    .source-list span { display: block; margin-top: 3px; color: var(--mv-faint); font-size: 12px; line-height: 1.6; }
+    .motion-closing { margin-top: 48px; padding-top: 27px; border-top: 2px solid var(--mv-ink); font-family: var(--mv-serif); font-size: 20px; line-height: 1.82; }
+
+    @media (max-width: 720px) {
+      .motion-hero { padding: 48px 20px 34px; }
+      .motion-headline { font-size: 35px; }
+      .motion-wrap { padding: 0 20px 70px; }
+      .motion-system { grid-template-columns: 1fr 1fr; }
+      .function-grid,.continuity-grid,.myth-grid { grid-template-columns: 1fr; }
+      .rhythm-legend { grid-template-columns: 1fr; gap: 10px; }
+      .shot-row { grid-template-columns: 56px 1fr; }
+      .shot-row p { grid-column: 1 / -1; }
+      .diagnosis-row { grid-template-columns: 1fr; gap: 6px; }
+      .blocking-stage { height: 250px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="motion-hero">
+    <div class="motion-kicker">GENERATIVE VISUAL LANGUAGE · MOTION &amp; CONTINUITY</div>
+    <h1 class="motion-headline">动态影像语言：<br>运镜、调度、节奏与连续性</h1>
+    <p class="motion-deck">动态影像并不是“会动的图片”。相机、人物、环境与剪辑共同组织观众的注意力；每一次移动都改变空间关系，每一次停顿与切换都在重新分配时间。</p>
+    <div class="meta-row">
+      <span>2026-08-23</span>
+      <span>生成影像语言 · 动态基础</span>
+      <span>阅读约 25 分钟</span>
+      <span>运镜 · 场面调度 · 节奏 · 连续性</span>
+    </div>
+  </header>
+
+  <main class="motion-wrap">
+    <article class="article-body">
+      <div class="mv-lead-block">
+        <span class="mv-lead-label">导言 · Introduction</span>
+        <p class="lead mv-lead">“镜头缓慢推进”只说明相机怎样移动，却没有说明为何推进、主体如何回应、环境发生什么变化，以及镜头最终停在哪里。生成视频需要的不是运镜名词清单，而是一套关于空间、动作、时间和连续性的完整描述。</p>
+      </div>
+
+      <p>静态图像主要解决一个瞬间内的主体、构图、光线和材质；动态影像还要解决前后状态之间的关系。人物从哪里走到哪里，镜头是否跟随，背景中的雨和烟向何处移动，动作何时加速、何时停顿，下一镜能否让观众继续辨认空间——这些都会改变叙事。</p>
+
+      <p>Google Research 的 Lumiere 论文把“真实、多样且连贯的运动”视为视频生成的关键挑战，并指出某些先生成稀疏关键帧、再补足中间帧的路径会增加全局时间一致性的难度。这里不需要掌握模型结构，但要理解一个创作事实：视频失败往往不是某一帧不够漂亮，而是同一对象在时间中无法稳定存在。参见 <a href="https://arxiv.org/abs/2401.12945" target="_blank" rel="noopener">Lumiere: A Space-Time Diffusion Model for Video Generation</a>。</p>
+
+      <div class="mv-thesis">动态影像语言的基本单位不是“一个运镜词”，而是一次可追踪的状态变化：谁在动、相机为何动、空间怎样被揭示、变化以何种节奏发生，以及结束时留下什么新关系。</div>
+
+      <section>
+        <div class="mv-section-label">01 · FOUR SOURCES OF MOTION</div>
+        <h2 class="mv-section-heading">先分清四种运动：相机、主体、环境与剪辑</h2>
+        <p>画面产生动感，不一定需要相机移动。固定机位下，一个人穿过前景、窗帘被风吹起、焦点从近处转到远处，同样可以形成强烈的时间组织。反过来，相机高速运动而主体与环境缺乏变化，也可能只剩表面的晃动。</p>
+
+        <div class="motion-system">
+          <article class="motion-source"><small>CAMERA</small><h3>相机运动</h3><p>机位平移、升降、推进、后撤或旋转，改变观看位置、取景边界与空间显露顺序。</p></article>
+          <article class="motion-source"><small>SUBJECT</small><h3>主体运动</h3><p>人物动作、视线、姿态和移动路径，决定事件如何展开，也是场面调度的核心。</p></article>
+          <article class="motion-source"><small>ENVIRONMENT</small><h3>环境运动</h3><p>风、雨、烟、交通、反射与背景人群建立生命感、尺度和时间方向。</p></article>
+          <article class="motion-source"><small>EDITING</small><h3>剪辑运动</h3><p>镜头长度、切点和镜头顺序压缩、延长或重组时间，建立比较、因果与节奏。</p></article>
+        </div>
+
+        <p>Yale Film Analysis Guide 将电影节奏定义为声音、镜头序列和镜内运动的感知速率与规律，并强调节奏来自场面调度、摄影、声音和剪辑的共同作用。这意味着“节奏快”不能只翻译成“快速运镜”，也可能来自更短的镜头、更密集的动作、较强的声音重音或更突然的状态变化。参见 <a href="https://filmanalysis.yale.edu/editing/" target="_blank" rel="noopener">Yale Film Analysis：Editing</a>。</p>
+      </section>
+
+      <section>
+        <div class="mv-section-label">02 · CAMERA MOVEMENT</div>
+        <h2 class="mv-section-heading">运镜先看机位是否移动，再看画面如何变化</h2>
+        <p>运镜术语最容易混淆的是“转动相机”“移动机位”和“改变焦距”。三者都能让主体在画面中变大、变小或移位，但空间效果不同。Yale 的摄影指南把 pan 定义为相机在固定支撑上水平转动，把 tilt 定义为向上或向下转动，把 tracking shot 定义为机位在空间中前后或横向移动。参见 <a href="https://filmanalysis.yale.edu/cinematography/" target="_blank" rel="noopener">Yale Film Analysis：Cinematography</a>。</p>
+
+        <div class="movement-table-wrap">
+          <table class="movement-table">
+            <thead><tr><th>术语</th><th>实际变化</th><th>常见叙事功能</th><th>提示词需要补充</th></tr></thead>
+            <tbody>
+              <tr><td>静止 Static</td><td>机位、角度与焦距保持不变。</td><td>观察、等待、压迫、让主体动作成为唯一变化。</td><td>主体与环境如何动；静止持续多久。</td></tr>
+              <tr><td>横摇 Pan</td><td>机位不动，相机水平转向。</td><td>跟随横向动作；连接空间中的两人；延迟揭示。</td><td>向左或向右、速度、起止对象。</td></tr>
+              <tr><td>俯仰 Tilt</td><td>机位不动，相机垂直转向。</td><td>展示高度；从细节揭示整体；建立敬畏或不安。</td><td>向上或向下、从何物到何物。</td></tr>
+              <tr><td>推进/后撤 Dolly</td><td>机位沿观看方向接近或远离主体。</td><td>增加亲密或压力；揭示主体与环境关系。</td><td>速度、距离感、结束景别、是否跟随主体。</td></tr>
+              <tr><td>横移 Truck</td><td>机位左右平移，观看方向大致不变。</td><td>并行跟随；展示遮挡变化与空间层次。</td><td>运动方向、主体路径、前景经过物。</td></tr>
+              <tr><td>升降 Pedestal</td><td>机位垂直升高或降低，角度可保持。</td><td>越过遮挡；改变人物与环境的高度关系。</td><td>起止高度、揭示对象、移动是否平稳。</td></tr>
+              <tr><td>摇臂/航拍 Crane</td><td>机位在空中沿复合路径移动。</td><td>建立尺度；从人物过渡到环境；形成全知视点。</td><td>路径尽量单纯；明确从近景到全景或相反。</td></tr>
+              <tr><td>环绕 Arc/Orbit</td><td>机位围绕主体改变观察方位。</td><td>展示立体结构；改变人物关系；制造眩晕或仪式感。</td><td>环绕方向、角度范围、主体是否转身。</td></tr>
+              <tr><td>手持 Handheld</td><td>机位随操作者身体产生不完全稳定的运动。</td><td>临场、主观、危险或纪实感。</td><td>轻微还是剧烈；是否仍能保持主体可辨。</td></tr>
+              <tr><td>变焦 Zoom</td><td>机位不动，改变焦距与画面边界。</td><td>强调细节；形成显眼的视觉抽取或退让。</td><td>放大或缩小、起止构图；不要与推进混写。</td></tr>
+              <tr><td>移焦 Rack focus</td><td>机位可不动，焦点在不同景深平面间转移。</td><td>把注意力从一人转到另一人；连接前后景信息。</td><td>焦点从谁转到谁，转移发生的时机。</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="mv-note blue">
+          <span class="mv-note-title">推进不等于变焦 · Dolly vs. Zoom</span>
+          <p>推进会改变相机与场景的相对位置，因此遮挡、运动视差和空间比例都会变化；变焦主要改变取景范围。生成模型未必严格模拟光学，但把两者分开描述，有助于明确期望的是“穿过空间接近主体”，还是“站在原地把主体放大”。</p>
+        </div>
+      </section>
+
+      <section>
+        <div class="mv-section-label">03 · MOTIVATION</div>
+        <h2 class="mv-section-heading">先写运镜目的，再选择运镜名称</h2>
+        <p>“炫酷的环绕镜头”很容易成为无动机运动。镜头为什么开始移动、运动过程中交付什么信息、为什么在某处停下，比设备名称更重要。运镜通常承担以下几类功能。</p>
+
+        <div class="function-grid">
+          <article class="function-card"><small>REVEAL</small><h3>揭示</h3><p>从遮挡后、画外或细节外逐步显露新对象。提示词要写清起始对象和最终揭示对象。</p></article>
+          <article class="function-card"><small>FOLLOW</small><h3>跟随</h3><p>保持运动主体在可辨范围内，同时让环境从背景变成路径与阻力。</p></article>
+          <article class="function-card"><small>APPROACH</small><h3>接近</h3><p>缩短观看距离，增加情绪强度或把注意力从环境集中到人物反应。</p></article>
+          <article class="function-card"><small>WITHDRAW</small><h3>抽离</h3><p>从细节退到更大空间，重写主体处境，例如揭示人物其实置身庞大空场。</p></article>
+          <article class="function-card"><small>REORIENT</small><h3>重新定向</h3><p>横摇、升降或转身后建立新的空间方向，让观众理解人物与目标的关系。</p></article>
+          <article class="function-card"><small>SUBJECTIVE</small><h3>主观化</h3><p>通过手持、呼吸般漂移或视线式转动模拟角色感知，但仍需控制幅度和可读性。</p></article>
+        </div>
+
+        <p>Google 的 Veo 官方指南列出静止、横摇、俯仰、推进、横移、升降、摇臂、手持、快速摇摄和环绕等运镜，也说明不同提示与产品中的可靠性可能不同。术语可以提高沟通效率，却不应被当作执行保证。参见 <a href="https://docs.cloud.google.com/vertex-ai/generative-ai/docs/video/video-gen-prompt-guide?hl=zh-CN" target="_blank" rel="noopener">Google Cloud：Veo 视频生成提示指南</a>。</p>
+      </section>
+
+      <section>
+        <div class="mv-section-label">04 · BLOCKING</div>
+        <h2 class="mv-section-heading">场面调度：不是人物在动，而是关系在变化</h2>
+        <p>场面调度常译自 mise-en-scène，广义上包括布景、人物、服装、道具和灯光如何被放入场景。Yale 指南强调，空间的深度、距离、大小与比例会影响影片的阅读，并可通过机位、镜头、灯光和布景改变。动态语境中的“调度”，还要处理人物的移动路径、停顿、视线、遮挡与彼此距离。参见 <a href="https://filmanalysis.yale.edu/mise-en-scene/" target="_blank" rel="noopener">Yale Film Analysis：Mise-en-scène</a>。</p>
+
+        <div class="blocking-stage">
+          <div class="blocking-camera"></div>
+          <div class="blocking-subject a">A</div><div class="blocking-path a"></div>
+          <div class="blocking-subject b">B</div><div class="blocking-path b"></div>
+          <div class="blocking-axis"></div>
+          <div class="blocking-zone">ACTION AXIS</div>
+          <div class="blocking-caption">描述调度时，应同时记录人物 A、人物 B、相机和动作轴。单写“A 走向 B”仍缺少从哪侧进入、在哪个景深平面停下、是否遮挡 B，以及相机是否跟随。</div>
+        </div>
+
+        <h3 class="mv-subheading">调度的五个可观察变量</h3>
+        <p><strong>路径：</strong>从画面哪一侧、哪个景深平面进入，向何处移动。<strong>距离：</strong>人物靠近、分离或绕开，关系如何改变。<strong>层次：</strong>前景、中景、背景分别承担什么信息。<strong>朝向与视线：</strong>面向谁、看向哪里、是否与目标建立视线。<strong>触发与停点：</strong>哪个事件启动动作，人物最终停在哪里，画面如何重新构图。</p>
+
+        <p>一条更可执行的描述可以是：“人物 A 从左后方门口进入，沿中景斜向走向人物 B；A 在桌角前停下，与 B 保持一臂距离，二人侧身相对；相机从静止中景开始，在 A 经过前景椅背时轻微向右横移，最终让二人分别落在画面左右三分之一。”</p>
+      </section>
+
+      <section>
+        <div class="mv-section-label">05 · RHYTHM</div>
+        <h2 class="mv-section-heading">节奏不只是快慢，而是变化如何被组织</h2>
+        <p>节奏至少包含速度、持续时间、规律和重音。缓慢镜头不一定平静：如果人物长时间保持不动，只在最后一秒突然回头，静止会积累紧张；快速镜头也不一定混乱：动作方向、切点和声音重音一致时，速度可以非常清晰。</p>
+
+        <div class="rhythm-panel">
+          <div class="rhythm-line"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+          <div class="rhythm-legend">
+            <div><b>速度与加速度</b><span>匀速、逐渐加速、突然停止，比单独写“快速”更具体。</span></div>
+            <div><b>停顿与重音</b><span>动作前的悬置、切点、亮光或声音可以共同形成强调。</span></div>
+            <div><b>重复与变化</b><span>稳定节拍建立预期，偏离节拍的动作才会被明显感知。</span></div>
+          </div>
+        </div>
+
+        <p>Yale 的剪辑指南指出，镜头持续时间本身就是表达选择；剪辑可以让银幕时间与故事时间产生差异，也可以建立快慢节奏。长镜头是否显得停滞、紧张、流动或轻松，仍取决于镜内运动和场面调度，而不只取决于秒数。</p>
+
+        <h3 class="mv-subheading">把情绪节奏写成时间曲线</h3>
+        <p>“紧张地走进房间”可以改写为：“人物先在门口停顿约一拍，缓慢推门；门缝扩大后突然加快一步进入，随即再次停住并看向画外右侧。”这里包含两次停顿、一次加速和一个视线重音。节奏不再是情绪标签，而是一条可观察的变化曲线。</p>
+      </section>
+
+      <section>
+        <div class="mv-section-label">06 · SINGLE-SHOT GRAMMAR</div>
+        <h2 class="mv-section-heading">单镜头提示词：从初始状态写到结束状态</h2>
+        <p>Adobe Firefly 的官方指南建议用清楚而紧凑的结构描述景别、角色、动作、地点和美学，并补充运镜和时间元素；动作应使用具体动词，提示词可以通过迭代逐步增加细节。参见 <a href="https://helpx.adobe.com/ee/firefly/web/work-with-audio-and-video/work-with-video/writing-effective-text-prompts-for-video-generation.html" target="_blank" rel="noopener">Adobe Firefly：Writing effective text prompts for video generation</a>。</p>
+
+        <div class="motion-formula">
+          <div class="motion-formula-row"><span>镜头与初始构图</span><i>＋</i><span>主体动作</span><i>＋</i><span>相机动作</span><i>＋</i><span>环境动作</span><i>＋</i><span>时间曲线</span><i>＋</i><span>结束构图</span><i>＋</i><span>连续性约束</span></div>
+          <p>这套语法强调状态变化。只有当模型或工作流确实支持多个镜头时，才在同一请求中加入切换；否则优先把一个提示词限制为一个空间中的一个连续镜头。</p>
+        </div>
+
+        <div class="motion-prompt">
+          <div class="motion-prompt-head"><span>SINGLE-SHOT BRIEF</span><span>8 SEC · ONE CONTINUOUS TAKE</span></div>
+          <pre><span class="key">镜头与初始状态：</span><span class="value">8 秒单镜头。清晨档案室，中远景平视，管理员站在画面左侧整理文件，右侧深处的走廊灯熄灭。</span>
+
+<span class="key">主体动作：</span><span class="value">第 2 秒，走廊深处一盏灯闪烁两次；管理员先停止手部动作，再缓慢抬头看向右后方，身体没有立刻转动。</span>
+
+<span class="key">相机动作：</span><span class="value">相机从静止开始，在管理员抬头后非常缓慢地向右横移约一个人的宽度，让走廊从书架后显露出来；不推进，不环绕。</span>
+
+<span class="key">环境与节奏：</span><span class="value">纸张边缘被通风轻微吹动。前 2 秒平稳，灯闪形成两次短促重音，随后运动再次放慢。</span>
+
+<span class="key">结束状态：</span><span class="value">镜头停在中景，管理员位于左三分之一，黑暗走廊占据右侧，人物视线明确指向走廊深处。</span>
+
+<span class="key">连续性约束：</span><span class="limit">保持人物身份、灰色制服、书架结构和冷白主光方向不变；只出现一人；相机运动平稳；无切镜、无文字。</span></pre>
+        </div>
+
+        <p>这段提示把横移写成“揭示走廊”的手段，并把启动时机绑定到人物抬头。相机、人物和灯光不是三条互不相关的指令，而是按因果顺序发生。即使模型不能精确执行秒点，仍能理解先后、重音和结束关系。</p>
+      </section>
+
+      <section>
+        <div class="mv-section-label">07 · CONTINUITY</div>
+        <h2 class="mv-section-heading">连续性不是画面一样，而是变化能够被理解</h2>
+        <p>连续性包括同一镜头内的时间稳定，也包括镜头之间的空间和动作衔接。人物可以改变姿势、位置和表情；连续性要求这种改变有原因、有方向，并让观众仍能确认是同一人、同一空间和同一事件。</p>
+
+        <div class="continuity-grid">
+          <article class="continuity-card"><small>IDENTITY</small><h3>身份连续</h3><p>脸、发型、服装、配饰、产品结构和关键颜色在时间中保持可辨，除非变化本身就是事件。</p></article>
+          <article class="continuity-card"><small>SPACE</small><h3>空间连续</h3><p>人物左右关系、动作轴、视线方向、出入画方向和前后景布局能相互对应。</p></article>
+          <article class="continuity-card"><small>ACTION</small><h3>动作连续</h3><p>上一镜开始的动作在下一镜以合理阶段继续；手持物、步态和身体重心不能无故重置。</p></article>
+          <article class="continuity-card"><small>LIGHT</small><h3>光色连续</h3><p>主光方向、时间、天气与综合色保持一致；角度变化可以改变明暗，但不能无因切换光源。</p></article>
+          <article class="continuity-card"><small>TIME</small><h3>时间连续</h3><p>动作速度、环境演化与事件顺序构成可理解的时间；跳时或重复需要有明确表达目的。</p></article>
+          <article class="continuity-card"><small>GRAPHIC</small><h3>图形连续</h3><p>形状、运动方向、色块或画面重心可以跨镜头匹配，让切换保持流动或形成有意对照。</p></article>
+        </div>
+
+        <p>Yale 的剪辑指南把建立镜头定义为显示人物、物体与场景空间关系的远景，并用视线匹配、图形匹配和动作匹配解释镜头如何跨越切点建立连接。连续性剪辑并非简单复制现实，而是构造一套观众能够相信的空间。参见 <a href="https://filmanalysis.yale.edu/editing/" target="_blank" rel="noopener">Yale Film Analysis：Editing</a>。</p>
+
+        <div class="mv-note warning">
+          <span class="mv-note-title">动作轴 · Axis of Action</span>
+          <p>两人对话或主体横向移动时，可以先画出一条动作轴，并让连续镜头的机位保持在轴线同侧。跨到另一侧后，人物的左右关系和运动方向会反转。反转并非绝对错误，但需要建立镜头、镜内越轴或其他视觉线索重新定向。</p>
+        </div>
+      </section>
+
+      <section>
+        <div class="mv-section-label">08 · SHOT SEQUENCE</div>
+        <h2 class="mv-section-heading">多镜头序列：先建立空间，再分配信息</h2>
+        <p>一个提示词塞入多个景别、机位和地点，往往得到难以控制的混合运动。更稳妥的方法是先写场景连续性表，再为每个镜头分配一个主要信息任务。以下序列延续档案室例子。</p>
+
+        <div class="shot-list">
+          <div class="shot-row"><small>SHOT 01</small><b>建立空间</b><p>中远景静止，交代管理员、书架和右后方走廊的相对位置；人物从左向右整理文件。</p></div>
+          <div class="shot-row"><small>SHOT 02</small><b>动作重音</b><p>手部近景，文件动作停住；灯光闪烁反射落在纸张金属夹上，动作方向保持向右。</p></div>
+          <div class="shot-row"><small>SHOT 03</small><b>视线匹配</b><p>人物中近景看向画外右侧，保持冷白侧光、灰色制服和同一背景书架。</p></div>
+          <div class="shot-row"><small>SHOT 04</small><b>所见空间</b><p>走廊主观方向镜头，视点暗示人物位于画外左侧；尽头灯再次闪烁一次，不新增人物。</p></div>
+        </div>
+
+        <p>序列生成前应固定一张连续性表：人物身份与服装、主要道具、空间平面图、动作轴、主光方向、环境状态、综合色和已经发生的动作。每个镜头只覆盖当前需要变化的部分，其余条件从连续性表继承。</p>
+
+        <h3 class="mv-subheading">切点通常跟随信息变化</h3>
+        <p>切镜可以发生在动作中、动作后或新信息出现前。动作中切换利用动作连续性掩盖机位变化；动作后切换让停顿成为重音；信息出现前切换则制造期待。只按固定秒数平均切分，常常会让镜头节奏与事件脱节。</p>
+      </section>
+
+      <section>
+        <div class="mv-section-label">09 · IMAGE-TO-VIDEO</div>
+        <h2 class="mv-section-heading">图生视频：首帧提供状态，提示词负责变化</h2>
+        <p>图生视频已经从参考图继承主体、构图、色彩与材质。提示词若再次大段重写静态内容，容易引入冲突。更有效的分工是：说明哪些结构必须保持，随后把文本集中在主体动作、相机动作、环境响应、节奏和结束状态。</p>
+
+        <h3 class="mv-subheading">给运动设置预算</h3>
+        <p>短镜头能够稳定承载的变化有限。可以把变化分为主要运动和次要运动：主要运动只保留一项，例如人物转身；次要运动可以是轻微推近、衣角摆动或背景光变化。若人物奔跑、相机环绕、天气突变和场景变形同时发生，一致性风险会迅速上升。</p>
+
+        <div class="mv-note blue">
+          <span class="mv-note-title">首尾帧 · Start and End States</span>
+          <p>支持首尾帧的工作流可以用两张图固定变化边界，但中间路径仍需合理：人物从左向右转身，结束帧却突然出现在另一房间，模型只能用变形或不自然跳变补足。首尾帧解决“从哪里到哪里”，提示词仍要解决“怎样到达”。</p>
+        </div>
+      </section>
+
+      <section>
+        <div class="mv-section-label">10 · EVALUATION</div>
+        <h2 class="mv-section-heading">评估生成视频：把“看着不对”拆成可检查维度</h2>
+        <p>CVPR 2024 的 VBench 将视频生成质量拆成 16 个维度，包括主体一致性、背景一致性、运动平滑度、时间闪烁、动态程度、成像质量、动作、多个对象、空间关系、场景、外观风格与整体一致性等。这种拆分说明，一段视频可以画面漂亮却动作错误，也可以运动流畅却没有遵循提示。参见 <a href="https://openaccess.thecvf.com/content/CVPR2024/html/Huang_VBench_Comprehensive_Benchmark_Suite_for_Video_Generative_Models_CVPR_2024_paper.html" target="_blank" rel="noopener">VBench: Comprehensive Benchmark Suite for Video Generative Models</a>。</p>
+
+        <div class="diagnosis-list">
+          <div class="diagnosis-row"><b>主体身份漂移</b><p>减少动作幅度与遮挡；缩短镜头；重申身份不变量；采用清晰参考图或分段生成。</p></div>
+          <div class="diagnosis-row"><b>背景结构变形</b><p>降低相机运动复杂度；避免同时要求大幅环绕与精密建筑；固定关键线条和出口位置。</p></div>
+          <div class="diagnosis-row"><b>运动不平滑</b><p>删除相反方向的动作；明确匀速、缓入缓出或单次加速；把复合动作拆为多个镜头。</p></div>
+          <div class="diagnosis-row"><b>画面闪烁</b><p>减少高频纹理、细小文字与强烈逐帧光变；保持综合色和主光方向；检查工作流去闪烁能力。</p></div>
+          <div class="diagnosis-row"><b>动态程度不合适</b><p>分别写主体、相机和环境的运动幅度；需要安静时明确相机静止和动作轻微。</p></div>
+          <div class="diagnosis-row"><b>动作没有因果</b><p>用“当……之后……”建立触发顺序，说明起始姿态、动作路径与结束姿态。</p></div>
+          <div class="diagnosis-row"><b>镜头接不上</b><p>比较身份、道具、动作阶段、视线方向、动作轴、主光与环境状态，不要只比较颜色风格。</p></div>
+        </div>
+
+        <p>实际验收可以分三遍：第一遍只看主体与空间是否稳定；第二遍静音检查动作、运镜与切点；第三遍加入声音检查节奏与重音。一次关注所有问题，容易让“氛围不错”掩盖连续性错误。</p>
+      </section>
+
+      <section>
+        <div class="mv-section-label">11 · COMMON PITFALLS</div>
+        <h2 class="mv-section-heading">六个常见误区：运动越多，控制通常越少</h2>
+        <div class="myth-grid">
+          <article class="myth-card"><b>把动态等同于相机乱动</b><p>主体和环境已经提供足够运动时，静止相机往往更清楚，也更容易保持结构。</p></article>
+          <article class="myth-card"><b>一个镜头塞入所有运镜</b><p>推进、环绕、升降与快速摇摄相互竞争。先确定一个主要空间变化。</p></article>
+          <article class="myth-card"><b>只有开始，没有结束</b><p>动作没有停点，模型可能持续变形。明确结束景别、主体位置和最终姿态。</p></article>
+          <article class="myth-card"><b>只写速度，不写节奏</b><p>“快速”缺少加速、停顿和重音。节奏应说明变化曲线和事件触发。</p></article>
+          <article class="myth-card"><b>把连续性理解成完全静止</b><p>连续性允许变化，要求变化有因果并保留身份、空间与时间线索。</p></article>
+          <article class="myth-card"><b>依赖长提示修复能力边界</b><p>结构漂移和复杂交互无法只靠加词解决，需要缩短、拆镜、参考与后期。</p></article>
+        </div>
+      </section>
+
+      <section>
+        <div class="mv-section-label">12 · PRACTICE</div>
+        <h2 class="mv-section-heading">五个练习：从一个动作建立完整时间语言</h2>
+        <div class="exercise-list">
+          <div class="exercise-row"><div><h3>同一主体，四种运动来源</h3><p>固定一个场景，分别只改变相机、主体、环境和剪辑。比较哪种变化真正推动叙事，哪种只是增加视觉刺激。</p></div></div>
+          <div class="exercise-row"><div><h3>推进与变焦对照</h3><p>生成或拍摄两段相同主体镜头：一段移动机位接近，一段固定机位变焦。观察背景比例、遮挡和空间感的差别。</p></div></div>
+          <div class="exercise-row"><div><h3>三阶段节奏</h3><p>把一个简单动作写成“缓慢建立—短促重音—停顿结束”，再交换三段比例，比较情绪如何变化。</p></div></div>
+          <div class="exercise-row"><div><h3>动作轴与视线匹配</h3><p>为两人对话画平面图，标出动作轴、机位和视线方向，再写四镜头序列。检查人物左右关系是否稳定。</p></div></div>
+          <div class="exercise-row"><div><h3>逐维诊断</h3><p>选择一段生成视频，分别给主体一致、背景一致、运动平滑、动态程度、动作遵循和整体连续性做记录，每轮只修复一项。</p></div></div>
+        </div>
+      </section>
+
+      <section>
+        <div class="mv-section-label">13 · FURTHER READING</div>
+        <h2 class="mv-section-heading">继续学习：从电影形式进入生成视频评估</h2>
+        <p>进一步学习可以同时沿传统电影语言和生成模型两条路径推进。前者解释为什么某种移动、调度和切换能够组织观众注意；后者解释当前系统在哪些时间一致性问题上仍不稳定。产品支持的运镜、时长和参考方式会变化，实际操作应以最新官方文档为准。</p>
+        <ul class="source-list">
+          <li><div class="source-no">01</div><div><a href="https://filmanalysis.yale.edu/cinematography/" target="_blank" rel="noopener">Yale Film Analysis · Cinematography</a><span>系统解释构图、景别、机位、焦点与 pan、tilt、tracking、handheld 等摄影运动。</span></div></li>
+          <li><div class="source-no">02</div><div><a href="https://filmanalysis.yale.edu/mise-en-scene/" target="_blank" rel="noopener">Yale Film Analysis · Mise-en-scène</a><span>从布景、人物、灯光和空间关系理解场面调度如何形成意义。</span></div></li>
+          <li><div class="source-no">03</div><div><a href="https://filmanalysis.yale.edu/editing/" target="_blank" rel="noopener">Yale Film Analysis · Editing</a><span>覆盖建立镜头、视线匹配、图形匹配、动作衔接、镜头时长与节奏。</span></div></li>
+          <li><div class="source-no">04</div><div><a href="https://docs.cloud.google.com/vertex-ai/generative-ai/docs/video/video-gen-prompt-guide?hl=zh-CN" target="_blank" rel="noopener">Google Cloud · Veo 视频生成提示指南</a><span>介绍运镜、景别、视觉风格与节奏、演变、延时等时间元素。</span></div></li>
+          <li><div class="source-no">05</div><div><a href="https://helpx.adobe.com/ee/firefly/web/work-with-audio-and-video/work-with-video/writing-effective-text-prompts-for-video-generation.html" target="_blank" rel="noopener">Adobe Firefly · Writing effective text prompts for video generation</a><span>以角色、动作、地点、景别、运镜和时间信息组织视频提示词。</span></div></li>
+          <li><div class="source-no">06</div><div><a href="https://openaccess.thecvf.com/content/CVPR2024/html/Huang_VBench_Comprehensive_Benchmark_Suite_for_Video_Generative_Models_CVPR_2024_paper.html" target="_blank" rel="noopener">CVPR 2024 · VBench</a><span>把生成视频质量拆成主体与背景一致性、运动平滑、闪烁、动作和空间关系等 16 个维度。</span></div></li>
+          <li><div class="source-no">07</div><div><a href="https://arxiv.org/abs/2401.12945" target="_blank" rel="noopener">Google Research · Lumiere</a><span>从模型研究角度讨论连贯运动与全局时间一致性的挑战。</span></div></li>
+          <li><div class="source-no">08</div><div><a href="https://www.bfi.org.uk/resources-events-teachers/resources-teachers" target="_blank" rel="noopener">BFI · Resources for teachers</a><span>英国电影协会面向电影教学提供的入门课程、短片制作与场景分析资源入口。</span></div></li>
+        </ul>
+      </section>
+
+      <p class="motion-closing">成熟的动态提示词，不是让所有东西同时运动，而是知道何时让相机停下、何时让人物先动、何时用环境建立时间，以及怎样让一个镜头的结束成为下一个镜头能够接住的状态。</p>
+    </article>
+  </main>
+</body>
+</html>

@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>光线的语言：方向、软硬、光比与色温</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+
+  :root {
+    --paper: #fffdf8;
+    --ink: #1d1a17;
+    --muted: #6b645d;
+    --faint: #999087;
+    --line: rgba(72, 61, 49, .14);
+    --orange: #d36b35;
+    --orange-deep: #9d4924;
+    --orange-soft: #fae9de;
+    --blue: #426f9e;
+    --blue-soft: #e6eff7;
+    --gold: #bb8529;
+    --gold-soft: #f7edd8;
+    --green: #327969;
+    --green-soft: #e5f0ec;
+    --red: #a94f47;
+    --red-soft: #f7e7e4;
+    --serif: "Noto Serif SC", "Songti SC", Georgia, serif;
+    --sans: "Noto Sans SC", system-ui, sans-serif;
+    --mono: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
+  }
+
+  .hero { max-width: 980px; margin: 0 auto; padding: 64px 28px 42px; }
+  .kicker { color: var(--orange); font: 600 12px/1.4 var(--mono); letter-spacing: .16em; text-transform: uppercase; }
+  .headline { margin: 16px 0; font-family: var(--serif); font-size: 44px; line-height: 1.22; letter-spacing: -.025em; }
+  .deck { max-width: 735px; color: var(--muted); font-size: 17px; line-height: 1.85; }
+  .meta-row { display: flex; flex-wrap: wrap; gap: 8px 20px; margin-top: 25px; color: var(--faint); font-size: 13px; }
+  .content-wrap { max-width: 980px; margin: 0 auto; padding: 0 28px 88px; }
+
+  .article-body { max-width: 760px; color: var(--ink); }
+  .article-body p { margin: 0 0 20px; }
+  .article-body strong { color: #12100e; font-weight: 650; }
+  .article-body a { color: var(--orange-deep); text-decoration-thickness: 1px; text-underline-offset: 3px; }
+  .article-body a:hover { color: var(--blue); }
+  .article-body code { padding: 2px 5px; border-radius: 4px; color: var(--orange-deep); background: var(--orange-soft); font-family: var(--mono); font-size: .88em; }
+
+  .section-label { margin: 60px 0 9px; color: var(--faint); font: 500 10px/1.2 var(--mono); letter-spacing: .2em; text-transform: uppercase; }
+  .section-heading { margin: 0 0 22px; font-family: var(--serif); font-size: 26px; line-height: 1.43; font-weight: 650; letter-spacing: -.01em; }
+  .subheading { margin: 35px 0 12px; font-family: var(--serif); font-size: 20px; line-height: 1.5; font-weight: 650; }
+  .lead-block { margin: 2px 0 34px; padding: 22px 25px 23px; border: 1px solid rgba(211, 107, 53, .18); border-left: 3px solid var(--orange); border-radius: 0 11px 11px 0; background: linear-gradient(110deg, rgba(250, 233, 222, .78), rgba(255, 253, 248, .34)); }
+  .lead-label { display: block; margin-bottom: 10px; color: var(--orange); font: 600 10px/1.3 var(--mono); letter-spacing: .15em; text-transform: uppercase; }
+  .lead-block .lead { margin: 0; color: #332d28; font-family: var(--serif); font-size: 17.5px; line-height: 1.88; }
+  .thesis { margin: 32px 0; padding: 25px 27px; border-left: 3px solid var(--orange); background: linear-gradient(100deg, rgba(250, 233, 222, .86), rgba(255, 253, 248, .2)); font-family: var(--serif); font-size: 20px; line-height: 1.75; font-weight: 600; }
+  .note { margin: 27px 0; padding: 20px 22px; border: 1px solid var(--line); border-radius: 11px; background: rgba(255,253,248,.78); }
+  .note-title { display: block; margin-bottom: 7px; color: var(--orange); font: 600 11px/1.4 var(--mono); letter-spacing: .12em; text-transform: uppercase; }
+  .note.blue { border-color: rgba(66,111,158,.2); background: var(--blue-soft); }
+  .note.blue .note-title { color: var(--blue); }
+  .note.warning { border-color: rgba(187,133,41,.22); background: var(--gold-soft); }
+  .note.warning .note-title { color: var(--gold); }
+
+  .four-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; margin: 27px 0 37px; }
+  .four-card { position: relative; min-height: 155px; padding: 21px 21px 19px 58px; border: 1px solid var(--line); border-radius: 11px; background: var(--paper); }
+  .four-card::before { content: attr(data-index); position: absolute; left: 19px; top: 22px; color: var(--orange); font: 650 11px/1 var(--mono); }
+  .four-card h3 { margin: 0 0 8px; font-size: 16px; line-height: 1.45; }
+  .four-card p { margin: 0; color: var(--muted); font-size: 13.5px; line-height: 1.76; }
+  .four-card:nth-child(2)::before { color: var(--blue); }
+  .four-card:nth-child(3)::before { color: var(--gold); }
+  .four-card:nth-child(4)::before { color: var(--green); }
+
+  .direction-stage { margin: 29px 0 38px; padding: 24px; border: 1px solid rgba(211,107,53,.18); border-radius: 13px; background: linear-gradient(145deg, rgba(250,233,222,.45), rgba(255,253,248,.7)); }
+  .stage-head { display: flex; justify-content: space-between; align-items: baseline; gap: 18px; margin-bottom: 19px; }
+  .stage-head strong { font-size: 14px; }
+  .stage-head span { color: var(--faint); font: 500 9px/1.3 var(--mono); letter-spacing: .11em; }
+  .direction-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 9px; }
+  .direction-card { padding: 16px 9px 13px; border-radius: 9px; background: rgba(255,255,255,.9); text-align: center; }
+  .light-arrow { height: 20px; color: var(--orange); font: 600 17px/1 var(--mono); }
+  .light-sphere { width: 60px; height: 60px; margin: 5px auto 12px; border-radius: 50%; box-shadow: 0 8px 19px rgba(48,38,29,.12); }
+  .sphere-front { background: radial-gradient(circle at 50% 40%, #fff4de 0 32%, #ddb994 64%, #785843 100%); }
+  .sphere-side { background: linear-gradient(90deg, #f8d9aa 0 36%, #966849 58%, #30241f 100%); }
+  .sphere-back { background: radial-gradient(circle at 50% 50%, #29221f 0 63%, #e6a54a 66%, #fff0bd 75%, #403128 78%); }
+  .sphere-top { background: linear-gradient(180deg, #ffe2a7 0 27%, #9f6c47 53%, #332824 100%); }
+  .sphere-bottom { background: linear-gradient(0deg, #ffd8a0 0 28%, #9d6243 53%, #302522 100%); }
+  .direction-card b { display: block; font-size: 12px; }
+  .direction-card span { display: block; margin-top: 5px; color: var(--faint); font-size: 9.5px; line-height: 1.45; }
+
+  .direction-list { margin: 27px 0 37px; }
+  .direction-row { display: grid; grid-template-columns: 112px 1fr 170px; gap: 18px; padding: 17px 0; border-bottom: 1px solid var(--line); }
+  .direction-row:first-child { border-top: 1px solid var(--line); }
+  .direction-name { color: var(--orange-deep); font: 650 11px/1.6 var(--mono); }
+  .direction-copy, .direction-use { color: var(--muted); font-size: 13px; line-height: 1.7; }
+  .direction-use { color: var(--faint); }
+  .direction-copy strong, .direction-use strong { display: block; margin-bottom: 3px; color: var(--ink); font-size: 12px; }
+
+  .pattern-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 27px 0 37px; }
+  .pattern-card { padding: 18px 15px; border: 1px solid var(--line); border-radius: 10px; background: var(--paper); }
+  .pattern-card span { color: var(--orange); font: 650 9px/1 var(--mono); letter-spacing: .12em; }
+  .pattern-card h3 { margin: 10px 0 7px; font-size: 14px; }
+  .pattern-card p { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.68; }
+
+  .quality-demo { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; margin: 29px 0 38px; }
+  .quality-panel { padding: 21px; border: 1px solid var(--line); border-radius: 12px; background: var(--paper); }
+  .quality-visual { position: relative; height: 128px; margin-bottom: 17px; overflow: hidden; border-radius: 8px; background: linear-gradient(180deg, #f6eee4, #e6d9cb); }
+  .quality-ball { position: absolute; z-index: 2; left: 47px; top: 29px; width: 62px; height: 62px; border-radius: 50%; background: radial-gradient(circle at 31% 28%, #fff4de, #c89462 53%, #51372b 100%); }
+  .quality-shadow { position: absolute; left: 89px; top: 77px; width: 116px; height: 29px; border-radius: 50%; transform: rotate(-5deg); background: rgba(44,29,21,.55); }
+  .quality-panel.soft .quality-shadow { left: 74px; width: 147px; filter: blur(12px); background: rgba(44,29,21,.28); }
+  .source-mark { position: absolute; right: 16px; top: 15px; width: 17px; height: 17px; border-radius: 50%; background: #ffd269; box-shadow: 0 0 15px rgba(255,190,65,.7); }
+  .soft .source-mark { width: 55px; height: 55px; border-radius: 6px; background: rgba(255,221,147,.84); }
+  .quality-panel h3 { margin: 0 0 8px; font-size: 16px; }
+  .quality-panel p { margin: 0; color: var(--muted); font-size: 13.5px; line-height: 1.75; }
+
+  .size-equation { margin: 29px 0 37px; padding: 26px; border: 1px solid rgba(211,107,53,.2); border-radius: 12px; background: var(--orange-soft); text-align: center; }
+  .size-main { color: var(--orange-deep); font: 650 22px/1.45 var(--mono); }
+  .size-copy { max-width: 620px; margin: 13px auto 0; color: var(--muted); font-size: 12.5px; line-height: 1.75; }
+
+  .falloff { margin: 29px 0 38px; padding: 24px; border-radius: 12px; color: #eef3f7; background: #202834; }
+  .falloff-head { margin-bottom: 19px; color: #9bb9d7; font: 600 10px/1 var(--mono); letter-spacing: .14em; }
+  .falloff-track { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; align-items: end; }
+  .falloff-step { text-align: center; }
+  .falloff-light { margin: 0 auto 10px; border-radius: 50%; background: #ffd574; box-shadow: 0 0 20px rgba(255,205,100,.48); }
+  .falloff-step:nth-child(1) .falloff-light { width: 56px; height: 56px; }
+  .falloff-step:nth-child(2) .falloff-light { width: 39px; height: 39px; opacity: .75; }
+  .falloff-step:nth-child(3) .falloff-light { width: 28px; height: 28px; opacity: .5; }
+  .falloff-step:nth-child(4) .falloff-light { width: 20px; height: 20px; opacity: .36; }
+  .falloff-step b { display: block; color: #f5f7f8; font: 650 12px/1 var(--mono); }
+  .falloff-step span { display: block; margin-top: 6px; color: rgba(238,243,247,.55); font-size: 10px; }
+  .falloff-equation { margin-top: 19px; padding-top: 17px; border-top: 1px solid rgba(255,255,255,.1); color: #cbd9e8; font: 550 14px/1.7 var(--mono); text-align: center; }
+  .falloff-caption { margin: 13px 0 0; color: rgba(238,243,247,.62); font-size: 12px; line-height: 1.7; }
+
+  .modifier-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 11px; margin: 26px 0 37px; }
+  .modifier-card { padding: 18px; border: 1px solid var(--line); border-radius: 10px; background: var(--paper); }
+  .modifier-card b { display: block; font-size: 14px; }
+  .modifier-card span { display: block; margin-top: 7px; color: var(--muted); font-size: 12.5px; line-height: 1.68; }
+  .modifier-card small { display: block; margin-top: 9px; color: var(--orange); font: 600 9px/1.4 var(--mono); letter-spacing: .08em; }
+
+  .ratio-panel { margin: 29px 0 38px; padding: 24px; border: 1px solid rgba(66,111,158,.2); border-radius: 13px; background: rgba(230,239,247,.58); }
+  .ratio-head { margin-bottom: 18px; color: var(--faint); font: 600 10px/1 var(--mono); letter-spacing: .14em; }
+  .ratio-row { display: grid; grid-template-columns: 72px 1fr 65px; gap: 14px; align-items: center; margin-bottom: 13px; }
+  .ratio-row:last-child { margin-bottom: 0; }
+  .ratio-name { color: var(--blue); font: 650 11px/1 var(--mono); }
+  .ratio-bar { display: grid; grid-template-columns: var(--lit) var(--shadow); height: 15px; overflow: hidden; border-radius: 3px; }
+  .ratio-lit { background: #eab265; }
+  .ratio-shadow { background: #413933; }
+  .ratio-stop { color: var(--muted); font: 600 10px/1 var(--mono); text-align: right; }
+  .ratio-caption { margin: 17px 0 0; color: var(--muted); font-size: 12.5px; line-height: 1.72; }
+
+  .table-wrap { margin: 28px 0 37px; overflow-x: auto; border: 1px solid var(--line); border-radius: 11px; }
+  .data-table { width: 100%; min-width: 720px; border-collapse: collapse; background: var(--paper); font-size: 13.5px; }
+  .data-table th, .data-table td { padding: 14px 15px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; line-height: 1.68; }
+  .data-table tr:last-child td { border-bottom: 0; }
+  .data-table th { color: var(--muted); font-size: 11px; letter-spacing: .06em; background: rgba(211,107,53,.055); }
+  .data-table td:first-child { color: var(--orange-deep); font-family: var(--mono); font-size: 11px; white-space: nowrap; }
+
+  .temperature-scale { margin: 29px 0 38px; padding: 24px; border: 1px solid var(--line); border-radius: 12px; background: var(--paper); }
+  .temperature-bar { height: 30px; border-radius: 5px; background: linear-gradient(90deg, #e75b28 0%, #f2a144 22%, #fff0c3 45%, #e9f1f2 62%, #a7c8ef 80%, #608fca 100%); box-shadow: inset 0 0 0 1px rgba(65,50,38,.09); }
+  .temperature-labels { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-top: 13px; }
+  .temperature-labels div { color: var(--muted); font-size: 10px; line-height: 1.48; }
+  .temperature-labels b { display: block; color: var(--ink); font: 650 10px/1.4 var(--mono); }
+  .temperature-caption { margin: 17px 0 0; padding-top: 15px; border-top: 1px solid var(--line); color: var(--faint); font-size: 12px; line-height: 1.7; }
+
+  .opposite-arrows { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; margin: 27px 0 37px; }
+  .arrow-card { padding: 21px; border: 1px solid var(--line); border-radius: 11px; background: var(--paper); }
+  .arrow-card:first-child { border-top: 3px solid var(--blue); }
+  .arrow-card:last-child { border-top: 3px solid var(--orange); }
+  .arrow-card span { color: var(--faint); font: 600 9px/1 var(--mono); letter-spacing: .1em; }
+  .arrow-card h3 { margin: 11px 0 8px; font-size: 15px; }
+  .arrow-card p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.75; }
+
+  .spectrum-axis { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; margin: 27px 0 37px; }
+  .axis-card { padding: 21px; border-radius: 11px; color: #eef3f7; background: #252b34; }
+  .axis-card:first-child { background: linear-gradient(135deg, #6e3927, #283b50); }
+  .axis-card:last-child { background: linear-gradient(135deg, #4b3152, #345843); }
+  .axis-card b { display: block; font-size: 14px; }
+  .axis-card p { margin: 8px 0 0; color: rgba(238,243,247,.68); font-size: 12.5px; line-height: 1.72; }
+
+  .workflow { margin: 29px 0 38px; padding: 24px; border: 1px solid rgba(211,107,53,.19); border-radius: 13px; background: rgba(250,233,222,.42); }
+  .workflow-title { margin-bottom: 16px; color: var(--faint); font: 600 10px/1 var(--mono); letter-spacing: .15em; text-transform: uppercase; }
+  .workflow-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
+  .workflow-node { position: relative; min-height: 103px; padding: 16px 11px; border-radius: 9px; background: rgba(255,255,255,.9); text-align: center; }
+  .workflow-node:not(:last-child)::after { content: '→'; position: absolute; top: 50%; right: -15px; transform: translateY(-50%); color: var(--orange); font-family: var(--mono); }
+  .workflow-node b { display: block; font-size: 13px; }
+  .workflow-node span { display: block; margin-top: 6px; color: var(--faint); font-size: 10.5px; line-height: 1.55; }
+
+  .scene-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 27px 0 37px; }
+  .scene-card { padding: 20px; border: 1px solid var(--line); border-radius: 11px; background: var(--paper); }
+  .scene-card .scene-tag { display: inline-block; padding: 4px 7px; border-radius: 4px; color: var(--orange); background: var(--orange-soft); font: 600 9px/1.3 var(--mono); letter-spacing: .08em; }
+  .scene-card h3 { margin: 12px 0 8px; font-size: 15px; }
+  .scene-card p { margin: 0 0 10px; color: var(--muted); font-size: 12.5px; line-height: 1.7; }
+  .scene-card p:last-child { margin-bottom: 0; }
+
+  .exercise-list { margin: 28px 0 37px; counter-reset: exercise; }
+  .exercise-row { display: grid; grid-template-columns: 48px 1fr; gap: 14px; padding: 18px 0; border-bottom: 1px solid var(--line); }
+  .exercise-row:first-child { border-top: 1px solid var(--line); }
+  .exercise-row::before { counter-increment: exercise; content: counter(exercise, decimal-leading-zero); color: var(--orange); font: 650 11px/1.7 var(--mono); }
+  .exercise-row h3 { margin: 0 0 5px; font-size: 15px; }
+  .exercise-row p { margin: 0; color: var(--muted); font-size: 13.5px; line-height: 1.75; }
+
+  .mistake-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 26px 0 37px; }
+  .mistake-card { padding: 19px; border: 1px solid rgba(169,79,71,.18); border-radius: 10px; background: rgba(169,79,71,.035); }
+  .mistake-card b { display: block; margin-bottom: 6px; color: var(--red); font-size: 14px; }
+  .mistake-card p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.72; }
+
+  .source-list { margin: 25px 0 36px; padding: 0; list-style: none; }
+  .source-list li { display: grid; grid-template-columns: 32px 1fr; gap: 13px; padding: 14px 0; border-bottom: 1px solid var(--line); }
+  .source-list li:first-child { border-top: 1px solid var(--line); }
+  .source-no { color: var(--faint); font: 500 10px/1.8 var(--mono); }
+  .source-list a { font-weight: 600; }
+  .source-list span { display: block; margin-top: 3px; color: var(--faint); font-size: 12px; line-height: 1.6; }
+  .closing { margin-top: 48px; padding-top: 27px; border-top: 2px solid var(--ink); font-family: var(--serif); font-size: 20px; line-height: 1.82; }
+
+  @media (max-width: 720px) {
+    .hero { padding: 48px 20px 34px; }
+    .headline { font-size: 35px; }
+    .content-wrap { padding: 0 20px 70px; }
+    .four-grid, .quality-demo, .opposite-arrows, .spectrum-axis, .mistake-grid { grid-template-columns: 1fr; }
+    .direction-grid { grid-template-columns: repeat(2, 1fr); }
+    .direction-card:last-child { grid-column: 1 / -1; }
+    .direction-list { overflow-x: auto; }
+    .direction-row { min-width: 650px; }
+    .pattern-grid { grid-template-columns: 1fr 1fr; }
+    .modifier-grid, .scene-grid { grid-template-columns: 1fr; }
+    .workflow-row { grid-template-columns: 1fr 1fr; }
+    .workflow-node:nth-child(2)::after { display: none; }
+    .temperature-labels { grid-template-columns: 1fr 1fr; }
+    .temperature-labels div:last-child { grid-column: 1 / -1; }
+  }
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="kicker">VISUAL AESTHETICS · LIGHTING 02</div>
+  <h1 class="headline">光线的语言：<br>方向、软硬、光比与色温</h1>
+  <p class="deck">光线不是“够不够亮”这一项参数。它从哪里来、阴影如何过渡、明暗相差多少、白色被照成什么颜色，共同决定物体的体积、材质、空间与情绪。</p>
+  <div class="meta-row">
+    <span>2026-08-22</span>
+    <span>摄影基础 · 光线</span>
+    <span>阅读约 18 分钟</span>
+    <span>光线方向 · 光质 · 光比 · 色温</span>
+  </div>
+</header>
+
+<main class="content-wrap">
+<article class="article-body">
+  <div class="lead-block">
+    <span class="lead-label">导言 · Introduction</span>
+    <p class="lead">摄影记录的是被物体反射或透射后进入镜头的光。没有光，颜色、纹理和空间都无法形成影像；但有光并不等于有表达。相同的人物、场景和机位，只要改变光线方向、软硬、光比或色温，画面的叙事立场就会随之改变。</p>
+  </div>
+
+  <p>初学阶段最容易把“布光”理解成增加灯具数量。更有效的学习方法是先建立四个独立维度：<strong>方向</strong>决定阴影落在哪里，<strong>软硬</strong>决定阴影边界如何过渡，<strong>光比</strong>决定亮部与暗部相差多少，<strong>色温</strong>决定光的红—蓝倾向以及相机如何建立白色基准。</p>
+  <div class="thesis">布光不是把所有地方照亮，而是决定哪些信息出现、哪些信息隐藏，以及观者先注意哪里。</div>
+
+  <section>
+    <div class="section-label">01 · FOUR VARIABLES</div>
+    <h2 class="section-heading">先把光线拆成四个可以观察的维度</h2>
+    <div class="four-grid">
+      <article class="four-card" data-index="01"><h3>方向 · Direction</h3><p>观察阴影的位置与形状。正面光压平体积，侧光强调结构，逆光突出轮廓，顶光与底光则会改变面部熟悉感。</p></article>
+      <article class="four-card" data-index="02"><h3>软硬 · Quality</h3><p>观察亮部进入暗部的过渡。硬光边界清晰、纹理鲜明；柔光过渡宽缓、包裹感更强。</p></article>
+      <article class="four-card" data-index="03"><h3>光比 · Ratio</h3><p>观察最重要主体上的亮暗差。低光比保留更多暗部信息，高光比产生更强分离与戏剧性。</p></article>
+      <article class="four-card" data-index="04"><h3>色温 · Color</h3><p>观察光源偏暖还是偏冷，并区分光源本身的色温、相机白平衡与最终画面风格。</p></article>
+    </div>
+    <p>这四项彼此独立。一束光可以是“来自侧面的柔和冷光”，也可以是“来自正面的强烈暖硬光”。“侧光”“柔光”“低色温”描述的不是同一件事。先分别判断，再理解它们如何共同作用，是读懂复杂画面的基本方法。</p>
+  </section>
+
+  <section>
+    <div class="section-label">02 · DIRECTION</div>
+    <h2 class="section-heading">方向：阴影落在哪里，体积就从哪里出现</h2>
+    <p>人眼依靠明暗变化判断表面的朝向和起伏。光源与相机接近时，镜头看见的正面大多被均匀照亮，阴影被藏到主体后方；光源移到侧面后，阴影进入镜头可见范围，鼻梁、颧骨、织物和墙面纹理开始形成体积。</p>
+
+    <div class="direction-stage">
+      <div class="stage-head"><strong>同一个球体，不同方向的光</strong><span>SHADOW POSITION STUDY</span></div>
+      <div class="direction-grid">
+        <div class="direction-card"><div class="light-arrow">↓</div><div class="light-sphere sphere-front"></div><b>正面光</b><span>阴影藏在后方</span></div>
+        <div class="direction-card"><div class="light-arrow">↘</div><div class="light-sphere sphere-side"></div><b>侧光</b><span>明暗横跨主体</span></div>
+        <div class="direction-card"><div class="light-arrow">↑</div><div class="light-sphere sphere-back"></div><b>逆光</b><span>轮廓亮、正面暗</span></div>
+        <div class="direction-card"><div class="light-arrow">↓</div><div class="light-sphere sphere-top"></div><b>顶光</b><span>阴影向下落</span></div>
+        <div class="direction-card"><div class="light-arrow">↑</div><div class="light-sphere sphere-bottom"></div><b>底光</b><span>阴影反常向上</span></div>
+      </div>
+    </div>
+
+    <div class="direction-list">
+      <div class="direction-row"><div class="direction-name">FRONT<br>正面光</div><div class="direction-copy"><strong>画面特征</strong>面部左右差异较小，皮肤纹理与凹凸被弱化，眼睛容易获得眼神光。</div><div class="direction-use"><strong>常见用途</strong>证件、采访补光、美妆和强调清晰信息的商业画面。</div></div>
+      <div class="direction-row"><div class="direction-name">SIDE<br>侧光</div><div class="direction-copy"><strong>画面特征</strong>一侧亮、一侧暗，轮廓和材质明显；光源越接近 90°，明暗分离通常越强。</div><div class="direction-use"><strong>常见用途</strong>人物塑形、静物、建筑纹理以及需要冲突感的叙事。</div></div>
+      <div class="direction-row"><div class="direction-name">BACK<br>逆光</div><div class="direction-copy"><strong>画面特征</strong>主体边缘出现亮轮廓，正面可能落入阴影；透明、半透明材质会被强调。</div><div class="direction-use"><strong>常见用途</strong>人物与背景分离、发丝、烟雾、饮品、叶片和空气感。</div></div>
+      <div class="direction-row"><div class="direction-name">TOP<br>顶光</div><div class="direction-copy"><strong>画面特征</strong>额头、鼻梁和肩部先受光，眼窝、鼻下和下巴形成向下阴影。</div><div class="direction-use"><strong>常见用途</strong>模拟日光或室内顶灯，也可营造压迫、疲惫和孤立感。</div></div>
+      <div class="direction-row"><div class="direction-name">BOTTOM<br>底光</div><div class="direction-copy"><strong>画面特征</strong>阴影方向与日常经验相反，面部结构因此显得陌生。</div><div class="direction-use"><strong>常见用途</strong>篝火、屏幕光、舞台与需要不安感的风格化场景。</div></div>
+    </div>
+
+    <p>Nikon 的闪光摄影资料把方向列为首先需要观察的变量：机顶直打容易产生正面、扁平的光；将闪光灯转向墙面或天花板后，反射面既改变了光线方向，也扩大了实际发光面积，画面会同时变得更自然、更柔和。参见<a href="https://www.nikonusa.com/learn-and-explore/c/tips-and-techniques/the-basics-of-flash-photography" target="_blank" rel="noopener">Nikon：The Basics of Flash Photography</a>。</p>
+
+    <h3 class="subheading">常见人像光型，本质上是方向的命名</h3>
+    <div class="pattern-grid">
+      <article class="pattern-card"><span>BUTTERFLY</span><h3>蝴蝶光</h3><p>主光位于相机轴线附近并高于眼睛，鼻下形成类似蝴蝶的短影，面部较对称。</p></article>
+      <article class="pattern-card"><span>LOOP</span><h3>环形光</h3><p>主光略向侧上方移动，鼻影偏向一侧但不与面颊阴影相连，兼顾自然与塑形。</p></article>
+      <article class="pattern-card"><span>REMBRANDT</span><h3>伦勃朗光</h3><p>主光继续向侧面移动，暗侧眼下保留三角形亮区，体积和戏剧性更强。</p></article>
+      <article class="pattern-card"><span>SPLIT</span><h3>分割光</h3><p>光源接近人物正侧方，面部被分成明显亮暗两半，适合强烈或克制的表达。</p></article>
+    </div>
+    <p>这些名称是沟通坐标，不是审美等级。面部朝向、眼神、发型、肤质和叙事意图都会改变结果。复制灯位只能得到相似的阴影结构，不能自动得到相同的情绪。</p>
+  </section>
+
+  <section>
+    <div class="section-label">03 · HARD AND SOFT</div>
+    <h2 class="section-heading">软硬：真正决定因素是光源的相对大小</h2>
+    <p>硬光与柔光最可靠的判断标准是<strong>阴影边界</strong>。硬光形成清晰、窄的明暗交界；柔光形成宽而渐变的过渡。ARRI 的灯光手册强调，光质由光源的物理工作面积决定，而不是亮度决定；扩散布被照亮后，本身会成为新的发光面。参见<a href="https://www.arri.com/resource/blob/83996/409091c612f371b0c68b41d9dcb636db/arri-lighting-handbook-english-data.pdf" target="_blank" rel="noopener">ARRI Lighting Handbook</a>。</p>
+
+    <div class="quality-demo">
+      <article class="quality-panel hard">
+        <div class="quality-visual"><div class="source-mark"></div><div class="quality-ball"></div><div class="quality-shadow"></div></div>
+        <h3>硬光 · Hard Light</h3>
+        <p>发光面积相对主体较小，来自不同位置的光线角度接近，因此遮挡关系明确，投影边缘清晰。适合强调纹理、轮廓、阳光感与图形化阴影。</p>
+      </article>
+      <article class="quality-panel soft">
+        <div class="quality-visual"><div class="source-mark"></div><div class="quality-ball"></div><div class="quality-shadow"></div></div>
+        <h3>柔光 · Soft Light</h3>
+        <p>发光面积相对主体较大，光线从更宽的角度包围遮挡物，一部分光能够进入原本的阴影区域，于是边界变宽、过渡更平缓。</p>
+      </article>
+    </div>
+
+    <div class="size-equation">
+      <div class="size-main">柔和程度取决于“主体看见的光源有多大”</div>
+      <div class="size-copy">同一个柔光箱靠近人物时，相对面积更大，通常更柔；向后移动后，相对面积变小，阴影会变硬。太阳的真实体积巨大，但距离极远，在地面主体看来角尺寸很小，因此晴天直射阳光是硬光；阴天的天空成为广阔发光面，因此更柔。</div>
+    </div>
+
+    <h3 class="subheading">柔光不等于没有阴影，也不等于更暗</h3>
+    <p>柔光只是扩大了阴影过渡区。只要光源仍有明确方向，柔光同样可以塑造体积；大型柔光箱放在人物侧面，仍会产生明显的亮侧和暗侧。反过来，小型灯具即使功率很低，也可能产生清晰硬影。因此，“亮度”与“软硬”需要分开控制。</p>
+    <p>柔光常被误认为天然更高级，因为它容易保留肤质细节并降低局部反差；但硬光具有更明确的阴影形状、更强的表面纹理和更高的控制效率。ARRI 的手册也明确指出，硬光与柔光没有绝对正确的使用规则，选择取决于镜头的表达目标。</p>
+
+    <h3 class="subheading">扩散、反射与控制工具分别做什么</h3>
+    <div class="modifier-grid">
+      <article class="modifier-card"><b>扩散 · Diffusion</b><span>柔光布、柔光箱和纱幕被照亮后扩大工作发光面，使阴影过渡更宽。</span><small>改变光源相对面积</small></article>
+      <article class="modifier-card"><b>反射 · Bounce</b><span>白墙、泡沫板或反光伞成为新的大光源，常同时改变方向并降低强度。</span><small>重新定义光源位置</small></article>
+      <article class="modifier-card"><b>遮挡 · Flag / Grid</b><span>黑旗、遮扉、蜂巢与束光筒限制光线外溢，控制背景和局部反差，并不负责柔化。</span><small>改变光线覆盖范围</small></article>
+      <article class="modifier-card"><b>补光 · Fill</b><span>灯、白板或环境反射把光送入阴影，降低光比，但主光方向可以保持不变。</span><small>抬高暗部</small></article>
+      <article class="modifier-card"><b>负补光 · Negative Fill</b><span>黑布或黑板吸收环境反射，让暗侧更暗，适合白墙房间和需要加强塑形的场景。</span><small>减少杂散反射</small></article>
+      <article class="modifier-card"><b>轮廓光 · Rim / Edge</b><span>从后侧照亮主体边缘，帮助分离背景；它描述灯光角色，而不是一种固定软硬。</span><small>建立层次与分离</small></article>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-label">04 · DISTANCE AND FALLOFF</div>
+    <h2 class="section-heading">距离：同时影响亮度、相对大小与光线衰减</h2>
+    <p>将灯靠近主体通常会带来三个变化：光变亮、光源相对面积变大、主体前后位置之间的亮度差增加。前两项容易观察，第三项来自光照度随距离变化的规律。</p>
+
+    <div class="falloff">
+      <div class="falloff-head">IDEAL POINT SOURCE · INVERSE-SQUARE FALL-OFF</div>
+      <div class="falloff-track">
+        <div class="falloff-step"><div class="falloff-light"></div><b>1 m</b><span>相对照度 100%</span></div>
+        <div class="falloff-step"><div class="falloff-light"></div><b>2 m</b><span>相对照度 25%</span></div>
+        <div class="falloff-step"><div class="falloff-light"></div><b>3 m</b><span>相对照度约 11%</span></div>
+        <div class="falloff-step"><div class="falloff-light"></div><b>4 m</b><span>相对照度 6.25%</span></div>
+      </div>
+      <div class="falloff-equation">E ∝ 1 / d²</div>
+      <p class="falloff-caption">理想点光源距离增加为 2 倍，单位面积照度降为 1/4，即约减少 2 档。开放教材 OpenStax 对逆平方定律给出了同样推导。真实大型面光源、近距离和反射环境会偏离理想模型，因此现场仍需测量或试拍。</p>
+    </div>
+
+    <p>近灯产生更快衰减并不意味着整束光“消失得更快”，而是主体与背景相对于灯的距离比例更大。例如人物距离灯 1 米、背景距离灯 2 米，背景理论上只有人物位置约 1/4 的照度；若灯后移到 4 米、背景距灯 5 米，两者照度差会小得多。近灯适合制造前亮后暗的层次，远灯更容易覆盖多人并保持相对均匀。</p>
+    <p>逆平方定律的物理基础可参见<a href="https://openstax.org/books/physics/pages/15-2-the-behavior-of-electromagnetic-radiation" target="_blank" rel="noopener">OpenStax Physics：The Behavior of Electromagnetic Radiation</a>；Nikon 的灯光教材也特别说明，人工灯靠近主体会使背景曝光下降更快，而太阳因距离极远，在日常尺度内几乎保持平行和均匀。</p>
+  </section>
+
+  <section>
+    <div class="section-label">05 · LIGHTING RATIO</div>
+    <h2 class="section-heading">光比：不要只问有多亮，还要问亮暗相差多少</h2>
+    <p>光比描述主体不同受光区域之间的亮度关系。它控制阴影保留多少细节，也影响面部体积、画面冲突和后期调整空间。低光比不是“曝光更亮”，高光比也不是“整体更暗”；两者说的是<strong>亮部与暗部之间的距离</strong>。</p>
+
+    <div class="ratio-panel">
+      <div class="ratio-head">HIGHLIGHT : SHADOW · EXPRESSED IN STOPS</div>
+      <div class="ratio-row"><div class="ratio-name">1 : 1</div><div class="ratio-bar" style="--lit:50%;--shadow:50%"><div class="ratio-lit"></div><div class="ratio-shadow" style="opacity:.95"></div></div><div class="ratio-stop">0 stop</div></div>
+      <div class="ratio-row"><div class="ratio-name">2 : 1</div><div class="ratio-bar" style="--lit:67%;--shadow:33%"><div class="ratio-lit"></div><div class="ratio-shadow" style="opacity:.78"></div></div><div class="ratio-stop">1 stop</div></div>
+      <div class="ratio-row"><div class="ratio-name">4 : 1</div><div class="ratio-bar" style="--lit:80%;--shadow:20%"><div class="ratio-lit"></div><div class="ratio-shadow" style="opacity:.57"></div></div><div class="ratio-stop">2 stops</div></div>
+      <div class="ratio-row"><div class="ratio-name">8 : 1</div><div class="ratio-bar" style="--lit:89%;--shadow:11%"><div class="ratio-lit"></div><div class="ratio-shadow" style="opacity:.36"></div></div><div class="ratio-stop">3 stops</div></div>
+      <p class="ratio-caption">此处采用“亮侧总照度 : 暗侧总照度”的直观口径。每增加 1 档，照度比翻倍：1 档约为 2:1，2 档约为 4:1，3 档约为 8:1。</p>
+    </div>
+
+    <h3 class="subheading">为什么有些教材会把“一档差”写成 3:1</h3>
+    <p>光比存在不同记法。若单独测量主光与补光，一档差可以记为主光 2 单位、补光 1 单位，即 <code>2:1</code>；但在人像传统算法中，亮侧同时收到主光与补光，暗侧只收到补光，于是亮侧为 <code>2 + 1</code>，暗侧为 <code>1</code>，最终面部明暗比成为 <code>3:1</code>。</p>
+    <p>Sekonic 的教学资料同时展示了这些历史用法。为了避免团队沟通误差，更稳妥的记录方式是明确写成“主光比补光高 1 档”，或“人物亮侧比暗侧高 2 档”，并说明测量位置。参见<a href="https://sekonic.com/classroom/studio-lighting-understanding-ratios/" target="_blank" rel="noopener">Sekonic：Studio Lighting — Understanding Ratios</a>与<a href="https://sekonic.com/classroom/lighting-ratios-for-small-flash-photography/" target="_blank" rel="noopener">Lighting Ratios for Small Flash Photography</a>。</p>
+
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead><tr><th>亮暗差</th><th>直观效果</th><th>常见使用倾向</th><th>需要注意</th></tr></thead>
+        <tbody>
+          <tr><td>0～1 档</td><td>暗部信息充分，面部平滑，画面开放</td><td>美妆、群像、轻松访谈、产品信息展示</td><td>方向不足时容易显平；高调画面不等于故意过曝</td></tr>
+          <tr><td>1～2 档</td><td>具有明确体积，同时保留大部分暗部</td><td>常规人像、采访、食品和自然叙事</td><td>肤色、服装与背景反射会改变最终视觉反差</td></tr>
+          <tr><td>2～3 档</td><td>亮暗分离明显，注意力更集中</td><td>剧情、音乐、人像和强调情绪的画面</td><td>需要确认暗部是否仍在相机动态范围与交付显示范围内</td></tr>
+          <tr><td>超过 3 档</td><td>暗部可能接近剪影，图形感和神秘感强</td><td>低调风格、轮廓、舞台与极端戏剧表达</td><td>压缩、降噪和错误曝光可能让暗部出现色偏或失去细节</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="note blue">
+      <span class="note-title">画面反差不只由灯光决定</span>
+      <p>白衣与黑衣的反射率、背景颜色、雾气、镜头炫光、相机动态范围、Log 曲线、显示设备和后期调色都会影响最终反差。光比只描述照明关系，不能单独预测成片的全部明暗效果。</p>
+    </div>
+
+    <h3 class="subheading">没有测光表，仍然可以学习光比</h3>
+    <p>入射式测光表直接测量落在主体上的光，适合分别记录主光和补光；相机内测光表测量主体反射回来的光，会受到肤色、服装和背景反射率影响。Sekonic 对两种测量方式的区别有清晰说明：<a href="https://sekonic.com/classroom/the-benefits-of-using-light-metering/" target="_blank" rel="noopener">The Benefits of Using Light Metering</a>。</p>
+    <p>没有独立测光表时，可以固定相机、ISO、光圈、快门和白平衡，用 RAW 拍摄亮侧与暗侧的灰卡或同一中性物体，再比较直方图、波形或取样值。关键不是得到绝对正确的数字，而是建立“改变补光后，暗部移动了几档”的可重复记录。</p>
+  </section>
+
+  <section>
+    <div class="section-label">06 · COLOR TEMPERATURE</div>
+    <h2 class="section-heading">色温：数字越高，光源本身越偏蓝</h2>
+    <p>色温源于理想黑体被加热时呈现的颜色，以开尔文（K）表示。较低温度呈红橙倾向，温度升高后逐渐接近白，再转向蓝白。现实中的日光、LED 和荧光灯不一定是真正黑体，因此更常使用<strong>相关色温（CCT）</strong>：寻找色度上最接近该光源的黑体温度。CIE 的国际照明词汇给出了这一正式定义。</p>
+
+    <div class="temperature-scale">
+      <div class="temperature-bar"></div>
+      <div class="temperature-labels">
+        <div><b>1,700–2,000 K</b>火柴、蜡烛、日出日落</div>
+        <div><b>2,700–3,200 K</b>家用钨丝灯、影视钨丝灯</div>
+        <div><b>4,300 K</b>清晨或傍晚阳光的参考范围</div>
+        <div><b>5,400–6,500 K</b>正午日光、直射阳光与日光加天光</div>
+        <div><b>7,000 K 以上</b>阴影、蓝天散射与高色温天空光</div>
+      </div>
+      <p class="temperature-caption">这些是用于理解量级的典型值，不是固定天气配方。季节、纬度、云层、墙面反射和灯具光谱都会改变实际测量。Kodak 的电影制作参考指南给出了更完整的光源色温表，并特别区分了 sunlight 与由阳光、天光共同形成的 daylight。</p>
+    </div>
+
+    <div class="opposite-arrows">
+      <article class="arrow-card"><span>LIGHT SOURCE · 光源物理倾向</span><h3>光源 K 值升高 → 光更偏蓝</h3><p>约 3,200K 的钨丝灯偏橙，约 5,600K 的日光更中性或偏蓝，更高色温的阴影与天空光蓝色倾向更明显。</p></article>
+      <article class="arrow-card"><span>CAMERA WB · 相机补偿方向</span><h3>白平衡 K 值升高 → 成片更偏暖</h3><p>相机认为现场光更蓝，于是增加橙色补偿以恢复中性白。同一场景中，把白平衡从 3,200K 调到 6,500K，画面通常会变暖。</p></article>
+    </div>
+
+    <p>这是色温最常见的理解陷阱：<strong>灯光的 Kelvin 描述光源颜色，相机的 Kelvin 设置描述准备抵消哪一种光源</strong>，二者方向相反。Nikon 的白平衡教程也说明，在固定场景下把相机 Kelvin 设置提高到日光基准以上，会让画面增加黄红倾向；降低则让画面更蓝。参见<a href="https://www.nikonusa.com/learn-and-explore/c/tips-and-techniques/summer-photography-from-dawn-to-dusk" target="_blank" rel="noopener">Nikon：Summer Photography From Dawn to Dusk</a>。</p>
+
+    <h3 class="subheading">相同色温，不代表相同颜色质量</h3>
+    <div class="spectrum-axis">
+      <article class="axis-card"><b>红—蓝轴 · CCT</b><p>回答光源看起来更接近暖黑体还是冷黑体，适合描述钨丝灯与日光之间的主要颜色差异。</p></article>
+      <article class="axis-card"><b>绿—洋红轴与光谱</b><p>LED、荧光灯等可能具有绿偏或洋红偏；两盏灯即使都标为 5,600K，也可能因光谱分布不同而呈现不同肤色和材质。</p></article>
+    </div>
+    <p>Kodak 明确提醒，色温只描述光源的视觉外观，不能完整代表摄影效果；不同光源具有相同色温时，光谱分布仍可能不同。ARRI 的专业灯具也会把 CCT、green–magenta 调整和 CRI/TLCI 分开标注，说明这些是不同维度。CIE 进一步限定：当光源色度离黑体轨迹过远时，不应继续用 CCT 概括。</p>
+
+    <div class="note warning">
+      <span class="note-title">进阶入口 · Color Rendition</span>
+      <p>继续学习 LED 灯具时，可以依次了解 Duv 或绿—洋红偏移、CRI、TLCI 与 SSI。它们试图描述“同样照度和 CCT 下，颜色被还原得如何”，但任何单一分数都不能取代对目标相机、肤色、服装和美术材料的实拍测试。</p>
+    </div>
+
+    <h3 class="subheading">混合色温不是错误，而是一项选择</h3>
+    <p>窗外日光与室内钨丝灯同时存在时，可以有三种处理方式：把灯具与窗光统一到同一基准；选择人物所在区域为中性，让背景保留冷暖差；或者主动强化差异，用暖室内与冷窗外建立空间和时间。混合光的关键不是“全部调成白”，而是先确定画面中哪一部分需要被观者认作中性。</p>
+    <p>Kodak 建议在主要光线区域拍摄灰卡作为曝光和调色参考；混合光环境则需要判断视觉上最重要或最占主导的色温区域。灰卡不会自动决定创作风格，它提供的是一个可以在后期恢复、偏移或复现的中性锚点。参见<a href="https://www.kodak.com/en/motion/page/for-the-cinematographer/" target="_blank" rel="noopener">Kodak Gray Card for the Cinematographer</a>。</p>
+  </section>
+
+  <section>
+    <div class="section-label">07 · READING LIGHT</div>
+    <h2 class="section-heading">现场判断：按固定顺序读光，再决定是否加灯</h2>
+    <p>面对一个真实场景，先移动观察位置通常比立即增加灯具更有效。以下顺序把复杂环境拆成可验证的决策。</p>
+
+    <div class="workflow">
+      <div class="workflow-title">Observe → Decide → Shape → Verify</div>
+      <div class="workflow-row">
+        <div class="workflow-node"><b>找主导方向</b><span>看鼻影、地面影子<br>高光与眼神光</span></div>
+        <div class="workflow-node"><b>判断软硬</b><span>看阴影边缘<br>估计相对光源面积</span></div>
+        <div class="workflow-node"><b>检查光比</b><span>亮暗差几档<br>暗部是否需要保留</span></div>
+        <div class="workflow-node"><b>确认颜色</b><span>主导色温、混合光<br>中性参考与意图</span></div>
+      </div>
+    </div>
+
+    <ol>
+      <li><strong>先关闭或忽略次要灯源。</strong>找到对主体影响最大的光，观察它单独产生的阴影结构。</li>
+      <li><strong>先移动主体和相机，再移动光。</strong>窗边转身 30°、离墙一步或改变拍摄方向，往往就能重组光线。</li>
+      <li><strong>只增加一种控制。</strong>反光板负责抬暗部，黑旗负责压暗部，柔光布负责扩大光源，遮扉负责限制范围。</li>
+      <li><strong>固定曝光与白平衡试拍。</strong>自动曝光和自动白平衡会抵消灯光变化，使对比实验失去意义。</li>
+      <li><strong>同时看画面与数据。</strong>画面判断负责审美，直方图、波形、灰卡和测光负责复现，两者不能相互替代。</li>
+    </ol>
+  </section>
+
+  <section>
+    <div class="section-label">08 · THREE SCENES</div>
+    <h2 class="section-heading">三个基础场景：把四个变量组合起来</h2>
+    <div class="scene-grid">
+      <article class="scene-card">
+        <span class="scene-tag">WINDOW PORTRAIT</span>
+        <h3>窗边人物</h3>
+        <p><strong>方向：</strong>人物与窗户约成 45°，形成环形或伦勃朗式结构。</p>
+        <p><strong>软硬：</strong>纱帘扩大过渡；人物靠近窗户，光源相对更大。</p>
+        <p><strong>光比：</strong>暗侧用白板抬起，或用黑布增强体积。</p>
+        <p><strong>色温：</strong>先关闭杂乱室内灯，以窗光建立白平衡。</p>
+      </article>
+      <article class="scene-card">
+        <span class="scene-tag">FOOD & PRODUCT</span>
+        <h3>饮品与食品</h3>
+        <p><strong>方向：</strong>侧逆光穿过透明液体，强调边缘、气泡和水汽。</p>
+        <p><strong>软硬：</strong>较大的扩散面形成连续高光，不让玻璃只出现小亮点。</p>
+        <p><strong>光比：</strong>前方用小白卡控制标签与暗部可读性。</p>
+        <p><strong>色温：</strong>统一主光基准，再决定背景是否保留暖冷对比。</p>
+      </article>
+      <article class="scene-card">
+        <span class="scene-tag">NIGHT INTERIOR</span>
+        <h3>夜间室内</h3>
+        <p><strong>方向：</strong>让台灯、窗外或屏幕成为有动机的主光来源。</p>
+        <p><strong>软硬：</strong>主光可偏柔，背景实景灯保留小而硬的亮点。</p>
+        <p><strong>光比：</strong>允许背景更暗，但避免主体关键暗部无信息。</p>
+        <p><strong>色温：</strong>人物保持可接受肤色，环境冷暖差用于划分空间。</p>
+      </article>
+    </div>
+    <p>三点布光中的主光、补光和轮廓光是<strong>角色分工</strong>，不是固定灯位：主光建立主要方向，补光控制阴影密度，轮廓光负责分离。一个窗户加一块反光板也可以完成主光与补光；复杂场景使用十几盏灯，仍然应能说明每盏灯承担什么角色。</p>
+  </section>
+
+  <section>
+    <div class="section-label">09 · PRACTICE</div>
+    <h2 class="section-heading">五个不依赖昂贵器材的练习</h2>
+    <div class="exercise-list">
+      <div class="exercise-row"><div><h3>练习一 · 单灯绕主体一圈</h3><p>使用台灯或手机灯，固定相机和主体，每隔约 45° 拍一张。比较阴影位置、纹理和轮廓，不改变曝光与白平衡。</p></div></div>
+      <div class="exercise-row"><div><h3>练习二 · 改变光源相对大小</h3><p>分别使用裸灯、灯前小纸张、较大白布和白墙反射。观察阴影边缘，而不是只比较画面亮度。</p></div></div>
+      <div class="exercise-row"><div><h3>练习三 · 只改变补光</h3><p>保持窗光或主灯不动，依次使用白板、银色反光面、无补光和黑板。比较暗侧变化并记录相机参数。</p></div></div>
+      <div class="exercise-row"><div><h3>练习四 · 观察距离与衰减</h3><p>分别把灯放在主体 0.5 米、1 米和 2 米处，调整功率使主体曝光接近，再观察背景和同场其他物体的亮度变化。</p></div></div>
+      <div class="exercise-row"><div><h3>练习五 · 固定场景改变白平衡</h3><p>在钨丝灯与窗光并存的房间，分别使用 3,200K、4,500K、5,600K 和 7,000K 拍摄，记录哪个区域被定义为中性以及其他区域如何偏色。</p></div></div>
+    </div>
+    <p>每次练习只改变一个变量，并保留布光示意、灯具距离、相机参数和原始文件。对比学习的价值来自变量可控；若方向、距离、曝光与白平衡同时改变，就无法判断画面变化由什么引起。</p>
+  </section>
+
+  <section>
+    <div class="section-label">10 · MISCONCEPTIONS</div>
+    <h2 class="section-heading">常见误区</h2>
+    <div class="mistake-grid">
+      <article class="mistake-card"><b>柔光就是亮度较低的光</b><p>软硬由光源相对大小决定。大型光源可以很亮，小型光源也可以很暗。</p></article>
+      <article class="mistake-card"><b>加一层柔光纸一定会明显变柔</b><p>只有当扩散材料被充分照亮并形成更大的工作发光面时，柔化才明显；紧贴小灯的薄纸可能只降低亮度。</p></article>
+      <article class="mistake-card"><b>逆光必然导致主体曝光不足</b><p>逆光描述方向，不决定曝光。可以为正面补光、提高环境反射，或主动让主体成为剪影。</p></article>
+      <article class="mistake-card"><b>高光比一定更电影感</b><p>电影感来自叙事、构图、色彩和运动的协同。无依据地压暗阴影，只会损失信息和增加噪点。</p></article>
+      <article class="mistake-card"><b>灯光 6,500K 会让画面更暖</b><p>光源色温越高通常越偏蓝；相机白平衡设置越高才会对固定场景加入更暖的补偿。</p></article>
+      <article class="mistake-card"><b>相同 CCT 的灯一定能匹配</b><p>CCT 只描述红—蓝方向的近似颜色，绿—洋红偏移和完整光谱仍可能不同。</p></article>
+      <article class="mistake-card"><b>三点布光必须使用三盏灯</b><p>主光、补光和轮廓是功能角色。环境光、反光板和墙面反射同样可以承担这些角色。</p></article>
+      <article class="mistake-card"><b>后期可以修复所有布光问题</b><p>后期能调整整体亮度和颜色，却无法完整重建不存在的方向性高光、真实阴影和材质反射。</p></article>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-label">11 · LEARNING PATH</div>
+    <h2 class="section-heading">继续学习：从能看见光，到能稳定复现光</h2>
+    <p>掌握四个维度后，可以沿三条路线继续深入：</p>
+    <ul>
+      <li><strong>摄影技术：</strong>曝光三角、动态范围、入射与反射测光、直方图、波形、假色和不同相机的高光保护。</li>
+      <li><strong>布光控制：</strong>Fresnel、柔光箱、反光伞、格栅、遮扉、旗板、滤色片、实景光与多灯匹配。</li>
+      <li><strong>颜色科学：</strong>CIE 色度、Duv、光谱功率分布、CRI、TLCI、SSI、相机色彩响应、Log、LUT 与显示管理。</li>
+      <li><strong>视觉叙事：</strong>有动机光源、昼夜连续性、人物关系、空间层次，以及光线随镜头和情节发生的变化。</li>
+    </ul>
+    <p>进阶学习不应只是记住更多灯型名称，而应把一次布光写成可以复现的记录：光源角色、方向、高度、与主体距离、相对面积、亮暗档差、CCT、绿—洋红偏移、曝光参数和参考画面。专业化的标志，是审美判断逐渐变成可沟通、可验证的制作语言。</p>
+  </section>
+
+  <section>
+    <div class="section-label">12 · AUTHORITATIVE SOURCES</div>
+    <h2 class="section-heading">权威资料与延伸阅读</h2>
+    <ul class="source-list">
+      <li><div class="source-no">01</div><div><a href="https://www.arri.com/resource/blob/83996/409091c612f371b0c68b41d9dcb636db/arri-lighting-handbook-english-data.pdf" target="_blank" rel="noopener">ARRI Lighting Handbook</a><span>光质、硬光与柔光、发光面积、扩散、反射和基础布光控制。</span></div></li>
+      <li><div class="source-no">02</div><div><a href="https://www.kodak.com/en/motion/page/essential-reference-guide-for-filmmakers/" target="_blank" rel="noopener">Kodak · The Essential Reference Guide for Filmmakers</a><span>光与颜色的性质、光源色温、灰卡、测光、滤色与电影制作技术基础。</span></div></li>
+      <li><div class="source-no">03</div><div><a href="https://www.cie.co.at/eilvterm/17-23-068" target="_blank" rel="noopener">CIE International Lighting Vocabulary · Correlated Colour Temperature</a><span>相关色温的正式定义、计算依据与适用边界。</span></div></li>
+      <li><div class="source-no">04</div><div><a href="https://www.cie.co.at/publications/terms-related-planckian-radiation-temperature-light-sources" target="_blank" rel="noopener">CIE TN 013:2022</a><span>色温、相关色温与其他黑体辐射温度术语的关系。</span></div></li>
+      <li><div class="source-no">05</div><div><a href="https://sekonic.com/classroom/studio-lighting-understanding-ratios/" target="_blank" rel="noopener">Sekonic · Studio Lighting: Understanding Ratios</a><span>使用入射式测光表测量主光、补光与档数差。</span></div></li>
+      <li><div class="source-no">06</div><div><a href="https://sekonic.com/classroom/the-benefits-of-using-light-metering/" target="_blank" rel="noopener">Sekonic · The Benefits of Using Light Metering</a><span>入射测光、反射测光与中性灰参考的区别。</span></div></li>
+      <li><div class="source-no">07</div><div><a href="https://www.nikonusa.com/learn-and-explore/c/tips-and-techniques/the-basics-of-flash-photography" target="_blank" rel="noopener">Nikon · The Basics of Flash Photography</a><span>闪光方向、墙面与天花板反射，以及方向与光质的联动。</span></div></li>
+      <li><div class="source-no">08</div><div><a href="https://openstax.org/books/physics/pages/15-2-the-behavior-of-electromagnetic-radiation" target="_blank" rel="noopener">OpenStax Physics · The Behavior of Electromagnetic Radiation</a><span>照度、lux 与理想点光源的逆平方定律。</span></div></li>
+    </ul>
+  </section>
+
+  <p class="closing">学习光线的目标不是背出一套标准灯位，而是建立稳定的观察顺序：先看方向，再看阴影边缘，随后比较亮暗档差，最后判断颜色基准。四个维度被分别理解后，即使只面对一扇窗、一盏台灯和一块白纸，也能做出有意识、可解释并能够复现的画面选择。</p>
+</article>
+</main>
+</body>
+</html>

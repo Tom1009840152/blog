@@ -17,7 +17,9 @@ interface Props {
 const { article, section, domain } = Astro.props;
 const domainArticles = getDomainArticles(domain.id);
 const articleIndex = domainArticles.findIndex(item => item.article.id === article.id);
-const previousArticle = articleIndex > 0 ? domainArticles[articleIndex - 1] : undefined;
+const previousArticle = articleIndex > 0
+  ? domainArticles[articleIndex - 1]
+  : { article: domain.introduction, href: `/domain/${domain.id}/` };
 const nextArticle = articleIndex < domainArticles.length - 1 ? domainArticles[articleIndex + 1] : undefined;
 const content = await loadNativeArticle(article.sourceFile);
 ---

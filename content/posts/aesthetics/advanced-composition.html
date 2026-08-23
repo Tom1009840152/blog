@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>构图进阶：视觉重心、留白与视线流动</title>
+  <style>
+    .article-body {
+      --cp-ink: #211d1a;
+      --cp-muted: #665f59;
+      --cp-faint: #958b82;
+      --cp-line: rgba(74, 58, 46, .14);
+      --cp-paper: rgba(255, 253, 248, .9);
+      --cp-orange: #d36b35;
+      --cp-orange-deep: #a84c24;
+      --cp-blue: #456d98;
+      --cp-green: #517766;
+      --cp-purple: #735e89;
+      --cp-red: #a7524a;
+      --cp-gold: #a97929;
+      --cp-serif: "Noto Serif SC", "Songti SC", serif;
+      --cp-mono: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+      max-width: 760px;
+      color: var(--cp-ink);
+    }
+    .article-body p { margin: 0 0 20px; }
+    .article-body strong { color: #171411; font-weight: 650; }
+    .article-body a { color: var(--cp-orange-deep); text-decoration-thickness: 1px; text-underline-offset: 3px; }
+    .article-body a:hover { color: var(--cp-blue); }
+
+    .composition-hero { max-width: 980px; margin: 0 auto; padding: 62px 28px 42px; }
+    .composition-kicker { color: #d36b35; font: 600 10px/1.3 "IBM Plex Mono", monospace; letter-spacing: .19em; }
+    .composition-headline { max-width: 820px; margin: 18px 0 17px; font-family: "Noto Serif SC", serif; font-size: 46px; line-height: 1.22; font-weight: 650; letter-spacing: -.025em; }
+    .composition-deck { max-width: 730px; margin: 0; color: #6f665e; font-size: 16px; line-height: 1.85; }
+    .meta-row { display: flex; flex-wrap: wrap; gap: 8px 20px; margin-top: 24px; color: #958b82; font-size: 13px; }
+    .composition-wrap { max-width: 980px; margin: 0 auto; padding: 0 28px 88px; }
+
+    .cp-section-label { margin: 60px 0 9px; color: var(--cp-faint); font: 500 10px/1.2 var(--cp-mono); letter-spacing: .2em; text-transform: uppercase; }
+    .cp-section-heading { margin: 0 0 22px; font-family: var(--cp-serif); font-size: 26px; line-height: 1.43; font-weight: 650; letter-spacing: -.01em; }
+    .cp-subheading { margin: 35px 0 12px; font-family: var(--cp-serif); font-size: 20px; line-height: 1.5; font-weight: 650; }
+    .cp-lead-block { margin: 2px 0 34px; padding: 22px 25px 23px; border: 1px solid rgba(211, 107, 53, .18); border-left: 3px solid var(--cp-orange); border-radius: 0 11px 11px 0; background: linear-gradient(110deg, rgba(250, 233, 222, .76), rgba(255, 253, 248, .34)); }
+    .cp-lead-label { display: block; margin-bottom: 10px; color: var(--cp-orange); font: 600 10px/1.3 var(--cp-mono); letter-spacing: .15em; text-transform: uppercase; }
+    .cp-lead { margin: 0 !important; color: #332d28; font-family: var(--cp-serif); font-size: 17.5px; line-height: 1.88; }
+    .cp-thesis { margin: 32px 0; padding: 24px 27px; border-left: 3px solid var(--cp-blue); background: linear-gradient(100deg, rgba(228, 237, 247, .8), rgba(255, 253, 248, .22)); font-family: var(--cp-serif); font-size: 20px; line-height: 1.75; font-weight: 600; }
+    .cp-note { margin: 27px 0; padding: 20px 22px; border: 1px solid var(--cp-line); border-radius: 11px; background: var(--cp-paper); }
+    .cp-note-title { display: block; margin-bottom: 7px; color: var(--cp-orange); font: 600 10px/1.4 var(--cp-mono); letter-spacing: .13em; text-transform: uppercase; }
+    .cp-note.blue { border-color: rgba(69, 109, 152, .22); background: rgba(228, 237, 247, .58); }
+    .cp-note.blue .cp-note-title { color: var(--cp-blue); }
+    .cp-note.warning { border-color: rgba(169, 121, 41, .23); background: rgba(250, 240, 214, .55); }
+    .cp-note.warning .cp-note-title { color: var(--cp-gold); }
+
+    .composition-triad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 28px 0 38px; }
+    .triad-card { min-height: 218px; padding: 16px; border: 1px solid rgba(74,58,46,.14); border-radius: 12px; background: rgba(255,253,248,.9); box-shadow: 0 8px 26px rgba(74,58,46,.035); }
+    .triad-icon { position: relative; height: 86px; margin-bottom: 17px; overflow: hidden; border: 1px solid rgba(74,58,46,.11); border-radius: 8px; background-color: #f5f0e8; background-image: linear-gradient(rgba(74,58,46,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(74,58,46,.045) 1px,transparent 1px); background-size: 18px 18px; }
+    .triad-icon.point { background-image: linear-gradient(90deg,transparent calc(50% - .5px),rgba(211,107,53,.2) 50%,transparent calc(50% + .5px)),linear-gradient(transparent calc(50% - .5px),rgba(211,107,53,.2) 50%,transparent calc(50% + .5px)),linear-gradient(rgba(74,58,46,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(74,58,46,.045) 1px,transparent 1px); background-size: 100% 100%,100% 100%,18px 18px,18px 18px; }
+    .triad-icon.point::before { content: ''; position: absolute; left: 50%; top: 50%; width: 18px; height: 18px; transform: translate(-50%,-50%); border: 3px solid #fffaf2; border-radius: 50%; background: #d36b35; box-shadow: 0 0 0 9px rgba(211,107,53,.16),0 0 0 20px rgba(211,107,53,.07); }
+    .triad-icon.point::after { content: 'FOCUS'; position: absolute; right: 8px; bottom: 7px; color: #a84c24; font: 600 7px/1 var(--cp-mono); letter-spacing: .12em; }
+    .triad-icon.field::before { content: ''; position: absolute; inset: 14px 17px; border: 1px solid rgba(69,109,152,.42); border-radius: 5px; background: linear-gradient(90deg,rgba(69,109,152,.08),rgba(69,109,152,.62)); box-shadow: 7px 7px 0 rgba(69,109,152,.08); }
+    .triad-icon.field::after { content: 'LOW  →  HIGH'; position: absolute; left: 27px; bottom: 20px; color: #f8fbff; font: 600 7px/1 var(--cp-mono); letter-spacing: .09em; }
+    .triad-icon.path::before,.triad-icon.path::after { content: ''; position: absolute; z-index: 1; height: 3px; transform-origin: left center; border-radius: 2px; background: #517766; }
+    .triad-icon.path::before { left: 17%; top: 63%; width: 37%; transform: rotate(-28deg); }
+    .triad-icon.path::after { left: 47%; top: 45%; width: 39%; transform: rotate(22deg); }
+    .path-node { position: absolute; z-index: 2; width: 11px; height: 11px; border: 2px solid #f5f0e8; border-radius: 50%; background: #517766; box-shadow: 0 0 0 1px rgba(81,119,102,.3); }
+    .path-node.n1 { left: calc(17% - 5px); top: calc(63% - 5px); }
+    .path-node.n2 { left: calc(47% - 5px); top: calc(45% - 5px); }
+    .path-node.n3 { left: calc(83% - 5px); top: calc(60% - 5px); }
+    .triad-card small { color: var(--cp-faint); font: 600 9px/1 var(--cp-mono); letter-spacing: .12em; }
+    .triad-card h3 { margin: 9px 0 7px; font-size: 16px; }
+    .triad-card p { margin: 0; color: var(--cp-muted); font-size: 13px; line-height: 1.72; }
+
+    .weight-field { margin: 29px 0 38px; padding: 22px; border: 1px solid rgba(74,58,46,.14); border-radius: 12px; background: rgba(255,253,248,.9); }
+    .weight-title { margin-bottom: 16px; color: #665f59; font: 600 10px/1.4 var(--cp-mono); letter-spacing: .13em; }
+    .weight-canvas { position: relative; display: grid; grid-template-columns: 1fr 1fr; height: 238px; overflow: hidden; border: 1px solid rgba(74,58,46,.1); border-radius: 9px; background: linear-gradient(rgba(74,58,46,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(74,58,46,.045) 1px,transparent 1px),#f5f0e8; background-size: 28px 28px; }
+    .weight-canvas::before { content: ''; position: absolute; z-index: 2; left: 50%; top: 0; width: 1px; height: 100%; background: rgba(69,109,152,.24); }
+    .weight-zone { position: relative; display: grid; place-items: center; }
+    .weight-zone::after { position: absolute; left: 14px; bottom: 12px; color: #7c7269; font: 600 8px/1 var(--cp-mono); letter-spacing: .11em; }
+    .weight-zone.area::after { content: 'AREA / 面积'; }
+    .weight-zone.salience::after { content: 'SALIENCE / 显著性'; }
+    .weight-large { display: block; width: 116px; height: 116px; border: 1px solid rgba(74,58,46,.2); border-radius: 50%; background: #d9cdbc; box-shadow: inset -12px -12px 24px rgba(74,58,46,.04); }
+    .weight-small { position: relative; z-index: 2; display: block; width: 46px; height: 46px; border: 4px solid #fff8ef; border-radius: 50%; background: #d36b35; box-shadow: 0 0 0 12px rgba(211,107,53,.12),0 12px 28px rgba(168,76,36,.3); }
+    .weight-small::after { content: ''; position: absolute; inset: -25px; border: 1px dashed rgba(211,107,53,.45); border-radius: 50%; }
+    .weight-caption { display: flex; justify-content: space-between; gap: 22px; margin-top: 15px; color: var(--cp-muted); font-size: 12px; line-height: 1.65; }
+    .weight-caption span { flex: 1; }
+    .weight-caption strong { display: block; margin-bottom: 3px; font-size: 12px; }
+
+    .factor-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 27px 0 38px; }
+    .factor-card { padding: 18px; border: 1px solid var(--cp-line); border-radius: 10px; background: var(--cp-paper); }
+    .factor-card b { display: block; font-size: 14px; }
+    .factor-card span { display: block; margin-top: 7px; color: var(--cp-muted); font-size: 12.5px; line-height: 1.67; }
+    .factor-card small { display: block; margin-top: 9px; color: var(--cp-orange); font: 600 9px/1.4 var(--cp-mono); letter-spacing: .07em; }
+
+    .balance-types { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 28px 0 38px; }
+    .balance-card { padding: 18px; border: 1px solid var(--cp-line); border-radius: 11px; background: var(--cp-paper); }
+    .balance-demo { position: relative; height: 128px; margin-bottom: 15px; overflow: hidden; border-radius: 7px; background: #f2ece3; }
+    .balance-demo::before { content: ''; position: absolute; left: 50%; top: 0; width: 1px; height: 100%; background: rgba(74,58,46,.1); }
+    .balance-demo span { position: absolute; display: block; }
+    .balance-demo.symmetric span:first-child { left: 22%; top: 30%; width: 37px; height: 67px; background: #536f84; }
+    .balance-demo.symmetric span:last-child { right: 22%; top: 30%; width: 37px; height: 67px; background: #536f84; }
+    .balance-demo.asymmetric span:first-child { left: 13%; top: 24%; width: 74px; height: 74px; border-radius: 50%; background: #d5c9b8; }
+    .balance-demo.asymmetric span:last-child { right: 14%; top: 43%; width: 28px; height: 28px; border-radius: 50%; background: var(--cp-orange); }
+    .balance-demo.radial span:first-child { left: 50%; top: 50%; width: 44px; height: 44px; transform: translate(-50%,-50%); border-radius: 50%; background: var(--cp-gold); }
+    .balance-demo.radial span:last-child { left: 50%; top: 50%; width: 94px; height: 94px; transform: translate(-50%,-50%); border: 2px dashed rgba(169,121,41,.45); border-radius: 50%; }
+    .balance-card h3 { margin: 0 0 7px; font-size: 15px; }
+    .balance-card p { margin: 0; color: var(--cp-muted); font-size: 12.5px; line-height: 1.7; }
+
+    .balance-scale { margin: 28px 0 38px; padding: 22px; border: 1px solid rgba(69,109,152,.22); border-radius: 12px; background: rgba(228,237,247,.5); }
+    .scale-stage { position: relative; height: 205px; overflow: hidden; border: 1px solid rgba(69,109,152,.14); border-radius: 9px; background: linear-gradient(rgba(69,109,152,.055) 1px,transparent 1px),linear-gradient(90deg,rgba(69,109,152,.055) 1px,transparent 1px),rgba(250,252,252,.64); background-size: 28px 28px; }
+    .scale-beam { position: absolute; z-index: 3; left: 10%; top: 116px; width: 80%; height: 4px; border-radius: 2px; background: #526b7f; box-shadow: 0 2px 0 rgba(255,255,255,.7); }
+    .scale-pivot { position: absolute; z-index: 2; left: 50%; top: 118px; width: 72px; height: 66px; transform: translateX(-50%); clip-path: polygon(50% 0,100% 100%,0 100%); background: #c5d1d8; }
+    .scale-pivot::after { content: ''; position: absolute; left: 50%; top: 8px; width: 9px; height: 9px; transform: translateX(-50%); border-radius: 50%; background: #526b7f; }
+    .scale-mass { position: absolute; z-index: 4; bottom: 85px; display: grid; place-items: center; border-radius: 6px 6px 3px 3px; color: #fff; font: 650 11px/1 var(--cp-mono); letter-spacing: .06em; box-shadow: 0 8px 18px rgba(45,59,69,.12); }
+    .scale-mass.large { left: 17%; width: 90px; height: 60px; background: #778d9c; }
+    .scale-mass.small { right: 9%; width: 52px; height: 46px; background: #d36b35; box-shadow: 0 0 0 7px rgba(211,107,53,.1),0 8px 18px rgba(168,76,36,.2); }
+    .scale-distance { position: absolute; z-index: 4; bottom: 11px; color: #596d7a; font: 650 11px/1 var(--cp-mono); letter-spacing: .08em; }
+    .scale-distance.near { left: 23%; }
+    .scale-distance.far { right: 13%; }
+    .scale-copy { margin: 18px 5px 0; padding-top: 17px; border-top: 1px solid rgba(69,109,152,.14); color: #665f59; font-size: 12.5px; line-height: 1.72; text-align: center; }
+
+    .space-demo { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 28px 0 38px; }
+    .space-panel { overflow: hidden; border: 1px solid rgba(74,58,46,.14); border-radius: 12px; background: rgba(255,253,248,.9); }
+    .space-frame { position: relative; height: 190px; overflow: hidden; border-bottom: 1px solid rgba(74,58,46,.11); background: linear-gradient(rgba(74,58,46,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(74,58,46,.04) 1px,transparent 1px),#f3eee6; background-size: 24px 24px; }
+    .space-frame::before { content: 'FRAME'; position: absolute; z-index: 3; left: 13px; top: 12px; color: rgba(74,58,46,.5); font: 600 8px/1 var(--cp-mono); letter-spacing: .14em; }
+    .space-subject { position: absolute; display: block; }
+    .space-subject::before,.space-subject::after { content: ''; position: absolute; left: 50%; transform: translateX(-50%); background: linear-gradient(145deg,#d38a62,#8c594b); }
+    .space-subject::before { top: 0; border-radius: 50%; }
+    .space-subject::after { bottom: 0; border-radius: 44% 44% 15% 15%; }
+    .space-panel.tight .space-subject { left: 50%; bottom: -13px; width: 190px; height: 178px; transform: translateX(-50%); }
+    .space-panel.tight .space-subject::before { width: 91px; height: 91px; }
+    .space-panel.tight .space-subject::after { width: 190px; height: 103px; }
+    .space-panel.open .space-subject { left: 17%; bottom: 13px; width: 84px; height: 112px; }
+    .space-panel.open .space-subject::before { width: 48px; height: 48px; }
+    .space-panel.open .space-subject::after { width: 84px; height: 70px; }
+    .space-direction { position: absolute; left: 42%; top: 45%; width: 42%; color: #a84c24; font: 600 8px/1.6 var(--cp-mono); letter-spacing: .08em; }
+    .space-direction::after { content: ''; position: absolute; left: 0; top: 29px; width: 100%; border-top: 1px dashed rgba(168,76,36,.55); }
+    .space-panel-copy { display: flex; min-height: 62px; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 16px; }
+    .space-label { color: #332d28; font: 650 13px/1.35 var(--cp-mono); letter-spacing: .04em; }
+    .space-hint { color: #82786f; font-size: 11px; line-height: 1.45; text-align: right; }
+
+    .space-functions { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 27px 0 38px; }
+    .space-function { padding: 19px; border-left: 3px solid var(--cp-orange); border-radius: 0 9px 9px 0; background: rgba(250,233,222,.48); }
+    .space-function:nth-child(2) { border-left-color: var(--cp-blue); background: rgba(228,237,247,.48); }
+    .space-function:nth-child(3) { border-left-color: var(--cp-green); background: rgba(226,238,230,.48); }
+    .space-function:nth-child(4) { border-left-color: var(--cp-purple); background: rgba(232,225,239,.48); }
+    .space-function b { display: block; font-size: 14px; }
+    .space-function p { margin: 6px 0 0; color: var(--cp-muted); font-size: 13px; line-height: 1.7; }
+
+    .attention-model { margin: 29px 0 38px; padding: 24px; border-radius: 12px; color: #edf2f4; background: #252d36; }
+    .attention-title { margin-bottom: 18px; color: #9ab2c7; font: 600 10px/1 var(--cp-mono); letter-spacing: .13em; }
+    .attention-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    .attention-card { padding: 18px; border: 1px solid rgba(255,255,255,.1); border-radius: 9px; background: rgba(255,255,255,.035); }
+    .attention-card small { color: #f0a574; font: 600 9px/1 var(--cp-mono); letter-spacing: .1em; }
+    .attention-card h3 { margin: 11px 0 7px; color: #f4f6f7; font-size: 14px; }
+    .attention-card p { margin: 0; color: rgba(237,242,244,.64); font-size: 12px; line-height: 1.7; }
+    .attention-equation { margin-top: 18px; padding-top: 17px; border-top: 1px solid rgba(255,255,255,.1); color: #bdd0df; font: 600 13px/1.65 var(--cp-mono); text-align: center; }
+
+    .flow-map-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 28px 0 38px; }
+    .flow-map { position: relative; height: 225px; overflow: hidden; border: 1px solid var(--cp-line); border-radius: 11px; background: linear-gradient(rgba(74,58,46,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(74,58,46,.04) 1px,transparent 1px),#f3eee6; background-size: 28px 28px; }
+    .flow-line { position: absolute; height: 2px; transform-origin: left center; background: rgba(69,109,152,.52); }
+    .flow-node { position: absolute; z-index: 2; display: grid; place-items: center; width: 31px; height: 31px; border-radius: 50%; color: #fff; background: var(--cp-orange); font: 650 10px/1 var(--cp-mono); box-shadow: 0 6px 16px rgba(168,76,36,.22); }
+    .flow-map.linear .n1 { left: 12%; top: 17%; }
+    .flow-map.linear .n2 { left: 45%; top: 45%; }
+    .flow-map.linear .n3 { right: 10%; bottom: 17%; }
+    .flow-map.linear .l1 { left: 19%; top: 25%; width: 45%; transform: rotate(38deg); }
+    .flow-map.linear .l2 { left: 52%; top: 52%; width: 43%; transform: rotate(35deg); }
+    .flow-map.loop .n1 { left: 42%; top: 14%; }
+    .flow-map.loop .n2 { right: 13%; bottom: 24%; }
+    .flow-map.loop .n3 { left: 12%; bottom: 24%; }
+    .flow-map.loop .l1 { left: 49%; top: 23%; width: 43%; transform: rotate(53deg); }
+    .flow-map.loop .l2 { left: 25%; bottom: 29%; width: 61%; }
+    .flow-map.loop .l3 { left: 21%; top: 70%; width: 50%; transform: rotate(-55deg); }
+    .flow-map.exit .n1 { left: 15%; top: 40%; }
+    .flow-map.exit .n2 { right: 22%; top: 28%; }
+    .flow-map.exit .l1 { left: 23%; top: 44%; width: 58%; transform: rotate(-12deg); }
+    .flow-map.exit .l2 { left: 77%; top: 35%; width: 35%; transform: rotate(-18deg); background: rgba(167,82,74,.55); }
+    .flow-name { position: absolute; left: 15px; bottom: 14px; color: #514a44; font: 650 13px/1 var(--cp-mono); letter-spacing: .07em; }
+
+    .cue-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 27px 0 38px; }
+    .cue-card { padding: 18px; border: 1px solid var(--cp-line); border-radius: 10px; background: var(--cp-paper); }
+    .cue-no { color: var(--cp-orange); font: 650 9px/1 var(--cp-mono); }
+    .cue-card:nth-child(2) .cue-no, .cue-card:nth-child(5) .cue-no { color: var(--cp-blue); }
+    .cue-card:nth-child(3) .cue-no, .cue-card:nth-child(6) .cue-no { color: var(--cp-green); }
+    .cue-card h3 { margin: 10px 0 6px; font-size: 14px; }
+    .cue-card p { margin: 0; color: var(--cp-muted); font-size: 12.5px; line-height: 1.68; }
+
+    .edge-demo { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 28px 0 38px; }
+    .edge-panel { position: relative; height: 185px; overflow: hidden; border: 1px solid var(--cp-line); border-radius: 10px; background: #f3eee6; }
+    .edge-subject { position: absolute; width: 74px; height: 94px; border-radius: 45% 45% 38% 38%; background: #6d8190; }
+    .edge-panel.safe .edge-subject { left: 50%; top: 50%; transform: translate(-50%,-50%); }
+    .edge-panel.tense .edge-subject { right: 3px; top: 50%; transform: translateY(-50%); }
+    .edge-panel.cut .edge-subject { left: -26px; top: 50%; transform: translateY(-50%); }
+    .edge-name { position: absolute; z-index: 2; left: 12px; bottom: 10px; padding: 6px 9px; border-radius: 4px; color: #fff; background: rgba(33,29,26,.72); font: 650 13px/1 var(--cp-mono); letter-spacing: .04em; }
+
+    .grid-lab { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 28px 0 38px; }
+    .grid-panel { padding: 17px; border: 1px solid var(--cp-line); border-radius: 11px; background: var(--cp-paper); }
+    .grid-canvas { position: relative; height: 155px; overflow: hidden; border-radius: 7px; background: #eee7dc; }
+    .grid-canvas.thirds { background: linear-gradient(90deg, transparent 33.1%, rgba(69,109,152,.22) 33.2% 33.7%, transparent 33.8% 66.2%, rgba(69,109,152,.22) 66.3% 66.8%, transparent 66.9%), linear-gradient(transparent 33.1%, rgba(69,109,152,.22) 33.2% 33.7%, transparent 33.8% 66.2%, rgba(69,109,152,.22) 66.3% 66.8%, transparent 66.9%), #eee7dc; }
+    .grid-canvas.centered::before { content: ''; position: absolute; left: 50%; top: 0; width: 1px; height: 100%; background: rgba(69,109,152,.25); }
+    .grid-canvas.diagonal::before { content: ''; position: absolute; left: -8%; top: 50%; width: 116%; height: 1px; transform: rotate(-23deg); background: rgba(69,109,152,.3); }
+    .grid-canvas.free::before { content: ''; position: absolute; left: 10%; right: 10%; top: 20%; bottom: 20%; border: 1px dashed rgba(74,58,46,.2); border-radius: 46%; }
+    .grid-dot { position: absolute; width: 34px; height: 34px; border-radius: 50%; background: var(--cp-orange); }
+    .thirds .grid-dot { left: calc(33.3% - 17px); top: calc(33.3% - 17px); }
+    .centered .grid-dot { left: calc(50% - 17px); top: calc(50% - 17px); }
+    .diagonal .grid-dot { right: 20%; top: 25%; }
+    .free .grid-dot { left: 16%; bottom: 20%; }
+    .grid-panel h3 { margin: 13px 0 6px; font-size: 14px; }
+    .grid-panel p { margin: 0; color: var(--cp-muted); font-size: 12.5px; line-height: 1.68; }
+
+    .scenario-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 27px 0 38px; }
+    .scenario-card { overflow: hidden; border: 1px solid var(--cp-line); border-radius: 11px; background: var(--cp-paper); }
+    .scenario-visual { position: relative; height: 140px; overflow: hidden; }
+    .scenario-card.portrait .scenario-visual { background: linear-gradient(110deg,#dccab6 0 58%,#9cb1ba 58%); }
+    .scenario-card.portrait .scenario-visual::before { content: ''; position: absolute; left: 17%; bottom: 0; width: 68px; height: 112px; border-radius: 48% 48% 8px 8px; background: #7e574b; }
+    .scenario-card.street .scenario-visual { background: linear-gradient(145deg,#26313c,#63757c); }
+    .scenario-card.street .scenario-visual::before, .scenario-card.street .scenario-visual::after { content: ''; position: absolute; left: -8%; width: 125%; height: 3px; background: rgba(245,214,150,.62); }
+    .scenario-card.street .scenario-visual::before { top: 36%; transform: rotate(18deg); }
+    .scenario-card.street .scenario-visual::after { top: 65%; transform: rotate(-13deg); }
+    .scenario-card.street .scenario-visual span { position: absolute; right: 20%; top: 36%; width: 27px; height: 54px; border-radius: 14px 14px 5px 5px; background: var(--cp-orange); }
+    .scenario-card.landscape .scenario-visual { background: linear-gradient(#b9ccd0 0 54%,#879978 54% 72%,#4d5e4e 72%); }
+    .scenario-card.landscape .scenario-visual::before { content: ''; position: absolute; left: 7%; bottom: 12%; width: 42%; height: 26%; border-radius: 50% 50% 0 0; background: #37483d; }
+    .scenario-copy { padding: 18px; }
+    .scenario-copy small { color: var(--cp-orange); font: 600 9px/1 var(--cp-mono); letter-spacing: .1em; }
+    .scenario-copy h3 { margin: 10px 0 7px; font-size: 15px; }
+    .scenario-copy p { margin: 0; color: var(--cp-muted); font-size: 12.5px; line-height: 1.7; }
+
+    .cp-workflow { margin: 28px 0 38px; padding: 23px; border: 1px solid rgba(211,107,53,.2); border-radius: 12px; background: rgba(250,233,222,.44); }
+    .cp-workflow-title { margin-bottom: 16px; color: var(--cp-faint); font: 600 10px/1 var(--cp-mono); letter-spacing: .13em; }
+    .cp-workflow-list { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; }
+    .cp-workflow-step { position: relative; min-height: 123px; padding: 15px 11px; border-radius: 8px; background: rgba(255,255,255,.86); text-align: center; }
+    .cp-workflow-step:not(:last-child)::after { content: '→'; position: absolute; top: 50%; right: -13px; transform: translateY(-50%); color: var(--cp-orange); font-family: var(--cp-mono); }
+    .cp-workflow-step em { display: block; color: var(--cp-orange); font: normal 650 9px/1 var(--cp-mono); }
+    .cp-workflow-step b { display: block; margin-top: 10px; font-size: 12.5px; }
+    .cp-workflow-step span { display: block; margin-top: 6px; color: var(--cp-faint); font-size: 10px; line-height: 1.55; }
+
+    .exercise-list { margin: 28px 0 38px; counter-reset: composition-exercise; }
+    .exercise-row { display: grid; grid-template-columns: 49px 1fr; gap: 14px; padding: 18px 0; border-bottom: 1px solid var(--cp-line); }
+    .exercise-row:first-child { border-top: 1px solid var(--cp-line); }
+    .exercise-row::before { counter-increment: composition-exercise; content: counter(composition-exercise, decimal-leading-zero); color: var(--cp-orange); font: 650 10px/1.75 var(--cp-mono); }
+    .exercise-row h3 { margin: 0 0 5px; font-size: 15px; }
+    .exercise-row p { margin: 0; color: var(--cp-muted); font-size: 13.5px; line-height: 1.75; }
+
+    .mistake-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 27px 0 38px; }
+    .mistake-card { padding: 19px; border: 1px solid rgba(167,82,74,.19); border-radius: 10px; background: rgba(167,82,74,.035); }
+    .mistake-card b { display: block; margin-bottom: 6px; color: var(--cp-red); font-size: 14px; }
+    .mistake-card p { margin: 0; color: var(--cp-muted); font-size: 13px; line-height: 1.72; }
+
+    .source-list { margin: 25px 0 36px; padding: 0; list-style: none; }
+    .source-list li { display: grid; grid-template-columns: 32px 1fr; gap: 13px; padding: 14px 0; border-bottom: 1px solid var(--cp-line); }
+    .source-list li:first-child { border-top: 1px solid var(--cp-line); }
+    .source-no { color: var(--cp-faint); font: 500 10px/1.8 var(--cp-mono); }
+    .source-list a { font-weight: 600; }
+    .source-list span { display: block; margin-top: 3px; color: var(--cp-faint); font-size: 12px; line-height: 1.6; }
+    .cp-closing { margin-top: 48px; padding-top: 27px; border-top: 2px solid var(--cp-ink); font-family: var(--cp-serif); font-size: 20px; line-height: 1.82; }
+
+    @media (max-width: 720px) {
+      .composition-hero { padding: 48px 20px 34px; }
+      .composition-headline { font-size: 35px; }
+      .composition-wrap { padding: 0 20px 70px; }
+      .composition-triad, .balance-types, .attention-row, .flow-map-grid, .scenario-grid { grid-template-columns: 1fr; }
+      .factor-grid, .cue-grid { grid-template-columns: 1fr 1fr; }
+      .space-demo, .space-functions, .grid-lab, .mistake-grid { grid-template-columns: 1fr; }
+      .weight-caption { flex-direction: column; }
+      .edge-demo { grid-template-columns: 1fr; }
+      .cp-workflow-list { grid-template-columns: 1fr 1fr; }
+      .cp-workflow-step:nth-child(2)::after, .cp-workflow-step:nth-child(4)::after { display: none; }
+      .cp-workflow-step:last-child { grid-column: 1 / -1; }
+    }
+  </style>
+</head>
+<body>
+<header class="composition-hero">
+  <div class="composition-kicker">VISUAL AESTHETICS · COMPOSITION 04</div>
+  <h1 class="composition-headline">构图进阶：<br>视觉重心、留白与视线流动</h1>
+  <p class="composition-deck">构图不是把主体放进一张九宫格，而是组织画面中的视觉力量：什么最先被看见，什么与它平衡，空间如何产生呼吸，视线又如何在边界内停留、转向和离开。</p>
+  <div class="meta-row">
+    <span>2026-08-23</span>
+    <span>构图方法 · 进阶</span>
+    <span>阅读约 20 分钟</span>
+    <span>视觉重心 · 留白 · 视线流动 · 画框</span>
+  </div>
+</header>
+
+<main class="composition-wrap">
+<article class="article-body composition-article">
+  <div class="cp-lead-block">
+    <span class="cp-lead-label">导言 · Introduction</span>
+    <p class="cp-lead">初级构图容易从位置公式开始：主体居中、放在三分线上、地平线不要正中。进阶构图则需要追问这些位置为什么有效，以及同一位置在什么条件下会失效。真正被组织的不是网格，而是视觉重量、图底关系和注意力顺序。</p>
+  </div>
+
+  <p>一幅画面即使完全符合三分法，也可能因为背景杂乱、边缘拥挤和多个高对比区域同时竞争而失去重点。另一幅画面即使主体正中、大片空白，仍可能因对称、语义和节奏形成强烈表达。</p>
+  <div class="cp-thesis">构图的核心任务，是在有限画框中建立三种关系：重点落在哪里，空间如何承托重点，视线以什么顺序接收信息。</div>
+
+  <section>
+    <div class="cp-section-label">01 · BEYOND THE GRID</div>
+    <h2 id="composition-is-attention" class="cp-section-heading">构图不是摆放物体，而是组织注意力</h2>
+    <p>J. Paul Getty Museum 的形式分析资料把<strong>平衡</strong>定义为物体、颜色、纹理和空间的视觉重量分布，把<strong>强调</strong>定义为首先吸引注意的区域，把<strong>运动</strong>定义为视线在作品中的路径。这三个概念正好构成进阶构图的入口。参见 <a href="https://www.getty.edu/education/teachers/building_lessons/formal_analysis2.html" target="_blank" rel="noopener">Getty：Understanding Formal Analysis</a>。</p>
+
+    <div class="composition-triad">
+      <article class="triad-card"><div class="triad-icon point"></div><small>POINT</small><h3>重点</h3><p>视觉最先着陆的位置。通常由对比、清晰度、面积、孤立程度或人物语义建立。</p></article>
+      <article class="triad-card"><div class="triad-icon field"></div><small>FIELD</small><h3>场域</h3><p>主体周围的空间不是剩余部分，它决定尺度、方向、距离和情绪呼吸。</p></article>
+      <article class="triad-card"><div class="triad-icon path"><span class="path-node n1"></span><span class="path-node n2"></span><span class="path-node n3"></span></div><small>PATH</small><h3>路径</h3><p>边缘、线条、重复、姿态与语义关系构成观看顺序，而非一条不可偏离的轨道。</p></article>
+    </div>
+
+    <p>构图因此不等于“画面里有哪些东西”，而是这些东西如何共同建立优先级。相机位置、焦距、拍摄时机、光线、色彩、景深和裁切都会改变优先级；构图不是快门之前单独完成的一个步骤，而是所有视觉选择的汇合。</p>
+  </section>
+
+  <section>
+    <div class="cp-section-label">02 · VISUAL WEIGHT</div>
+    <h2 id="visual-weight" class="cp-section-heading">视觉重量：画面为何会向某一侧“倾斜”</h2>
+    <p>视觉重量是一种知觉比喻。画面不会真的压低桌面，但某些区域会显得更重要、更结实或更难忽略。当这些力量集中在一侧而缺少回应时，画面会产生倾斜感；这种倾斜可以是问题，也可以被有意用于紧张、速度或不稳定。</p>
+
+    <div class="weight-field" aria-label="大而中性的形状与小而鲜明的形状形成视觉平衡">
+      <div class="weight-title">VISUAL MASS IS NOT PHYSICAL SIZE · 视觉重量不等于面积</div>
+      <div class="weight-canvas"><div class="weight-zone area"><span class="weight-large"></span></div><div class="weight-zone salience"><span class="weight-small"></span></div></div>
+      <div class="weight-caption"><span><strong>左侧：面积大但对比低</strong>接近背景、颜色克制，存在感被削弱。</span><span><strong>右侧：面积小但显著性高</strong>高饱和、孤立且靠近边缘，可以与大形状形成抗衡。</span></div>
+    </div>
+
+    <div class="factor-grid">
+      <article class="factor-card"><b>面积与尺度</b><span>通常越大越重，但大面积低对比区域可能退居背景。</span><small>SIZE</small></article>
+      <article class="factor-card"><b>明暗与色彩对比</b><span>与周围差异越大，越容易成为视觉重音。</span><small>CONTRAST</small></article>
+      <article class="factor-card"><b>清晰度与细节</b><span>锐利、纹理密集的区域往往比模糊区域更有存在感。</span><small>DETAIL</small></article>
+      <article class="factor-card"><b>位置与边缘</b><span>越靠近画框边缘，张力通常越强，也更容易产生坠落或离场感。</span><small>POSITION</small></article>
+      <article class="factor-card"><b>孤立与稀缺</b><span>重复群体中的唯一异类，常比数量更多的同类更醒目。</span><small>ISOLATION</small></article>
+      <article class="factor-card"><b>语义重要性</b><span>脸、文字、眼神、危险信号和熟悉物体可能超越纯形式因素。</span><small>MEANING</small></article>
+    </div>
+
+    <p>Rudolf Arnheim 在《Art and Visual Perception》中用视觉力量、方向与平衡解释构图，这本书也成为艺术知觉研究的重要基础。University of California Press 对该书的介绍强调，视觉系统会按照心理组织原则主动整理视觉材料。参见 <a href="https://www.ucpress.edu/books/art-and-visual-perception-second-edition/paper" target="_blank" rel="noopener">Arnheim：Art and Visual Perception</a>。</p>
+    <p>后续实证研究表明，视觉重心确实能解释部分构图偏好，但不能简单还原为所有像素明暗的物理质心。艺术照片、抽象图形、符号意义与观看任务之间存在复杂差异。参见 <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC3485801/" target="_blank" rel="noopener">Arnheim's Gestalt theory of visual balance</a>。</p>
+  </section>
+
+  <section>
+    <div class="cp-section-label">03 · BALANCE</div>
+    <h2 id="balance-without-symmetry" class="cp-section-heading">平衡不等于对称：稳定与张力可以同时存在</h2>
+    <p>对称是一种容易识别的平衡方式，但不是平衡的全部。对称构图让对应元素围绕轴线重复，通常产生庄重、稳定、仪式化或静止感；非对称平衡则让不同形状、距离和显著性互相补偿，更容易产生方向和运动。</p>
+
+    <div class="balance-types">
+      <article class="balance-card"><div class="balance-demo symmetric"><span></span><span></span></div><h3>对称平衡</h3><p>两侧结构相近，轴线明确。稳定强，变化较少，适合正面性与秩序感。</p></article>
+      <article class="balance-card"><div class="balance-demo asymmetric"><span></span><span></span></div><h3>非对称平衡</h3><p>大而弱的形状与小而强的形状互相回应，稳定中保留方向和张力。</p></article>
+      <article class="balance-card"><div class="balance-demo radial"><span></span><span></span></div><h3>中心或放射平衡</h3><p>力量围绕中心聚合或向外扩散，适合凝视、集中、旋转与仪式空间。</p></article>
+    </div>
+
+    <div class="balance-scale">
+      <div class="scale-stage" aria-hidden="true"><span class="scale-beam"></span><span class="scale-pivot"></span><span class="scale-mass large">大 · 弱</span><span class="scale-mass small">小 · 强</span><span class="scale-distance near">NEAR / 近中心</span><span class="scale-distance far">FAR / 远中心</span></div>
+      <p class="scale-copy">非对称平衡类似杠杆：视觉重量较小的元素离中心更远，可能与靠近中心的大元素抗衡。但人物身份、方向和叙事意义会改变“重量”，因此它只能作为判断模型，不能作为精确公式。</p>
+    </div>
+
+    <p>关于简单几何构图的实验发现，视觉均衡可以提高非对称构图的审美评价，但对称与均衡并非完全互换。研究的价值在于支持“距离与面积共同影响平衡”，而不是给出一条适用于所有影像的万能方程。参见 <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC3690416/" target="_blank" rel="noopener">Judging whether it is aesthetic: Does equilibrium compensate for the lack of symmetry?</a>。</p>
+
+    <div class="cp-note blue"><span class="cp-note-title">稳定不是唯一目标</span><p>纪实、惊悚、运动和冲突场景经常需要有意失衡。判断标准不是“是否稳定”，而是失衡是否与情绪、动作方向和叙事状态一致。</p></div>
+  </section>
+
+  <section>
+    <div class="cp-section-label">04 · NEGATIVE SPACE</div>
+    <h2 id="negative-space" class="cp-section-heading">留白不是空白：它在定义主体、尺度与时间</h2>
+    <p>留白常被误解为“画面里什么都没有的地方”。更准确的理解来自图底关系：主体是“图”，周围空间是“底”，两者共同构成形状。MoMA 将 figure/ground relationship 定义为被描绘形态与画面空间之间的关系；它既适用于具象图像，也适用于抽象作品。参见 <a href="https://www.moma.org/collection/terms/figure-ground-relationship" target="_blank" rel="noopener">MoMA：Figure/ground relationship</a>。</p>
+
+    <div class="space-demo" aria-label="紧密裁切与开放留白的比较">
+      <div class="space-panel tight"><div class="space-frame"><span class="space-subject"></span></div><div class="space-panel-copy"><span class="space-label">紧密 · 压迫 / 强度</span><span class="space-hint">主体挤压边界</span></div></div>
+      <div class="space-panel open"><div class="space-frame"><span class="space-subject"></span><span class="space-direction">留白承接方向与等待</span></div><div class="space-panel-copy"><span class="space-label">开放 · 距离 / 等待</span><span class="space-hint">空间参与叙事</span></div></div>
+    </div>
+
+    <div class="space-functions">
+      <article class="space-function"><b>建立尺度</b><p>小主体与大空间并置，会强调环境的广阔、人物的孤独或事件的渺小。</p></article>
+      <article class="space-function"><b>提供方向</b><p>人物视线或运动方向前方的空间，让动作具有去处，也让观者预期尚未出现的信息。</p></article>
+      <article class="space-function"><b>调节节奏</b><p>密集区域之后出现大片平静空间，相当于视觉停顿；连续密集则形成压迫与速度。</p></article>
+      <article class="space-function"><b>承载文字</b><p>海报、封面和视频画面需要为标题、字幕和平台裁切预留真正可用的安静区域。</p></article>
+    </div>
+
+    <p>Getty 的艺术元素资料指出，物体之间和周围的空间本身具有形状。留白因此需要像主体一样被设计：检查轮廓是否有趣、空间是否连通、是否被边缘杂物切碎。参见 <a href="https://www.getty.edu/education/for_teachers/curricula/landscapes/downloads/worksheet03.pdf" target="_blank" rel="noopener">Getty：Principles of Design</a>。</p>
+  </section>
+
+  <section>
+    <div class="cp-section-label">05 · EYE FLOW</div>
+    <h2 id="eye-flow" class="cp-section-heading">视线流动不是一条线，而是显著性、意义与任务的竞争</h2>
+    <p>常见构图教程会在照片上画一条箭头，声称眼睛一定沿着它移动。实际观看更复杂。低层视觉特征会让高亮度差、颜色差、方向差和运动区域更突出；与此同时，人物、文字、场景意义、观看目标和既往经验也会改变注意分配。</p>
+
+    <div class="attention-model">
+      <div class="attention-title">ATTENTION PRIORITY · 注意力优先级的三个来源</div>
+      <div class="attention-row">
+        <article class="attention-card"><small>BOTTOM-UP</small><h3>形式显著性</h3><p>明暗、颜色、边缘、大小、方向和运动差异，使局部从周围“跳出来”。</p></article>
+        <article class="attention-card"><small>SEMANTIC</small><h3>语义重要性</h3><p>脸、文字、手势、危险和与故事相关的物体，即使对比不高也可能被优先寻找。</p></article>
+        <article class="attention-card"><small>TOP-DOWN</small><h3>任务与预期</h3><p>寻找出口、阅读海报或辨认人物时，视线会选择不同信息；观看目的会重排优先级。</p></article>
+      </div>
+      <div class="attention-equation">视线流动 ≈ 画面特征 × 场景意义 × 观看任务</div>
+    </div>
+
+    <p>经典显著性模型会综合亮度、颜色和方向对比，预测可能吸引注意的区域。但 Tatler 等人的综述指出，单纯基于显著性的模型难以解释许多自然任务；眼动与即时目标、学习和信息需求紧密相关。参见 <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC3134223/" target="_blank" rel="noopener">Eye guidance in natural vision: Reinterpreting salience</a>。</p>
+    <p>场景“有意义的位置”也能独立解释注意分布。意义地图研究发现，图像显著性与意义都能预测观看位置，但在控制两者的相关性后，意义对场景注意仍有独特解释力。参见 <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC6802777/" target="_blank" rel="noopener">Meaning and Attentional Guidance in Scenes</a>。</p>
+
+    <div class="flow-map-grid" aria-label="线性路径、循环路径与离场路径示意">
+      <div class="flow-map linear"><span class="flow-line l1"></span><span class="flow-line l2"></span><span class="flow-node n1">1</span><span class="flow-node n2">2</span><span class="flow-node n3">3</span><span class="flow-name">线性推进</span></div>
+      <div class="flow-map loop"><span class="flow-line l1"></span><span class="flow-line l2"></span><span class="flow-line l3"></span><span class="flow-node n1">1</span><span class="flow-node n2">2</span><span class="flow-node n3">3</span><span class="flow-name">循环回看</span></div>
+      <div class="flow-map exit"><span class="flow-line l1"></span><span class="flow-line l2"></span><span class="flow-node n1">1</span><span class="flow-node n2">2</span><span class="flow-name">边缘离场</span></div>
+    </div>
+
+    <p>构图能够提高某种观看顺序的概率，却不能保证每位观者走同一条路线。更实际的目标是建立<strong>首要入口</strong>、一至两个<strong>次要信息点</strong>，并决定视线最终回到主体、停在留白，还是从边缘离场。</p>
+  </section>
+
+  <section>
+    <div class="cp-section-label">06 · DIRECTIONAL CUES</div>
+    <h2 id="directional-cues" class="cp-section-heading">六类视线引导线索：从线条到人物眼神</h2>
+    <div class="cue-grid">
+      <article class="cue-card"><span class="cue-no">01</span><h3>实体线与边缘</h3><p>道路、栏杆、桌沿、光影边界会把分散区域连接起来；汇聚线还能建立纵深。</p></article>
+      <article class="cue-card"><span class="cue-no">02</span><h3>方向与透视</h3><p>斜线、消失点和尺度递减提供明确方向，但所有线汇聚到错误位置会削弱主体。</p></article>
+      <article class="cue-card"><span class="cue-no">03</span><h3>重复与节奏</h3><p>形状、灯光或人物的重复让视线逐步移动；打破重复的元素通常成为终点或转折。</p></article>
+      <article class="cue-card"><span class="cue-no">04</span><h3>明暗与色彩</h3><p>视线常在高对比区域之间跳转。降低无关高光，比继续增强主体更能改善路径。</p></article>
+      <article class="cue-card"><span class="cue-no">05</span><h3>眼神与姿态</h3><p>人物注视、面部朝向、手势和身体运动会指向画外或另一个主体，建立叙事关系。</p></article>
+      <article class="cue-card"><span class="cue-no">06</span><h3>景深与清晰度</h3><p>局部清晰、周围模糊能缩小信息竞争；过度虚化则可能消除环境关系和空间证据。</p></article>
+    </div>
+
+    <p>人物眼神是一种具有实证支持的社会性注意线索。包含 423 个效应的元分析发现，视线提示能稳定地把观察者注意引向相应位置，但效应大小仍会受到任务、时序与表情等因素调节。参见 <a href="https://pubmed.ncbi.nlm.nih.gov/35404635/" target="_blank" rel="noopener">Visual attentional orienting by eye gaze</a>。</p>
+    <p>脸和文字本身也具有较强的注意吸引力。自然场景眼动研究发现，观看者会优先注视面孔和文字区域。因此，人像旁边一块无关招牌即使面积不大，也可能破坏原先设计的观看路径。参见 <a href="https://pubmed.ncbi.nlm.nih.gov/20053101/" target="_blank" rel="noopener">Faces and text attract gaze independent of the task</a>。</p>
+  </section>
+
+  <section>
+    <div class="cp-section-label">07 · FRAME & CROP</div>
+    <h2 id="frame-and-crop" class="cp-section-heading">画框不是容器：边缘会制造压力、延续与离场</h2>
+    <p>同一个主体不移动，只改变裁切，画面关系就会变化。主体远离边缘时更稳定；靠近边缘会产生挤压、运动或即将离场的感觉；切出画框则暗示画外空间延续。问题不在于“能不能切”，而在于切在哪里，以及切口是否像有意识的决定。</p>
+
+    <div class="edge-demo" aria-label="主体居中、贴近边缘和被边缘裁切的比较">
+      <div class="edge-panel safe"><span class="edge-subject"></span><span class="edge-name">稳定距离</span></div>
+      <div class="edge-panel tense"><span class="edge-subject"></span><span class="edge-name">边缘张力</span></div>
+      <div class="edge-panel cut"><span class="edge-subject"></span><span class="edge-name">画外延续</span></div>
+    </div>
+
+    <h3 class="cp-subheading">人物朝向决定“前方空间”</h3>
+    <p>面向右侧的人物如果贴近右边缘，视线和动作会被立即截断，可能显得受阻、焦虑或封闭；在右侧留出空间，则暗示目标、未来或未知区域。反向留白并非错误，它可以强调人物离开了什么、被什么追赶，或与画面主空间断裂。</p>
+
+    <h3 class="cp-subheading">检查边缘，不只检查主体</h3>
+    <p>按顺时针扫描四条边：是否有半个路人、亮色碎片、树枝或文字从边缘伸入？这些元素常因被切断而获得额外张力。裁掉它、完整保留它，或让它与主体建立关系，通常比任其偶然出现更好。</p>
+    <p>关于单一物体的构图实验发现，主体朝向会影响理想留白位置，而正面物体常呈现明显的中心偏好。这说明“永远不要居中”并不成立。参见 <a href="https://pubmed.ncbi.nlm.nih.gov/18534113/" target="_blank" rel="noopener">Aesthetic issues in spatial composition</a>。</p>
+  </section>
+
+  <section>
+    <div class="cp-section-label">08 · GRIDS AS TOOLS</div>
+    <h2 id="composition-grids" class="cp-section-heading">三分法、居中与对角线：网格是起点，不是裁判</h2>
+    <p>三分法的真正价值，不是证明三分交点天然最美，而是帮助初学者离开无意识居中，观察主体与周围空间的关系。居中构图强调轴线和正面性；对角线强调方向和不稳定；三分位置常为朝向、环境和次要信息留下空间。</p>
+
+    <div class="grid-lab">
+      <article class="grid-panel"><div class="grid-canvas thirds"><span class="grid-dot"></span></div><h3>三分位置</h3><p>适合需要环境信息、人物朝向或主次并置的画面。交点本身不会自动产生美感。</p></article>
+      <article class="grid-panel"><div class="grid-canvas centered"><span class="grid-dot"></span></div><h3>居中与轴线</h3><p>适合正面人物、建筑、凝视和仪式感。背景略有不对称时，反而更容易暴露偏差。</p></article>
+      <article class="grid-panel"><div class="grid-canvas diagonal"><span class="grid-dot"></span></div><h3>对角与方向</h3><p>利用斜线、运动和透视建立动力。需要安排终点，避免引导线直接把视线送出画面。</p></article>
+      <article class="grid-panel"><div class="grid-canvas free"><span class="grid-dot"></span></div><h3>自由但有关系</h3><p>位置不贴合常见网格，只要视觉重量、留白、边缘与叙事共同成立，仍然可以稳定。</p></article>
+    </div>
+
+    <p>实证研究并未给三分法提供普遍、排他的优势。对摄影裁切和视觉平衡的研究发现，均衡、语义、朝向和内容都会影响偏好；另一些大样本分析也没有发现优秀图像普遍遵循三分法。参见 <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC4707557/" target="_blank" rel="noopener">Preference for Well-Balanced Saliency in Details Cropped from Photographs</a>。</p>
+    <div class="cp-note warning"><span class="cp-note-title">使用网格的正确问题</span><p>不应问“主体有没有压在交点上”，而应问“这个位置给主体、方向和环境建立了什么关系”。如果移动主体没有带来可说明的变化，网格只是装饰。</p></div>
+  </section>
+
+  <section>
+    <div class="cp-section-label">09 · THREE SCENARIOS</div>
+    <h2 id="composition-scenarios" class="cp-section-heading">三个基础场景：把重心、留白与路径组合起来</h2>
+    <div class="scenario-grid">
+      <article class="scenario-card portrait"><div class="scenario-visual"></div><div class="scenario-copy"><small>PORTRAIT</small><h3>环境人像</h3><p>人物偏左，面向右侧留白；肤色与脸部清晰度建立首要重点，环境线索成为第二层信息。重心不居中，但方向使空间成立。</p></div></article>
+      <article class="scenario-card street"><div class="scenario-visual"><span></span></div><div class="scenario-copy"><small>STREET</small><h3>街头瞬间</h3><p>道路和光影斜线汇向人物，少量暖色从冷暗环境中跳出。边缘杂物需要压低，否则会与人物竞争入口。</p></div></article>
+      <article class="scenario-card landscape"><div class="scenario-visual"></div><div class="scenario-copy"><small>LANDSCAPE</small><h3>极简风景</h3><p>地面质量集中在下方，天空作为大面积留白建立尺度与安静。小型前景可成为锚点，避免画面只剩两块平面。</p></div></article>
+    </div>
+
+    <p>三个案例都可能碰巧符合某种网格，但决定它们是否成立的是关系：人像的前方空间、街道的汇聚方向、风景中天空与地面的重量。先说清关系，再选择位置，比先套网格更稳定。</p>
+  </section>
+
+  <section>
+    <div class="cp-section-label">10 · WORKFLOW</div>
+    <h2 id="composition-workflow" class="cp-section-heading">现场与后期都能使用的五步构图流程</h2>
+    <div class="cp-workflow">
+      <div class="cp-workflow-title">COMPOSITION DECISION PIPELINE</div>
+      <div class="cp-workflow-list">
+        <div class="cp-workflow-step"><em>01</em><b>确定一句话重点</b><span>画面首先要说明什么</span></div>
+        <div class="cp-workflow-step"><em>02</em><b>找最大竞争者</b><span>高光、文字、脸与边缘杂物</span></div>
+        <div class="cp-workflow-step"><em>03</em><b>安排重心</b><span>稳定、偏移还是有意失衡</span></div>
+        <div class="cp-workflow-step"><em>04</em><b>塑造留白</b><span>方向、尺度、节奏与文字区</span></div>
+        <div class="cp-workflow-step"><em>05</em><b>检查路径和边缘</b><span>入口、次重点、终点与离场</span></div>
+      </div>
+    </div>
+
+    <h3 class="cp-subheading">第一遍：缩小看重量</h3>
+    <p>把画面缩到邮票大小，忽略细节，只看最大明暗块、颜色块和主体位置。此时仍然抢眼的区域，往往是真正的视觉重量来源。</p>
+    <h3 class="cp-subheading">第二遍：模糊看显著性</h3>
+    <p>眯眼或轻度高斯模糊，观察首要重点是否仍然成立。若背景高光先于主体出现，应考虑改变机位、等待光线、压暗或裁切，而不是只给主体增加锐化。</p>
+    <h3 class="cp-subheading">第三遍：原尺寸看语义和边缘</h3>
+    <p>恢复原尺寸，检查脸、文字、手势与细节是否改变观看顺序；随后扫描四条边和四个角。形式层面的平衡最终必须与内容层面的意义一起判断。</p>
+  </section>
+
+  <section>
+    <div class="cp-section-label">11 · PRACTICE & PITFALLS</div>
+    <h2 id="composition-practice" class="cp-section-heading">六个练习与常见误区：把构图从感觉变成判断</h2>
+    <div class="exercise-list">
+      <div class="exercise-row"><div><h3>黑白剪影练习</h3><p>把一张照片简化成三到五块纯黑、纯白和灰色形状，判断视觉重心落在哪里，以及是否符合原本叙事。</p></div></div>
+      <div class="exercise-row"><div><h3>一个主体，九种位置</h3><p>保持主体大小不变，分别放在九宫格的九个区域。逐版记录稳定性、方向、留白形状和边缘压力，而不是评选唯一正确答案。</p></div></div>
+      <div class="exercise-row"><div><h3>只拍留白</h3><p>拍摄时先观察主体周围空间的轮廓，再按快门。要求留白至少承担尺度、方向、文字区或情绪中的一项功能。</p></div></div>
+      <div class="exercise-row"><div><h3>三点观看路径</h3><p>为同一场景安排首要、次要和终止三个信息点，分别用对比、线条与语义连接；删除任何没有作用的第四竞争点。</p></div></div>
+      <div class="exercise-row"><div><h3>边缘巡检</h3><p>从左上角开始沿画框顺时针检查，只处理边缘：完整纳入、明确裁掉，或让边缘元素承担框景和方向作用。</p></div></div>
+      <div class="exercise-row"><div><h3>同一素材三种裁切</h3><p>制作稳定居中、非对称平衡和有意失衡三版，分别写出情绪与叙事差异。裁切必须改变关系，而不只是改变尺寸。</p></div></div>
+    </div>
+
+    <div class="mistake-grid">
+      <article class="mistake-card"><b>把三分法当合格线</b><p>主体压中交点仍可能被背景高光、文字和边缘元素夺走注意。</p></article>
+      <article class="mistake-card"><b>把留白当无用区域</b><p>没有明确形状和功能的空白会松散；有效留白必须参与方向、尺度或节奏。</p></article>
+      <article class="mistake-card"><b>引导线指向画外</b><p>强道路、栏杆或明暗边界如果没有终点，会迅速把视线送出画框。</p></article>
+      <article class="mistake-card"><b>平均照顾所有元素</b><p>每个区域都清晰、明亮和鲜艳，会让优先级消失。构图需要有意识地牺牲次要信息。</p></article>
+      <article class="mistake-card"><b>只分析形式，不看内容</b><p>人物脸、文字和危险信号具有语义重量，无法完全按面积和明度相加。</p></article>
+      <article class="mistake-card"><b>只适配一种画幅</b><p>横版、竖版和方形会重写留白与边缘关系。社交媒体裁切应在拍摄和设计阶段预留。</p></article>
+    </div>
+  </section>
+
+  <section>
+    <div class="cp-section-label">12 · FURTHER READING</div>
+    <h2 id="composition-reading" class="cp-section-heading">继续学习：从构图规则进入视觉知觉</h2>
+    <p>后续学习可以沿三条路径展开：艺术形式分析训练对平衡、空间和运动的描述；视觉心理学研究显著性、图底组织和眼动；摄影与电影实践则把这些原则放回焦距、运动、声音、剪辑和时间之中。</p>
+    <ul class="source-list">
+      <li><div class="source-no">01</div><div><a href="https://www.getty.edu/education/teachers/building_lessons/formal_analysis2.html" target="_blank" rel="noopener">Getty · Understanding Formal Analysis</a><span>平衡、强调与视觉运动的基础定义和艺术作品分析示例。</span></div></li>
+      <li><div class="source-no">02</div><div><a href="https://www.ucpress.edu/books/art-and-visual-perception-second-edition/paper" target="_blank" rel="noopener">Rudolf Arnheim · Art and Visual Perception</a><span>视觉平衡、形式组织、空间、运动与表现力的经典艺术心理学著作。</span></div></li>
+      <li><div class="source-no">03</div><div><a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC3485801/" target="_blank" rel="noopener">McManus et al. · Arnheim's Gestalt theory of visual balance</a><span>使用艺术照片、随机照片、抽象图形与裁切实验检验视觉重心理论。</span></div></li>
+      <li><div class="source-no">04</div><div><a href="https://www.moma.org/collection/terms/figure-ground-relationship" target="_blank" rel="noopener">MoMA · Figure/ground relationship</a><span>主体形态与画面空间关系的艺术术语入口。</span></div></li>
+      <li><div class="source-no">05</div><div><a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC3134223/" target="_blank" rel="noopener">Tatler et al. · Eye guidance in natural vision</a><span>显著性模型的贡献、限制，以及任务、学习和信息需求对眼动的影响。</span></div></li>
+      <li><div class="source-no">06</div><div><a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC6802777/" target="_blank" rel="noopener">Henderson &amp; Hayes · Meaning and Attentional Guidance in Scenes</a><span>意义地图与图像显著性如何共同预测自然场景中的注意分布。</span></div></li>
+      <li><div class="source-no">07</div><div><a href="https://pubmed.ncbi.nlm.nih.gov/35404635/" target="_blank" rel="noopener">McKay et al. · Visual attentional orienting by eye gaze</a><span>人物视线引导注意的元分析及其任务、时序和表情边界。</span></div></li>
+      <li><div class="source-no">08</div><div><a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC4707557/" target="_blank" rel="noopener">Preference for Well-Balanced Saliency in Details Cropped from Photographs</a><span>摄影裁切、显著性平衡与审美偏好的实验研究。</span></div></li>
+    </ul>
+  </section>
+
+  <p class="cp-closing">构图进阶的标志，不是能背出更多网格，而是能指出画面为何向某处倾斜、留白承担了什么、视线在哪里进入和离开，并能通过移动、等待、减法与裁切有意识地改变这些关系。</p>
+</article>
+</main>
+</body>
+</html>

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>篇章引言：理解生成模型的基础地图</title>
+  <style>/* 域级序章共用阅读页样式。 */</style>
+</head>
+<body>
+  <header>
+    <div class="meta-row">
+      <span>2026-08-23</span>
+      <span>知识域 · 篇章引言</span>
+      <span>阅读约 6 分钟</span>
+      <span>模型基础 · 生成模型 · 学习路径</span>
+    </div>
+  </header>
+
+  <article class="article-body">
+    <p class="domain-intro-lead">模型基础讨论的不是某个产品按钮如何使用，而是生成模型为何能够工作：信息怎样被表示，目标怎样被学习，数据与算力怎样塑造能力，推理过程又怎样把概率分布转化为文字、图像、视频或行动。</p>
+
+    <section class="domain-intro-section">
+      <div class="domain-intro-section-label">01 · Scope</div>
+      <h2 id="model-scope" class="domain-intro-heading">这个知识域讨论什么</h2>
+      <p>生成模型表面上处理的是不同媒介，底层却反复面对相似问题：如何把复杂对象转换成可以计算的表示，如何定义训练目标，如何利用有限数据学习可迁移的规律，以及如何在生成质量、速度、成本与可控性之间取舍。</p>
+      <div class="domain-intro-thesis">理解模型的关键，不是记住不断变化的产品名称，而是建立一组可以迁移的判断维度。</div>
+      <div class="domain-intro-scope-grid">
+        <div class="domain-intro-scope-card"><b>表示</b><p>文本、图像、视频与动作如何被编码成 token、向量、潜变量或时空特征。</p></div>
+        <div class="domain-intro-scope-card"><b>学习目标</b><p>下一 token 预测、去噪、对比学习等目标如何决定模型学习什么。</p></div>
+        <div class="domain-intro-scope-card"><b>训练过程</b><p>数据、参数量、算力、优化方法与后训练如何共同形成最终能力。</p></div>
+        <div class="domain-intro-scope-card"><b>生成与评估</b><p>采样、解码、条件控制和评测体系如何影响可用性与稳定性。</p></div>
+      </div>
+    </section>
+
+    <section class="domain-intro-section">
+      <div class="domain-intro-section-label">02 · Common Questions</div>
+      <h2 id="model-common-questions" class="domain-intro-heading">跨越不同模型的共同问题</h2>
+      <p>扩散模型、自回归模型、视频生成模型和世界模型并不是互不相关的孤岛。它们都需要压缩现实、预测缺失信息，并在不确定性中选择一种输出。差别主要体现在表示单位、条件信息、训练目标与生成路径。</p>
+      <p>因此，阅读具体模型时应持续追问：输入和输出如何表示；模型在训练阶段预测什么；生成是一次完成还是逐步完成；上下文、时间和空间如何保持一致；能力提升来自规模、数据、结构还是后训练；失败又发生在哪个环节。</p>
+    </section>
+
+    <section class="domain-intro-section">
+      <div class="domain-intro-section-label">03 · Boundary</div>
+      <h2 id="model-boundary" class="domain-intro-heading">讨论边界</h2>
+      <aside class="domain-intro-boundary"><b>这里不做产品排行榜，也不把单次生成效果当成模型能力的全部。</b><p>模型版本、产品入口和价格会快速变化；基础部分更关注可以重复验证的机制、公开技术资料和稳定概念。图片与视频工具的操作方法归入“视觉创作”，工程实现则需要结合开发基础继续展开。</p></aside>
+    </section>
+
+    <section class="domain-intro-section">
+      <div class="domain-intro-section-label">04 · Purpose</div>
+      <h2 id="model-purpose" class="domain-intro-heading">最终目的：形成可迁移的模型判断</h2>
+      <p>完成这一知识域后，面对新的模型名称，判断不应只停留在“效果是否惊艳”。更重要的是能够分析它使用什么技术路线、能力从何而来、需要什么数据与计算、适合什么任务、存在哪些结构性限制。</p>
+      <p class="domain-intro-closing">模型基础不是为了把所有细节记住，而是为了在技术快速变化时，仍然保有一张稳定的解释地图。</p>
+    </section>
+  </article>
+</body>
+</html>

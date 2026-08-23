@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>大模型训练的数据准备</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+
+  :root {
+    --paper: #fffdf8;
+    --ink: #1b1a17;
+    --muted: #69645c;
+    --faint: #999289;
+    --line: rgba(62, 55, 45, .14);
+    --blue: #5874c9;
+    --blue-deep: #314c9d;
+    --blue-soft: #e9eefc;
+    --cyan: #167c80;
+    --cyan-soft: #e4f2f1;
+    --amber: #b66b28;
+    --amber-soft: #f8eadb;
+    --red: #b14f47;
+    --serif: "Noto Serif SC", "Songti SC", Georgia, serif;
+    --sans: "Noto Sans SC", system-ui, sans-serif;
+    --mono: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
+  }
+
+  .hero { max-width: 980px; margin: 0 auto; padding: 64px 28px 42px; }
+  .kicker { color: var(--blue); font: 600 12px/1.4 var(--mono); letter-spacing: .16em; text-transform: uppercase; }
+  .headline { margin: 16px 0; font-family: var(--serif); font-size: 44px; line-height: 1.22; letter-spacing: -.025em; }
+  .deck { max-width: 720px; color: var(--muted); font-size: 17px; line-height: 1.85; }
+  .meta-row { display: flex; flex-wrap: wrap; gap: 8px 20px; margin-top: 25px; color: var(--faint); font-size: 13px; }
+  .content-wrap { max-width: 980px; margin: 0 auto; padding: 0 28px 88px; }
+
+  .article-body { max-width: 760px; color: var(--ink); }
+  .article-body p { margin: 0 0 20px; }
+  .article-body strong { color: #11100e; font-weight: 650; }
+  .article-body a { color: var(--blue-deep); text-decoration-thickness: 1px; text-underline-offset: 3px; }
+  .article-body a:hover { color: var(--cyan); }
+  .article-body code { padding: 2px 5px; border-radius: 4px; color: var(--blue-deep); background: var(--blue-soft); font-family: var(--mono); font-size: .88em; }
+
+  .section-label { margin: 60px 0 9px; color: var(--faint); font: 500 10px/1.2 var(--mono); letter-spacing: .2em; text-transform: uppercase; }
+  .section-heading { margin: 0 0 22px; font-family: var(--serif); font-size: 26px; line-height: 1.43; font-weight: 650; letter-spacing: -.01em; }
+  .subheading { margin: 35px 0 12px; font-family: var(--serif); font-size: 20px; line-height: 1.5; font-weight: 650; }
+  .lead-block {
+    position: relative;
+    margin: 2px 0 34px;
+    padding: 22px 25px 23px;
+    border: 1px solid rgba(88, 116, 201, .17);
+    border-left: 3px solid var(--blue);
+    border-radius: 0 11px 11px 0;
+    background: linear-gradient(110deg, rgba(233, 238, 252, .72), rgba(255, 253, 248, .34));
+  }
+  .lead-label {
+    display: block;
+    margin-bottom: 10px;
+    color: var(--blue);
+    font: 600 10px/1.3 var(--mono);
+    letter-spacing: .15em;
+    text-transform: uppercase;
+  }
+  .lead-block .lead {
+    margin: 0;
+    color: #302d28;
+    font-family: var(--serif);
+    font-size: 17.5px;
+    line-height: 1.88;
+  }
+
+  .thesis { margin: 32px 0; padding: 25px 27px; border-left: 3px solid var(--blue); background: linear-gradient(100deg, rgba(233, 238, 252, .84), rgba(255, 253, 248, .2)); font-family: var(--serif); font-size: 20px; line-height: 1.75; font-weight: 600; }
+  .note { margin: 27px 0; padding: 20px 22px; border: 1px solid var(--line); border-radius: 11px; background: rgba(255, 253, 248, .75); }
+  .note-title { display: block; margin-bottom: 7px; color: var(--blue); font: 600 11px/1.4 var(--mono); letter-spacing: .12em; text-transform: uppercase; }
+
+  .table-wrap { margin: 28px 0 36px; overflow-x: auto; border: 1px solid var(--line); border-radius: 11px; }
+  .data-table { width: 100%; min-width: 820px; border-collapse: collapse; background: var(--paper); font-size: 13.5px; }
+  .data-table th, .data-table td { padding: 14px 15px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; line-height: 1.68; }
+  .data-table tr:last-child td { border-bottom: 0; }
+  .data-table th { color: var(--muted); font-size: 11px; letter-spacing: .06em; background: rgba(88, 116, 201, .06); }
+  .data-table td:first-child { color: var(--blue-deep); font-family: var(--mono); font-size: 11px; white-space: nowrap; }
+  .data-table .caveat { color: var(--faint); font-size: 12px; }
+
+  .paper-figure { margin: 30px 0 38px; overflow: hidden; border: 1px solid var(--line); border-radius: 12px; background: #fff; }
+  .paper-figure img { display: block; width: 100%; border-radius: 0; }
+  .paper-figure figcaption { padding: 16px 19px 18px; border-top: 1px solid var(--line); color: var(--muted); font-size: 12.5px; line-height: 1.75; background: rgba(233, 238, 252, .28); }
+  .paper-figure figcaption strong { color: var(--ink); }
+
+  .scale-panel { margin: 28px 0 36px; padding: 26px; border: 1px solid rgba(88, 116, 201, .24); border-radius: 13px; background: linear-gradient(145deg, rgba(233, 238, 252, .8), rgba(228, 242, 241, .55)); }
+  .scale-equation { padding: 5px 0 22px; color: var(--blue-deep); font: 650 30px/1.2 var(--mono); text-align: center; letter-spacing: .02em; }
+  .variable-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 11px; }
+  .variable-card { padding: 17px; border-radius: 10px; background: rgba(255, 255, 255, .82); }
+  .variable-card b { display: block; color: var(--blue-deep); font: 650 19px/1 var(--mono); }
+  .variable-card strong { display: block; margin-top: 8px; font-size: 13px; }
+  .variable-card span { display: block; margin-top: 5px; color: var(--muted); font-size: 11px; line-height: 1.58; }
+  .scale-caption { margin-top: 17px; color: var(--muted); font-size: 13px; line-height: 1.75; }
+
+  .source-grid, .quality-grid, .instruction-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; margin: 26px 0 35px; }
+  .card { padding: 20px; border: 1px solid var(--line); border-radius: 11px; background: var(--paper); }
+  .card-index { color: var(--blue); font: 600 10px/1 var(--mono); letter-spacing: .13em; }
+  .card h3 { margin: 9px 0 7px; font-size: 16px; line-height: 1.45; }
+  .card p { margin: 0; color: var(--muted); font-size: 13.5px; line-height: 1.76; }
+  .card.quality { border-top: 3px solid var(--cyan); }
+
+  .pipeline { margin: 29px 0 38px; padding: 24px; border: 1px solid rgba(88, 116, 201, .22); border-radius: 13px; background: rgba(233, 238, 252, .43); }
+  .pipeline-title { margin-bottom: 15px; color: var(--faint); font: 500 10px/1 var(--mono); letter-spacing: .17em; text-transform: uppercase; }
+  .pipeline-flow { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
+  .pipeline-node { position: relative; min-height: 96px; padding: 15px 11px; border-radius: 9px; background: rgba(255, 255, 255, .84); text-align: center; box-shadow: 0 5px 18px rgba(40, 51, 92, .05); }
+  .pipeline-node:not(:last-child)::after { content: '→'; position: absolute; top: 50%; right: -15px; transform: translateY(-50%); color: var(--blue); font-family: var(--mono); }
+  .pipeline-node b { display: block; font-size: 13px; }
+  .pipeline-node span { display: block; margin-top: 5px; color: var(--faint); font-size: 10.5px; line-height: 1.5; }
+
+  .plain-list, .number-list { margin: 18px 0 28px; padding-left: 23px; }
+  .plain-list li, .number-list li { margin-bottom: 11px; padding-left: 4px; }
+  .plain-list li::marker, .number-list li::marker { color: var(--blue); }
+  .number-list li::marker { font-family: var(--mono); font-size: 12px; }
+
+  .schema { margin: 28px 0 36px; overflow: hidden; border-radius: 12px; background: #1f2330; color: #f5f5ef; }
+  .schema-head { padding: 13px 19px; border-bottom: 1px solid rgba(255,255,255,.1); color: #aebdf1; font: 600 10px/1 var(--mono); letter-spacing: .14em; }
+  .schema-grid { display: grid; grid-template-columns: repeat(4, 1fr); }
+  .schema-cell { padding: 19px; border-right: 1px solid rgba(255,255,255,.09); }
+  .schema-cell:last-child { border-right: 0; }
+  .schema-cell b { display: block; color: #d8e0ff; font-size: 13px; }
+  .schema-cell span { display: block; margin-top: 7px; color: rgba(245,245,239,.66); font-size: 11px; line-height: 1.6; }
+
+  .distribution { margin: 27px 0 37px; display: grid; gap: 9px; }
+  .distribution-row { display: grid; grid-template-columns: 105px 1fr 130px; gap: 15px; align-items: center; padding: 13px 16px; border: 1px solid var(--line); border-radius: 9px; background: rgba(255,253,248,.7); }
+  .distribution-name { color: var(--blue-deep); font: 600 11px/1.4 var(--mono); }
+  .distribution-copy { color: var(--muted); font-size: 13px; line-height: 1.65; }
+  .distribution-control { color: var(--faint); font-size: 11px; text-align: right; }
+
+  .checklist { margin: 29px 0 38px; counter-reset: step; }
+  .check-row { display: grid; grid-template-columns: 42px 1fr; gap: 14px; padding: 17px 0; border-bottom: 1px solid var(--line); }
+  .check-row:first-child { border-top: 1px solid var(--line); }
+  .check-row::before { counter-increment: step; content: counter(step, decimal-leading-zero); color: var(--blue); font: 600 11px/1.6 var(--mono); }
+  .check-row h3 { margin: 0 0 5px; font-size: 15px; }
+  .check-row p { margin: 0; color: var(--muted); font-size: 13.5px; line-height: 1.75; }
+
+  .pitfall-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 26px 0 36px; }
+  .pitfall { padding: 18px; border: 1px solid rgba(177, 79, 71, .18); border-radius: 10px; background: rgba(177,79,71,.035); }
+  .pitfall b { display: block; margin-bottom: 6px; color: var(--red); font-size: 14px; }
+  .pitfall p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.72; }
+
+  .source-list { margin: 25px 0 36px; padding: 0; list-style: none; }
+  .source-list li { display: grid; grid-template-columns: 32px 1fr; gap: 13px; padding: 14px 0; border-bottom: 1px solid var(--line); }
+  .source-list li:first-child { border-top: 1px solid var(--line); }
+  .source-no { color: var(--faint); font: 500 10px/1.8 var(--mono); }
+  .source-list a { font-weight: 600; }
+  .source-list span { display: block; margin-top: 3px; color: var(--faint); font-size: 12px; line-height: 1.6; }
+
+  .closing { margin-top: 48px; padding-top: 27px; border-top: 2px solid var(--ink); font-family: var(--serif); font-size: 20px; line-height: 1.82; }
+
+  @media (max-width: 720px) {
+    .hero { padding: 48px 20px 34px; }
+    .headline { font-size: 35px; }
+    .content-wrap { padding: 0 20px 70px; }
+    .source-grid, .quality-grid, .instruction-grid, .pitfall-grid { grid-template-columns: 1fr; }
+    .pipeline-flow { grid-template-columns: 1fr 1fr; }
+    .pipeline-node:nth-child(2)::after { display: none; }
+    .schema-grid { grid-template-columns: 1fr 1fr; }
+    .schema-cell:nth-child(2) { border-right: 0; }
+    .schema-cell:nth-child(-n+2) { border-bottom: 1px solid rgba(255,255,255,.09); }
+    .distribution-row { grid-template-columns: 90px 1fr; }
+    .distribution-control { grid-column: 2; text-align: left; }
+    .variable-grid { grid-template-columns: 1fr; }
+    .scale-equation { font-size: 25px; }
+  }
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="kicker">MODEL TRAINING · DATA ENGINEERING 01</div>
+  <h1 class="headline">大模型训练的数据准备</h1>
+  <p class="deck">从 GPT-1 的书籍语料到万亿 token 级预训练，从人工示范到合成指令：数据规模决定模型能够看见多少世界，数据工程决定模型最终学到怎样的世界。</p>
+  <div class="meta-row">
+    <span>2026-08-22</span>
+    <span>模型训练 · 第一篇</span>
+    <span>阅读约 18 分钟</span>
+    <span>预训练 · 指令微调 · 数据工程 · Scaling Law</span>
+  </div>
+</header>
+
+<main class="content-wrap">
+<article class="article-body">
+  <div class="lead-block">
+    <span class="lead-label">导言 · Introduction</span>
+    <p class="lead">大模型的数据准备并不是把网页抓取下来，再送进训练集群。原始文本需要经历来源治理、内容解析、质量过滤、去重、风险处理、数据配比、分词与序列组织等一整套工程流程；进入微调阶段后，问题又会从“文本是否可学”转向“行为是否值得模仿”。</p>
+  </div>
+  <p>模型参数、训练数据和算力共同构成预训练的三项核心资源。参数量决定模型可以容纳的表示复杂度，数据量提供学习信号，算力决定两者能够发生多少次有效交互。任何一项孤立扩张，都可能遭遇边际收益下降。</p>
+  <div class="thesis">数据工程的目标不是最大化 token 数，而是在既定算力与模型规模下，构造信息密度更高、覆盖更合理、来源可追溯、风险可控制的学习分布。</div>
+
+  <div class="section-label">01 · SCALE HISTORY</div>
+  <h2 class="section-heading">从 GPT-1 到 Qwen、Kimi：参数和数据共同扩张</h2>
+  <p>2018 年的 GPT-1 已经确立了“先在无标注文本上做生成式预训练，再针对任务微调”的基本范式。当时模型使用 12 层 decoder-only Transformer，参数规模通常记为约 1.17 亿；训练数据是 BooksCorpus 中超过 7,000 本未出版书籍。论文强调这类连续长文本有利于学习长距离依赖。</p>
+  <p>此后，训练数据从单一书籍语料扩张到经过人工信号筛选的网页，再到大规模 Common Crawl 混合语料；参数规模也从亿级进入千亿级。更重要的变化并非单纯“模型越来越大”，而是业界逐步认识到：更大的模型必须匹配更充分、更高质量的数据。</p>
+
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead><tr><th>代表模型</th><th>参数规模</th><th>公开的数据规模</th><th>数据准备的关键变化</th></tr></thead>
+      <tbody>
+        <tr><td>GPT-1 · 2018</td><td>约 117M</td><td>BooksCorpus，超过 7,000 本书；OpenAI 同期说明约 5GB 文本</td><td>重视长篇连续文本；使用 ftfy、标点与空白规范化，再进行 BPE 处理。</td></tr>
+        <tr><td>GPT-2 · 2019</td><td>1.5B</td><td>WebText，超过 800 万文档、约 40GB 文本</td><td>以 Reddit 外链的人工投票信号作为网页质量代理，并进行启发式清洗和去重。</td></tr>
+        <tr><td>GPT-3 · 2020</td><td>175B</td><td>所有规模模型均训练 300B token</td><td>过滤 Common Crawl，进行跨数据集模糊去重，并混入 WebText、书籍和 Wikipedia；高质量语料被过采样。</td></tr>
+        <tr><td>Chinchilla · 2022</td><td>70B</td><td>1.4T token</td><td>用更多数据训练相对更小的模型，在相同训练算力下优于若干更大但训练不足的模型。</td></tr>
+        <tr><td>LLaMA · 2023</td><td>最高 65B</td><td>最高 1.4T token</td><td>证明仅使用公开可获得的数据，也能构建有竞争力的基础模型。</td></tr>
+        <tr><td>Llama 3 · 2024</td><td>405B</td><td>15.6T token</td><td>引入 URL、文档、行三级去重，规则与模型质量过滤，专门的代码、推理和多语言流水线，并通过实验确定数据配比。</td></tr>
+        <tr><td><a href="https://arxiv.org/abs/2412.19437" target="_blank" rel="noopener">DeepSeek-V3 · 2024</a></td><td>MoE：671B 总参数<br>37B 激活参数</td><td>14.8T token</td><td>在大规模 MoE 训练中结合高质量多域语料、FP8 训练和稳定性设计；论文公开了训练 token，但没有公布完整的原始来源比例。</td></tr>
+        <tr><td><a href="https://qwenlm.github.io/blog/qwen2.5-max/" target="_blank" rel="noopener">Qwen2.5-Max · 2025</a></td><td>MoE：总参数与激活参数均未公开</td><td>超过 20T token</td><td>官方只披露了预训练规模以及后续 SFT、RLHF 路径，未发布足以计算 token / 参数比的模型规模。</td></tr>
+        <tr><td><a href="https://arxiv.org/abs/2505.09388" target="_blank" rel="noopener">Qwen3-235B-A22B · 2025</a></td><td>MoE：235B 总参数<br>22B 激活参数</td><td>36T token</td><td>覆盖 119 种语言与方言；利用 Qwen2.5-VL 提取 PDF 文本，并用数学、代码模型合成数据，再以细粒度标签和代理模型优化混合比例。</td></tr>
+        <tr><td><a href="https://arxiv.org/abs/2507.20534" target="_blank" rel="noopener">Kimi K2 · 2025</a></td><td>MoE：1T 总参数<br>32B 激活参数</td><td>15.5T token</td><td>技术报告重点披露 MuonClip 优化器和无 loss spike 的大规模训练；预训练数据的来源构成、过滤比例没有完整公开。</td></tr>
+        <tr><td><a href="https://arxiv.org/abs/2508.06471" target="_blank" rel="noopener">GLM-4.5 · 2025</a></td><td>MoE：355B 总参数<br>32B 激活参数</td><td>23T token<br><span class="caveat">技术报告的多阶段训练口径</span></td><td>公开了总体 token 与模型结构，强调推理、代码和 Agent 数据；各来源的绝对 token 数仍未完整披露。</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="note">
+    <span class="note-title">单位不能直接横比</span>
+    <p>早期报告常用书籍数量、词数或文件体积，后期论文更多使用 tokenizer 处理后的 token 数。不同 tokenizer 的压缩率、去重强度、训练轮数和序列拼接方式也不同，因此表中的数字用于展示量级演进，不应直接计算为严格的数据效率排名。</p>
+  </div>
+
+  <h3 class="subheading">进入 MoE 时代后，“参数量”至少有两种口径</h3>
+  <p><strong>总参数量</strong>表示模型保存了多少权重，主要影响模型文件体积、显存或内存容量以及专家总容量；<strong>激活参数量</strong>表示处理一个 token 时实际参与主要计算的参数规模，更接近单 token 训练和推理计算成本。Qwen3-235B-A22B 中的 “235B-A22B”，即 235B 总参数、约 22B 激活参数。</p>
+  <p>稠密模型每个 token 基本都会经过全部参数，而 MoE 只路由到少数专家。因此，Kimi K2 的 1T 总参数不能直接理解为每个 token 都完成一次 1T 稠密模型计算；另一方面，激活参数也不能完全代表成本，因为注意力层、共享专家、路由、通信与负载均衡仍会产生额外开销。后文的 Chinchilla 比例和 <code>C ≈ 6ND</code> 最初面向稠密 Transformer，迁移到 MoE 时只能作为初步近似。</p>
+
+  <div class="section-label">02 · SCALING LAW</div>
+  <h2 class="section-heading">Scaling Law：参数量、数据量与算力的关系</h2>
+  <p>Scaling Law 不是“模型越大越好”的口号，而是用经验关系描述训练损失如何随模型规模、数据规模和计算量变化。Kaplan 等人在 2020 年发现，语言模型交叉熵损失在较大尺度范围内会随参数量、数据量和训练算力呈现平滑的幂律下降。这使团队能够先训练一批小模型，再外推更大训练任务的收益。</p>
+  <p>早期结论更强调大模型的样本效率，容易形成“优先增加参数、较早停止训练”的计算分配方式。Chinchilla 研究随后重新估计了计算最优边界：在固定训练算力下，模型参数量和训练 token 数应大致同步增长；模型规模翻倍时，训练 token 数也应近似翻倍。</p>
+
+  <figure class="paper-figure">
+    <img src="../assets/images/model-training/chinchilla-scaling-law-figure-1.png" alt="Chinchilla 论文图 1：训练 FLOPs 与计算最优参数规模的关系">
+    <figcaption><strong>Chinchilla 论文 Figure 1：训练算力与计算最优参数规模。</strong>横轴是训练 FLOPs，纵轴是模型参数量，均为对数坐标。黑色虚线是 Kaplan 等人 2020 年的预测，三条实线是 Chinchilla 论文的三种估计方法；星形标出当时的代表模型。相同算力下，三种新方法都指向比旧预测更小的模型，即应把更多预算用于增加训练 token。图源：<a href="https://arxiv.org/abs/2203.15556" target="_blank" rel="noopener">Hoffmann et al., 2022</a>。</figcaption>
+  </figure>
+
+  <div class="scale-panel">
+    <div class="scale-equation">C ≈ 6 × N × D</div>
+    <div class="variable-grid">
+      <div class="variable-card"><b>C</b><strong>训练计算量</strong><span>完成整次预训练所需的浮点运算总数，单位通常为 FLOPs。</span></div>
+      <div class="variable-card"><b>N</b><strong>模型参数量</strong><span>稠密模型通常取全部可训练参数；MoE 做粗估时更接近单 token 激活参数。</span></div>
+      <div class="variable-card"><b>D</b><strong>训练 token 数</strong><span>训练过程中实际送入模型的 token 次数，包含重复 epoch，不等于唯一文本 token。</span></div>
+    </div>
+    <div class="scale-caption">系数 6 来自一个常用的工程近似：稠密 Transformer 的前向传播约为每参数、每 token 进行 2 次浮点运算，反向传播约为前向传播的 2 倍，因此一次完整训练约为 <code>2ND + 4ND = 6ND</code>。</div>
+  </div>
+
+  <p>这里的 <code>C</code> 是算法层面的 FLOPs，而不是 GPU 标称峰值乘以训练时长。硬件没有被完全利用时，真实耗时会更长；混合精度也会改变每次运算的速度和能耗，但不改变这个量级公式的定义。长上下文注意力、词嵌入、输出层、激活重计算、优化器、跨卡通信和 MoE 路由也没有被系数 6 完整表达。</p>
+  <p>因此，<code>C ≈ 6ND</code> 适合在训练规划早期比较数量级。例如在稠密模型中，参数量翻倍且 token 数不变，训练 FLOPs 约翻倍；参数量与 token 数同时翻倍，训练 FLOPs 约变为四倍。进入实际集群预算阶段，仍需使用具体架构的 FLOPs 统计和集群吞吐实测。</p>
+
+  <h3 class="subheading">“每个参数约 20 个 token”不是固定定律</h3>
+  <p>Chinchilla 的 70B 参数与 1.4T token 恰好约为每参数 20 token，因此该比例经常被当作工程经验。但它依赖论文中的模型族、数据分布、训练目标和计算预算。Llama 3 的小模型甚至被刻意训练得远超计算最优点，因为在相同推理成本下，更充分训练的小模型可能具有更好的部署价值。</p>
+  <p>实际决策还需同时考虑推理成本、数据是否稀缺、是否允许重复训练、目标能力分布和模型生命周期。Scaling Law 提供预算配置的起点，而不是替代数据实验的终点。</p>
+
+  <div class="section-label">03 · DATA SOURCES</div>
+  <h2 class="section-heading">预训练数据来自哪里</h2>
+  <p>通用大模型需要覆盖事实知识、自然语言表达、逻辑推理、代码结构、多语言与不同文本形态。单一来源即使质量很高，也无法提供足够广泛的学习分布。现代训练集通常由多个数据域组成，并为不同域设置不同的采样权重。</p>
+
+  <div class="source-grid">
+    <div class="card quality"><div class="card-index">WEB</div><h3>公开网页</h3><p>覆盖面最大，包含新闻、知识页面、博客、论坛和长尾主题；同时混杂模板、广告、SEO 内容、机器生成文本与大量重复。</p></div>
+    <div class="card quality"><div class="card-index">BOOKS · PAPERS</div><h3>书籍与学术资料</h3><p>长篇结构完整，论述密度较高，适合学习长距离依赖和专业表达；授权、版式解析和领域偏差需要单独治理。</p></div>
+    <div class="card quality"><div class="card-index">REFERENCE</div><h3>百科与高质量知识库</h3><p>事实组织清晰、引用结构稳定，常被用作高质量参考域；主题覆盖受编辑机制影响，不能替代广泛网页数据。</p></div>
+    <div class="card quality"><div class="card-index">CODE · MATH</div><h3>代码、数学与推理语料</h3><p>提供形式化结构、可验证答案与过程性推理信号。解析器、许可证、自动生成代码和重复仓库会显著影响质量。</p></div>
+    <div class="card quality"><div class="card-index">DIALOGUE</div><h3>论坛、问答与对话</h3><p>包含真实问题、口语表达和多轮互动模式，适合补充任务形态；答案正确性、隐私与社区风格差异是主要风险。</p></div>
+    <div class="card quality"><div class="card-index">MULTILINGUAL</div><h3>多语言与区域数据</h3><p>决定跨语言迁移与非英语能力。低资源语言容易被语言识别误判，也更容易在统一质量分类器中被过度过滤。</p></div>
+  </div>
+
+  <div class="section-label">04 · PRETRAINING PIPELINE</div>
+  <h2 class="section-heading">从原始文档到训练 token：清洗与处理流水线</h2>
+  <p>预训练数据工程通常分为“进入数据湖”和“进入训练批次”两条边界。前者关注来源、解析与治理，后者关注混合比例、tokenizer、序列长度和采样。只有保留数据血缘与版本信息，后续才可能解释模型行为或撤回问题来源。</p>
+
+  <div class="pipeline">
+    <div class="pipeline-title">RAW DATA → TRAINING SEQUENCES</div>
+    <div class="pipeline-flow">
+      <div class="pipeline-node"><b>获取与登记</b><span>来源、时间、许可、哈希、数据血缘</span></div>
+      <div class="pipeline-node"><b>解析与规范化</b><span>正文提取、编码修复、语言识别、结构保留</span></div>
+      <div class="pipeline-node"><b>过滤与去重</b><span>质量、安全、隐私、重复、污染检测</span></div>
+      <div class="pipeline-node"><b>混合与分词</b><span>域权重、tokenize、packing、训练切分</span></div>
+    </div>
+  </div>
+
+  <ol class="number-list">
+    <li><strong>来源治理：</strong>记录抓取时间、来源域、使用许可、删除机制和内容哈希。涉及用户数据时，需要最小化采集并完成隐私与合规评审。</li>
+    <li><strong>正文解析：</strong>从 HTML、PDF、代码仓库等载体中提取有效内容，去除导航、Cookie 提示和广告，同时保留代码缩进、公式、标题等有意义的结构。</li>
+    <li><strong>语言识别与编码修复：</strong>修复乱码、异常 Unicode、空白与控制符，再做文档级或段落级语言识别。多语言混排不宜被简单判为噪声。</li>
+    <li><strong>质量过滤：</strong>结合长度、符号比例、重复 n-gram 等规则，以及 fastText、RoBERTa 或大模型蒸馏的质量分类器。规则负责高精度剔除，模型负责识别更隐蔽的低质模式。</li>
+    <li><strong>多粒度去重：</strong>URL 级消除重复抓取，文档级 MinHash 等方法处理近似副本，段落或行级去除模板与跨站转载。去重还能降低训练集与验证集交叉污染。</li>
+    <li><strong>安全、隐私与敏感信息处理：</strong>识别高密度个人身份信息、成人内容、恶意代码、凭据和其他不适合进入训练集的内容。过滤策略应可审计，并评估对特定语言或群体的误伤。</li>
+    <li><strong>基准污染检查：</strong>对评测题、答案及其改写做精确和模糊匹配。训练语料包含公开基准并不等于能力提升，可能只是让评估失去解释力。</li>
+    <li><strong>数据混合：</strong>按来源质量、能力目标与实验结果设定权重，而非按原始数据体积等比例采样。GPT-3 已经对高质量数据进行更高频采样；DoReMi 等工作进一步尝试用代理模型优化域权重。</li>
+    <li><strong>分词与序列组织：</strong>确定 tokenizer 后再统计真实 token 预算；将短文档拼接为训练序列时保留文档边界，避免跨文档注意力产生无意义关联。</li>
+  </ol>
+
+  <div class="note">
+    <span class="note-title">清洗并非越强越好</span>
+    <p>过度过滤会把口语、方言、低资源语言、少数群体表达和长尾知识一起删除，使语料看上去更“整洁”，却降低真实世界覆盖。每条过滤规则都应在抽样集上测量精确率、召回率及群体差异。</p>
+  </div>
+
+  <div class="section-label">05 · DATA REQUIREMENTS</div>
+  <h2 class="section-heading">高质量预训练数据需要满足什么条件</h2>
+  <p>高质量不等同于书面化，也不等同于单一分类器给出的高分。对通用模型而言，数据质量是信息密度、正确性、覆盖范围、分布平衡、可追溯性与风险约束的组合。</p>
+
+  <div class="quality-grid">
+    <div class="card"><div class="card-index">01</div><h3>多样性</h3><p>覆盖语言、领域、文体、难度、长度和任务形态，保留足够的长尾知识与不同表达方式。</p></div>
+    <div class="card"><div class="card-index">02</div><h3>信息密度与可读性</h3><p>正文完整、结构连贯、噪声较少，避免模板堆叠、关键词填充、自动翻译残片和无意义重复。</p></div>
+    <div class="card"><div class="card-index">03</div><h3>正确性与可验证性</h3><p>专业、代码和数学数据应提高事实与过程可靠性；可执行代码、证明或引用信息能提供额外验证信号。</p></div>
+    <div class="card"><div class="card-index">04</div><h3>分布平衡</h3><p>防止网页中的娱乐、营销等高频类别淹没低频但高价值领域。多样性需要通过采样权重真正进入训练批次。</p></div>
+    <div class="card"><div class="card-index">05</div><h3>低重复与低污染</h3><p>减少对热门文本的机械记忆，保持验证集和基准的独立性，并抑制重复数据造成的梯度偏置。</p></div>
+    <div class="card"><div class="card-index">06</div><h3>可追溯与可撤回</h3><p>能够定位来源、版本与处理规则，在许可、隐私或质量问题出现后支持定向删除和重新构建。</p></div>
+  </div>
+
+  <p>Llama 3 的公开报告提供了一个具体例子：最终数据混合约有 50% 通用知识、25% 数学与推理、17% 代码、8% 多语言 token。该比例不是通用配方，而是结合知识分类、缩放实验和目标评测得到的项目选择。数据配比本身就是训练超参数。</p>
+
+  <div class="section-label">06 · SFT DATA</div>
+  <h2 class="section-heading">微调数据与预训练数据的本质差异</h2>
+  <p>预训练让模型学习“文本世界如何延续”，指令微调让模型学习“面对请求应当如何行动”。前者追求广泛覆盖，后者强调行为示范的准确性、一致性和任务分布。错误的预训练文档只占海量 token 中很小一部分；错误的高权重指令样本则可能直接塑造模型行为。</p>
+
+  <div class="schema">
+    <div class="schema-head">MINIMUM INSTRUCTION RECORD</div>
+    <div class="schema-grid">
+      <div class="schema-cell"><b>System / Context</b><span>角色、约束、背景材料、工具定义</span></div>
+      <div class="schema-cell"><b>Instruction</b><span>任务目标、输入、格式与成功条件</span></div>
+      <div class="schema-cell"><b>Response</b><span>可学习的目标答案、推理结果或动作轨迹</span></div>
+      <div class="schema-cell"><b>Metadata</b><span>来源、领域、难度、语言、质检与版本</span></div>
+    </div>
+  </div>
+
+  <p>InstructGPT 的数据流程展示了经典路径：从标注员编写的提示和真实 API 提示中取样，收集人工示范用于监督微调；再让人工对多个模型输出排序，用于后续偏好建模。这里的核心不是“把问答写成 JSON”，而是先定义希望模型学习的行为，再让数据结构承载这些行为。</p>
+
+  <div class="section-label">07 · INSTRUCTION SOURCES</div>
+  <h2 class="section-heading">微调指令从哪里获得</h2>
+  <div class="instruction-grid">
+    <div class="card"><div class="card-index">HUMAN</div><h3>人工编写与专家示范</h3><p>最适合高风险、专业和复杂任务，能够精确定义正确行为；成本高，标注者之间的一致性需要培训与仲裁。</p></div>
+    <div class="card"><div class="card-index">PRODUCT</div><h3>真实产品请求</h3><p>能够反映真实语言和需求分布。进入训练前必须完成授权、去标识化、敏感信息处理，并过滤低质量反馈和攻击内容。</p></div>
+    <div class="card"><div class="card-index">TASK CONVERSION</div><h3>公开任务与知识库改写</h3><p>将分类、抽取、问答和知识文档转成统一指令格式，答案通常更容易验证；模板化表达可能限制语言多样性。</p></div>
+    <div class="card"><div class="card-index">SYNTHETIC</div><h3>模型合成与 Self-Instruct</h3><p>从少量种子任务扩展指令、输入和输出，并过滤无效或相似样本。适合扩大覆盖，但会继承教师模型的偏差与错误。</p></div>
+    <div class="card"><div class="card-index">DISTILLATION</div><h3>强模型蒸馏</h3><p>利用更强模型生成答案、评语、工具轨迹或修订版本，再经验证器和人工抽检进入训练；需要防止能力坍缩为单一教师风格。</p></div>
+    <div class="card"><div class="card-index">TOOLS · MULTI-TURN</div><h3>工具调用与多轮轨迹</h3><p>记录参数选择、执行结果、错误恢复和上下文状态。不能只保留最终答案，否则模型难以学习何时调用以及如何处理工具反馈。</p></div>
+  </div>
+
+  <p>LIMA 使用 1,000 条精心筛选的提示—回答对展示了质量与多样性的价值：750 条来自高质量社区内容，250 条由人工编写；消融结果表明，仅增加数量而不增加提示多样性会迅速出现收益递减。该结论不意味着所有微调都只需要 1,000 条数据，而是说明数据规模必须与基础模型能力、任务难度和覆盖目标共同讨论。</p>
+
+  <div class="section-label">08 · SFT CLEANING</div>
+  <h2 class="section-heading">指令数据的清洗逻辑</h2>
+  <p>指令数据清洗应围绕“模型是否值得模仿这条行为”展开。文本通顺只是最低门槛，任务定义、答案正确性、约束遵循、拒答边界和整体分布都需要单独检查。</p>
+  <ol class="number-list">
+    <li><strong>结构有效：</strong>角色字段合法、轮次顺序正确、工具调用闭合、输入与输出不为空，模板和特殊 token 与训练格式一致。</li>
+    <li><strong>指令清晰：</strong>任务目标可识别，必要上下文完整，不存在无法判断的指代、互相冲突的约束或被截断的附件。</li>
+    <li><strong>答案正确：</strong>事实、计算、代码和引用尽可能由规则、执行器、检索或专家复核。对开放任务，至少验证是否满足任务要求。</li>
+    <li><strong>行为合适：</strong>答案应当相关、完整、克制，符合安全与隐私要求；拒绝样本需要展示正确边界，而非机械拒绝所有敏感词。</li>
+    <li><strong>去重与近似去重：</strong>同时检查指令、答案和任务语义。仅替换人名或数字的模板样本可能造成某类行为权重虚高。</li>
+    <li><strong>避免泄漏：</strong>去除评测集、内部保留集和包含标准答案痕迹的数据，防止用测试题训练再用同一测试题证明提升。</li>
+    <li><strong>风格不过度统一：</strong>响应可以遵循共同质量规范，但仍应覆盖简短回答、长文、表格、代码、结构化输出和自然对话等合理形态。</li>
+    <li><strong>模型筛选与人工抽检结合：</strong>大模型适合做初筛、打标和成对比较，关键能力与高风险样本仍需人工验收。评审模型与生成模型同源时，要特别警惕共同偏差。</li>
+  </ol>
+
+  <div class="section-label">09 · DISTRIBUTION DESIGN</div>
+  <h2 class="section-heading">指令分布如何设计</h2>
+  <p>微调集不是请求日志的简单缩小版。原始流量会把高频、简单、重复问题放大，却无法保证复杂推理、错误恢复、长上下文、安全边界等关键能力有足够样本。目标分布应从产品任务、能力地图和风险模型反推。</p>
+
+  <div class="distribution">
+    <div class="distribution-row"><div class="distribution-name">能力</div><div class="distribution-copy">问答、写作、抽取、推理、代码、工具、规划、拒答</div><div class="distribution-control">设最低覆盖与上限</div></div>
+    <div class="distribution-row"><div class="distribution-name">领域</div><div class="distribution-copy">通用知识、专业域、业务私域、长尾主题</div><div class="distribution-control">按目标价值加权</div></div>
+    <div class="distribution-row"><div class="distribution-name">难度</div><div class="distribution-copy">直接回答、多约束、组合任务、开放问题、不可回答</div><div class="distribution-control">避免简单样本淹没</div></div>
+    <div class="distribution-row"><div class="distribution-name">交互形态</div><div class="distribution-copy">单轮、多轮、长上下文、工具反馈、纠错与澄清</div><div class="distribution-control">与真实链路匹配</div></div>
+    <div class="distribution-row"><div class="distribution-name">语言与表达</div><div class="distribution-copy">正式、口语、错别字、方言、多语言、混合语言</div><div class="distribution-control">保持输入多样性</div></div>
+    <div class="distribution-row"><div class="distribution-name">输出</div><div class="distribution-copy">短答、长文、表格、JSON、代码、引用、工具动作</div><div class="distribution-control">验证格式正确性</div></div>
+  </div>
+
+  <p>分布设计可以采用“基础覆盖 + 目标加权 + 难例回流”三层结构。基础覆盖保证通用能力不被遗忘；目标加权提升核心业务能力；线上失败、对抗测试和评测误差再形成难例池，定期进入新版本数据。</p>
+
+  <div class="section-label">10 · PRODUCTION RECIPE</div>
+  <h2 class="section-heading">一条可执行的数据生产流程</h2>
+  <div class="checklist">
+    <div class="check-row"><div><h3>定义能力与风险分类</h3><p>先列出目标任务、禁止行为、关键边界和验收指标，再确定需要哪些数据，而不是从现有数据反推目标。</p></div></div>
+    <div class="check-row"><div><h3>建立来源池与统一数据协议</h3><p>区分人工、产品、公开任务和合成数据，统一消息、工具、来源、许可、质量等级与版本字段。</p></div></div>
+    <div class="check-row"><div><h3>分层生成与验证</h3><p>低风险任务可由模型批量生成并自动验证；专业和高风险任务提高专家参与度，并保留完整审阅记录。</p></div></div>
+    <div class="check-row"><div><h3>去重后再统计分布</h3><p>在语义去重完成后重算能力、领域、长度、难度与语言占比，否则大量模板副本会制造虚假的覆盖感。</p></div></div>
+    <div class="check-row"><div><h3>小规模训练与消融</h3><p>先用小模型或短周期训练比较数据版本，做来源、过滤器和混合权重消融，确认提升来自数据而非评测波动。</p></div></div>
+    <div class="check-row"><div><h3>建立评测—数据闭环</h3><p>将模型失败映射回能力分类，形成难例、修订样本和回归集；训练集与保留评测集始终隔离。</p></div></div>
+    <div class="check-row"><div><h3>发布数据卡与版本清单</h3><p>记录来源构成、过滤逻辑、已知偏差、删除记录、数据哈希和适用范围，使训练结果能够复现与审计。</p></div></div>
+  </div>
+
+  <div class="section-label">11 · EVALUATION</div>
+  <h2 class="section-heading">如何判断数据准备是否有效</h2>
+  <p>数据指标只能说明流水线发生了什么，模型指标才能说明模型学到了什么。两类指标需要对应起来：例如近似重复率下降后，应观察验证损失、记忆率和基准污染是否改善；增加代码数据后，应同时检查代码能力、通用语言能力和安全表现。</p>
+  <ul class="plain-list">
+    <li><strong>数据层：</strong>有效 token 数、各域占比、语言占比、精确与近似重复率、过滤通过率、PII 命中率、来源覆盖和删除可追溯率。</li>
+    <li><strong>训练层：</strong>分域验证损失、梯度异常、样本利用率、长序列比例、训练稳定性，以及不同数据混合下的 Scaling Law 外推误差。</li>
+    <li><strong>能力层：</strong>知识、推理、代码、多语言、长上下文、工具调用、指令遵循和业务任务的独立评测。</li>
+    <li><strong>行为层：</strong>事实可靠性、约束遵循、安全边界、拒答质量、风格稳定性和人工偏好。</li>
+  </ul>
+  <p>最有解释力的方法通常是受控消融：固定模型、算力与训练配置，只替换一个数据版本或一项过滤策略。若多个因素同时变化，即使总分提高，也很难知道下一轮应当继续扩大什么、修复什么。</p>
+
+  <div class="section-label">12 · PITFALLS</div>
+  <h2 class="section-heading">常见误区</h2>
+  <div class="pitfall-grid">
+    <div class="pitfall"><b>数据越多越好</b><p>重复、错误和低信息密度 token 同样消耗算力，并可能放大偏差。有效数据量比磁盘体积更有意义。</p></div>
+    <div class="pitfall"><b>20 token / 参数是固定配方</b><p>该比例来自特定实验条件。部署成本、重复数据、模型结构和目标任务都会改变最优训练点。</p></div>
+    <div class="pitfall"><b>合成数据可以无限自举</b><p>没有人工种子、外部验证与多教师约束时，错误、措辞和偏好会在迭代中被持续放大。</p></div>
+    <div class="pitfall"><b>清洗等于删除“不规范”文本</b><p>真实输入包含口语、拼写错误和混合语言。只保留整齐文本会削弱模型对真实环境的鲁棒性。</p></div>
+    <div class="pitfall"><b>训练集分布等于线上流量分布</b><p>线上高频问题会挤压关键长尾与安全样本。训练分布必须体现目标能力和风险，而不只是请求次数。</p></div>
+    <div class="pitfall"><b>评测集公开就可以混入训练</b><p>基准污染会让分数失去泛化含义。公开可见不代表适合作为训练数据。</p></div>
+  </div>
+
+  <div class="section-label">13 · PRIMARY SOURCES</div>
+  <h2 class="section-heading">原始论文与技术报告</h2>
+  <p>以下资料用于本篇的模型规模、数据规模和数据工程口径。工程实现仍需结合具体模型、数据许可、地区法规和业务风险重新设计。</p>
+  <ul class="source-list">
+    <li><div class="source-no">01</div><div><a href="https://cdn.openai.com/research-covers/language-unsupervised/language_understanding_paper.pdf" target="_blank" rel="noreferrer">Improving Language Understanding by Generative Pre-Training</a><span>OpenAI，2018。GPT-1 的预训练—微调范式、BooksCorpus 与早期清洗设置。</span></div></li>
+    <li><div class="source-no">02</div><div><a href="https://cdn.openai.com/better-language-models/language-models.pdf" target="_blank" rel="noreferrer">Language Models are Unsupervised Multitask Learners</a><span>OpenAI，2019。GPT-2、WebText、启发式清洗与去重。</span></div></li>
+    <li><div class="source-no">03</div><div><a href="https://arxiv.org/abs/2005.14165" target="_blank" rel="noreferrer">Language Models are Few-Shot Learners</a><span>OpenAI，2020。GPT-3 的 175B 参数、300B 训练 token 与混合数据处理。</span></div></li>
+    <li><div class="source-no">04</div><div><a href="https://arxiv.org/abs/2001.08361" target="_blank" rel="noreferrer">Scaling Laws for Neural Language Models</a><span>Kaplan 等，2020。参数、数据和训练计算量的幂律关系。</span></div></li>
+    <li><div class="source-no">05</div><div><a href="https://arxiv.org/abs/2203.15556" target="_blank" rel="noreferrer">Training Compute-Optimal Large Language Models</a><span>DeepMind，2022。Chinchilla 与计算最优的数据—参数配置。</span></div></li>
+    <li><div class="source-no">06</div><div><a href="https://arxiv.org/abs/2302.13971" target="_blank" rel="noreferrer">LLaMA: Open and Efficient Foundation Language Models</a><span>Meta AI，2023。公开数据条件下的万亿 token 级预训练。</span></div></li>
+    <li><div class="source-no">07</div><div><a href="https://arxiv.org/abs/2407.21783" target="_blank" rel="noreferrer">The Llama 3 Herd of Models</a><span>Meta，2024。15.6T token、分层去重、质量过滤和数据混合实验。</span></div></li>
+    <li><div class="source-no">08</div><div><a href="https://arxiv.org/abs/2305.10429" target="_blank" rel="noreferrer">DoReMi: Optimizing Data Mixtures Speeds Up Language Model Pretraining</a><span>Google Research 等，2023。使用代理模型优化预训练域权重。</span></div></li>
+    <li><div class="source-no">09</div><div><a href="https://arxiv.org/abs/2203.02155" target="_blank" rel="noreferrer">Training Language Models to Follow Instructions with Human Feedback</a><span>OpenAI，2022。InstructGPT 的提示、人工示范与偏好数据构建。</span></div></li>
+    <li><div class="source-no">10</div><div><a href="https://arxiv.org/abs/2212.10560" target="_blank" rel="noreferrer">Self-Instruct: Aligning Language Models with Self-Generated Instructions</a><span>ACL 2023。种子任务、自生成指令与相似样本过滤。</span></div></li>
+    <li><div class="source-no">11</div><div><a href="https://arxiv.org/abs/2305.11206" target="_blank" rel="noreferrer">LIMA: Less Is More for Alignment</a><span>Meta AI 等，2023。高质量、小规模且多样的指令数据实验。</span></div></li>
+    <li><div class="source-no">12</div><div><a href="https://arxiv.org/abs/2412.19437" target="_blank" rel="noopener">DeepSeek-V3 Technical Report</a><span>DeepSeek-AI，2024。671B 总参数、37B 激活参数与 14.8T token 预训练口径。</span></div></li>
+    <li><div class="source-no">13</div><div><a href="https://qwenlm.github.io/blog/qwen2.5-max/" target="_blank" rel="noopener">Qwen2.5-Max: Exploring the Intelligence of Large-scale MoE Model</a><span>Qwen Team，2025。超过 20T token；官方未披露参数规模。</span></div></li>
+    <li><div class="source-no">14</div><div><a href="https://arxiv.org/abs/2505.09388" target="_blank" rel="noopener">Qwen3 Technical Report</a><span>Qwen Team，2025。235B-A22B、36T token、119 种语言与细粒度数据混合方法。</span></div></li>
+    <li><div class="source-no">15</div><div><a href="https://arxiv.org/abs/2507.20534" target="_blank" rel="noopener">Kimi K2: Open Agentic Intelligence</a><span>Moonshot AI，2025。1T 总参数、32B 激活参数与 15.5T token。</span></div></li>
+    <li><div class="source-no">16</div><div><a href="https://arxiv.org/abs/2508.06471" target="_blank" rel="noopener">GLM-4.5: Agentic, Reasoning, and Coding Foundation Models</a><span>GLM-4.5 Team，2025。355B-A32B 与 23T token 的多阶段训练口径。</span></div></li>
+    <li><div class="source-no">17</div><div><a href="https://huggingface.co/Qwen/Qwen3-235B-A22B" target="_blank" rel="noopener">Qwen3-235B-A22B Hugging Face 模型卡</a> · <a href="https://huggingface.co/moonshotai/Kimi-K2-Base" target="_blank" rel="noopener">Kimi K2 Base 模型卡</a><span>官方模型仓库，用于交叉核对 MoE 总参数、激活参数、上下文和基础模型信息。</span></div></li>
+  </ul>
+
+  <p class="closing">大模型训练的数据准备，本质上是在构造一个可被模型学习的世界。预训练决定知识和能力的上限，指令微调决定这些能力以何种方式被调用。规模能够放大数据的价值，也会同步放大数据中的重复、错误与偏差；因此，真正可持续的训练体系必须同时具备数据生产、质量验证、分布控制和版本治理能力。</p>
+</article>
+</main>
+</body>
+</html>

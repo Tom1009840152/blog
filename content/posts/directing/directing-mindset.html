@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>导演思维入门：决定观众看见什么、何时看见</title>
+  <style>
+    .dir-hero,.article-body {
+      --dr-ink:#211d1a;--dr-muted:#675f58;--dr-faint:#958b82;--dr-line:rgba(74,58,46,.15);
+      --dr-paper:rgba(255,253,248,.92);--dr-accent:#bf653a;--dr-accent-deep:#934421;
+      --dr-accent-soft:rgba(247,229,217,.72);--dr-blue:#496f91;--dr-blue-soft:rgba(227,237,246,.72);
+      --dr-green:#557762;--dr-green-soft:rgba(228,239,231,.72);--dr-gold:#9a762e;--dr-gold-soft:rgba(248,239,213,.72);
+      --dr-red:#9b5149;--dr-serif:"Noto Serif SC","Songti SC",serif;--dr-mono:"IBM Plex Mono","SFMono-Regular",Consolas,monospace;
+    }
+    .article-body{max-width:760px;color:var(--dr-ink)}.article-body p{margin:0 0 20px}.article-body strong{color:#171411;font-weight:650}
+    .article-body a{color:var(--dr-accent-deep);text-decoration-thickness:1px;text-underline-offset:3px}.article-body a:hover{color:var(--dr-blue)}
+    .dir-hero{max-width:980px;margin:0 auto;padding:62px 28px 42px;color:var(--dr-ink)}.dir-kicker{color:var(--dr-accent);font:600 10px/1.3 var(--dr-mono);letter-spacing:.19em}
+    .dir-headline{max-width:880px;margin:18px 0 17px;font-family:var(--dr-serif);font-size:46px;line-height:1.22;font-weight:650;letter-spacing:-.025em}
+    .dir-deck{max-width:790px;margin:0;color:#6f665e;font-size:16px;line-height:1.85}.meta-row{display:flex;flex-wrap:wrap;gap:8px 20px;margin-top:24px;color:var(--dr-faint);font-size:13px}
+    .dir-wrap{max-width:980px;margin:0 auto;padding:0 28px 88px}.dr-section-label{margin:60px 0 9px;color:var(--dr-faint);font:500 10px/1.2 var(--dr-mono);letter-spacing:.2em;text-transform:uppercase}
+    .dr-section-heading{margin:0 0 22px;font-family:var(--dr-serif);font-size:26px;line-height:1.43;font-weight:650;letter-spacing:-.01em}.dr-subheading{margin:35px 0 12px;font-family:var(--dr-serif);font-size:20px;line-height:1.5;font-weight:650}
+    .dr-lead-block{margin:2px 0 34px;padding:22px 25px 23px;border:1px solid rgba(191,101,58,.2);border-left:3px solid var(--dr-accent);border-radius:0 11px 11px 0;background:linear-gradient(110deg,var(--dr-accent-soft),rgba(255,253,248,.35))}
+    .dr-lead-label{display:block;margin-bottom:10px;color:var(--dr-accent);font:600 10px/1.3 var(--dr-mono);letter-spacing:.15em}.dr-lead{margin:0!important;color:#332d28;font-family:var(--dr-serif);font-size:17.5px;line-height:1.88}
+    .dr-thesis{margin:32px 0;padding:24px 27px;border-left:3px solid var(--dr-blue);background:linear-gradient(100deg,var(--dr-blue-soft),rgba(255,253,248,.24));font-family:var(--dr-serif);font-size:20px;line-height:1.75;font-weight:600}
+    .dr-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin:28px 0 38px}.dr-card{padding:20px;border:1px solid var(--dr-line);border-top:3px solid var(--dr-accent);border-radius:10px;background:var(--dr-paper)}
+    .dr-card:nth-child(2n){border-top-color:var(--dr-blue)}.dr-card small{color:var(--dr-faint);font:650 9px/1 var(--dr-mono);letter-spacing:.1em}.dr-card h3{margin:10px 0 7px;font-size:15px}.dr-card p{margin:0;color:var(--dr-muted);font-size:13px;line-height:1.72}
+    .dr-chain{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:28px 0 38px}.dr-chain-item{position:relative;min-height:118px;padding:17px 14px;border-radius:10px;background:var(--dr-accent-soft)}
+    .dr-chain-item:nth-child(2){background:var(--dr-blue-soft)}.dr-chain-item:nth-child(3){background:var(--dr-green-soft)}.dr-chain-item:nth-child(4){background:var(--dr-gold-soft)}
+    .dr-chain-item:not(:last-child)::after{content:'→';position:absolute;right:-9px;top:45px;z-index:2;color:var(--dr-faint);font:700 15px/1 var(--dr-mono)}.dr-chain-item b{display:block;margin-bottom:7px;font-size:14px}.dr-chain-item span{color:var(--dr-muted);font-size:12px;line-height:1.65}
+    .dr-table-wrap{margin:28px 0 38px;overflow-x:auto;border:1px solid var(--dr-line);border-radius:11px}.dr-table{width:100%;min-width:720px;border-collapse:collapse;background:var(--dr-paper);font-size:13px}
+    .dr-table th,.dr-table td{padding:14px 15px;border-bottom:1px solid var(--dr-line);text-align:left;vertical-align:top;line-height:1.68}.dr-table tr:last-child td{border-bottom:0}.dr-table th{color:var(--dr-muted);font-size:11px;background:rgba(191,101,58,.055)}.dr-table td:first-child{color:var(--dr-accent-deep);font-family:var(--dr-mono);font-size:11px;white-space:nowrap}
+    .dr-case{margin:29px 0 38px;overflow:hidden;border:1px solid rgba(73,111,145,.22);border-radius:12px;background:var(--dr-paper)}.dr-case-head{padding:13px 19px;color:var(--dr-blue);background:var(--dr-blue-soft);font:650 10px/1.4 var(--dr-mono);letter-spacing:.1em}
+    .dr-case-body{padding:22px}.dr-case-body p:last-child{margin-bottom:0}.dr-case-list{display:grid;gap:0;margin:12px 0 0}.dr-case-row{display:grid;grid-template-columns:120px 1fr;gap:16px;padding:13px 0;border-top:1px solid var(--dr-line)}.dr-case-row b{font-size:13px}.dr-case-row span{color:var(--dr-muted);font-size:13px;line-height:1.7}
+    .dr-note{margin:27px 0;padding:20px 22px;border:1px solid var(--dr-line);border-radius:11px;background:var(--dr-paper)}.dr-note-title{display:block;margin-bottom:8px;color:var(--dr-accent);font:600 10px/1.4 var(--dr-mono);letter-spacing:.13em}.dr-note p:last-child{margin-bottom:0}
+    .dr-note.blue{border-color:rgba(73,111,145,.22);background:var(--dr-blue-soft)}.dr-note.blue .dr-note-title{color:var(--dr-blue)}.dr-note.warning{border-color:rgba(154,118,46,.25);background:var(--dr-gold-soft)}.dr-note.warning .dr-note-title{color:var(--dr-gold)}
+    .dr-checklist{margin:28px 0 38px;border-top:1px solid var(--dr-line)}.dr-check-row{display:grid;grid-template-columns:42px 1fr;gap:13px;padding:17px 0;border-bottom:1px solid var(--dr-line)}.dr-check-row::before{content:'✓';color:var(--dr-green);font:650 13px/1.7 var(--dr-mono)}.dr-check-row h3{margin:0 0 5px;font-size:15px}.dr-check-row p{margin:0;color:var(--dr-muted);font-size:13.5px;line-height:1.75}
+    .dr-exercises{margin:28px 0 38px;counter-reset:dr-ex}.dr-exercise{display:grid;grid-template-columns:48px 1fr;gap:14px;padding:18px 0;border-bottom:1px solid var(--dr-line)}.dr-exercise:first-child{border-top:1px solid var(--dr-line)}.dr-exercise::before{counter-increment:dr-ex;content:counter(dr-ex,decimal-leading-zero);color:var(--dr-accent);font:650 11px/1.7 var(--dr-mono)}.dr-exercise h3{margin:0 0 5px;font-size:15px}.dr-exercise p{margin:0;color:var(--dr-muted);font-size:13.5px;line-height:1.75}
+    .dr-sources{margin:25px 0 36px;padding:0;list-style:none}.dr-sources li{display:grid;grid-template-columns:32px 1fr;gap:13px;padding:14px 0;border-bottom:1px solid var(--dr-line)}.dr-sources li:first-child{border-top:1px solid var(--dr-line)}.dr-source-no{color:var(--dr-faint);font:500 10px/1.8 var(--dr-mono)}.dr-sources a{font-weight:600}.dr-sources span{display:block;margin-top:3px;color:var(--dr-faint);font-size:12px;line-height:1.6}
+    .dr-closing{margin-top:48px;padding-top:27px;border-top:2px solid var(--dr-ink);font-family:var(--dr-serif);font-size:20px;line-height:1.82}
+    @media(max-width:720px){.dir-hero{padding:48px 20px 34px}.dir-headline{font-size:35px}.dir-wrap{padding:0 20px 70px}.dr-grid{grid-template-columns:1fr}.dr-chain{grid-template-columns:1fr 1fr}.dr-chain-item:not(:last-child)::after{display:none}.dr-case-row{grid-template-columns:1fr;gap:5px}}
+  </style>
+</head>
+<body>
+  <header class="dir-hero">
+    <div class="dir-kicker">DIRECTING FOUNDATIONS · DIRECTORIAL THINKING</div>
+    <h1 class="dir-headline">导演思维入门：<br>决定观众看见什么、何时看见</h1>
+    <p class="dir-deck">导演思维不是为画面添加“电影感”，而是把故事意图转化为一连串有理由的视听选择：站在谁的立场、先给什么信息、何时接近、何时停下，以及最终让观众带走什么。</p>
+    <div class="meta-row">
+      <span>2026-08-23</span><span>导演思维 · 第一篇</span><span>阅读约 18 分钟</span><span>导演思维 · 视点 · 信息 · 视听策略</span>
+    </div>
+  </header>
+
+  <main class="dir-wrap">
+    <article class="article-body">
+      <div class="dr-lead-block">
+        <span class="dr-lead-label">导言 · Introduction</span>
+        <p class="lead dr-lead">同一场戏可以拍成和解、审问、告别或悬疑。人物和台词可能完全不变，改变的只是观众站在哪里、知道多少、注意什么，以及镜头在什么时刻切换。导演工作的核心，正是为这些选择建立统一的理由。</p>
+      </div>
+
+      <p>美国导演工会对导演职能的概括是：参与影片全部创意元素，并把它们整合成一个戏剧与美学整体。这个定义的重要之处不在“导演拥有所有决定”，而在<strong>整合</strong>——表演、场景、摄影、声音与剪辑不能各自精彩却彼此冲突。参见 <a href="https://www.dga.org/Contracts/Directors-Economic-Rights/Summary---Features" target="_blank" rel="noopener">Directors Guild of America · The Director's Function</a>。</p>
+
+      <p>对于生成影像，导演思维同样重要。模型可以生成一张构图完整的图，也可以让镜头平滑推进，但它不会自动知道“为什么此时推进”。如果创作者没有先决定信息、视点和情绪变化，提示词越长，往往只是堆叠更多互相竞争的视觉要求。</p>
+
+      <div class="dr-thesis">导演思维不是先问“用什么镜头”，而是先问：这一刻发生了什么变化，观众需要怎样经历它，哪些可见与可听的证据能够完成这种经历。</div>
+
+      <section>
+        <div class="dr-section-label">01 · THE DIRECTOR'S TASK</div>
+        <h2 class="dr-section-heading">导演不是装饰画面，而是在组织一次观看</h2>
+        <p>剧本提供人物、事件和语言；完成的影像还必须规定观看方式。观众无法同时看见所有空间、知道所有事实、进入所有人物内心。画框天然会选择，剪辑天然会排序。即使使用固定全景、不做任何剪切，也已经选择了距离、持续时间和观看位置。</p>
+
+        <div class="dr-grid">
+          <article class="dr-card"><small>CHANGE</small><h3>发生了什么变化</h3><p>人物获得新信息、关系重新排列、行动受阻，或情绪从防御转向松动。没有变化的段落通常只是说明，不是完整的戏。</p></article>
+          <article class="dr-card"><small>VIEWPOINT</small><h3>从谁的经验进入</h3><p>视点不等于主观镜头。即使摄影机在人物之外，信息范围、反应镜头和声音仍可让观众贴近某个角色。</p></article>
+          <article class="dr-card"><small>INFORMATION</small><h3>何时提供什么信息</h3><p>先看到危险再看到人物，会产生担忧；先看到人物反应再揭示危险，会产生疑问。顺序改变观看关系。</p></article>
+          <article class="dr-card"><small>AFTEREFFECT</small><h3>这一刻留下什么</h3><p>镜头结束时应留下新的事实、问题、决定或情绪状态，为下一个镜头提供可以承接的东西。</p></article>
+        </div>
+
+        <p>BAFTA 面向初次执导者的经验文章反复强调两点：准备清楚故事节拍与风格，并且知道选择背后的“为什么”；只有理解为什么，现场条件变化时才能改变做法而不丢失核心。参见 <a href="https://www.bafta.org/stories/10-things-you-need-to-know-to-be-awriterdirector/" target="_blank" rel="noopener">BAFTA · 10 Things You Need To Know to be a Writer/Director</a>。</p>
+      </section>
+
+      <section>
+        <div class="dr-section-label">02 · FOUR-LAYER TRANSLATION</div>
+        <h2 class="dr-section-heading">建立四层决策链：意图、体验、证据与执行</h2>
+        <p>“孤独”“温暖”“高级”“有电影感”属于方向性的意图，却不是可以直接拍摄的对象。导演需要把抽象意图逐层翻译，直到每个部门或生成模型都知道应当制造什么。</p>
+
+        <div class="dr-chain">
+          <div class="dr-chain-item"><b>意图</b><span>这段影像真正讨论什么，核心变化是什么。</span></div>
+          <div class="dr-chain-item"><b>观众体验</b><span>希望观众先疑惑、后理解，还是先预知、后担忧。</span></div>
+          <div class="dr-chain-item"><b>视听证据</b><span>距离、遮挡、光线、动作、声音和切换如何让体验发生。</span></div>
+          <div class="dr-chain-item"><b>执行约束</b><span>镜头表、分镜、参考图、提示词和连续性要求。</span></div>
+        </div>
+
+        <div class="dr-table-wrap">
+          <table class="dr-table">
+            <thead><tr><th>抽象说法</th><th>观众体验</th><th>可观察证据</th><th>仍需确认</th></tr></thead>
+            <tbody>
+              <tr><td>“关系疏离”</td><td>两人近在一处却难以接近</td><td>同框但被门框分隔；很少对视；环境声填补沉默</td><td>疏离是否会在场景中改变</td></tr>
+              <tr><td>“逐渐紧张”</td><td>观众比人物更早察觉威胁</td><td>先给异常细节；人物仍在继续日常动作；镜头停留变长</td><td>何时让人物确认危险</td></tr>
+              <tr><td>“终于释然”</td><td>紧绷的注意力获得释放</td><td>身体放松；空间打开；声音由局部扩展；镜头不急于切走</td><td>释然是否等于问题解决</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section>
+        <div class="dr-section-label">03 · POINT OF VIEW</div>
+        <h2 class="dr-section-heading">视点不是摄影机的位置，而是信息与感受的归属</h2>
+        <p>摄影机放在谁的肩后，只能说明几何位置；真正的叙事视点还包括谁先被看见、谁的反应被保留、哪些声音被听清，以及观众掌握的信息是否超过人物。视点可以在一场戏中转移，但转移需要理由。</p>
+
+        <h3 class="dr-subheading">主观、贴近与客观是连续谱</h3>
+        <p>严格的主观镜头模拟人物所见；贴近视点未必使用主观镜头，却会限制信息范围并重视人物反应；较客观的视点则允许观众观察多方关系。三者没有高下，区别在于观众被邀请去“经历”还是“判断”。</p>
+
+        <div class="dr-note blue">
+          <span class="dr-note-title">一个实用检查</span>
+          <p>把人物暂时移出画面，只看镜头顺序和声音：仍能判断这段影像更关心谁吗？如果不能，所谓“角色视点”可能只停留在台词和人物占比上。</p>
+        </div>
+
+        <p>Yale Film Analysis Guide 将摄影、场面调度、声音与剪辑分开讲解，但分析时始终要求观察这些形式如何共同生产意义。学习这些术语的目的不是套用固定效果，而是辨认一项选择如何改变观众与人物、空间和事件的关系。参见 <a href="https://filmanalysis.yale.edu/" target="_blank" rel="noopener">Yale Film Analysis Guide</a>。</p>
+      </section>
+
+      <section>
+        <div class="dr-section-label">04 · INFORMATION DESIGN</div>
+        <h2 class="dr-section-heading">悬念、惊讶与理解，首先是信息顺序问题</h2>
+        <p>导演不仅选择展示什么，也选择暂时不展示什么。遮挡、画外空间、声音先行、反应镜头和延迟揭示都能控制信息。重要的是，隐藏不能只是故弄玄虚；它应当改变观众对人物行动的理解。</p>
+
+        <div class="dr-grid">
+          <article class="dr-card"><small>ORIENT</small><h3>先建立空间</h3><p>观众知道人物、出口和目标的相对位置，之后的移动与危险才具有方向。</p></article>
+          <article class="dr-card"><small>WITHHOLD</small><h3>限制信息</h3><p>只让观众掌握人物知道的部分，疑问来自共同的不确定，而非刻意藏住必需信息。</p></article>
+          <article class="dr-card"><small>SUPERIOR</small><h3>让观众先知道</h3><p>危险已出现而人物尚未察觉，注意力会转向“何时发现”和“能否避免”。</p></article>
+          <article class="dr-card"><small>REVEAL</small><h3>重新解释</h3><p>新信息不仅补足事实，还应改变前一个动作或表情的含义。</p></article>
+        </div>
+
+        <p>Pixar 与 Khan Academy 合作的 <a href="https://www.khanacademy.org/computing/pixar/storytelling" target="_blank" rel="noopener">Pixar in a Box：The Art of Storytelling</a> 把结构、人物、视觉语言、电影语法、分镜和反馈放在同一课程中。它提供了一个重要提醒：镜头不是故事写完以后附加的包装，信息顺序与视觉表达从一开始就参与故事建构。</p>
+      </section>
+
+      <section>
+        <div class="dr-section-label">05 · A WORKING SCENE</div>
+        <h2 class="dr-section-heading">贯穿五篇的练习场景：先写导演判断，不急着列镜头</h2>
+        <p>下面使用一个<strong>虚构教学场景</strong>贯穿本系列：旧照相馆即将拆除。女儿林岚在清晨回来，想取走母亲留下的录音机并立即离开；三年未见的父亲已经在店里等她。两人几乎没有对话，父亲最后把一对新电池放到录音机旁。</p>
+
+        <div class="dr-case">
+          <div class="dr-case-head">DIRECTOR'S BRIEF · 第一版导演阐述</div>
+          <div class="dr-case-body">
+            <p>这不是一场“父女彻底和解”的戏，而是两个人第一次停止用回避保护自己。场景开始时，林岚只想拿走物品；结束时，她仍然离开，却接受了父亲提供的电池。变化很小，但关系首次出现可继续的缝隙。</p>
+            <div class="dr-case-list">
+              <div class="dr-case-row"><b>核心变化</b><span>从拒绝任何联系，到接受一个不要求回应的照顾动作。</span></div>
+              <div class="dr-case-row"><b>主要视点</b><span>贴近林岚。观众和她一起逐步发现父亲早已准备好电池。</span></div>
+              <div class="dr-case-row"><b>信息策略</b><span>先让电池以不显眼的背景物存在，最后通过动作和声音确认其意义。</span></div>
+              <div class="dr-case-row"><b>形式原则</b><span>前半段保持距离与遮挡；关系松动时才允许两人进入较完整的共同空间。</span></div>
+              <div class="dr-case-row"><b>结束状态</b><span>林岚带走录音机和电池，父亲留在原地；没有拥抱，也没有替人物宣布和解。</span></div>
+            </div>
+          </div>
+        </div>
+
+        <p>这份阐述没有写焦段、运镜和色彩，因为那些属于下一层。先固定“场景怎样变化”，之后才有标准判断某个漂亮镜头是否真的适合。</p>
+      </section>
+
+      <section>
+        <div class="dr-section-label">06 · VISUAL STRATEGY</div>
+        <h2 class="dr-section-heading">视听策略要形成系统，而不是每个镜头各有一个创意</h2>
+        <p>单个镜头的意义来自它与前后镜头以及整部作品的关系。低机位并不自动代表权力，近景也不自动代表亲密。只有当距离、位置、运动、光色与声音在一段时间内建立规律，打破规律才会产生意义。</p>
+
+        <div class="dr-checklist">
+          <div class="dr-check-row"><div><h3>距离规则</h3><p>什么情况下接近人物，什么情况下保留环境？距离变化应对应信息或关系变化。</p></div></div>
+          <div class="dr-check-row"><div><h3>运动规则</h3><p>摄影机通常观察、跟随还是主动揭示？若突然运动，它改变了什么认识？</p></div></div>
+          <div class="dr-check-row"><div><h3>空间规则</h3><p>哪些人物可以同框，哪些人物被门、墙、前景或景深分隔？空间是否随着关系重排？</p></div></div>
+          <div class="dr-check-row"><div><h3>光色规则</h3><p>综合色、主光方向与反差怎样支持现实条件和情绪弧线，而不只是制造漂亮色调？</p></div></div>
+          <div class="dr-check-row"><div><h3>声音规则</h3><p>哪些声音属于环境，哪些声音贴近人物感知？沉默何时成立，声音何时先于画面提供信息？</p></div></div>
+        </div>
+
+        <div class="dr-note warning">
+          <span class="dr-note-title">边界 · No universal formula</span>
+          <p>所谓“广角等于疏离”“俯拍等于弱小”“手持等于真实”都只能作为可能的形式倾向。最终含义取决于表演、空间、前后文和作品已经建立的规则，不能把术语与情绪一一锁死。</p>
+        </div>
+      </section>
+
+      <section>
+        <div class="dr-section-label">07 · DIRECTING FOR GENERATION</div>
+        <h2 class="dr-section-heading">面对生成模型：先给决策，再给描述</h2>
+        <p>生成模型更容易执行可观察的局部条件，例如人物位置、动作方向、景别、光源和起止状态；“主题是原谅”无法直接保证这些条件自动协调。因此，导演阐述不应原样塞进提示词，而应成为分解提示词和筛选结果的依据。</p>
+
+        <div class="dr-table-wrap">
+          <table class="dr-table">
+            <thead><tr><th>导演层</th><th>生成层</th><th>验收问题</th></tr></thead>
+            <tbody>
+              <tr><td>保持疏离</td><td>两人分处画面前后景，被竖直门框隔开；避免亲密接触</td><td>空间关系是否比表情标签更清楚</td></tr>
+              <tr><td>发现电池</td><td>林岚拿起录音机后停顿，视线落向旁边两节新电池；相机保持静止</td><td>事件顺序能否读懂，有没有无因变形</td></tr>
+              <tr><td>关系轻微松动</td><td>她没有回头，只把电池一起收入包中；父亲仍在画外</td><td>是否保留克制，而非自动生成拥抱或微笑</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p>生成结果的第一轮筛选也应回到导演问题：核心变化是否存在，视点是否稳定，信息是否按预定顺序出现，结束状态是否为下一镜留下明确条件。清晰度、风格和细节只能排在这些问题之后。</p>
+      </section>
+
+      <section>
+        <div class="dr-section-label">08 · A SHORT WORKFLOW</div>
+        <h2 class="dr-section-heading">一页导演方案：从素材到可检验的视听原则</h2>
+        <p>面对一段短文本、产品概念或生成任务，可以先完成下面的一页方案。它不是文学阐释，也不是技术清单，而是连接两者的工作文件。</p>
+
+        <div class="dr-checklist">
+          <div class="dr-check-row"><div><h3>用一句话写核心变化</h3><p>句子应包含“从……到……”，并能在人物行动或信息关系中被观察。</p></div></div>
+          <div class="dr-check-row"><div><h3>写出观众的信息曲线</h3><p>列出观众在开始、中点和结束分别知道什么，哪些信息暂时只属于某个人物。</p></div></div>
+          <div class="dr-check-row"><div><h3>选择主要视点</h3><p>说明为何贴近、何时转移，以及转移后观众获得什么新的判断位置。</p></div></div>
+          <div class="dr-check-row"><div><h3>确定三条形式原则</h3><p>只写真正贯穿场景的距离、空间、运动、光色或声音规则，避免十几个空泛形容词。</p></div></div>
+          <div class="dr-check-row"><div><h3>写出不可失去的瞬间</h3><p>通常是一个动作、一次发现或一个停顿；之后所有镜头都应为它提供条件。</p></div></div>
+        </div>
+      </section>
+
+      <section>
+        <div class="dr-section-label">09 · COMMON PITFALLS</div>
+        <h2 class="dr-section-heading">常见误区：有想法不等于有导演方案</h2>
+        <div class="dr-grid">
+          <article class="dr-card"><small>PITFALL 01</small><h3>把主题当成场景变化</h3><p>“关于亲情”不能说明这场戏具体发生了什么。需要找到一次可以被行动证明的关系变化。</p></article>
+          <article class="dr-card"><small>PITFALL 02</small><h3>从镜头术语开始</h3><p>先决定环绕、航拍或特写，容易让故事为技巧找借口。应先确认镜头承担的信息功能。</p></article>
+          <article class="dr-card"><small>PITFALL 03</small><h3>用形容词代替证据</h3><p>压抑、治愈、史诗和高级都需要空间、动作、光色、声音与节奏共同落地。</p></article>
+          <article class="dr-card"><small>PITFALL 04</small><h3>所有信息一次讲完</h3><p>完整不等于有效。观看依赖逐步更新，过早解释会消除疑问、预期和发现。</p></article>
+          <article class="dr-card"><small>PITFALL 05</small><h3>每个镜头都追求强烈</h3><p>如果所有镜头都在强调，真正的重音便无从出现。普通、停顿和留白也是组织工具。</p></article>
+          <article class="dr-card"><small>PITFALL 06</small><h3>把导演理解为独自控制</h3><p>导演需要整合写作、表演、摄影、美术、声音与剪辑；生成工作流中也要让参考、提示和后期分工。</p></article>
+        </div>
+      </section>
+
+      <section>
+        <div class="dr-section-label">10 · PRACTICE</div>
+        <h2 class="dr-section-heading">五个练习：从“喜欢这个画面”进入有依据的选择</h2>
+        <div class="dr-exercises">
+          <div class="dr-exercise"><div><h3>同一事件，三种观众位置</h3><p>选择“角色发现门没有锁”这一事件，分别设计为观众先知道、与角色同时知道、比角色更晚知道，记录情绪差异。</p></div></div>
+          <div class="dr-exercise"><div><h3>一句话核心变化</h3><p>为五个熟悉电影场景各写一句“从……到……”，只写场景内实际发生的变化，不概括整部作品主题。</p></div></div>
+          <div class="dr-exercise"><div><h3>删除漂亮镜头</h3><p>从一段短片中选择最醒目的镜头，假设删掉它，判断信息、人物与节奏是否受损。若没有，说明它可能只是装饰。</p></div></div>
+          <div class="dr-exercise"><div><h3>四层翻译</h3><p>把“越来越不安”依次写成观众体验、三项视听证据和可执行生成条件；检查每层是否发生了具体化。</p></div></div>
+          <div class="dr-exercise"><div><h3>一页导演方案</h3><p>使用旧照相馆场景或自选场景，完成核心变化、视点、信息曲线、三条形式原则和不可失去的瞬间。</p></div></div>
+        </div>
+      </section>
+
+      <section>
+        <div class="dr-section-label">11 · FURTHER READING</div>
+        <h2 class="dr-section-heading">继续学习：从导演职能进入视觉叙事与电影形式</h2>
+        <ul class="dr-sources">
+          <li><div class="dr-source-no">01</div><div><a href="https://www.dga.org/Contracts/Directors-Economic-Rights/Summary---Features" target="_blank" rel="noopener">Directors Guild of America · The Director's Function</a><span>从行业制度角度理解导演如何参与并整合影片的创意要素。</span></div></li>
+          <li><div class="dr-source-no">02</div><div><a href="https://www.bafta.org/stories/10-things-you-need-to-know-to-be-awriterdirector/" target="_blank" rel="noopener">BAFTA · 10 Things You Need To Know to be a Writer/Director</a><span>多位创作者讨论准备、视觉方向、协作和理解选择理由的重要性。</span></div></li>
+          <li><div class="dr-source-no">03</div><div><a href="https://filmanalysis.yale.edu/" target="_blank" rel="noopener">Yale Film Analysis Guide</a><span>系统学习场面调度、摄影、声音与剪辑的分析语言。</span></div></li>
+          <li><div class="dr-source-no">04</div><div><a href="https://www.khanacademy.org/computing/pixar/storytelling" target="_blank" rel="noopener">Pixar in a Box · The Art of Storytelling</a><span>从人物、结构、视觉语言、电影语法与分镜理解故事如何被视觉化。</span></div></li>
+          <li><div class="dr-source-no">05</div><div><a href="https://www.bfi.org.uk/resources-events-teachers/resources-teachers" target="_blank" rel="noopener">BFI · Resources for Teachers</a><span>英国电影协会提供的电影分析与短片制作学习入口。</span></div></li>
+          <li><div class="dr-source-no">06</div><div><a href="https://ocw.mit.edu/courses/21l-011-the-film-experience-fall-2013/" target="_blank" rel="noopener">MIT OpenCourseWare · The Film Experience</a><span>把电影放入艺术史、技术与文化语境中理解，适合继续建立电影形式框架。</span></div></li>
+        </ul>
+      </section>
+
+      <p class="dr-closing">导演思维的起点不是拥有更多镜头，而是减少没有理由的选择。先确定变化、视点与信息，再让摄影、表演、声音、剪辑和生成模型共同完成同一件事。</p>
+    </article>
+  </main>
+</body>
+</html>

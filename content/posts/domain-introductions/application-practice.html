@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>篇章引言：把模型能力转化为业务系统</title>
+  <style>/* 域级序章共用阅读页样式。 */</style>
+</head>
+<body>
+  <header>
+    <div class="meta-row">
+      <span>2026-08-23</span>
+      <span>知识域 · 篇章引言</span>
+      <span>阅读约 7 分钟</span>
+      <span>应用实践 · AI 系统 · 工程落地</span>
+    </div>
+  </header>
+
+  <article class="article-body">
+    <p class="domain-intro-lead">应用实践关注模型进入真实任务之后发生的事情。模型能力只是系统的一部分；数据、知识、工具、流程、评估、成本和责任边界共同决定一个 AI 应用能否稳定产生价值。</p>
+
+    <section class="domain-intro-section">
+      <div class="domain-intro-section-label">01 · Scope</div>
+      <h2 id="practice-scope" class="domain-intro-heading">这个知识域讨论什么</h2>
+      <p>从演示到生产，中间存在一条漫长的工程链路。应用必须接收真实输入，调用模型或工具，处理失败，记录过程，接受评估，并与既有业务系统协同。本域围绕这条链路讨论 Agent、推荐系统和企业案例。</p>
+      <div class="domain-intro-scope-grid">
+        <div class="domain-intro-scope-card"><b>问题定义</b><p>识别真正需要解决的任务、使用者、输入输出与成功标准。</p></div>
+        <div class="domain-intro-scope-card"><b>系统编排</b><p>组合模型、检索、工具、工作流、人工复核和既有业务能力。</p></div>
+        <div class="domain-intro-scope-card"><b>评估与观测</b><p>建立离线数据集、在线指标、错误分类、日志和持续改进机制。</p></div>
+        <div class="domain-intro-scope-card"><b>业务约束</b><p>同时考虑成本、时延、稳定性、安全、合规和组织协作。</p></div>
+      </div>
+    </section>
+
+    <section class="domain-intro-section">
+      <div class="domain-intro-section-label">02 · From Model to System</div>
+      <h2 id="practice-system-view" class="domain-intro-heading">模型效果不等于系统效果</h2>
+      <p>模型在测试样例上能够回答，并不意味着系统可以直接上线。真实输入可能模糊、缺失、矛盾或恶意；知识会过期，工具调用会失败，业务规则会变化，用户也可能提出系统从未见过的问题。</p>
+      <p>因此，应用设计需要把不确定性显式纳入流程：哪些问题允许模型直接处理，哪些必须检索依据，哪些需要传统规则兜底，哪些应转交人工，以及怎样记录失败以支持下一轮改进。</p>
+      <div class="domain-intro-thesis">可靠的 AI 应用不是让模型接管所有环节，而是为不同风险和价值水平选择合适的自动化边界。</div>
+    </section>
+
+    <section class="domain-intro-section">
+      <div class="domain-intro-section-label">03 · Boundary</div>
+      <h2 id="practice-boundary" class="domain-intro-heading">讨论边界</h2>
+      <aside class="domain-intro-boundary"><b>这里不把公开案例写成万能模板，也不把模型能力演示写成业务收益。</b><p>不同组织的数据基础、系统债务、风险等级和成本结构差异显著。案例用于识别约束与方法，不代表所有企业都应采用相同架构；缺少公开证据的内部指标也不会被当作确定事实。</p></aside>
+    </section>
+
+    <section class="domain-intro-section">
+      <div class="domain-intro-section-label">04 · Purpose</div>
+      <h2 id="practice-purpose" class="domain-intro-heading">最终目的：建立面向结果的系统判断</h2>
+      <p>应用实践的目标，是把注意力从“模型能不能做”推进到“系统如何持续做好”。判断应同时覆盖任务价值、能力边界、工程路径、评估方法和长期维护，而不是只关注某次生成结果。</p>
+      <p class="domain-intro-closing">模型提供新的能力边界，真正的应用价值则来自对流程、数据、责任与反馈的重新组织。</p>
+    </section>
+  </article>
+</body>
+</html>

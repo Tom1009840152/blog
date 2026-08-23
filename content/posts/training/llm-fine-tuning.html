@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>大模型微调：全参数微调与高效参数微调</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+
+  :root {
+    --paper: #fffdf8;
+    --ink: #1b1a17;
+    --muted: #69645c;
+    --faint: #999289;
+    --line: rgba(62, 55, 45, .14);
+    --blue: #5874c9;
+    --blue-deep: #314c9d;
+    --blue-soft: #e9eefc;
+    --cyan: #167c80;
+    --cyan-soft: #e4f2f1;
+    --amber: #b66b28;
+    --amber-soft: #f8eadb;
+    --red: #b14f47;
+    --red-soft: #f8e7e4;
+    --serif: "Noto Serif SC", "Songti SC", Georgia, serif;
+    --sans: "Noto Sans SC", system-ui, sans-serif;
+    --mono: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
+  }
+
+  .hero { max-width: 980px; margin: 0 auto; padding: 64px 28px 42px; }
+  .kicker { color: var(--blue); font: 600 12px/1.4 var(--mono); letter-spacing: .16em; text-transform: uppercase; }
+  .headline { margin: 16px 0; font-family: var(--serif); font-size: 44px; line-height: 1.22; letter-spacing: -.025em; }
+  .deck { max-width: 735px; color: var(--muted); font-size: 17px; line-height: 1.85; }
+  .meta-row { display: flex; flex-wrap: wrap; gap: 8px 20px; margin-top: 25px; color: var(--faint); font-size: 13px; }
+  .content-wrap { max-width: 980px; margin: 0 auto; padding: 0 28px 88px; }
+
+  .article-body { max-width: 760px; color: var(--ink); }
+  .article-body p { margin: 0 0 20px; }
+  .article-body strong { color: #11100e; font-weight: 650; }
+  .article-body a { color: var(--blue-deep); text-decoration-thickness: 1px; text-underline-offset: 3px; }
+  .article-body a:hover { color: var(--cyan); }
+  .article-body code { padding: 2px 5px; border-radius: 4px; color: var(--blue-deep); background: var(--blue-soft); font-family: var(--mono); font-size: .88em; }
+
+  .section-label { margin: 60px 0 9px; color: var(--faint); font: 500 10px/1.2 var(--mono); letter-spacing: .2em; text-transform: uppercase; }
+  .section-heading { margin: 0 0 22px; font-family: var(--serif); font-size: 26px; line-height: 1.43; font-weight: 650; letter-spacing: -.01em; }
+  .subheading { margin: 35px 0 12px; font-family: var(--serif); font-size: 20px; line-height: 1.5; font-weight: 650; }
+  .lead-block { position: relative; margin: 2px 0 34px; padding: 22px 25px 23px; border: 1px solid rgba(88, 116, 201, .17); border-left: 3px solid var(--blue); border-radius: 0 11px 11px 0; background: linear-gradient(110deg, rgba(233, 238, 252, .72), rgba(255, 253, 248, .34)); }
+  .lead-label { display: block; margin-bottom: 10px; color: var(--blue); font: 600 10px/1.3 var(--mono); letter-spacing: .15em; text-transform: uppercase; }
+  .lead-block .lead { margin: 0; color: #302d28; font-family: var(--serif); font-size: 17.5px; line-height: 1.88; }
+  .thesis { margin: 32px 0; padding: 25px 27px; border-left: 3px solid var(--blue); background: linear-gradient(100deg, rgba(233, 238, 252, .84), rgba(255, 253, 248, .2)); font-family: var(--serif); font-size: 20px; line-height: 1.75; font-weight: 600; }
+  .note { margin: 27px 0; padding: 20px 22px; border: 1px solid var(--line); border-radius: 11px; background: rgba(255, 253, 248, .75); }
+  .note-title { display: block; margin-bottom: 7px; color: var(--blue); font: 600 11px/1.4 var(--mono); letter-spacing: .12em; text-transform: uppercase; }
+  .warning { border-color: rgba(182, 107, 40, .24); background: var(--amber-soft); }
+  .warning .note-title { color: var(--amber); }
+
+  .axis-panel { margin: 29px 0 37px; padding: 24px; border: 1px solid rgba(88, 116, 201, .23); border-radius: 13px; background: linear-gradient(145deg, rgba(233, 238, 252, .72), rgba(228, 242, 241, .45)); }
+  .axis-title { margin-bottom: 17px; color: var(--faint); font: 600 10px/1 var(--mono); letter-spacing: .16em; text-transform: uppercase; }
+  .axis-grid { display: grid; grid-template-columns: 118px 1fr 1fr; border: 1px solid rgba(88, 116, 201, .16); border-radius: 10px; overflow: hidden; }
+  .axis-cell { min-height: 84px; padding: 16px; border-right: 1px solid rgba(88, 116, 201, .14); border-bottom: 1px solid rgba(88, 116, 201, .14); background: rgba(255,255,255,.76); }
+  .axis-cell:nth-child(3n) { border-right: 0; }
+  .axis-cell:nth-last-child(-n+3) { border-bottom: 0; }
+  .axis-head { min-height: auto; color: var(--blue-deep); font: 650 11px/1.5 var(--mono); background: rgba(88, 116, 201, .08); }
+  .axis-side { color: var(--cyan); font: 650 11px/1.5 var(--mono); background: rgba(228, 242, 241, .64); }
+  .axis-cell b { display: block; font-size: 13px; }
+  .axis-cell span { display: block; margin-top: 6px; color: var(--muted); font-size: 11.5px; line-height: 1.6; }
+
+  .update-figure { margin: 29px 0 38px; padding: 25px; border: 1px solid var(--line); border-radius: 13px; background: var(--paper); }
+  .update-head { display: flex; align-items: baseline; justify-content: space-between; gap: 18px; margin-bottom: 22px; }
+  .update-head strong { font-size: 14px; }
+  .update-head span { color: var(--faint); font: 500 10px/1.4 var(--mono); letter-spacing: .08em; }
+  .update-grid { display: grid; grid-template-columns: 1fr 46px 1fr; align-items: center; gap: 13px; }
+  .matrix { display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; padding: 16px; border-radius: 10px; background: rgba(88, 116, 201, .055); }
+  .matrix i { aspect-ratio: 1; border-radius: 2px; background: rgba(88, 116, 201, .62); }
+  .matrix.full i:nth-child(3n) { background: rgba(22, 124, 128, .65); }
+  .matrix.frozen i { background: rgba(105, 100, 92, .16); }
+  .matrix.frozen i:nth-child(7), .matrix.frozen i:nth-child(8), .matrix.frozen i:nth-child(13), .matrix.frozen i:nth-child(19), .matrix.frozen i:nth-child(25), .matrix.frozen i:nth-child(31), .matrix.frozen i:nth-child(32) { background: rgba(88, 116, 201, .82); }
+  .update-arrow { color: var(--blue); font: 500 24px/1 var(--mono); text-align: center; }
+  .update-caption { display: grid; grid-template-columns: 1fr 46px 1fr; gap: 13px; margin-top: 12px; }
+  .update-caption div { color: var(--muted); font-size: 12px; line-height: 1.65; }
+  .update-caption b { color: var(--ink); }
+
+  .equation { margin: 27px 0 34px; padding: 25px; border: 1px solid rgba(88, 116, 201, .22); border-radius: 12px; background: var(--blue-soft); text-align: center; }
+  .equation-main { color: var(--blue-deep); font: 650 25px/1.4 var(--mono); }
+  .equation-copy { max-width: 610px; margin: 13px auto 0; color: var(--muted); font-size: 12.5px; line-height: 1.72; }
+
+  .method-grid, .metric-grid, .mistake-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; margin: 26px 0 36px; }
+  .method-card, .metric-card, .mistake-card { padding: 20px; border: 1px solid var(--line); border-radius: 11px; background: var(--paper); }
+  .method-card { border-top: 3px solid var(--blue); }
+  .method-card.alt { border-top-color: var(--cyan); }
+  .method-card h3, .metric-card h3 { margin: 0 0 8px; font-size: 16px; line-height: 1.45; }
+  .method-card p, .metric-card p, .mistake-card p { margin: 0; color: var(--muted); font-size: 13.5px; line-height: 1.76; }
+  .method-card .tagline { display: block; margin-bottom: 9px; color: var(--blue); font: 600 10px/1 var(--mono); letter-spacing: .12em; }
+  .method-card.alt .tagline { color: var(--cyan); }
+  .metric-card { border-left: 3px solid var(--blue); }
+  .metric-card:nth-child(2n) { border-left-color: var(--cyan); }
+  .metric-card small { display: block; margin-top: 9px; color: var(--faint); font-size: 11px; line-height: 1.6; }
+  .mistake-card { border-color: rgba(177, 79, 71, .18); background: rgba(177,79,71,.035); }
+  .mistake-card b { display: block; margin-bottom: 6px; color: var(--red); font-size: 14px; }
+
+  .table-wrap { margin: 28px 0 36px; overflow-x: auto; border: 1px solid var(--line); border-radius: 11px; }
+  .data-table { width: 100%; min-width: 800px; border-collapse: collapse; background: var(--paper); font-size: 13.5px; }
+  .data-table th, .data-table td { padding: 14px 15px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; line-height: 1.68; }
+  .data-table tr:last-child td { border-bottom: 0; }
+  .data-table th { color: var(--muted); font-size: 11px; letter-spacing: .06em; background: rgba(88, 116, 201, .06); }
+  .data-table td:first-child { color: var(--blue-deep); font-family: var(--mono); font-size: 11px; white-space: nowrap; }
+  .data-table .good { color: var(--cyan); font-weight: 650; }
+  .data-table .risk { color: var(--amber); font-weight: 650; }
+
+  .schema { margin: 28px 0 36px; overflow: hidden; border-radius: 12px; background: #1f2330; color: #f5f5ef; }
+  .schema-head { padding: 13px 19px; border-bottom: 1px solid rgba(255,255,255,.1); color: #aebdf1; font: 600 10px/1 var(--mono); letter-spacing: .14em; }
+  .schema-body { padding: 19px 21px 22px; overflow-x: auto; }
+  .schema pre { min-width: 580px; margin: 0; color: rgba(245,245,239,.78); font: 500 11.5px/1.72 var(--mono); white-space: pre; }
+  .schema .key { color: #aebdf1; }
+  .schema .value { color: #8ed3c8; }
+  .schema .comment { color: rgba(245,245,239,.42); }
+
+  .budget-panel { margin: 29px 0 38px; padding: 25px; border: 1px solid rgba(88, 116, 201, .22); border-radius: 13px; background: linear-gradient(145deg, rgba(233, 238, 252, .65), rgba(255, 253, 248, .65)); }
+  .budget-title { margin-bottom: 20px; color: var(--faint); font: 600 10px/1 var(--mono); letter-spacing: .14em; text-transform: uppercase; }
+  .budget-flow { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
+  .budget-step { position: relative; padding: 18px 12px; border-radius: 10px; background: rgba(255,255,255,.9); text-align: center; }
+  .budget-step:not(:last-child)::after { content: '→'; position: absolute; right: -15px; top: 50%; transform: translateY(-50%); color: var(--blue); font-family: var(--mono); }
+  .budget-step b { display: block; color: var(--blue-deep); font: 650 18px/1 var(--mono); }
+  .budget-step span { display: block; margin-top: 8px; color: var(--muted); font-size: 11px; line-height: 1.6; }
+  .budget-caption { margin-top: 18px; color: var(--muted); font-size: 13px; line-height: 1.75; }
+
+  .plain-list, .number-list { margin: 18px 0 28px; padding-left: 23px; }
+  .plain-list li, .number-list li { margin-bottom: 11px; padding-left: 4px; }
+  .plain-list li::marker, .number-list li::marker { color: var(--blue); }
+  .number-list li::marker { font-family: var(--mono); font-size: 12px; }
+
+  .diagnosis { margin: 28px 0 38px; border-top: 1px solid var(--line); }
+  .diagnosis-row { display: grid; grid-template-columns: 145px 1fr 1.1fr; gap: 20px; padding: 18px 0; border-bottom: 1px solid var(--line); }
+  .diagnosis-signal { color: var(--blue-deep); font: 600 11px/1.55 var(--mono); }
+  .diagnosis-cause, .diagnosis-action { color: var(--muted); font-size: 13px; line-height: 1.7; }
+  .diagnosis-row strong { display: block; margin-bottom: 4px; font-size: 12px; }
+
+  .pipeline { margin: 29px 0 38px; padding: 24px; border: 1px solid rgba(88, 116, 201, .22); border-radius: 13px; background: rgba(233, 238, 252, .43); }
+  .pipeline-title { margin-bottom: 15px; color: var(--faint); font: 500 10px/1 var(--mono); letter-spacing: .17em; text-transform: uppercase; }
+  .pipeline-flow { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
+  .pipeline-node { position: relative; min-height: 100px; padding: 16px 11px; border-radius: 9px; background: rgba(255, 255, 255, .88); text-align: center; box-shadow: 0 5px 18px rgba(40, 51, 92, .05); }
+  .pipeline-node:not(:last-child)::after { content: '→'; position: absolute; top: 50%; right: -15px; transform: translateY(-50%); color: var(--blue); font-family: var(--mono); }
+  .pipeline-node b { display: block; font-size: 13px; }
+  .pipeline-node span { display: block; margin-top: 6px; color: var(--faint); font-size: 10.5px; line-height: 1.55; }
+
+  .source-list { margin: 25px 0 36px; padding: 0; list-style: none; }
+  .source-list li { display: grid; grid-template-columns: 32px 1fr; gap: 13px; padding: 14px 0; border-bottom: 1px solid var(--line); }
+  .source-list li:first-child { border-top: 1px solid var(--line); }
+  .source-no { color: var(--faint); font: 500 10px/1.8 var(--mono); }
+  .source-list a { font-weight: 600; }
+  .source-list span { display: block; margin-top: 3px; color: var(--faint); font-size: 12px; line-height: 1.6; }
+  .closing { margin-top: 48px; padding-top: 27px; border-top: 2px solid var(--ink); font-family: var(--serif); font-size: 20px; line-height: 1.82; }
+
+  @media (max-width: 720px) {
+    .hero { padding: 48px 20px 34px; }
+    .headline { font-size: 35px; }
+    .content-wrap { padding: 0 20px 70px; }
+    .method-grid, .metric-grid, .mistake-grid { grid-template-columns: 1fr; }
+    .axis-grid { grid-template-columns: 92px 1fr 1fr; }
+    .axis-cell { padding: 12px 10px; }
+    .update-grid, .update-caption { grid-template-columns: 1fr; }
+    .update-arrow { transform: rotate(90deg); }
+    .update-caption div:nth-child(2) { display: none; }
+    .budget-flow, .pipeline-flow { grid-template-columns: 1fr 1fr; }
+    .budget-step:nth-child(2)::after, .pipeline-node:nth-child(2)::after { display: none; }
+    .diagnosis-row { grid-template-columns: 1fr; gap: 7px; }
+  }
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="kicker">MODEL TRAINING · FINE-TUNING 02</div>
+  <h1 class="headline">大模型微调：全参数微调与高效参数微调</h1>
+  <p class="deck">微调不是简单地“再训练几轮”。它是一项受数据分布、更新范围、算力预算和评测体系共同约束的模型工程：先明确要改变什么，再决定更新多少参数，最后用可复现的证据判断变化是否有效。</p>
+  <div class="meta-row">
+    <span>2026-08-22</span>
+    <span>模型训练 · 第二篇</span>
+    <span>阅读约 20 分钟</span>
+    <span>全参数微调 · PEFT · LoRA · 模型评估</span>
+  </div>
+</header>
+
+<main class="content-wrap">
+<article class="article-body">
+  <div class="lead-block">
+    <span class="lead-label">导言 · Introduction</span>
+    <p class="lead">预训练让模型获得广泛的语言、知识与推理能力，微调则改变这些能力被调用的方式。它可以让模型遵循指令、适应专业任务、稳定输出结构或对齐偏好，但也可能带来过拟合、通用能力回退和安全边界漂移。微调的核心问题因此不是“是否使用 LoRA”，而是目标、数据、更新范围与评估是否形成闭环。</p>
+  </div>
+  <p>工程讨论中常把 SFT、DPO、全参数微调和 LoRA 放在同一层比较，实际上它们属于不同维度。SFT 与 DPO 描述<strong>用什么数据和目标函数训练</strong>；全参数微调与 PEFT 描述<strong>哪些参数允许更新</strong>。SFT 可以采用全参数微调，也可以采用 LoRA；DPO 同样可以更新全部参数，或只训练适配器。</p>
+  <div class="thesis">可靠的微调方案应回答四个问题：目标行为是什么，样本如何代表目标分布，哪些参数需要更新，以及模型变化如何被观测、评估和纠正。</div>
+
+  <div class="section-label">01 · TWO AXES</div>
+  <h2 class="section-heading">先分清两个维度：训练目标与参数范围</h2>
+  <p><strong>监督微调（SFT）</strong>使用输入—理想输出样本，通过语言模型损失提高理想回答的条件概率，适合学习指令遵循、任务流程、输出格式和示范中的表达模式。<strong>偏好优化</strong>使用成对偏好或奖励信号，强调“多个可行回答中哪一个更好”。DPO 将偏好学习转化为相对简洁的分类式目标，不需要先训练奖励模型再运行 PPO。</p>
+  <p>参数范围是另一条轴：全参数微调允许基座模型的全部权重参与梯度更新；PEFT 则冻结绝大部分基座参数，只训练新增或选定的少量参数。两条轴组合后，才构成完整训练方案。</p>
+
+  <div class="axis-panel">
+    <div class="axis-title">Objective × Update Scope</div>
+    <div class="axis-grid">
+      <div class="axis-cell axis-head">训练目标</div>
+      <div class="axis-cell axis-head">更新全部参数</div>
+      <div class="axis-cell axis-head">仅更新 PEFT 参数</div>
+      <div class="axis-cell axis-side">SFT<br>示范数据</div>
+      <div class="axis-cell"><b>Full SFT</b><span>以标准答案监督全部权重，更新自由度最高，资源需求也最高。</span></div>
+      <div class="axis-cell"><b>LoRA / QLoRA SFT</b><span>以同样的监督损失训练低秩矩阵，适合低成本任务适配。</span></div>
+      <div class="axis-cell axis-side">Preference<br>偏好数据</div>
+      <div class="axis-cell"><b>Full DPO / RLHF</b><span>在全部权重上优化偏好，需要更谨慎地控制漂移与资源。</span></div>
+      <div class="axis-cell"><b>LoRA DPO</b><span>只在适配器中学习 chosen 与 rejected 的相对偏好。</span></div>
+    </div>
+  </div>
+
+  <div class="note warning">
+    <span class="note-title">知识注入不是 SFT 的强项</span>
+    <p>若目标是让模型可靠掌握大量新事实，仅把知识文档改写为问答并不能保证稳定记忆。SFT 更擅长塑造行为和调用方式；大规模领域知识补充通常需要继续预训练，时效性或可追溯知识更适合检索增强生成（RAG）。</p>
+  </div>
+
+  <div class="section-label">02 · FULL FINE-TUNING</div>
+  <h2 class="section-heading">全参数微调：最大的更新自由度</h2>
+  <p>全参数微调在反向传播时为模型的全部可训练权重计算梯度，并由优化器更新。若模型有 <code>N</code> 个参数，就需要管理相应规模的权重、梯度和优化器状态；采用 Adam 类优化器时，优化器状态往往是训练显存的重要组成部分。参数分片、混合精度、激活重计算、FSDP 或 ZeRO 可以降低单卡压力，但不会消除总计算与通信成本。</p>
+
+  <div class="update-figure">
+    <div class="update-head"><strong>更新范围示意</strong><span>TRAINABLE PARAMETER MAP</span></div>
+    <div class="update-grid">
+      <div class="matrix full" aria-label="全参数微调中全部权重可训练">
+        <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+        <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+        <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+      </div>
+      <div class="update-arrow">→</div>
+      <div class="matrix frozen" aria-label="PEFT 中基座权重冻结，只有少量适配参数可训练">
+        <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+        <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+        <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+      </div>
+    </div>
+    <div class="update-caption">
+      <div><b>全参数微调</b><br>所有色块都可更新，模型拥有完整的适应空间。</div>
+      <div></div>
+      <div><b>PEFT</b><br>灰色基座保持冻结，仅训练蓝色的少量适配参数。</div>
+    </div>
+  </div>
+
+  <h3 class="subheading">优势</h3>
+  <ul class="plain-list">
+    <li><strong>表达能力上限高：</strong>模型的注意力、前馈网络、归一化与嵌入等权重都可协同适应目标分布，适合分布变化大、数据充分且性能上限优先的场景。</li>
+    <li><strong>部署路径直接：</strong>训练结果本身就是完整模型，不需要在推理时加载外部适配器，也不存在适配器与基座版本错配。</li>
+    <li><strong>研究控制更完整：</strong>层级学习率、冻结策略、持续预训练与多阶段训练可以在统一权重空间内设计。</li>
+  </ul>
+
+  <h3 class="subheading">代价与风险</h3>
+  <ul class="plain-list">
+    <li><strong>资源成本高：</strong>梯度、优化器状态和分布式通信随模型规模扩张；同等基座上的多个任务通常还要分别保存完整检查点。</li>
+    <li><strong>更新更容易扩散：</strong>目标数据过窄、学习率过高或训练时间过长时，通用能力和安全行为可能回退。全参数更新并不自动等于更高质量。</li>
+    <li><strong>迭代治理更重：</strong>每次实验都产生大体积产物，版本回滚、评估、复制和部署成本高于小型适配器。</li>
+  </ul>
+
+  <div class="section-label">03 · PEFT</div>
+  <h2 class="section-heading">高效参数微调：冻结基座，只训练必要增量</h2>
+  <p>PEFT（Parameter-Efficient Fine-Tuning）是一组方法的统称，而不是单一算法。共同思想是保留预训练权重，只训练新增模块、软提示或少量缩放参数。它减少了可训练参数、梯度与优化器状态，因此通常显著降低训练内存和检查点体积；基座模型也可以复用给多个任务。</p>
+
+  <div class="method-grid">
+    <div class="method-card">
+      <span class="tagline">REPARAMETERIZATION</span>
+      <h3>LoRA</h3>
+      <p>冻结原权重，将更新量表示为两个低秩矩阵的乘积。训练变量少、生态成熟，权重可合并回基座，通常是生成式大模型 PEFT 的首选起点。</p>
+    </div>
+    <div class="method-card">
+      <span class="tagline">QUANTIZED BASE</span>
+      <h3>QLoRA</h3>
+      <p>以 4-bit 保存冻结基座，梯度经过量化基座传回 LoRA。NF4、双重量化与分页优化器进一步控制内存，适合显存受限的实验。</p>
+    </div>
+    <div class="method-card alt">
+      <span class="tagline">ADDITIVE MODULE</span>
+      <h3>Adapter</h3>
+      <p>在 Transformer 层中插入小型瓶颈网络。任务隔离清晰，但未合并时会增加额外计算路径；适配器结构与部署框架需要一致。</p>
+    </div>
+    <div class="method-card alt">
+      <span class="tagline">PROMPT / RESCALING</span>
+      <h3>Prefix、Prompt 与 IA³</h3>
+      <p>前两者学习连续软提示或前缀状态；IA³ 学习缩放 key、value 与前馈激活的向量。参数量更小，但复杂任务的容量与稳定性依赖模型和目标。</p>
+    </div>
+  </div>
+
+  <h3 class="subheading">LoRA 的低秩更新</h3>
+  <p>设预训练线性层权重为 <code>W₀ ∈ Rᵈ×ᵏ</code>。全参数微调直接学习与 <code>W₀</code> 同形状的更新；LoRA 假设任务更新具有较低的内在秩，用两个小矩阵表示增量：</p>
+  <div class="equation">
+    <div class="equation-main">W′ = W₀ + ΔW，&nbsp; ΔW = (α / r) · B A</div>
+    <div class="equation-copy"><strong>W₀</strong> 保持冻结；<strong>A ∈ Rʳ×ᵏ</strong> 与 <strong>B ∈ Rᵈ×ʳ</strong> 可训练；<strong>r</strong> 是低秩维度，决定适配器容量和参数量；<strong>α</strong> 控制更新的缩放。提高 r 会增加容量与显存，但并不保证单调提升。</div>
+  </div>
+  <p>LoRA 原论文在 GPT-3 175B 的特定配置下，报告相对 Adam 全参数微调可将可训练参数减少约 10,000 倍、GPU 内存需求降低约 3 倍。这是论文实验条件下的结果，不是所有模型与 target modules 的固定比例。实际可训练参数量取决于 rank、目标层数量、矩阵形状以及是否训练 bias、embedding 或输出头。</p>
+
+  <h3 class="subheading">QLoRA 不是“4-bit 全参数训练”</h3>
+  <p>QLoRA 将预训练模型以 4-bit 量化形式放入显存，基座权重保持冻结；反向传播只更新 LoRA 参数。原论文借助 NF4、双重量化与分页优化器，使 65B 模型能够在单张 48GB GPU 上微调，并在其评测条件下保持与 16-bit 全参数微调相当的任务表现。</p>
+  <p>QLoRA 的主要优势是训练内存，而非自动提高质量。量化算子、硬件支持、计算数据类型和长上下文激活仍会影响速度与显存；当训练资源充足或任务对数值误差敏感时，应通过同数据、同评测的 LoRA 与 QLoRA 对照实验决定。</p>
+
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead><tr><th>路线</th><th>基座权重</th><th>主要优势</th><th>主要代价</th><th>更适合的条件</th></tr></thead>
+      <tbody>
+        <tr><td>全参数微调</td><td>全部更新</td><td class="good">更新自由度最高；可充分适应较大分布变化</td><td class="risk">显存、计算、通信与检查点成本最高；回退风险需严格评估</td><td>高价值核心模型、数据充分、算力充足、性能上限优先</td></tr>
+        <tr><td>LoRA</td><td>冻结；训练低秩增量</td><td class="good">训练和存储效率高；适配器可切换或合并</td><td class="risk">容量受 rank 与 target modules 约束；基座版本必须一致</td><td>领域任务、格式与行为适配、多租户、多版本快速迭代</td></tr>
+        <tr><td>QLoRA</td><td>冻结并以 4-bit 保存</td><td class="good">进一步降低基座显存，扩大单机可训练模型规模</td><td class="risk">量化与内核支持更复杂；不等于全参数 4-bit 更新</td><td>显存受限、先验证数据与任务可行性、开放模型实验</td></tr>
+        <tr><td>Adapter</td><td>冻结；插入小模块</td><td class="good">任务模块化清晰，便于分别管理</td><td class="risk">可能增加推理路径与框架耦合</td><td>需要严格任务隔离、部署框架原生支持 Adapter</td></tr>
+        <tr><td>Prefix / IA³</td><td>冻结；训练前缀或缩放向量</td><td class="good">训练参数量极小</td><td class="risk">复杂行为的容量和鲁棒性需实测</td><td>少样本任务、轻量实验、极端参数预算</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="note">
+    <span class="note-title">选择原则</span>
+    <p>默认可从 LoRA 建立低成本基线：若目标能力达到验收线，继续扩大训练范围没有必要；若在数据质量、训练步数和 rank 消融后仍出现稳定的容量瓶颈，再比较更广 target modules、较高 rank 与全参数微调。QLoRA 解决的是基座驻留显存，不应被当作一种独立的任务目标。</p>
+  </div>
+
+  <div class="section-label">04 · SAMPLE SCHEMA</div>
+  <h2 class="section-heading">需要构造怎样的微调样本</h2>
+  <p>SFT 样本应把产品要求转化为可学习的输入—输出关系。一个可靠样本不仅包含问题和答案，还应保留系统约束、上下文、工具状态、来源、能力标签、难度与质量信息。元数据通常不直接进入模型上下文，但决定后续如何切分、配比、审计和分析。</p>
+
+  <div class="schema">
+    <div class="schema-head">CONVERSATIONAL SFT SAMPLE · JSONL</div>
+    <div class="schema-body"><pre>{
+  <span class="key">"messages"</span>: [
+    {<span class="key">"role"</span>: <span class="value">"system"</span>,    <span class="key">"content"</span>: <span class="value">"遵守客服政策，只依据给定订单信息回答。"</span>},
+    {<span class="key">"role"</span>: <span class="value">"user"</span>,      <span class="key">"content"</span>: <span class="value">"列车停运后如何退款？"</span>},
+    {<span class="key">"role"</span>: <span class="value">"assistant"</span>, <span class="key">"content"</span>: <span class="value">"……经过审核的目标回答……"</span>}
+  ],
+  <span class="key">"task"</span>: <span class="value">"refund_policy"</span>,        <span class="comment">// 能力单元</span>
+  <span class="key">"difficulty"</span>: <span class="value">"hard"</span>,             <span class="comment">// 难度与边界类型</span>
+  <span class="key">"source_id"</span>: <span class="value">"policy_2026_08_v3"</span>, <span class="comment">// 来源与版本</span>
+  <span class="key">"quality"</span>: <span class="value">"expert_verified"</span>,   <span class="comment">// 审核状态</span>
+  <span class="key">"split_group"</span>: <span class="value">"policy_refund"</span>    <span class="comment">// 防泄漏分组</span>
+}</pre></div>
+  </div>
+
+  <h3 class="subheading">样本至少覆盖五类行为</h3>
+  <ul class="plain-list">
+    <li><strong>典型任务：</strong>线上最常见输入与标准流程，保证主要价值路径有足够覆盖。</li>
+    <li><strong>表达变化：</strong>口语、省略、错别字、多轮追问、长上下文和不同语言，避免模型只识别模板。</li>
+    <li><strong>边界与反例：</strong>信息不足、前提冲突、越权请求、不可执行任务与需要澄清的输入。</li>
+    <li><strong>结构化输出：</strong>JSON、函数调用、引用、表格或固定字段必须以可自动校验的样本呈现。</li>
+    <li><strong>安全与拒答：</strong>不仅示范何时拒绝，还要示范合理解释、允许范围和替代路径。</li>
+  </ul>
+
+  <h3 class="subheading">损失应落在真正需要学习的 token 上</h3>
+  <p>对话式 SFT 通常只对 assistant 消息计算损失，system 与 user 消息作为条件而非预测目标。Hugging Face TRL 的 <code>assistant_only_loss</code> 即用于这一设置，但依赖 chat template 正确标记生成区间。若模板与损失掩码错误，模型可能学习复述用户问题、预测控制 token，或把 padding 纳入损失。</p>
+  <p>训练前应抽样解码 tokenized 数据，逐项检查 BOS/EOS、角色边界、截断位置、label mask 与多轮消息。许多“模型学不会格式”的问题，根源并不在学习率，而在训练样本实际进入模型后的序列与预期不一致。</p>
+
+  <div class="section-label">05 · DATA VOLUME</div>
+  <h2 class="section-heading">需要多少数据：没有脱离任务的固定答案</h2>
+  <p>样本数量必须与基座能力、目标跨度、样本长度、质量、覆盖和训练目标同时解释。1,000 条高质量通用示范可能足以让强基座改变回答风格，却不足以覆盖一个包含数百种工具与规则的业务系统；百万条低质量模板也可能只让模型更稳定地复制错误。</p>
+
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead><tr><th>公开工作</th><th>数据规模</th><th>说明了什么</th><th>不能推出什么</th></tr></thead>
+      <tbody>
+        <tr><td>LIMA · 2023</td><td>1,000 组精心筛选的提示—回答</td><td>强基座已有大量知识时，少量高质量、多样化示范可以有效塑造回答行为与格式。</td><td>不能推出复杂领域、弱基座或大规模工具系统都只需要 1,000 条。</td></tr>
+        <tr><td>Self-Instruct · 2023</td><td>从人工种子任务出发，由模型生成并过滤大规模指令数据</td><td>合成数据可以扩展任务多样性；无效、相似样本过滤是方法的核心环节。</td><td>不能推出未经验证的自生成回答可直接作为可靠监督。</td></tr>
+        <tr><td>FLAN Collection · 2023</td><td>大规模任务、模板和 zero/few-shot/CoT 混合</td><td>任务平衡、混合提示设置与数据富化会显著影响跨任务泛化。</td><td>不能只依据总样本数解释效果，任务构成和混合权重同样关键。</td></tr>
+        <tr><td>DeepSeek LLM · 2024</td><td>超过 100 万条多来源 SFT 实例</td><td>广覆盖聊天模型会进入百万级数据工程，并需要策略与数据消融。</td><td>不能把百万条视为单一窄任务的最低门槛。</td></tr>
+        <tr><td>QLoRA · 2023</td><td>跨 8 个指令数据集训练 1,000 多个模型</td><td>论文发现小型高质量数据也可取得很强结果，数据质量对聊天评测影响突出。</td><td>不能证明量化、LoRA 或某一数据量在所有任务上无损。</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 class="subheading">用能力单元估算第一版，而不是先拍一个总数</h3>
+  <p>先将目标拆成“能力 × 场景 × 难度 × 输出形式 × 风险”的能力单元，再为每个单元准备具有表达变化和边界覆盖的样本。第一版数据预算可以写成：</p>
+  <div class="equation">
+    <div class="equation-main">样本预算 ≈ 能力单元数 × 每单元有效变体数</div>
+    <div class="equation-copy">这是一种工程估算，不是 Scaling Law。有效变体必须改变问题表达、上下文组合、推理路径或边界条件；仅替换实体名称的模板复制不等于新的覆盖。</div>
+  </div>
+  <p>若任务分类有 40 个能力单元，每个单元先构造 25 个经过审核的有效变体，第一版就是约 1,000 条。这个数字的意义是建立可分析的覆盖基线，而不是宣称 1,000 条足够上线。高风险或长尾单元应分配更多样本，简单格式转换可以更少。</p>
+
+  <h3 class="subheading">用 1× / 2× / 4× 学习曲线决定是否扩量</h3>
+  <div class="budget-panel">
+    <div class="budget-title">Data Scaling Experiment</div>
+    <div class="budget-flow">
+      <div class="budget-step"><b>1×</b><span>覆盖集<br>验证能否学会</span></div>
+      <div class="budget-step"><b>2×</b><span>增加表达变化<br>观察边际收益</span></div>
+      <div class="budget-step"><b>4×</b><span>补难例与长尾<br>复查通用回归</span></div>
+      <div class="budget-step"><b>STOP</b><span>目标指标趋平<br>转向质量修复</span></div>
+    </div>
+    <div class="budget-caption">固定基座、训练方法、token 预算口径和评测集，按数据子集递增训练。若 2× 到 4× 的目标收益已趋平，而通用能力回退或训练成本继续增加，应停止盲目扩量，转向错误分桶、质量修订或改变模型容量。</div>
+  </div>
+  <p>样本数还会掩盖长度差异，因此应同时记录有效训练 token、assistant 目标 token 和各任务的 token 占比。短分类回答与长篇推理各有 10,000 条时，提供的监督量与梯度贡献并不相同；按样本均匀混合也不等于按 token 均匀混合。</p>
+
+  <div class="section-label">06 · DATA QUALITY</div>
+  <h2 class="section-heading">数据构建、清洗与切分</h2>
+  <p>微调数据的质量不是单一分数，而是正确性、相关性、可学性、多样性、安全性与可追溯性的组合。构建流程应先定义验收规则，再进入生产与清洗。</p>
+  <ol class="number-list">
+    <li><strong>定义能力分类和失败标准。</strong>明确需要提升的行为、不可接受的回答、自动指标与人工判断标准。</li>
+    <li><strong>汇集人工、产品、公开与合成来源。</strong>保留来源版本、许可、生成模型和审核记录，避免数据脱离治理。</li>
+    <li><strong>规则与模型联合清洗。</strong>删除空答案、格式错误、语言错配、明显幻觉、相互矛盾指令和不可验证的伪引用。</li>
+    <li><strong>精确与语义去重。</strong>模板近重复会放大高频措辞并造成评测泄漏；去重后重新统计任务与 token 分布。</li>
+    <li><strong>先分组切分，再做增强。</strong>按文档来源、用户、实体、规则版本或时间切分训练、验证和测试，不能让同源改写落入不同集合。</li>
+    <li><strong>建立难例与回归集。</strong>线上失败、专家争议和关键边界进入独立集合，版本之间持续复测。</li>
+  </ol>
+  <p>数据分布不应简单复制线上流量。高频简单问题会压低长尾、风险与复杂任务的权重；训练集需要在真实流量、业务价值和失败成本之间重新配比。FLAN 的研究也表明，任务平衡与不同提示设置的混合是指令微调效果的重要组成部分。</p>
+
+  <div class="section-label">07 · TRAINING OBSERVABILITY</div>
+  <h2 class="section-heading">训练中需要观测什么</h2>
+  <p>训练损失只是最基础的信号。微调过程至少需要同时观测优化稳定性、数据利用、验证泛化、目标能力与通用能力，否则一次“loss 正常下降”的训练仍可能得到不可用模型。</p>
+
+  <div class="metric-grid">
+    <div class="metric-card"><h3>优化信号</h3><p>train / validation loss、learning rate、gradient norm、梯度溢出、被跳过的 step、权重或 LoRA 更新范数。</p><small>用于发现发散、过拟合、异常批次和更新过强。</small></div>
+    <div class="metric-card"><h3>数据与 token</h3><p>有效 batch token、assistant 目标 token、截断率、padding 比例、序列长度、各任务与来源的 token 占比。</p><small>用于确认训练实际看到的数据与设计分布一致。</small></div>
+    <div class="metric-card"><h3>系统效率</h3><p>tokens / s、step time、GPU 利用率、显存峰值、通信时间、数据加载等待和 checkpoint 时间。</p><small>用于区分模型问题与数据、内核或分布式系统瓶颈。</small></div>
+    <div class="metric-card"><h3>在线评测</h3><p>固定间隔保存 checkpoint，运行小型目标集、格式校验、通用能力 canary 与安全回归。</p><small>用于及早发现“目标上升、整体退化”，并选择最佳 checkpoint。</small></div>
+  </div>
+
+  <h3 class="subheading">不要只看 epoch，要看有效更新量</h3>
+  <p>同样是 3 个 epoch，样本长度、packing、梯度累积和 batch size 不同，优化器 step 与目标 token 数可能相差很大。实验记录至少应包含：基座与 tokenizer 版本、数据哈希、chat template、最大长度、有效 batch token、总 step、学习率曲线、随机种子、精度与量化设置、PEFT 配置以及评测代码版本。</p>
+  <p>LoRA 实验还应记录 <code>r</code>、<code>lora_alpha</code>、dropout、target modules、是否训练 bias、是否使用 rsLoRA，以及最终是否 merge。缺少这些信息时，同名“LoRA 微调”之间无法可靠比较。</p>
+
+  <div class="section-label">08 · EVALUATION</div>
+  <h2 class="section-heading">评估体系：证明提升，也证明没有破坏</h2>
+  <p>微调评估必须保留基座模型作为对照，并在相同解码参数、prompt template 和运行环境下比较。只报告微调后分数无法判断提升来自训练、提示变化还是评测波动。</p>
+
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead><tr><th>评估层</th><th>核心问题</th><th>典型方法</th><th>判断重点</th></tr></thead>
+      <tbody>
+        <tr><td>目标任务</td><td>预定能力是否真正提升</td><td>准确率、F1、执行成功率、结构校验、专家评分</td><td>按能力单元、难度、长度与来源分桶，不能只看总均值</td></tr>
+        <tr><td>通用回归</td><td>原有知识、推理、代码、多语言是否退化</td><td>固定公共基准 + 自有 canary 集</td><td>与基座同配置比较，关注显著回退而非只看目标增益</td></tr>
+        <tr><td>行为与偏好</td><td>回答是否更有用、真实、清晰且遵循约束</td><td>盲测成对比较、规则评分、人工专家与独立 judge</td><td>随机化左右顺序，报告平局与置信区间，校验 judge 偏差</td></tr>
+        <tr><td>安全与边界</td><td>越权、泄露、危险指令和错误拒答是否改变</td><td>红队集、政策分类、拒答与过度拒答率</td><td>同时评估“该拒绝时拒绝”和“可回答时正常回答”</td></tr>
+        <tr><td>部署表现</td><td>模型能否在目标系统稳定运行</td><td>延迟、吞吐、显存、token 成本、工具调用成功率</td><td>LoRA 未合并、量化或长上下文可能改变服务侧表现</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 class="subheading">评测集必须与训练数据隔离</h3>
+  <p>随机按行切分对模板数据尤其危险：同一原文的不同问法、同一用户会话的相邻轮次、同一规则的轻微改写可能同时进入训练集和测试集。更可靠的方法是按来源文档、实体、会话、时间或任务簇分组切分，并在合成与增强前确定 split。</p>
+  <p>自动基准适合重复回归，但开放式生成还需要人工或模型裁判。模型裁判应使用固定 rubric、盲化候选顺序并用人工子集校准；教师模型同时生成训练答案又担任唯一裁判时，评测容易偏向教师风格。EleutherAI 的 lm-evaluation-harness 可统一公共与自定义任务的配置和结果记录，但业务成功标准仍需单独定义。</p>
+
+  <div class="section-label">09 · DIAGNOSIS</div>
+  <h2 class="section-heading">从训练现象反推问题，并进行调整</h2>
+  <p>调参应从可复现的现象开始。先按能力、来源、长度、难度和风险分桶，再判断问题来自数据、优化、容量还是评测。直接提高 rank、epoch 或学习率，往往只会放大尚未定位的问题。</p>
+
+  <div class="diagnosis">
+    <div class="diagnosis-row">
+      <div class="diagnosis-signal">train loss ↓<br>val loss ↑</div>
+      <div class="diagnosis-cause"><strong>可能原因</strong>过拟合、训练/验证分布不一致、近重复或验证集过小。</div>
+      <div class="diagnosis-action"><strong>优先调整</strong>早停、减少 epoch 或学习率；加强去重与分组切分；增加真实难例和表达多样性。</div>
+    </div>
+    <div class="diagnosis-row">
+      <div class="diagnosis-signal">train / val<br>均停在高位</div>
+      <div class="diagnosis-cause"><strong>可能原因</strong>数据标签冲突、模板错误、学习率过低、可训练容量不足或目标本身不可学。</div>
+      <div class="diagnosis-action"><strong>优先调整</strong>人工审计 tokenized 样本；检查 loss mask；再比较学习率、target modules、rank 或全参数方案。</div>
+    </div>
+    <div class="diagnosis-row">
+      <div class="diagnosis-signal">目标任务 ↑<br>通用能力 ↓</div>
+      <div class="diagnosis-cause"><strong>可能原因</strong>训练分布过窄、更新过强、训练过久或安全/通用示范被挤出。</div>
+      <div class="diagnosis-action"><strong>优先调整</strong>降低学习率和 step；混入经过控制的通用回放数据；尝试 PEFT；把回退指标纳入选 checkpoint 条件。</div>
+    </div>
+    <div class="diagnosis-row">
+      <div class="diagnosis-signal">格式正确 ↑<br>事实正确 ≈</div>
+      <div class="diagnosis-cause"><strong>可能原因</strong>SFT 学会了表面行为，但基座缺少知识，或训练答案本身不可验证。</div>
+      <div class="diagnosis-action"><strong>优先调整</strong>接入 RAG 或工具；修订带来源答案；若需内化稳定领域知识，评估继续预训练而非继续堆问答。</div>
+    </div>
+    <div class="diagnosis-row">
+      <div class="diagnosis-signal">loss spike / NaN</div>
+      <div class="diagnosis-cause"><strong>可能原因</strong>异常长序列、坏批次、精度溢出、学习率过高、梯度累积或量化配置问题。</div>
+      <div class="diagnosis-action"><strong>优先调整</strong>定位对应 batch；检查长度与 token；启用梯度裁剪；调整精度、warmup 和学习率；复核内核兼容性。</div>
+    </div>
+    <div class="diagnosis-row">
+      <div class="diagnosis-signal">拒答率 ↑<br>任务成功率 ↓</div>
+      <div class="diagnosis-cause"><strong>可能原因</strong>安全样本比例过高、拒答模板泛化过度，或边界样本缺少可回答对照。</div>
+      <div class="diagnosis-action"><strong>优先调整</strong>成对补充“允许回答”的邻近样本；按风险类型分桶评估过度拒答；优化偏好数据边界。</div>
+    </div>
+  </div>
+
+  <h3 class="subheading">超参数调整的顺序</h3>
+  <ol class="number-list">
+    <li><strong>先确认数据与模板。</strong>错误标签、切分泄漏和 loss mask 问题不能通过调参修复。</li>
+    <li><strong>再寻找稳定学习率与训练长度。</strong>全参数微调通常需要比 LoRA 更保守的更新；具体数值取决于模型、batch token 和数据分布，必须通过小规模网格或逐级实验确定。</li>
+    <li><strong>随后调整容量。</strong>LoRA 先比较 target modules，再比较 rank 与 alpha。rank 增加会提高参数量，但容量不足必须由分桶评测证实。</li>
+    <li><strong>最后优化效率。</strong>在质量基线稳定后再引入 packing、长序列、量化、分布式策略与吞吐优化，避免系统变量掩盖模型变量。</li>
+  </ol>
+  <p>实验应遵循单变量原则：固定数据版本和评测集，每次只改变一个主要因素。至少运行关键配置的多个随机种子，报告均值、波动与失败样本，而不是只选择最高单次分数。</p>
+
+  <div class="section-label">10 · PRODUCTION LOOP</div>
+  <h2 class="section-heading">一条可执行的微调闭环</h2>
+  <div class="pipeline">
+    <div class="pipeline-title">Iteration 01 · Define and Baseline</div>
+    <div class="pipeline-flow">
+      <div class="pipeline-node"><b>定义目标</b><span>能力单元<br>风险与验收线</span></div>
+      <div class="pipeline-node"><b>冻结评测</b><span>基座结果<br>测试集与 rubric</span></div>
+      <div class="pipeline-node"><b>构造数据 v1</b><span>覆盖、验证<br>分组切分</span></div>
+      <div class="pipeline-node"><b>LoRA 基线</b><span>低成本确认<br>任务是否可学</span></div>
+    </div>
+  </div>
+  <div class="pipeline">
+    <div class="pipeline-title">Iteration 02 · Diagnose and Scale</div>
+    <div class="pipeline-flow">
+      <div class="pipeline-node"><b>分层评估</b><span>目标、通用<br>安全与部署</span></div>
+      <div class="pipeline-node"><b>错误分桶</b><span>数据、优化<br>容量或知识</span></div>
+      <div class="pipeline-node"><b>受控消融</b><span>数据 1×/2×/4×<br>rank / target</span></div>
+      <div class="pipeline-node"><b>发布与回流</b><span>灰度、监控<br>难例进入下一版</span></div>
+    </div>
+  </div>
+  <p>只有当 LoRA 基线在数据和优化已充分验证后仍稳定低于目标，且错误表现出明显容量瓶颈时，全参数微调才成为有证据支持的下一步。反之，如果失败来自知识缺失、标签错误或评测泄漏，更昂贵的训练只会更快地学习错误。</p>
+
+  <div class="section-label">11 · PITFALLS</div>
+  <h2 class="section-heading">常见误区</h2>
+  <div class="mistake-grid">
+    <div class="mistake-card"><b>LoRA 等于 SFT</b><p>LoRA 是参数更新方式，SFT 是训练目标。LoRA 同样可以用于偏好优化，SFT 也可以更新全部参数。</p></div>
+    <div class="mistake-card"><b>rank 越高越好</b><p>更高 rank 提供更多容量，也增加参数与过拟合空间。应以受控消融和错误分桶判断是否需要。</p></div>
+    <div class="mistake-card"><b>QLoRA 就是 4-bit 全参训练</b><p>QLoRA 的量化基座保持冻结，真正更新的是 LoRA 参数；其核心价值是降低训练内存。</p></div>
+    <div class="mistake-card"><b>训练 loss 越低，模型越好</b><p>低损失可能来自模板记忆、重复数据或泄漏。模型质量必须由独立任务、回归、安全和人工评估共同证明。</p></div>
+    <div class="mistake-card"><b>数据越多越保险</b><p>重复和错误样本会持续贡献梯度。覆盖、正确性、配比与边界样本通常比原始条数更重要。</p></div>
+    <div class="mistake-card"><b>SFT 能替代知识库</b><p>SFT 不提供事实可追溯性，也不适合频繁更新的知识。RAG、工具和继续预训练各自解决不同问题。</p></div>
+    <div class="mistake-card"><b>随机切分就能防泄漏</b><p>同源改写、相邻会话和模板变体会跨集合泄漏。应在增强前按来源、实体、时间或任务簇分组。</p></div>
+    <div class="mistake-card"><b>只测目标任务即可</b><p>微调可能以通用能力、安全和服务性能为代价。没有基座对照与回归集，就无法计算真实净收益。</p></div>
+  </div>
+
+  <div class="section-label">12 · PRIMARY SOURCES</div>
+  <h2 class="section-heading">原始论文与官方文档</h2>
+  <p>以下资料用于本文的方法定义、公开实验、数据规模与工程接口。论文中的效率和质量结果都依赖具体模型、硬件、数据与评测条件，不应直接视为其他任务的性能承诺。</p>
+  <ul class="source-list">
+    <li><div class="source-no">01</div><div><a href="https://arxiv.org/abs/2106.09685" target="_blank" rel="noopener">LoRA: Low-Rank Adaptation of Large Language Models</a><span>Hu 等，2021。低秩更新的定义、GPT-3 175B 效率实验与权重合并特性。</span></div></li>
+    <li><div class="source-no">02</div><div><a href="https://arxiv.org/abs/2305.14314" target="_blank" rel="noopener">QLoRA: Efficient Finetuning of Quantized LLMs</a><span>Dettmers 等，2023。NF4、双重量化、分页优化器与 4-bit 冻结基座上的 LoRA。</span></div></li>
+    <li><div class="source-no">03</div><div><a href="https://arxiv.org/abs/1902.00751" target="_blank" rel="noopener">Parameter-Efficient Transfer Learning for NLP</a><span>Houlsby 等，2019。Adapter 模块与多任务参数共享。</span></div></li>
+    <li><div class="source-no">04</div><div><a href="https://arxiv.org/abs/2205.05638" target="_blank" rel="noopener">Few-Shot Parameter-Efficient Fine-Tuning Is Better and Cheaper than In-Context Learning</a><span>Liu 等，2022。IA³ 与少样本 PEFT 实验。</span></div></li>
+    <li><div class="source-no">05</div><div><a href="https://huggingface.co/docs/peft/index" target="_blank" rel="noopener">Hugging Face PEFT Documentation</a><span>PEFT 方法、适配器管理、LoRA 配置与 Transformers 集成的官方文档。</span></div></li>
+    <li><div class="source-no">06</div><div><a href="https://huggingface.co/docs/trl/sft_trainer" target="_blank" rel="noopener">Hugging Face TRL · SFT Trainer</a><span>对话与 prompt-completion 数据格式、assistant-only loss、packing 与 PEFT 训练接口。</span></div></li>
+    <li><div class="source-no">07</div><div><a href="https://arxiv.org/abs/2203.02155" target="_blank" rel="noopener">Training Language Models to Follow Instructions with Human Feedback</a><span>Ouyang 等，2022。SFT、奖励模型与 PPO 三阶段方法，以及目标提升和能力回退评估。</span></div></li>
+    <li><div class="source-no">08</div><div><a href="https://arxiv.org/abs/2305.18290" target="_blank" rel="noopener">Direct Preference Optimization</a><span>Rafailov 等，2023。将偏好优化转化为直接、稳定的分类式目标。</span></div></li>
+    <li><div class="source-no">09</div><div><a href="https://arxiv.org/abs/2305.11206" target="_blank" rel="noopener">LIMA: Less Is More for Alignment</a><span>Zhou 等，2023。1,000 条高质量提示—回答对强基座行为对齐的实验。</span></div></li>
+    <li><div class="source-no">10</div><div><a href="https://arxiv.org/abs/2212.10560" target="_blank" rel="noopener">Self-Instruct: Aligning Language Models with Self-Generated Instructions</a><span>Wang 等，2023。由种子任务扩展合成指令，并过滤无效与相似样本。</span></div></li>
+    <li><div class="source-no">11</div><div><a href="https://arxiv.org/abs/2301.13688" target="_blank" rel="noopener">The Flan Collection</a><span>Longpre 等，2023。任务平衡、模板、多种提示设置与指令数据混合的消融研究。</span></div></li>
+    <li><div class="source-no">12</div><div><a href="https://arxiv.org/abs/2401.02954" target="_blank" rel="noopener">DeepSeek LLM: Scaling Open-Source Language Models with Longtermism</a><span>DeepSeek-AI，2024。超过 100 万条多来源 SFT 实例与 DPO 后训练路径。</span></div></li>
+    <li><div class="source-no">13</div><div><a href="https://arxiv.org/abs/2407.21783" target="_blank" rel="noopener">The Llama 3 Herd of Models</a><span>Meta，2024。大规模后训练、数据质量控制、能力与安全评估的系统报告。</span></div></li>
+    <li><div class="source-no">14</div><div><a href="https://github.com/EleutherAI/lm-evaluation-harness" target="_blank" rel="noopener">Language Model Evaluation Harness</a><span>EleutherAI。统一公共与自定义语言模型评测配置、样本日志与结果复现的开源框架。</span></div></li>
+  </ul>
+
+  <p class="closing">大模型微调不是在全参数与 LoRA 之间做一次静态选择，而是建立一套可证伪的迭代系统：用数据定义目标，用最小必要更新验证可学性，用分层评估识别收益与代价，再让失败样本回到下一版数据。训练方法决定更新如何发生，数据与评测决定更新是否值得。</p>
+</article>
+</main>
+</body>
+</html>

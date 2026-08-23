@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>携程客服 AI 转型：传统机器人与 LLM 的协同</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+
+  :root {
+    --paper: #fffdf8;
+    --ink: #191916;
+    --muted: #66635d;
+    --faint: #98938a;
+    --line: rgba(55, 57, 51, .14);
+    --blue: #366f9e;
+    --blue-soft: #e9f1f7;
+    --green: #427964;
+    --green-soft: #e9f2ed;
+    --amber: #ae6c2d;
+    --amber-soft: #f7ecdf;
+    --red: #9c4c42;
+    --red-soft: #f6e9e6;
+    --serif: "Noto Serif SC", "Songti SC", Georgia, serif;
+    --sans: "Noto Sans SC", system-ui, sans-serif;
+    --mono: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
+  }
+
+  body { color: var(--ink); font-family: var(--sans); }
+  .hero { max-width: 980px; margin: 0 auto; padding: 64px 28px 42px; }
+  .kicker { color: var(--blue); font-size: 11px; letter-spacing: .18em; text-transform: uppercase; }
+  .headline { margin: 16px 0; font-family: var(--serif); font-size: 42px; line-height: 1.26; letter-spacing: -.015em; }
+  .deck { max-width: 690px; margin: 0; color: var(--muted); font-size: 16px; line-height: 1.82; }
+  .meta-row { display: flex; flex-wrap: wrap; gap: 8px 20px; margin-top: 24px; color: var(--faint); font-size: 13px; }
+  .content-wrap { max-width: 980px; margin: 0 auto; padding: 0 28px 80px; }
+
+  .article-body {
+    max-width: 760px;
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 15.5px;
+    line-height: 1.94;
+  }
+  .article-body p { margin: 0 0 20px; }
+  .article-body strong { color: #121210; font-weight: 650; }
+  .article-body code { padding: 2px 5px; border-radius: 4px; color: #315d7e; background: var(--blue-soft); font-family: var(--mono); font-size: .88em; }
+
+  .lead { color: #2e2e29; font-family: var(--serif); font-size: 18px; line-height: 1.88; }
+  .section-label { margin: 58px 0 9px; color: var(--faint); font: 500 10px/1.2 var(--mono); letter-spacing: .2em; text-transform: uppercase; }
+  .section-heading { margin: 0 0 22px; font-family: var(--serif); font-size: 25px; line-height: 1.45; font-weight: 650; letter-spacing: -.01em; }
+  .subheading { margin: 34px 0 12px; font-family: var(--serif); font-size: 19px; line-height: 1.5; font-weight: 650; }
+
+  .case-note { margin: 26px 0 32px; padding: 18px 20px; border: 1px solid var(--line); border-radius: 9px; color: var(--muted); background: rgba(255, 253, 248, .76); font-size: 13.5px; line-height: 1.78; }
+  .case-note strong { display: block; margin-bottom: 5px; color: var(--blue); font: 600 10px/1.4 var(--mono); letter-spacing: .14em; text-transform: uppercase; }
+
+  .thesis { margin: 32px 0; padding: 24px 0 24px 26px; border-left: 3px solid var(--blue); font-family: var(--serif); font-size: 20px; line-height: 1.72; font-weight: 600; }
+
+  .system-flow { margin: 27px 0 35px; padding: 22px; border: 1px solid rgba(54, 111, 158, .2); border-radius: 12px; background: linear-gradient(145deg, rgba(233, 241, 247, .8), rgba(233, 242, 237, .55)); }
+  .flow-label { margin-bottom: 14px; color: var(--faint); font: 500 10px/1 var(--mono); letter-spacing: .16em; text-transform: uppercase; }
+  .flow-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
+  .flow-node { position: relative; padding: 14px 10px; border-radius: 8px; background: rgba(255,255,255,.82); text-align: center; box-shadow: 0 4px 15px rgba(45,52,47,.05); }
+  .flow-node:not(:last-child)::after { content: '→'; position: absolute; right: -15px; top: 50%; transform: translateY(-50%); color: var(--blue); font-family: var(--mono); }
+  .flow-node b { display: block; font-size: 13px; }
+  .flow-node span { display: block; margin-top: 4px; color: var(--faint); font-size: 10px; line-height: 1.45; }
+  .flow-foot { margin-top: 14px; padding-top: 13px; border-top: 1px dashed rgba(54,111,158,.25); color: var(--muted); font-size: 12.5px; line-height: 1.7; }
+
+  .value-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 26px 0 34px; }
+  .value-card { padding: 21px; border: 1px solid var(--line); border-radius: 11px; background: var(--paper); }
+  .value-card.high { border-top: 3px solid var(--blue); }
+  .value-card.volume { border-top: 3px solid var(--green); }
+  .value-card .tag { color: var(--faint); font: 600 10px/1 var(--mono); letter-spacing: .13em; }
+  .value-card h3 { margin: 10px 0 9px; font-family: var(--serif); font-size: 20px; }
+  .value-card p { margin: 0; color: var(--muted); font-size: 13.5px; line-height: 1.78; }
+
+  .compare-wrap { margin: 27px 0 35px; overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; }
+  .compare-table { display: table; width: 100%; min-width: 650px; table-layout: fixed; border-collapse: collapse; background: var(--paper); font-size: 13.5px; }
+  .compare-table th, .compare-table td { padding: 14px 15px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; line-height: 1.65; }
+  .compare-table tr:last-child td { border-bottom: 0; }
+  .compare-table th { color: var(--muted); font-size: 11px; letter-spacing: .06em; background: rgba(54,111,158,.055); }
+  .compare-table th:first-child, .compare-table td:first-child { width: 14%; color: var(--faint); font-family: var(--mono); font-size: 11px; }
+
+  .debt-stack { display: grid; gap: 10px; margin: 25px 0 34px; }
+  .debt-row { display: grid; grid-template-columns: 35px 1fr; gap: 13px; padding: 17px 18px; border: 1px solid rgba(156,76,66,.16); border-radius: 9px; background: var(--red-soft); }
+  .debt-no { color: var(--red); font: 600 11px/1.6 var(--mono); }
+  .debt-row p { margin: 0; color: #64413b; font-size: 13.5px; line-height: 1.77; }
+
+  .solution-list { counter-reset: solution; display: grid; gap: 15px; margin: 27px 0 36px; }
+  .solution-card { counter-increment: solution; position: relative; padding: 22px 22px 22px 76px; border: 1px solid var(--line); border-radius: 11px; background: rgba(255,253,248,.78); }
+  .solution-card::before { content: counter(solution, decimal-leading-zero); position: absolute; left: 22px; top: 24px; color: var(--blue); font: 600 20px/1 var(--mono); }
+  .solution-card h3 { margin: 0 0 7px; font-size: 16px; }
+  .solution-card p { margin: 0; color: var(--muted); font-size: 13.5px; line-height: 1.8; }
+  .solution-card .output { display: inline-block; margin-top: 10px; padding: 4px 8px; border-radius: 4px; color: var(--green); background: var(--green-soft); font: 500 10px/1.4 var(--mono); letter-spacing: .06em; }
+
+  .knowledge-schema { margin: 27px 0 34px; padding: 21px; border-radius: 10px; color: #eaf1ec; background: #202824; }
+  .schema-title { margin-bottom: 13px; color: #9fcbb6; font: 600 10px/1 var(--mono); letter-spacing: .14em; }
+  .schema-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 20px; }
+  .schema-item { padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,.09); color: rgba(234,241,236,.72); font-size: 12.5px; line-height: 1.55; }
+  .schema-item b { display: inline-block; min-width: 76px; color: #f6faf7; font-family: var(--mono); font-size: 10px; }
+
+  .role-shift { display: grid; grid-template-columns: 1fr 46px 1fr; gap: 14px; align-items: stretch; margin: 27px 0 35px; }
+  .role-box { padding: 20px; border: 1px solid var(--line); border-radius: 10px; background: var(--paper); }
+  .role-box b { display: block; margin-bottom: 8px; font-family: var(--serif); font-size: 17px; }
+  .role-box p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.75; }
+  .role-arrow { display: flex; align-items: center; justify-content: center; color: var(--blue); font-family: var(--mono); font-size: 20px; }
+
+  .metric-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 24px 0 35px; }
+  .metric-card { padding: 17px; border: 1px solid var(--line); border-radius: 9px; background: rgba(255,253,248,.74); }
+  .metric-card h3 { margin: 0 0 7px; font-size: 14px; }
+  .metric-card p { margin: 0; color: var(--muted); font-size: 12.5px; line-height: 1.7; }
+
+  .guardrail { margin: 27px 0 35px; padding: 20px 21px; border-left: 3px solid var(--amber); background: var(--amber-soft); }
+  .guardrail h3 { margin: 0 0 8px; color: #70451f; font-size: 15px; }
+  .guardrail p { margin: 0; color: #765335; font-size: 13.5px; line-height: 1.8; }
+
+  .roadmap { position: relative; margin: 27px 0 36px; padding-left: 28px; }
+  .roadmap::before { content: ''; position: absolute; left: 7px; top: 9px; bottom: 9px; width: 1px; background: rgba(54,111,158,.28); }
+  .roadmap-step { position: relative; margin-bottom: 23px; }
+  .roadmap-step::before { content: ''; position: absolute; left: -26px; top: 7px; width: 11px; height: 11px; border-radius: 50%; background: var(--paper); border: 2px solid var(--blue); }
+  .roadmap-step h3 { margin: 0 0 5px; font-size: 15px; }
+  .roadmap-step p { margin: 0; color: var(--muted); font-size: 13.5px; line-height: 1.75; }
+
+  .ending { margin-top: 45px; padding-top: 30px; border-top: 1px solid var(--line); }
+  .ending p:first-child { font-family: var(--serif); font-size: 20px; line-height: 1.76; font-weight: 600; }
+
+  @media (max-width: 720px) {
+    .headline { font-size: 33px; }
+    .value-grid, .schema-grid, .metric-grid { grid-template-columns: 1fr; }
+    .flow-row { grid-template-columns: 1fr 1fr; }
+    .flow-node:nth-child(2)::after { display: none; }
+    .role-shift { grid-template-columns: 1fr; }
+    .role-arrow { transform: rotate(90deg); }
+    .solution-card { padding-left: 60px; }
+    .solution-card::before { left: 18px; }
+  }
+</style>
+</head>
+<body>
+  <header class="hero">
+    <div class="kicker">Real-world AI Transformation</div>
+    <h1 class="headline">携程客服 AI 转型：<br>传统机器人与 LLM 的协同</h1>
+    <p class="deck">当咨询规模、推理成本与知识债务同时成为约束，客服系统的升级重点便不再是“是否使用大模型”，而是如何让大模型参与知识治理，并与传统机器人形成分层协作。</p>
+    <div class="meta-row">
+      <span>2026-08-22</span>
+      <span>真实案例 · 第一版</span>
+      <span>阅读约 12 分钟</span>
+      <span>客服 AI · LLM · 知识治理</span>
+    </div>
+  </header>
+
+  <main class="content-wrap">
+    <article class="article-body">
+      <p class="lead">大模型进入客服场景后，一个常见判断是：传统机器人将被自然语言能力更强的 LLM 直接替代。携程客服 AI 转型案例呈现了另一种更符合大规模业务现实的路径——保留传统系统的低成本与高吞吐优势，同时利用 LLM 改造其长期积累的知识生产、清理、归并和标注流程。</p>
+
+      <div class="case-note">
+        <strong>案例说明</strong>
+        本文为第一版方法复盘，重点讨论业务约束、系统分层与知识治理机制，不涉及未经确认的内部指标。机票与火车票的业务划分依据当前案例材料表述，后续可结合更具体的流程、数据和组织分工继续修订。
+      </div>
+
+      <div class="thesis">这不是一次“用 LLM 替换旧机器人”的改造，而是一次“用 LLM 治理旧机器人”的系统升级。</div>
+
+      <section id="traditional-bot">
+        <div class="section-label">01 · Traditional architecture</div>
+        <h2 class="section-heading">传统客服机器人：规则树与 Embedding 的组合</h2>
+        <p>在大模型出现之前，成熟客服机器人通常依赖两类能力协同工作：一类是<strong>规则树</strong>，负责业务流程、条件判断和确定性回复；另一类是<strong>语义向量检索</strong>，负责将表达各异的用户问题匹配到标准问题或知识节点。</p>
+
+        <div class="system-flow">
+          <div class="flow-label">Traditional service pipeline</div>
+          <div class="flow-row">
+            <div class="flow-node"><b>用户问题</b><span>口语、错别字、多种表达</span></div>
+            <div class="flow-node"><b>意图识别</b><span>分类模型 / Embedding</span></div>
+            <div class="flow-node"><b>规则树路由</b><span>业务条件与流程节点</span></div>
+            <div class="flow-node"><b>标准答案</b><span>QA / 模板 / 接口结果</span></div>
+          </div>
+          <div class="flow-foot">当语义匹配置信度不足、规则条件冲突或流程无法覆盖时，请求会转入人工客服。</div>
+        </div>
+
+        <p>规则树适合回答确定性强的问题，例如退改条件、出票状态和证件要求；Embedding 模型则解决“同一个问题存在多种问法”的问题。例如，“火车晚点能退吗”“列车延误怎么退款”“没按时发车是否能退票”都可能映射到同一个标准问题。</p>
+
+        <p>这类架构具有三个显著优势：推理成本低、响应速度快、输出范围可控。因此，即使 LLM 已经具备更强的语言理解能力，传统机器人在超大规模客服链路中仍具有明确价值。</p>
+      </section>
+
+      <section id="cost-conflict">
+        <div class="section-label">02 · Scale and cost</div>
+        <h2 class="section-heading">核心矛盾：咨询规模很大，全量使用 LLM 成本过高</h2>
+        <p>火车票客服每天需要处理大量用户咨询，购票旺季的流量压力更为明显。若所有请求都通过大模型完成意图识别、知识检索、推理和答案生成，token 成本、响应延迟、并发容量和输出稳定性都会成为新的系统约束。</p>
+
+        <p>另一方面，不同业务场景对智能化投入的承受能力并不相同。机票业务具有更高的客单价和服务价值，问题通常也更复杂，对多轮理解、组合条件判断和个性化解释的需求更高；火车票业务的直接收益有限，但咨询量巨大，更适合由低成本、高吞吐的传统系统承担主要流量。</p>
+
+        <div class="value-grid">
+          <article class="value-card high">
+            <span class="tag">HIGH-VALUE / COMPLEX</span>
+            <h3>机票等高价值场景</h3>
+            <p>允许承担更高推理成本。LLM 可用于复杂意图理解、多轮澄清、方案比较、异常处理和答案生成，必要时结合业务工具完成查询。</p>
+          </article>
+          <article class="value-card volume">
+            <span class="tag">HIGH-VOLUME / LOW-MARGIN</span>
+            <h3>火车票等高流量场景</h3>
+            <p>继续以规则树和 Embedding 模型处理高频标准问题，LLM 更多承担离线治理、低置信度兜底和辅助质检，而不是全量在线推理。</p>
+          </article>
+        </div>
+
+        <div class="compare-wrap">
+          <table class="compare-table">
+            <thead><tr><th>维度</th><th>传统机器人</th><th>LLM</th></tr></thead>
+            <tbody>
+              <tr><td>单位成本</td><td>低，适合大规模重复请求</td><td>较高，随上下文与输出长度增长</td></tr>
+              <tr><td>响应延迟</td><td>稳定，链路较短</td><td>受模型规模、并发和工具调用影响</td></tr>
+              <tr><td>语言理解</td><td>依赖训练数据和人工规则覆盖</td><td>擅长复杂表达、上下文和组合意图</td></tr>
+              <tr><td>答案控制</td><td>标准化程度高，边界明确</td><td>需要检索、结构化输出和安全校验</td></tr>
+              <tr><td>主要价值</td><td>处理高频、确定、低价值问题</td><td>处理复杂、高价值、低覆盖问题</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p>因此，合理的目标并非追求 LLM 调用比例最大化，而是<strong>按照问题价值、复杂度和风险配置不同的计算成本</strong>。</p>
+      </section>
+
+      <section id="knowledge-debt">
+        <div class="section-label">03 · Knowledge debt</div>
+        <h2 class="section-heading">真正的瓶颈：规则树不断累积，知识开始失去治理</h2>
+        <p>传统机器人的主要问题并不只是语言理解能力有限。随着业务持续变化，规则树和 QA 知识库会不断增长，并逐渐形成类似遗留代码的“知识债务”。</p>
+
+        <div class="debt-stack">
+          <div class="debt-row"><span class="debt-no">01</span><p><strong>规则只增不减。</strong>业务变化通常会触发新增规则，但很少有人能够确认旧规则是否仍在使用、是否已经过期。</p></div>
+          <div class="debt-row"><span class="debt-no">02</span><p><strong>知识所有权丢失。</strong>原始维护人员流动后，规则的业务背景、适用边界和设计原因难以追溯，清理风险随之上升。</p></div>
+          <div class="debt-row"><span class="debt-no">03</span><p><strong>重复与冲突增加。</strong>同类问题可能被不同团队写成多个 QA 节点；新旧答案并存，导致检索结果相互竞争。</p></div>
+          <div class="debt-row"><span class="debt-no">04</span><p><strong>系统性性能下降。</strong>知识节点越多并不意味着覆盖越好。失效、重叠和边界模糊的知识会降低意图分类与向量召回的准确率。</p></div>
+        </div>
+
+        <p>此时继续增加标注人员或扩展规则树，只会加快知识膨胀。问题已经从“答案是否足够多”转变为“知识是否标准、有效、可追踪和可维护”。</p>
+      </section>
+
+      <section id="solution">
+        <div class="section-label">04 · LLM as knowledge governor</div>
+        <h2 class="section-heading">解法：将 LLM 放在知识治理层</h2>
+        <p>LLM 的主要价值并非替代每一次在线回答，而是将分散、非结构化且缺乏维护的业务知识，整理为可复用、可比较、可审计的标准知识集合。围绕这一目标，可以形成四个连续步骤。</p>
+
+        <div class="solution-list">
+          <article class="solution-card">
+            <h3>知识抽取：构造标准知识集合</h3>
+            <p>从历史 QA、规则文档、客服话术、工单和真实对话中抽取标准问题、适用条件、答案、例外情况、来源与有效期。LLM 负责理解和结构化，业务人员负责确认高风险知识。</p>
+            <span class="output">OUTPUT · CANONICAL KNOWLEDGE SET</span>
+          </article>
+          <article class="solution-card">
+            <h3>存量清理：识别过时、重复和冲突知识</h3>
+            <p>将旧 QA 与标准知识集合进行语义对齐，输出保留、合并、改写、下线或人工复核建议。系统不直接删除知识，而是形成带证据的治理队列，并保留版本和回滚能力。</p>
+            <span class="output">OUTPUT · CLEANUP QUEUE</span>
+          </article>
+          <article class="solution-card">
+            <h3>增量准入：判断新问题是否进入知识树</h3>
+            <p>对新增问题先执行相似知识检索，再由 LLM 判断其属于已有问题的新表达、已有节点的补充条件，还是确有必要创建的新知识节点，从源头控制知识树继续膨胀。</p>
+            <span class="output">OUTPUT · MERGE / EXTEND / CREATE</span>
+          </article>
+          <article class="solution-card">
+            <h3>标注与抽检：提高 Embedding 模型的训练质量</h3>
+            <p>用户原始问题需要标注到对应的标准问题，才能训练更准确的意图与 Embedding 模型。LLM 可以生成候选标签、解释匹配依据并辅助抽检；低置信度、冲突或高风险样本继续由人工确认。</p>
+            <span class="output">OUTPUT · WEAK LABELS + QA REVIEW</span>
+          </article>
+        </div>
+
+        <h3 class="subheading">标准知识不应只有“问题与答案”</h3>
+        <p>如果标准知识集合仍然只是两列 QA，后续治理能力依旧有限。更合理的知识单元应当具备清晰的业务边界与生命周期字段。</p>
+
+        <div class="knowledge-schema">
+          <div class="schema-title">CANONICAL KNOWLEDGE UNIT</div>
+          <div class="schema-grid">
+            <div class="schema-item"><b>question</b>标准问题及意图名称</div>
+            <div class="schema-item"><b>paraphrase</b>真实问法与同义表达</div>
+            <div class="schema-item"><b>condition</b>适用产品、状态与前置条件</div>
+            <div class="schema-item"><b>answer</b>标准答案或业务动作</div>
+            <div class="schema-item"><b>exception</b>例外情况与转人工条件</div>
+            <div class="schema-item"><b>source</b>制度、接口或文档依据</div>
+            <div class="schema-item"><b>validity</b>生效时间、失效时间与版本</div>
+            <div class="schema-item"><b>owner</b>责任团队与审核人员</div>
+          </div>
+        </div>
+
+        <div class="system-flow">
+          <div class="flow-label">Knowledge governance loop</div>
+          <div class="flow-row">
+            <div class="flow-node"><b>原始知识</b><span>QA / 规则 / 工单 / 对话</span></div>
+            <div class="flow-node"><b>LLM 抽取</b><span>结构化、归一化、找冲突</span></div>
+            <div class="flow-node"><b>人工审核</b><span>高风险与低置信度样本</span></div>
+            <div class="flow-node"><b>标准知识库</b><span>训练、检索与在线服务</span></div>
+          </div>
+          <div class="flow-foot">线上新增问题和失败会话持续回流，触发相似知识判断、标注抽检和知识版本更新，形成闭环治理。</div>
+        </div>
+      </section>
+
+      <section id="role-change">
+        <div class="section-label">05 · System role shift</div>
+        <h2 class="section-heading">关键变化：LLM 从“回答者”转向“知识治理者”</h2>
+        <div class="role-shift">
+          <article class="role-box">
+            <b>直接替代思路</b>
+            <p>每个请求都调用 LLM，由模型完成理解、检索、推理和生成。能力上限较高，但在线成本和稳定性压力集中。</p>
+          </article>
+          <div class="role-arrow">→</div>
+          <article class="role-box">
+            <b>协同治理思路</b>
+            <p>LLM 负责离线知识抽取、清理、归并与标注；传统模型继续处理主要流量，仅将复杂或高价值问题交给 LLM。</p>
+          </article>
+        </div>
+
+        <p>这种角色变化带来一个重要结果：大模型能力可以通过标准知识、训练数据和模型蒸馏被复用，而不需要在每一次用户请求中重复支付完整推理成本。</p>
+      </section>
+
+      <section id="evaluation">
+        <div class="section-label">06 · Evaluation</div>
+        <h2 class="section-heading">评估重点：不仅关注回复准确率</h2>
+        <div class="metric-grid">
+          <article class="metric-card"><h3>知识质量</h3><p>重复率、过期知识召回率、冲突发现率、合并准确率、知识覆盖率。</p></article>
+          <article class="metric-card"><h3>模型效果</h3><p>意图分类准确率、Top-K 召回率、低置信度比例、标注一致性。</p></article>
+          <article class="metric-card"><h3>服务效果</h3><p>机器人解决率、转人工率、重复咨询率、平均处理时长与用户满意度。</p></article>
+          <article class="metric-card"><h3>治理效率</h3><p>知识审核耗时、单人处理量、自动建议采纳率、待清理知识积压。</p></article>
+          <article class="metric-card"><h3>系统成本</h3><p>单次咨询成本、LLM 调用率、平均 token、P95 延迟与峰值容量。</p></article>
+          <article class="metric-card"><h3>安全与稳定</h3><p>错误下线率、知识回滚率、无依据回答率、高风险问题拦截率。</p></article>
+        </div>
+
+        <div class="guardrail">
+          <h3>LLM 建议不能直接等同于知识事实</h3>
+          <p>知识清理和节点合并具有不可逆风险。系统应保存原始来源、模型判断、置信度和审核记录；涉及退改规则、费用、证件与合规的知识，需要设置更高审核等级，并支持版本回滚。</p>
+        </div>
+      </section>
+
+      <section id="roadmap">
+        <div class="section-label">07 · Implementation roadmap</div>
+        <h2 class="section-heading">一条可执行的落地路线</h2>
+        <div class="roadmap">
+          <div class="roadmap-step">
+            <h3>阶段一 · 盘点存量知识</h3>
+            <p>统一收集 QA、规则、工单、客服话术和命中日志，建立来源、负责人、更新时间与使用频次视图。</p>
+          </div>
+          <div class="roadmap-step">
+            <h3>阶段二 · 离线构建标准知识</h3>
+            <p>选择高频但风险较低的业务域，验证抽取、聚类、冲突发现和人工审核流程，不直接影响线上回答。</p>
+          </div>
+          <div class="roadmap-step">
+            <h3>阶段三 · 清理知识并改进训练数据</h3>
+            <p>以标准集合清理旧 QA，利用 LLM 辅助标注用户问法，重新训练意图与 Embedding 模型，开展离线回放。</p>
+          </div>
+          <div class="roadmap-step">
+            <h3>阶段四 · 建立增量治理闭环</h3>
+            <p>所有新增问题进入相似检索、合并判断和分级审核流程，防止知识树再次无序增长。</p>
+          </div>
+          <div class="roadmap-step">
+            <h3>阶段五 · 选择性接入在线 LLM</h3>
+            <p>在高价值、复杂或低置信度场景逐步启用 LLM，通过路由、预算、超时与降级策略控制在线成本。</p>
+          </div>
+        </div>
+      </section>
+
+      <footer class="ending">
+        <p>携程客服 AI 转型案例的核心，不是模型能力竞赛，而是对计算成本、业务价值和知识生命周期进行重新分配。</p>
+        <p>传统机器人仍然适合承担高频、确定、低成本的服务请求；LLM 则被配置到复杂问题和知识治理环节。最终形成的并非两套相互替代的系统，而是一套由价值分层驱动、由标准知识连接的混合客服架构。</p>
+      </footer>
+    </article>
+  </main>
+</body>
+</html>

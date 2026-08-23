@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>色彩基础：颜色为什么会改变画面情绪</title>
+  <style>
+    .color-article {
+      --c-ink: #211d1a;
+      --c-muted: #665f59;
+      --c-faint: #958b82;
+      --c-line: rgba(74, 58, 46, .14);
+      --c-paper: rgba(255, 253, 248, .9);
+      --c-orange: #d36b35;
+      --c-orange-deep: #a84c24;
+      --c-blue: #456d98;
+      --c-green: #517766;
+      --c-purple: #735e89;
+      --c-red: #a7524a;
+      --c-gold: #a97929;
+      --c-serif: "Noto Serif SC", "Songti SC", serif;
+      --c-mono: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+      max-width: 760px;
+      color: var(--c-ink);
+    }
+    .color-article p { margin: 0 0 20px; }
+    .color-article strong { color: #171411; font-weight: 650; }
+    .color-article a { color: var(--c-orange-deep); text-decoration-thickness: 1px; text-underline-offset: 3px; }
+    .color-article a:hover { color: var(--c-blue); }
+
+    .color-hero { max-width: 980px; margin: 0 auto; padding: 62px 28px 42px; }
+    .color-kicker { color: var(--c-orange, #d36b35); font: 600 10px/1.3 "IBM Plex Mono", monospace; letter-spacing: .19em; }
+    .color-headline { max-width: 790px; margin: 18px 0 17px; font-family: "Noto Serif SC", serif; font-size: 46px; line-height: 1.22; font-weight: 650; letter-spacing: -.025em; }
+    .color-deck { max-width: 720px; margin: 0; color: #6f665e; font-size: 16px; line-height: 1.85; }
+    .meta-row { display: flex; flex-wrap: wrap; gap: 8px 20px; margin-top: 24px; color: #958b82; font-size: 13px; }
+    .color-wrap { max-width: 980px; margin: 0 auto; padding: 0 28px 88px; }
+
+    .color-section-label { margin: 60px 0 9px; color: var(--c-faint); font: 500 10px/1.2 var(--c-mono); letter-spacing: .2em; text-transform: uppercase; }
+    .color-section-heading { margin: 0 0 22px; font-family: var(--c-serif); font-size: 26px; line-height: 1.43; font-weight: 650; letter-spacing: -.01em; }
+    .color-subheading { margin: 35px 0 12px; font-family: var(--c-serif); font-size: 20px; line-height: 1.5; font-weight: 650; }
+    .color-lead-block { margin: 2px 0 34px; padding: 22px 25px 23px; border: 1px solid rgba(211, 107, 53, .18); border-left: 3px solid var(--c-orange); border-radius: 0 11px 11px 0; background: linear-gradient(110deg, rgba(250, 233, 222, .76), rgba(255, 253, 248, .34)); }
+    .color-lead-label { display: block; margin-bottom: 10px; color: var(--c-orange); font: 600 10px/1.3 var(--c-mono); letter-spacing: .15em; text-transform: uppercase; }
+    .color-lead { margin: 0 !important; color: #332d28; font-family: var(--c-serif); font-size: 17.5px; line-height: 1.88; }
+    .color-thesis { margin: 32px 0; padding: 24px 27px; border-left: 3px solid var(--c-purple); background: linear-gradient(100deg, rgba(232, 225, 239, .82), rgba(255, 253, 248, .22)); font-family: var(--c-serif); font-size: 20px; line-height: 1.75; font-weight: 600; }
+    .color-note { margin: 27px 0; padding: 20px 22px; border: 1px solid var(--c-line); border-radius: 11px; background: var(--c-paper); }
+    .color-note-title { display: block; margin-bottom: 7px; color: var(--c-orange); font: 600 10px/1.4 var(--c-mono); letter-spacing: .13em; text-transform: uppercase; }
+    .color-note.blue { border-color: rgba(69, 109, 152, .22); background: rgba(228, 237, 247, .6); }
+    .color-note.blue .color-note-title { color: var(--c-blue); }
+    .color-note.warning { border-color: rgba(169, 121, 41, .23); background: rgba(250, 240, 214, .56); }
+    .color-note.warning .color-note-title { color: var(--c-gold); }
+
+    .perception-chain { display: grid; grid-template-columns: repeat(4, 1fr); gap: 17px; margin: 28px 0 38px; padding: 24px; border: 1px solid var(--c-line); border-radius: 12px; background: var(--c-paper); }
+    .perception-node { position: relative; min-height: 112px; padding: 16px 12px; border-radius: 9px; background: rgba(246, 241, 233, .82); text-align: center; }
+    .perception-node:not(:last-child)::after { content: '→'; position: absolute; top: 50%; right: -14px; transform: translateY(-50%); color: var(--c-orange); font-family: var(--c-mono); }
+    .perception-node b { display: block; font-size: 13px; }
+    .perception-node span { display: block; margin-top: 7px; color: var(--c-faint); font-size: 10.5px; line-height: 1.55; }
+    .perception-dot { width: 28px; height: 28px; margin: 0 auto 12px; border-radius: 50%; background: #d5683d; box-shadow: 0 0 0 8px rgba(213, 104, 61, .09); }
+    .perception-node:nth-child(2) .perception-dot { background: conic-gradient(#e45d45, #ddb832, #5d9b67, #4e79b0, #8664a1, #e45d45); }
+    .perception-node:nth-child(3) .perception-dot { background: linear-gradient(90deg, #c4483f 0 46%, #5076ae 54%); }
+    .perception-node:nth-child(4) .perception-dot { background: radial-gradient(circle at 35% 35%, #f7d987, #a15b45 60%, #4b344d); }
+
+    .three-controls { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 28px 0 38px; }
+    .control-card { overflow: hidden; border: 1px solid var(--c-line); border-radius: 11px; background: var(--c-paper); }
+    .control-visual { height: 112px; }
+    .control-card.hue .control-visual { background: linear-gradient(90deg, #d6534b, #e3a642, #7d9e53, #4c8c89, #5579af, #8a62a0, #d6536c); }
+    .control-card.saturation .control-visual { background: linear-gradient(90deg, #a49b91, #b58d7c, #c97655, #db5730); }
+    .control-card.value .control-visual { background: linear-gradient(90deg, #211b22, #55404e, #9b6876, #f0c2bd, #fff5e8); }
+    .control-copy { padding: 18px; }
+    .control-copy small { color: var(--c-faint); font: 600 9px/1 var(--c-mono); letter-spacing: .12em; }
+    .control-copy h3 { margin: 9px 0 7px; font-size: 16px; }
+    .control-copy p { margin: 0; color: var(--c-muted); font-size: 13px; line-height: 1.72; }
+
+    .mood-axis { margin: 29px 0 38px; padding: 23px; border: 1px solid rgba(69, 109, 152, .2); border-radius: 12px; background: rgba(228, 237, 247, .42); }
+    .mood-axis-title { margin-bottom: 16px; color: var(--c-faint); font: 600 10px/1 var(--c-mono); letter-spacing: .13em; }
+    .mood-plane { display: grid; grid-template-columns: 64px 1fr; grid-template-rows: 1fr 35px; height: 305px; }
+    .axis-y { display: flex; align-items: center; justify-content: center; color: var(--c-blue); font: 600 10px/1 var(--c-mono); writing-mode: vertical-rl; transform: rotate(180deg); letter-spacing: .08em; }
+    .axis-x { display: flex; align-items: end; justify-content: center; color: var(--c-purple); font: 600 10px/1 var(--c-mono); letter-spacing: .08em; }
+    .mood-grid { position: relative; overflow: hidden; border-left: 1px solid rgba(58, 73, 91, .28); border-bottom: 1px solid rgba(58, 73, 91, .28); border-radius: 4px 8px 4px 4px; background: linear-gradient(90deg, rgba(63, 72, 101, .78), rgba(232, 143, 77, .8)), linear-gradient(0deg, #343846, #f6e1bc); }
+    .mood-grid::before, .mood-grid::after { content: ''; position: absolute; background: rgba(255,255,255,.38); }
+    .mood-grid::before { left: 50%; top: 0; width: 1px; height: 100%; }
+    .mood-grid::after { left: 0; top: 50%; width: 100%; height: 1px; }
+    .mood-word { position: absolute; padding: 5px 8px; border: 1px solid rgba(255,255,255,.38); border-radius: 4px; color: #fff; background: rgba(28, 27, 31, .22); font-size: 11px; backdrop-filter: blur(2px); }
+    .mood-word.calm { left: 12%; bottom: 22%; }
+    .mood-word.sad { left: 18%; top: 19%; }
+    .mood-word.joy { right: 16%; bottom: 19%; }
+    .mood-word.tense { right: 13%; top: 17%; }
+    .mood-caption { grid-column: 2; margin: 10px 0 0; color: var(--c-faint); font-size: 11px; line-height: 1.55; text-align: center; }
+
+    .mechanism-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 27px 0 38px; }
+    .mechanism-card { min-height: 175px; padding: 21px; border: 1px solid var(--c-line); border-radius: 11px; background: var(--c-paper); }
+    .mechanism-card .mechanism-no { color: var(--c-orange); font: 650 10px/1 var(--c-mono); }
+    .mechanism-card:nth-child(2) .mechanism-no { color: var(--c-blue); }
+    .mechanism-card:nth-child(3) .mechanism-no { color: var(--c-green); }
+    .mechanism-card:nth-child(4) .mechanism-no { color: var(--c-purple); }
+    .mechanism-card h3 { margin: 12px 0 8px; font-size: 16px; }
+    .mechanism-card p { margin: 0; color: var(--c-muted); font-size: 13.5px; line-height: 1.76; }
+
+    .same-color-demo { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; margin: 28px 0 38px; }
+    .same-color-panel { padding: 23px; border-radius: 12px; text-align: center; }
+    .same-color-panel.warm-surround { background: #e8b971; }
+    .same-color-panel.cool-surround { background: #46677f; }
+    .same-swatch { width: 96px; height: 96px; margin: 5px auto 17px; border-radius: 9px; background: #ba6d4c; box-shadow: 0 8px 20px rgba(27, 24, 23, .12); }
+    .same-color-panel b { display: block; color: #211d1a; font-size: 14px; }
+    .same-color-panel.cool-surround b { color: #f6f0e8; }
+    .same-color-panel span { display: block; margin-top: 5px; color: rgba(33, 29, 26, .65); font-size: 11px; }
+    .same-color-panel.cool-surround span { color: rgba(246, 240, 232, .67); }
+    .same-color-note { grid-column: 1 / -1; margin: 0; color: var(--c-faint); font-size: 12px; line-height: 1.68; text-align: center; }
+
+    .evidence-list { margin: 28px 0 38px; }
+    .evidence-row { display: grid; grid-template-columns: 115px 1fr; gap: 20px; padding: 18px 0; border-bottom: 1px solid var(--c-line); }
+    .evidence-row:first-child { border-top: 1px solid var(--c-line); }
+    .evidence-label { color: var(--c-orange-deep); font: 650 10px/1.6 var(--c-mono); }
+    .evidence-copy { color: var(--c-muted); font-size: 13.5px; line-height: 1.75; }
+    .evidence-copy strong { display: block; margin-bottom: 4px; font-size: 14px; }
+
+    .dimension-lab { margin: 28px 0 38px; padding: 24px; border: 1px solid var(--c-line); border-radius: 12px; background: var(--c-paper); }
+    .dimension-lab h3 { margin: 0 0 17px; font-size: 15px; }
+    .dimension-row { display: grid; grid-template-columns: 82px repeat(5, 1fr); gap: 8px; align-items: center; margin-bottom: 11px; }
+    .dimension-row:last-child { margin-bottom: 0; }
+    .dimension-name { color: var(--c-muted); font: 600 10px/1.3 var(--c-mono); }
+    .dimension-chip { height: 38px; border-radius: 5px; box-shadow: inset 0 0 0 1px rgba(30,25,22,.06); }
+    .dimension-row.lightness .dimension-chip:nth-child(2) { background: #241819; }
+    .dimension-row.lightness .dimension-chip:nth-child(3) { background: #5c2d2c; }
+    .dimension-row.lightness .dimension-chip:nth-child(4) { background: #9e4b45; }
+    .dimension-row.lightness .dimension-chip:nth-child(5) { background: #d68177; }
+    .dimension-row.lightness .dimension-chip:nth-child(6) { background: #f0c8be; }
+    .dimension-row.saturation .dimension-chip:nth-child(2) { background: #8c817e; }
+    .dimension-row.saturation .dimension-chip:nth-child(3) { background: #9a726c; }
+    .dimension-row.saturation .dimension-chip:nth-child(4) { background: #aa6258; }
+    .dimension-row.saturation .dimension-chip:nth-child(5) { background: #be4d3e; }
+    .dimension-row.saturation .dimension-chip:nth-child(6) { background: #d73720; }
+    .dimension-row.hue-shift .dimension-chip:nth-child(2) { background: #b64944; }
+    .dimension-row.hue-shift .dimension-chip:nth-child(3) { background: #c47b3e; }
+    .dimension-row.hue-shift .dimension-chip:nth-child(4) { background: #8b9b48; }
+    .dimension-row.hue-shift .dimension-chip:nth-child(5) { background: #498584; }
+    .dimension-row.hue-shift .dimension-chip:nth-child(6) { background: #5f67a1; }
+
+    .temperature-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; margin: 28px 0 38px; }
+    .temperature-card { min-height: 205px; padding: 22px; border-radius: 12px; }
+    .temperature-card.warm { color: #402519; background: linear-gradient(145deg, #f4c379, #d67549); }
+    .temperature-card.cool { color: #eef3f7; background: linear-gradient(145deg, #769ab5, #344e6a); }
+    .temperature-card small { font: 600 9px/1 var(--c-mono); letter-spacing: .13em; opacity: .66; }
+    .temperature-card h3 { margin: 14px 0 8px; font-family: var(--c-serif); font-size: 19px; }
+    .temperature-card p { margin: 0; color: inherit; font-size: 13px; line-height: 1.75; opacity: .78; }
+    .temperature-card .temperature-arrow { display: block; margin-top: 23px; font: 600 11px/1 var(--c-mono); letter-spacing: .08em; }
+
+    .palette-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 27px 0 38px; }
+    .palette-card { padding: 18px; border: 1px solid var(--c-line); border-radius: 11px; background: var(--c-paper); }
+    .palette-strip { display: grid; grid-template-columns: 2.1fr 1.2fr .7fr; height: 57px; overflow: hidden; border-radius: 7px; }
+    .palette-strip.mono span:nth-child(1) { background: #263847; }
+    .palette-strip.mono span:nth-child(2) { background: #607b8f; }
+    .palette-strip.mono span:nth-child(3) { background: #b7c8cf; }
+    .palette-strip.analogous span:nth-child(1) { background: #426f6b; }
+    .palette-strip.analogous span:nth-child(2) { background: #73904f; }
+    .palette-strip.analogous span:nth-child(3) { background: #c5aa4b; }
+    .palette-strip.complementary span:nth-child(1) { background: #315d7b; }
+    .palette-strip.complementary span:nth-child(2) { background: #e7d7b4; }
+    .palette-strip.complementary span:nth-child(3) { background: #d06a35; }
+    .palette-strip.split span:nth-child(1) { background: #673f70; }
+    .palette-strip.split span:nth-child(2) { background: #ca9852; }
+    .palette-strip.split span:nth-child(3) { background: #639074; }
+    .palette-card h3 { margin: 14px 0 7px; font-size: 15px; }
+    .palette-card p { margin: 0; color: var(--c-muted); font-size: 12.5px; line-height: 1.7; }
+
+    .role-system { margin: 28px 0 38px; padding: 23px; border: 1px solid rgba(115, 94, 137, .2); border-radius: 12px; background: rgba(232, 225, 239, .45); }
+    .role-title { margin-bottom: 17px; color: var(--c-faint); font: 600 10px/1 var(--c-mono); letter-spacing: .13em; }
+    .role-bar { display: grid; grid-template-columns: 6fr 3fr 1fr; height: 48px; overflow: hidden; border-radius: 7px; }
+    .role-bar span:nth-child(1) { background: #233543; }
+    .role-bar span:nth-child(2) { background: #89989a; }
+    .role-bar span:nth-child(3) { background: #e6813e; }
+    .role-labels { display: grid; grid-template-columns: 6fr 3fr 1fr; margin-top: 10px; color: var(--c-muted); font-size: 10.5px; }
+    .role-labels span:nth-child(2) { text-align: center; }
+    .role-labels span:nth-child(3) { text-align: right; }
+    .role-system p { margin: 17px 0 0; color: var(--c-muted); font-size: 12.5px; line-height: 1.72; }
+
+    .workflow { margin: 28px 0 38px; padding: 23px; border: 1px solid rgba(211, 107, 53, .2); border-radius: 12px; background: rgba(250, 233, 222, .44); }
+    .workflow-title { margin-bottom: 16px; color: var(--c-faint); font: 600 10px/1 var(--c-mono); letter-spacing: .13em; }
+    .workflow-list { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; }
+    .workflow-step { position: relative; min-height: 120px; padding: 15px 11px; border-radius: 8px; background: rgba(255,255,255,.86); text-align: center; }
+    .workflow-step:not(:last-child)::after { content: '→'; position: absolute; top: 50%; right: -13px; transform: translateY(-50%); color: var(--c-orange); font-family: var(--c-mono); }
+    .workflow-step em { display: block; color: var(--c-orange); font: normal 650 9px/1 var(--c-mono); }
+    .workflow-step b { display: block; margin-top: 10px; font-size: 12.5px; }
+    .workflow-step span { display: block; margin-top: 6px; color: var(--c-faint); font-size: 10px; line-height: 1.55; }
+
+    .scene-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 27px 0 38px; }
+    .scene-card { overflow: hidden; border: 1px solid var(--c-line); border-radius: 11px; background: var(--c-paper); }
+    .scene-visual { position: relative; height: 132px; }
+    .scene-visual::before { content: ''; position: absolute; left: 19%; right: 19%; bottom: 24%; height: 36%; border-radius: 50% 50% 43% 43%; background: rgba(255,255,255,.68); box-shadow: 0 8px 28px rgba(29,25,24,.18); }
+    .scene-card.calm .scene-visual { background: linear-gradient(155deg, #b8d4d4, #e4d9ba 65%, #ead5c3); }
+    .scene-card.tense .scene-visual { background: linear-gradient(145deg, #171a2e, #315278 62%, #ae3f37); }
+    .scene-card.memory .scene-visual { background: linear-gradient(145deg, #6d594d, #b88461 55%, #d8b988); }
+    .scene-card.tense .scene-visual::before { background: rgba(218,57,48,.72); }
+    .scene-card.memory .scene-visual::before { background: rgba(231,194,136,.68); filter: saturate(.7); }
+    .scene-copy { padding: 18px; }
+    .scene-copy small { color: var(--c-orange); font: 600 9px/1 var(--c-mono); letter-spacing: .1em; }
+    .scene-copy h3 { margin: 10px 0 7px; font-size: 15px; }
+    .scene-copy p { margin: 0; color: var(--c-muted); font-size: 12.5px; line-height: 1.7; }
+
+    .checklist { margin: 28px 0 38px; counter-reset: color-check; }
+    .check-row { display: grid; grid-template-columns: 49px 1fr; gap: 14px; padding: 18px 0; border-bottom: 1px solid var(--c-line); }
+    .check-row:first-child { border-top: 1px solid var(--c-line); }
+    .check-row::before { counter-increment: color-check; content: counter(color-check, decimal-leading-zero); color: var(--c-orange); font: 650 10px/1.75 var(--c-mono); }
+    .check-row h3 { margin: 0 0 5px; font-size: 15px; }
+    .check-row p { margin: 0; color: var(--c-muted); font-size: 13.5px; line-height: 1.75; }
+
+    .mistake-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 27px 0 38px; }
+    .mistake-card { padding: 19px; border: 1px solid rgba(167, 82, 74, .19); border-radius: 10px; background: rgba(167, 82, 74, .035); }
+    .mistake-card b { display: block; margin-bottom: 6px; color: var(--c-red); font-size: 14px; }
+    .mistake-card p { margin: 0; color: var(--c-muted); font-size: 13px; line-height: 1.72; }
+
+    .source-list { margin: 25px 0 36px; padding: 0; list-style: none; }
+    .source-list li { display: grid; grid-template-columns: 32px 1fr; gap: 13px; padding: 14px 0; border-bottom: 1px solid var(--c-line); }
+    .source-list li:first-child { border-top: 1px solid var(--c-line); }
+    .source-no { color: var(--c-faint); font: 500 10px/1.8 var(--c-mono); }
+    .source-list a { font-weight: 600; }
+    .source-list span { display: block; margin-top: 3px; color: var(--c-faint); font-size: 12px; line-height: 1.6; }
+    .color-closing { margin-top: 48px; padding-top: 27px; border-top: 2px solid var(--c-ink); font-family: var(--c-serif); font-size: 20px; line-height: 1.82; }
+
+    @media (max-width: 720px) {
+      .color-hero { padding: 48px 20px 34px; }
+      .color-headline { font-size: 35px; }
+      .color-wrap { padding: 0 20px 70px; }
+      .perception-chain { grid-template-columns: 1fr 1fr; }
+      .perception-node:nth-child(2)::after { display: none; }
+      .three-controls, .scene-grid { grid-template-columns: 1fr; }
+      .mechanism-grid, .same-color-demo, .temperature-pair, .palette-grid, .mistake-grid { grid-template-columns: 1fr; }
+      .same-color-note { grid-column: auto; }
+      .workflow-list { grid-template-columns: 1fr 1fr; }
+      .workflow-step:nth-child(2)::after, .workflow-step:nth-child(4)::after { display: none; }
+      .workflow-step:last-child { grid-column: 1 / -1; }
+      .dimension-lab { overflow-x: auto; }
+      .dimension-row { min-width: 570px; }
+      .evidence-row { grid-template-columns: 92px 1fr; gap: 14px; }
+    }
+  </style>
+</head>
+<body>
+<header class="color-hero">
+  <div class="color-kicker">VISUAL AESTHETICS · COLOR 03</div>
+  <h1 class="color-headline">色彩基础：<br>颜色为什么会改变画面情绪</h1>
+  <p class="color-deck">颜色不是贴在物体表面的一组固定标签。光、表面、视觉系统、周围颜色、记忆与文化共同参与了颜色知觉，也共同决定一幅画面为何显得安静、热烈、疏离或危险。</p>
+  <div class="meta-row">
+    <span>2026-08-22</span>
+    <span>色彩基础 · 视觉心理</span>
+    <span>阅读约 20 分钟</span>
+    <span>色相 · 明度 · 饱和度 · 视觉心理</span>
+  </div>
+</header>
+
+<main class="color-wrap">
+<article class="article-body color-article">
+  <div class="color-lead-block">
+    <span class="color-lead-label">导言 · Introduction</span>
+    <p class="color-lead">同一个房间，晨光下可以清新，钨丝灯下可以亲密，冷青色夜景中又可能显得疏离。变化并不只来自“换成了蓝色或橙色”，而是色相、明度、饱和度、面积、位置与画面语境一起改变了视觉信息的权重。</p>
+  </div>
+
+  <p>流行的“色彩心理学”常把颜色写成词典：红色等于热情，蓝色等于冷静，绿色等于自然。这种说法容易记忆，却不足以指导创作。暗红、粉红、锈红和荧光红属于相近的色相家族，带来的情绪却可能完全不同；相同的红色出现在婚礼、交通警示和医疗场景中，含义也不会相同。</p>
+  <div class="color-thesis">颜色影响情绪，但颜色不是情绪按钮。它更像一种关系语言：改变注意、唤醒、空间、时间与联想，再与画面内容共同形成意义。</div>
+
+  <section>
+    <div class="color-section-label">01 · PERCEPTION</div>
+    <h2 id="color-is-perception" class="color-section-heading">颜色首先是一种知觉，而不是物体的固定属性</h2>
+    <p>物体表面会选择性地吸收、反射或透射不同波段的光。进入眼睛的光刺激视网膜中的感光系统，视觉神经再对这些信号进行比较和加工，最终形成颜色经验。物理世界中可以测量光谱能量，但“鲜红”“灰蓝”“温暖”等体验属于知觉结果。</p>
+
+    <div class="perception-chain" aria-label="从光到颜色知觉的四个环节">
+      <div class="perception-node"><div class="perception-dot"></div><b>光源</b><span>决定有哪些波长照到表面</span></div>
+      <div class="perception-node"><div class="perception-dot"></div><b>物体表面</b><span>选择性吸收、反射或透射</span></div>
+      <div class="perception-node"><div class="perception-dot"></div><b>视觉系统</b><span>比较锥体信号与明暗差异</span></div>
+      <div class="perception-node"><div class="perception-dot"></div><b>颜色经验</b><span>结合环境、适应、记忆与判断</span></div>
+    </div>
+
+    <p><a href="https://cie.co.at/eilv/198" target="_blank" rel="noopener">国际照明委员会（CIE）对“知觉颜色”的定义</a>特别指出：颜色外观不仅取决于刺激光谱，还取决于刺激区域的大小、形状、结构、周围环境、观察者的适应状态与既往经验。因此，脱离观看条件讨论一个色值“本来是什么颜色”，在许多场景中并不完整。</p>
+    <p>人类通常依靠三类锥体感光细胞对不同波段的相对响应建立色觉，后续视觉通路还会进行对立比较。颜色由神经系统根据关系计算出来，这也解释了互补色残像、同时对比和颜色恒常等现象。更完整的生理机制可参见 <a href="https://www.ncbi.nlm.nih.gov/books/NBK11537/" target="_blank" rel="noopener">NCBI Bookshelf：Color Vision</a>。</p>
+
+    <div class="color-note blue">
+      <span class="color-note-title">关键区别 · Signal vs. Experience</span>
+      <p>相机记录的是传感器在特定光源、曝光和色彩处理下得到的信号；人眼看到的是会随环境适应而变化的颜色经验。显示器、纸张、环境光和色彩管理不同，同一文件也可能呈现不同外观。</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="color-section-label">02 · THREE DIMENSIONS</div>
+    <h2 id="three-color-dimensions" class="color-section-heading">先学会三项控制：色相、明度与饱和度</h2>
+    <p>日常语言通常只用“红、黄、蓝、绿”描述颜色，创作软件则允许分别调整多个维度。面向初学者，最有用的三个观察项是<strong>色相</strong>、<strong>明度</strong>与<strong>饱和度</strong>。它们不是三个情绪标签，而是三项可独立调节的画面变量。</p>
+
+    <div class="three-controls">
+      <article class="control-card hue"><div class="control-visual"></div><div class="control-copy"><small>HUE</small><h3>色相：属于哪一类颜色</h3><p>描述红、黄、绿、蓝、紫等颜色类别。改变色相，相当于沿色环移动。</p></div></article>
+      <article class="control-card saturation"><div class="control-visual"></div><div class="control-copy"><small>SATURATION</small><h3>饱和度：颜色有多鲜明</h3><p>降低后更接近中性灰，提高后颜色更纯、更强烈，也更容易争夺注意。</p></div></article>
+      <article class="control-card value"><div class="control-visual"></div><div class="control-copy"><small>LIGHTNESS / VALUE</small><h3>明度：看起来有多亮</h3><p>决定色块靠近黑还是靠近白，是轮廓、层次和可读性的基本骨架。</p></div></article>
+    </div>
+
+    <p>Adobe 的 HSB 颜色选择器也使用 Hue、Saturation、Brightness 三项组织颜色，便于直观调整；但 HSB/HSL 中的 B 或 L 是数学模型中的分量，不等同于 CIE 颜色科学里的知觉明度。专业调色、跨设备匹配和颜色测量还需要理解 RGB、CIELAB、显示色域与观看条件。基础阶段不必先记公式，但需要知道这些术语并非处处可以互换。参见 <a href="https://helpx.adobe.com/photoshop/desktop/adjust-color/choose-colors/choose-colors-with-the-adobe-color-picker.html" target="_blank" rel="noopener">Adobe：Choose colors with the Color Picker</a>。</p>
+
+    <div class="dimension-lab" aria-label="保持部分变量不变，分别改变明度、饱和度和色相">
+      <h3>一次只改变一个变量，观察情绪如何移动</h3>
+      <div class="dimension-row lightness"><div class="dimension-name">明度升高</div><span class="dimension-chip"></span><span class="dimension-chip"></span><span class="dimension-chip"></span><span class="dimension-chip"></span><span class="dimension-chip"></span></div>
+      <div class="dimension-row saturation"><div class="dimension-name">饱和度升高</div><span class="dimension-chip"></span><span class="dimension-chip"></span><span class="dimension-chip"></span><span class="dimension-chip"></span><span class="dimension-chip"></span></div>
+      <div class="dimension-row hue-shift"><div class="dimension-name">色相移动</div><span class="dimension-chip"></span><span class="dimension-chip"></span><span class="dimension-chip"></span><span class="dimension-chip"></span><span class="dimension-chip"></span></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="color-section-label">03 · EMOTION MODEL</div>
+    <h2 id="emotion-is-not-a-dictionary" class="color-section-heading">情绪不是颜色词典：先理解效价与唤醒</h2>
+    <p>“快乐、悲伤、恐惧、愤怒”属于离散的情绪名称。视觉研究也常用另一种更连续的框架描述感受：<strong>效价</strong>表示体验偏愉悦还是偏不愉悦，<strong>唤醒</strong>表示状态偏平静还是偏激活。一个画面可以同时具有负效价与高唤醒，例如危险和紧张；也可以是正效价与低唤醒，例如安宁和放松。</p>
+
+    <div class="mood-axis" aria-label="效价与唤醒构成的二维情绪坐标">
+      <div class="mood-axis-title">VALENCE × AROUSAL · 情绪不是一条从冷到暖的直线</div>
+      <div class="mood-plane">
+        <div class="axis-y">低唤醒 ← → 高唤醒</div>
+        <div class="mood-grid">
+          <span class="mood-word calm">安宁 · 正效价 / 低唤醒</span>
+          <span class="mood-word sad">压抑 · 负效价 / 低唤醒</span>
+          <span class="mood-word joy">兴奋 · 正效价 / 高唤醒</span>
+          <span class="mood-word tense">紧张 · 负效价 / 高唤醒</span>
+        </div>
+        <div></div><div class="axis-x">负效价 ← → 正效价</div>
+        <p class="mood-caption">示意坐标用于理解方向，不代表某个色值具有固定的心理位置。</p>
+      </div>
+    </div>
+
+    <p>这套框架的价值在于把含糊的“更有情绪”拆成可判断的问题：画面需要更愉悦还是更不安？需要更安静还是更兴奋？提高饱和度、扩大明暗反差、加入强烈互补色，往往同时提高刺激强度；降低饱和度和反差则常使画面收敛。但最终效价仍取决于内容与语境。</p>
+  </section>
+
+  <section>
+    <div class="color-section-label">04 · WHY COLOR FEELS</div>
+    <h2 id="four-layers-of-meaning" class="color-section-heading">颜色为什么会带来情绪：四个层次同时工作</h2>
+    <div class="mechanism-grid">
+      <article class="mechanism-card"><span class="mechanism-no">01 · SALIENCE</span><h3>知觉显著性</h3><p>高饱和、高亮度差或面积突出的颜色更容易形成视觉边界并争夺注意。注意被迅速吸引时，画面也更容易显得活跃或紧迫。</p></article>
+      <article class="mechanism-card"><span class="mechanism-no">02 · BODY</span><h3>唤醒与生理反应</h3><p>实验研究观察到饱和度、明亮程度与色相会共同影响主观唤醒，并可能伴随皮电或心率变化；这些效应不是由色相单独决定。</p></article>
+      <article class="mechanism-card"><span class="mechanism-no">03 · ASSOCIATION</span><h3>物体与经验联想</h3><p>天空、清水、火焰、血液、植物、腐败物等长期经验把颜色与对象、温度、安全和危险联系起来，形成偏好与回避倾向。</p></article>
+      <article class="mechanism-card"><span class="mechanism-no">04 · CONTEXT</span><h3>文化与叙事语境</h3><p>语言、仪式、品牌、类型片和个人记忆继续修正意义。同一颜色在不同地区、时代和叙事段落中可以承担完全不同的角色。</p></article>
+    </div>
+
+    <p>Palmer 与 Schloss 提出的<strong>生态效价理论</strong>认为，人们对颜色的偏好与该颜色所关联对象的平均情感价值有关：与喜爱对象稳定关联的颜色通常更受欢迎，与厌恶对象关联的颜色则相反。这为“颜色意义从哪里来”提供了一种可检验解释，但不意味着所有偏好都能由单一理论穷尽。参见 <a href="https://doi.org/10.1073/pnas.0906172107" target="_blank" rel="noopener">PNAS：An ecological valence theory of human color preference</a>。</p>
+
+    <p>跨文化研究同样支持“共性与差异并存”。Jonauskaite 等人在 30 个国家、22 种母语的参与者中发现了较稳定的颜色—情绪关联模式，同时也发现语言与地理接近程度会进一步塑造差异。颜色既不是完全普遍的生物密码，也不是任意的文化约定。参见 <a href="https://www.psychologicalscience.org/journals/psychological-science/0956797620948810/" target="_blank" rel="noopener">Psychological Science：Universal Patterns in Color-Emotion Associations</a>。</p>
+  </section>
+
+  <section>
+    <div class="color-section-label">05 · EVIDENCE</div>
+    <h2 id="what-research-supports" class="color-section-heading">研究真正支持什么：色相之外还有明度与饱和度</h2>
+    <p>关于颜色和情绪的早期研究常遇到一个方法问题：比较“红色”和“蓝色”时，没有让两种刺激保持相同的明亮程度与饱和程度。观察到的差异可能来自色相，也可能来自其他没有被控制的变量。</p>
+
+    <div class="evidence-list">
+      <div class="evidence-row"><div class="evidence-label">控制三项变量</div><div class="evidence-copy"><strong>饱和、明亮的颜色通常带来更高唤醒</strong>Wilms 与 Oberfeld 分别控制色相、饱和度和明亮程度后发现，三者及其交互都会影响情绪评价；高饱和和较明亮刺激与更高唤醒相关。</div></div>
+      <div class="evidence-row"><div class="evidence-label">色相有效但有限</div><div class="evidence-copy"><strong>红、绿、蓝之间存在差异，但不是固定词义</strong>在该实验的具体刺激和条件下，唤醒从蓝、绿到红提高；效价对色相的反应则受到饱和度等变量调节。</div></div>
+      <div class="evidence-row"><div class="evidence-label">避免过度外推</div><div class="evidence-copy"><strong>实验色块不等于完整影像</strong>纯色色块、室内墙面、人物肤色、食品、电影画面具有不同任务与语境。实验结论能提供方向，不能直接替代具体受众与场景测试。</div></div>
+    </div>
+
+    <p>该研究的实验设计、样本和结果可参见 <a href="https://pubmed.ncbi.nlm.nih.gov/28612080/" target="_blank" rel="noopener">PubMed：Color and emotion — effects of hue, saturation, and brightness</a>。Elliot 与 Maier 的综述则提醒，颜色可能影响情感、认知与行为，但研究仍需要更清楚的边界条件、调节因素与真实场景验证，不宜过早形成强应用结论。参见 <a href="https://www.annualreviews.org/content/journals/10.1146/annurev-psych-010213-115035" target="_blank" rel="noopener">Annual Review of Psychology：Color Psychology</a>。</p>
+
+    <div class="color-note warning">
+      <span class="color-note-title">结论边界 · Do Not Overclaim</span>
+      <p>更准确的表达是“这种配色在当前内容、明度、饱和度和文化语境下，更可能强化紧张感”，而不是“红色会使所有人紧张”。创作规律通常是条件性的，不是药理学式的因果按钮。</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="color-section-label">06 · RELATIVITY</div>
+    <h2 id="color-is-relative" class="color-section-heading">同一种颜色可以看起来不同：周围颜色决定关系</h2>
+    <p>画面中的颜色从不孤立出现。相邻颜色会改变对色相、明暗和饱和程度的判断；观看一段时间后，视觉适应也会改变后续颜色感受。调色时只盯着取色器数值，容易忽略整幅画面建立的比较基准。</p>
+
+    <div class="same-color-demo" aria-label="相同色块在暖色与冷色背景中的外观差异">
+      <div class="same-color-panel warm-surround"><div class="same-swatch"></div><b>相同色块 · 暖色环境</b><span>中心色块更容易显得克制、偏冷或偏暗</span></div>
+      <div class="same-color-panel cool-surround"><div class="same-swatch"></div><b>相同色块 · 冷色环境</b><span>中心色块更容易显得温暖、突出或偏亮</span></div>
+      <p class="same-color-note">两侧中心色块使用同一个颜色值。差异来自周围关系，而不是色块本身发生了变化。</p>
+    </div>
+
+    <p>Josef Albers 的《Interaction of Color》把这种相对性变成一套观察训练：用相同颜色制造不同外观，或用不同颜色制造相近外观，从实际比较中理解颜色互动。Yale University Press 对该书的介绍列出了颜色相对性、边界振动与消失等经典练习。参见 <a href="https://yalebooks.yale.edu/book/9780300146936/interaction-of-color/" target="_blank" rel="noopener">Josef Albers：Interaction of Color</a>。</p>
+  </section>
+
+  <section>
+    <div class="color-section-label">07 · LIGHTNESS & SATURATION</div>
+    <h2 id="lightness-and-saturation" class="color-section-heading">明度构成骨架，饱和度分配能量</h2>
+    <h3 class="color-subheading">先看明度：去掉颜色后，画面是否仍然成立</h3>
+    <p>明度差决定主体能否与背景分离，也决定视线首先落在哪里。高调画面以较亮区域为主，常显得轻盈、开放或洁净；低调画面以暗部为主，常显得收缩、沉静或神秘。但“明亮等于快乐、黑暗等于悲伤”仍然不是铁律：低调烛光可以亲密，高调过曝也可以空洞或不安。</p>
+    <p>有效的检查方式是暂时把画面转为灰度。如果主体、层次和阅读顺序在灰度下全部消失，说明配色主要依赖色相差异；在小屏幕、复杂环境或色觉差异下，这种结构会比较脆弱。</p>
+
+    <h3 class="color-subheading">再看饱和度：最鲜艳的颜色通常拥有最高话语权</h3>
+    <p>高饱和色在低饱和环境中会迅速成为视觉重音，适合强调主体、危险、欲望、人工感或能量。大面积、多色相同时高饱和，则容易形成持续竞争，使画面躁动或廉价。降低非关键区域的饱和度，往往比继续增强主体颜色更有效。</p>
+    <p>饱和度也会影响空间感。在许多写实画面中，远处受空气透视影响，反差和饱和度趋于下降；近处颜色更结实。创作中可以顺着这一经验建立深度，也可以反向使用，让高饱和背景制造平面化和不真实感。</p>
+  </section>
+
+  <section>
+    <div class="color-section-label">08 · WARM & COOL</div>
+    <h2 id="warm-and-cool" class="color-section-heading">冷暖不是温度计，而是一组相对的空间与叙事线索</h2>
+    <div class="temperature-pair">
+      <article class="temperature-card warm"><small>WARM RELATION</small><h3>暖色倾向</h3><p>常与火光、阳光、皮肤、食物和亲密空间建立联想；在冷色环境中更容易前进并吸引注意。</p><span class="temperature-arrow">接近 · 活跃 · 亲密 →</span></article>
+      <article class="temperature-card cool"><small>COOL RELATION</small><h3>冷色倾向</h3><p>常与天空、水、阴影、金属、夜晚和远景建立联想；在暖色主体周围可以形成距离与空间。</p><span class="temperature-arrow">← 疏离 · 安静 · 纵深</span></article>
+    </div>
+
+    <p>冷暖首先是比较关系。一块灰色放在橙色旁边可能显得冷，放在蓝色旁边又可能显得暖。摄影中的冷暖还会受到光源色温与白平衡影响：相机选择的中性基准不同，同一现场可能整体偏暖、偏冷，或保留暖光与冷环境之间的分离。</p>
+    <p>空间叙事中常见“暖前冷后”，因为暖色主体与冷色背景容易形成分离；但这不是强制法则。蓝色主体配暖背景同样可以成立，关键在于冷暖对比是否服务于主体关系、时间和故事，而不是套用固定滤镜。</p>
+  </section>
+
+  <section>
+    <div class="color-section-label">09 · COLOR RELATIONSHIPS</div>
+    <h2 id="palette-relationships" class="color-section-heading">配色不是凑齐色环公式，而是建立主次与距离</h2>
+    <p>色环能描述色相之间的几何关系，但不能自动生成好画面。类似色、互补色和分裂互补色只是组织方式；真正决定效果的还有明度、饱和度、面积、位置、材质和内容。</p>
+
+    <div class="palette-grid">
+      <article class="palette-card"><div class="palette-strip mono"><span></span><span></span><span></span></div><h3>单色或近单色</h3><p>依靠明度和饱和度建立层次。秩序稳定，适合安静、克制或统一的视觉世界。</p></article>
+      <article class="palette-card"><div class="palette-strip analogous"><span></span><span></span><span></span></div><h3>类似色</h3><p>使用色环上相邻的颜色，过渡自然。仍需留出清晰的明度层级，避免所有区域融在一起。</p></article>
+      <article class="palette-card"><div class="palette-strip complementary"><span></span><span></span><span></span></div><h3>互补关系</h3><p>对比强，适合主体—环境分离。通常让一方主导、另一方成为少量重音，比平均分配更稳定。</p></article>
+      <article class="palette-card"><div class="palette-strip split"><span></span><span></span><span></span></div><h3>分裂互补或三角色</h3><p>提供更丰富的色相关系，也更考验面积和饱和度控制。先定义颜色角色，再决定色相数量。</p></article>
+    </div>
+
+    <div class="role-system">
+      <div class="role-title">DOMINANT · SUPPORT · ACCENT</div>
+      <div class="role-bar"><span></span><span></span><span></span></div>
+      <div class="role-labels"><span>主导色 · 建立世界</span><span>辅助色 · 补充层次</span><span>强调色</span></div>
+      <p>“大面积主导、中等面积辅助、小面积强调”是一种角色思路，不是必须精确执行的 60/30/10 数学定律。强调色的视觉重量取决于饱和度、明度差、位置和语义重要性，一小块高饱和色可能压过大片中性色。</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="color-section-label">10 · WORKFLOW</div>
+    <h2 id="from-mood-to-palette" class="color-section-heading">从情绪目标到颜色方案：一套可复现的工作流程</h2>
+    <p>直接问“应该用什么颜色”通常过早。更稳定的方法是先确定叙事与视觉任务，再逐层分配颜色角色。</p>
+    <div class="workflow">
+      <div class="workflow-title">COLOR DECISION PIPELINE</div>
+      <div class="workflow-list">
+        <div class="workflow-step"><em>01</em><b>写情绪坐标</b><span>效价、唤醒、亲密或疏离</span></div>
+        <div class="workflow-step"><em>02</em><b>建立明度骨架</b><span>主体、背景和阅读顺序</span></div>
+        <div class="workflow-step"><em>03</em><b>确定主导倾向</b><span>冷暖、时间与环境基调</span></div>
+        <div class="workflow-step"><em>04</em><b>分配饱和度</b><span>把最高能量留给重点</span></div>
+        <div class="workflow-step"><em>05</em><b>放回语境验证</b><span>肤色、材质、受众与媒介</span></div>
+      </div>
+    </div>
+
+    <h3 class="color-subheading">第一步：把抽象形容词改写成可以操作的变量</h3>
+    <p>“高级”“电影感”“有氛围”无法直接操作。可以改写为：“低唤醒、轻微负效价、夜晚、人物与环境有距离”；由此再推导为偏低明度、整体低饱和、冷色环境、人物保留少量暖色和有限的高亮区域。</p>
+    <h3 class="color-subheading">第二步：保留可信的中性锚点</h3>
+    <p>写实影像中，肤色、白色物体、已知材质或自然光区域可以作为感知锚点。全局偏色过强会让观者失去比较基准；有意保留一小部分相对中性的区域，反而能让主色倾向更容易被感知。</p>
+    <h3 class="color-subheading">第三步：用小版本比较，而不是在单张画面里反复微调</h3>
+    <p>并排制作三到五个缩略版本，每版只改变一项：冷暖、明度或饱和度。缩小后观察主体是否清楚、情绪方向是否稳定，再进入局部修正。比较能显露差异，孤立观看则容易快速适应当前方案。</p>
+  </section>
+
+  <section>
+    <div class="color-section-label">11 · THREE SCENES</div>
+    <h2 id="three-color-scenes" class="color-section-heading">三个基础场景：情绪来自变量组合</h2>
+    <div class="scene-grid">
+      <article class="scene-card calm"><div class="scene-visual"></div><div class="scene-copy"><small>CALM MORNING</small><h3>安静的清晨</h3><p>中高明度、低至中等饱和度、相近的青绿与米色，明暗反差较低。安静主要来自低唤醒结构，而不只是“使用蓝色”。</p></div></article>
+      <article class="scene-card tense"><div class="scene-visual"></div><div class="scene-copy"><small>TENSE NIGHT</small><h3>紧张的夜晚</h3><p>低明度环境中加入少量高饱和红色，冷暖与明暗同时分离。红色面积很小，但因语义和对比成为警示重音。</p></div></article>
+      <article class="scene-card memory"><div class="scene-visual"></div><div class="scene-copy"><small>FADING MEMORY</small><h3>褪色的记忆</h3><p>暖色倾向、压低饱和度、抬起黑位并收窄对比，模拟旧介质与时间痕迹。怀旧感来自媒介经验，不是棕色的固定含义。</p></div></article>
+    </div>
+    <p>如果把“紧张的夜晚”整体提亮并降低红色饱和度，危险感会下降；如果把“安静的清晨”增加强烈互补色和局部高反差，唤醒程度会提高。场景中的情绪由多项变量共同决定，单独替换色相往往不足以复制效果。</p>
+  </section>
+
+  <section>
+    <div class="color-section-label">12 · PRACTICE</div>
+    <h2 id="color-exercises" class="color-section-heading">五个基础练习：从辨认颜色到控制颜色</h2>
+    <div class="checklist">
+      <div class="check-row"><div><h3>同色异境</h3><p>选择一块固定色纸或固定数字色值，分别放在冷、暖、亮、暗四种背景中，记录它看起来如何变化。练习目标是理解颜色相对性。</p></div></div>
+      <div class="check-row"><div><h3>只改一个维度</h3><p>复制同一张照片三次：第一组只改明度，第二组只改饱和度，第三组只改色相。为每组写下效价与唤醒的变化。</p></div></div>
+      <div class="check-row"><div><h3>灰度检查</h3><p>为一张彩色画面制作灰度版本。检查主体、层次和文字是否仍然可辨，再判断哪些关系只依赖色相。</p></div></div>
+      <div class="check-row"><div><h3>电影场景取样</h3><p>从同一影片选择平静、冲突和转折三个段落，各提取五个代表色，同时记录颜色面积、明度和叙事功能，而不只保存色板。</p></div></div>
+      <div class="check-row"><div><h3>三版情绪实验</h3><p>围绕同一画面制作“低唤醒正效价”“高唤醒正效价”“高唤醒负效价”三版，要求至少同时控制明度、饱和度与对比关系。</p></div></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="color-section-label">13 · BOUNDARIES</div>
+    <h2 id="common-mistakes" class="color-section-heading">常见误区与使用边界</h2>
+    <div class="mistake-grid">
+      <article class="mistake-card"><b>把色相直接翻译成情绪</b><p>“蓝色冷静”忽略了明度、饱和度、面积和内容。高饱和电蓝可以极具攻击性，灰蓝也可能显得忧郁。</p></article>
+      <article class="mistake-card"><b>所有颜色都同样鲜艳</b><p>没有饱和度层级时，画面缺少主次。先压低大部分区域，再让关键颜色承担重音，通常更清晰。</p></article>
+      <article class="mistake-card"><b>只看色板，不看画面</b><p>色板没有面积、位置、材质和叙事。漂亮的五个色块进入真实画面后，不一定形成有效的颜色关系。</p></article>
+      <article class="mistake-card"><b>把冷暖当成绝对分类</b><p>冷暖依赖比较。中性灰、紫色和绿色都可能因相邻颜色不同而显得偏冷或偏暖。</p></article>
+      <article class="mistake-card"><b>用统一滤镜替代颜色设计</b><p>全局染色可以建立表面一致性，却可能破坏肤色、材质和空间分离。颜色角色应按对象与叙事分别控制。</p></article>
+      <article class="mistake-card"><b>用颜色作为唯一信息</b><p>红绿状态、彩色图例或按钮如果没有文字、形状或纹理辅助，会排除部分色觉差异人群，也会降低灰度环境下的可读性。</p></article>
+    </div>
+
+    <p>颜色设计还需要考虑可访问性。W3C 的 WCAG 说明要求颜色不能成为传达状态、操作或区别元素的唯一视觉手段；应同时使用文字、形状、图标或纹理，并保证必要的明度对比。参见 <a href="https://www.w3.org/WAI/WCAG22/Understanding/use-of-color.html" target="_blank" rel="noopener">W3C：Understanding Use of Color</a>。</p>
+  </section>
+
+  <section>
+    <div class="color-section-label">14 · FURTHER READING</div>
+    <h2 id="further-reading" class="color-section-heading">继续学习：从颜色名称进入颜色系统</h2>
+    <p>后续学习可以沿三条路径展开：颜色科学关注光谱、色度、色适应、色域与设备再现；视觉心理关注颜色知觉、注意、偏好与情绪研究；艺术与设计关注颜色之间的互动、面积、材料与叙事。三条路径解决的问题不同，但能互相校正。</p>
+    <ul class="source-list">
+      <li><div class="source-no">01</div><div><a href="https://cie.co.at/eilv/198" target="_blank" rel="noopener">CIE · Colour (perceived)</a><span>知觉颜色的正式定义，以及光谱、周围环境、视觉适应和观察经验对颜色外观的影响。</span></div></li>
+      <li><div class="source-no">02</div><div><a href="https://www.ncbi.nlm.nih.gov/books/NBK11537/" target="_blank" rel="noopener">NCBI Bookshelf · Color Vision</a><span>锥体感光、神经处理、对立机制、颜色与形状知觉的生理基础。</span></div></li>
+      <li><div class="source-no">03</div><div><a href="https://pubmed.ncbi.nlm.nih.gov/28612080/" target="_blank" rel="noopener">Wilms &amp; Oberfeld · Color and emotion</a><span>分别控制色相、饱和度和明亮程度，研究其对效价、唤醒与生理指标的影响。</span></div></li>
+      <li><div class="source-no">04</div><div><a href="https://www.annualreviews.org/content/journals/10.1146/annurev-psych-010213-115035" target="_blank" rel="noopener">Elliot &amp; Maier · Color Psychology</a><span>颜色与心理功能研究的理论、方法问题、实证结果和应用边界综述。</span></div></li>
+      <li><div class="source-no">05</div><div><a href="https://doi.org/10.1073/pnas.0906172107" target="_blank" rel="noopener">Palmer &amp; Schloss · Ecological Valence Theory</a><span>从颜色所关联对象的情感价值解释颜色偏好的经典研究。</span></div></li>
+      <li><div class="source-no">06</div><div><a href="https://www.psychologicalscience.org/journals/psychological-science/0956797620948810/" target="_blank" rel="noopener">Jonauskaite et al. · Universal Patterns in Color-Emotion Associations</a><span>30 个国家的颜色—情绪关联研究，展示跨文化共性与语言、地理差异。</span></div></li>
+      <li><div class="source-no">07</div><div><a href="https://yalebooks.yale.edu/book/9780300146936/interaction-of-color/" target="_blank" rel="noopener">Josef Albers · Interaction of Color</a><span>通过动手练习学习颜色相对性、边界与互动关系的经典艺术教育路径。</span></div></li>
+      <li><div class="source-no">08</div><div><a href="https://www.w3.org/WAI/WCAG22/Understanding/use-of-color.html" target="_blank" rel="noopener">W3C WAI · Use of Color</a><span>颜色信息、可访问性与非颜色视觉线索的设计要求。</span></div></li>
+    </ul>
+  </section>
+
+  <p class="color-closing">成熟的颜色判断，不是记住更多“某颜色代表什么”，而是能说明：谁是主导色，哪里最亮，哪里最鲜艳，哪些颜色互相改变了外观，以及这种关系为什么服务于当前画面的情绪与叙事。</p>
+</article>
+</main>
+</body>
+</html>

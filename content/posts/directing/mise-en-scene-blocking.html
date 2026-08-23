@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>场面调度：人物、摄影机与空间如何共同叙事</title>
+  <style>
+    .block-hero,.article-body{--bl-ink:#201d1a;--bl-muted:#655f59;--bl-faint:#928a82;--bl-line:rgba(68,58,49,.15);--bl-paper:rgba(255,253,248,.92);--bl-green:#557867;--bl-green-deep:#3f5f50;--bl-green-soft:rgba(225,239,230,.74);--bl-orange:#c26b3e;--bl-orange-soft:rgba(248,231,220,.72);--bl-blue:#4d7194;--bl-blue-soft:rgba(226,237,247,.74);--bl-gold:#9a762e;--bl-gold-soft:rgba(248,240,216,.72);--bl-red:#9d5148;--bl-serif:"Noto Serif SC","Songti SC",serif;--bl-mono:"IBM Plex Mono","SFMono-Regular",Consolas,monospace}
+    .article-body{max-width:760px;color:var(--bl-ink)}.article-body p{margin:0 0 20px}.article-body strong{color:#171411;font-weight:650}.article-body a{color:var(--bl-green-deep);text-decoration-thickness:1px;text-underline-offset:3px}.article-body a:hover{color:var(--bl-blue)}
+    .block-hero{max-width:980px;margin:0 auto;padding:62px 28px 42px;color:var(--bl-ink)}.block-kicker{color:var(--bl-green);font:600 10px/1.3 var(--bl-mono);letter-spacing:.19em}.block-headline{max-width:900px;margin:18px 0 17px;font-family:var(--bl-serif);font-size:46px;line-height:1.22;font-weight:650;letter-spacing:-.025em}.block-deck{max-width:790px;margin:0;color:#6f665e;font-size:16px;line-height:1.85}.meta-row{display:flex;flex-wrap:wrap;gap:8px 20px;margin-top:24px;color:var(--bl-faint);font-size:13px}.block-wrap{max-width:980px;margin:0 auto;padding:0 28px 88px}
+    .bl-label{margin:60px 0 9px;color:var(--bl-faint);font:500 10px/1.2 var(--bl-mono);letter-spacing:.2em;text-transform:uppercase}.bl-heading{margin:0 0 22px;font-family:var(--bl-serif);font-size:26px;line-height:1.43;font-weight:650}.bl-subheading{margin:35px 0 12px;font-family:var(--bl-serif);font-size:20px;line-height:1.5;font-weight:650}
+    .bl-lead-block{margin:2px 0 34px;padding:22px 25px 23px;border:1px solid rgba(85,120,103,.22);border-left:3px solid var(--bl-green);border-radius:0 11px 11px 0;background:linear-gradient(110deg,var(--bl-green-soft),rgba(255,253,248,.35))}.bl-lead-label{display:block;margin-bottom:10px;color:var(--bl-green);font:600 10px/1.3 var(--bl-mono);letter-spacing:.15em}.bl-lead{margin:0!important;font-family:var(--bl-serif);font-size:17.5px;line-height:1.88}.bl-thesis{margin:32px 0;padding:24px 27px;border-left:3px solid var(--bl-orange);background:linear-gradient(100deg,var(--bl-orange-soft),rgba(255,253,248,.24));font-family:var(--bl-serif);font-size:20px;line-height:1.75;font-weight:600}
+    .bl-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin:28px 0 38px}.bl-card{padding:20px;border:1px solid var(--bl-line);border-top:3px solid var(--bl-green);border-radius:10px;background:var(--bl-paper)}.bl-card:nth-child(2n){border-top-color:var(--bl-orange)}.bl-card small{color:var(--bl-faint);font:650 9px/1 var(--bl-mono);letter-spacing:.1em}.bl-card h3{margin:10px 0 7px;font-size:15px}.bl-card p{margin:0;color:var(--bl-muted);font-size:13px;line-height:1.72}
+    .bl-stage{position:relative;height:330px;margin:29px 0 38px;overflow:hidden;border:1px solid var(--bl-line);border-radius:12px;background-color:#f1eee7;background-image:linear-gradient(rgba(68,58,49,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(68,58,49,.05) 1px,transparent 1px);background-size:30px 30px}.bl-wall{position:absolute;background:#c8bfb2}.bl-wall.top{left:0;right:0;top:0;height:12px}.bl-wall.left{left:0;top:0;bottom:0;width:12px}.bl-counter{position:absolute;left:25%;right:8%;top:39%;height:42px;border-radius:5px;background:#d9c5a9;box-shadow:inset 0 0 0 1px rgba(68,58,49,.12)}.bl-darkroom{position:absolute;right:7%;top:8%;width:25%;height:23%;border:2px solid #aca092;border-radius:4px;background:rgba(83,75,67,.08)}.bl-darkroom::after{content:'暗房';position:absolute;right:8px;top:7px;color:var(--bl-faint);font:600 9px/1 var(--bl-mono)}.bl-door{position:absolute;left:7%;bottom:0;width:18%;height:16%;border:2px solid #aaa096;border-bottom:0}.bl-person{position:absolute;z-index:3;width:36px;height:36px;border-radius:50%;color:#fff;text-align:center;font:650 11px/36px var(--bl-mono);box-shadow:0 3px 9px rgba(40,33,28,.18)}.bl-person.lin{left:40%;bottom:23%;background:var(--bl-orange)}.bl-person.father{right:18%;top:20%;background:var(--bl-green)}.bl-camera{position:absolute;z-index:3;left:8%;bottom:18%;width:40px;height:27px;border-radius:5px;background:var(--bl-blue)}.bl-camera::after{content:'';position:absolute;right:-15px;top:6px;border-left:16px solid var(--bl-blue);border-top:8px solid transparent;border-bottom:8px solid transparent}.bl-axis{position:absolute;z-index:2;left:42%;top:31%;width:39%;border-top:1px dashed rgba(157,81,72,.75);transform:rotate(-26deg)}.bl-sight{position:absolute;z-index:1;left:14%;bottom:23%;width:31%;height:38%;clip-path:polygon(0 55%,100% 0,100% 100%);background:rgba(77,113,148,.12)}.bl-stage-note{position:absolute;left:17px;right:17px;bottom:13px;color:var(--bl-muted);font-size:11.5px;line-height:1.6}
+    .bl-table-wrap{margin:28px 0 38px;overflow-x:auto;border:1px solid var(--bl-line);border-radius:11px}.bl-table{width:100%;min-width:740px;border-collapse:collapse;background:var(--bl-paper);font-size:13px}.bl-table th,.bl-table td{padding:14px 15px;border-bottom:1px solid var(--bl-line);text-align:left;vertical-align:top;line-height:1.68}.bl-table tr:last-child td{border-bottom:0}.bl-table th{color:var(--bl-muted);font-size:11px;background:rgba(85,120,103,.055)}.bl-table td:first-child{color:var(--bl-green-deep);font-family:var(--bl-mono);font-size:11px;white-space:nowrap}
+    .bl-flow{margin:29px 0 38px;border:1px solid var(--bl-line);border-radius:12px;background:var(--bl-paper);overflow:hidden}.bl-flow-row{display:grid;grid-template-columns:72px 130px 1fr;gap:15px;padding:17px 20px;border-bottom:1px solid var(--bl-line)}.bl-flow-row:last-child{border-bottom:0}.bl-flow-row small{color:var(--bl-green);font:650 10px/1.7 var(--bl-mono)}.bl-flow-row b{font-size:13px;line-height:1.7}.bl-flow-row p{margin:0;color:var(--bl-muted);font-size:13px;line-height:1.7}
+    .bl-note{margin:27px 0;padding:20px 22px;border:1px solid var(--bl-line);border-radius:11px;background:var(--bl-paper)}.bl-note-title{display:block;margin-bottom:8px;color:var(--bl-green);font:600 10px/1.4 var(--bl-mono);letter-spacing:.13em}.bl-note p:last-child{margin-bottom:0}.bl-note.blue{border-color:rgba(77,113,148,.23);background:var(--bl-blue-soft)}.bl-note.blue .bl-note-title{color:var(--bl-blue)}.bl-note.warning{border-color:rgba(154,118,46,.24);background:var(--bl-gold-soft)}.bl-note.warning .bl-note-title{color:var(--bl-gold)}
+    .bl-exercises{margin:28px 0 38px;counter-reset:bl-ex}.bl-exercise{display:grid;grid-template-columns:48px 1fr;gap:14px;padding:18px 0;border-bottom:1px solid var(--bl-line)}.bl-exercise:first-child{border-top:1px solid var(--bl-line)}.bl-exercise::before{counter-increment:bl-ex;content:counter(bl-ex,decimal-leading-zero);color:var(--bl-green);font:650 11px/1.7 var(--bl-mono)}.bl-exercise h3{margin:0 0 5px;font-size:15px}.bl-exercise p{margin:0;color:var(--bl-muted);font-size:13.5px;line-height:1.75}
+    .bl-sources{margin:25px 0 36px;padding:0;list-style:none}.bl-sources li{display:grid;grid-template-columns:32px 1fr;gap:13px;padding:14px 0;border-bottom:1px solid var(--bl-line)}.bl-sources li:first-child{border-top:1px solid var(--bl-line)}.bl-no{color:var(--bl-faint);font:500 10px/1.8 var(--bl-mono)}.bl-sources a{font-weight:600}.bl-sources span{display:block;margin-top:3px;color:var(--bl-faint);font-size:12px;line-height:1.6}.bl-closing{margin-top:48px;padding-top:27px;border-top:2px solid var(--bl-ink);font-family:var(--bl-serif);font-size:20px;line-height:1.82}
+    @media(max-width:720px){.block-hero{padding:48px 20px 34px}.block-headline{font-size:35px}.block-wrap{padding:0 20px 70px}.bl-grid{grid-template-columns:1fr}.bl-stage{height:280px}.bl-flow-row{grid-template-columns:58px 1fr}.bl-flow-row p{grid-column:1/-1}}
+  </style>
+</head>
+<body>
+  <header class="block-hero">
+    <div class="block-kicker">DIRECTING FOUNDATIONS · MISE-EN-SCÈNE &amp; BLOCKING</div>
+    <h1 class="block-headline">场面调度：<br>人物、摄影机与空间如何共同叙事</h1>
+    <p class="block-deck">人物站在哪里、与谁保持距离、何时移动、谁进入前景，以及摄影机是否跟随，都会把抽象关系变成可见的空间变化。调度的对象不是“走位”，而是关系。</p>
+    <div class="meta-row"><span>2026-08-23</span><span>导演思维 · 第三篇</span><span>阅读约 20 分钟</span><span>场面调度 · 空间 · 人物动作 · 摄影机</span></div>
+  </header>
+
+  <main class="block-wrap">
+    <article class="article-body">
+      <div class="bl-lead-block"><span class="bl-lead-label">导言 · Introduction</span><p class="lead bl-lead">当人物没有理由地在房间里来回走，画面虽然在动，戏却没有前进。有效调度让每次靠近、退后、转身、遮挡和停留都来自人物行动，同时改变观众对关系与空间的理解。</p></div>
+
+      <p>“场面调度”常对应法语 mise-en-scène，广义上包括布景、道具、服装、灯光、人物和表演在镜头前的组织；“走位”或 blocking 更集中于人物如何被放置并在场景中移动。两者与构图密切相关，却比单帧构图多了时间：初始位置如何变化，变化为何发生。</p>
+
+      <p>Yale Film Analysis Guide 将场面调度概括为演员、灯光、装饰、道具与服装等镜头前元素的安排，并强调分析这些元素如何与叙事发展相互作用。参见 <a href="https://filmanalysis.yale.edu/mise-en-scene/" target="_blank" rel="noopener">Yale Film Analysis · Mise-en-scène</a>。</p>
+
+      <div class="bl-thesis">调度的基本问题不是“人物从 A 点走到 B 点”，而是：什么行动迫使人物改变位置，这次变化重新定义了谁能接近谁、谁控制空间、谁被看见。</div>
+
+      <section>
+        <div class="bl-label">01 · SPACE AS RELATION</div>
+        <h2 class="bl-heading">先画关系，再画路线：空间是戏剧条件</h2>
+        <p>平面图不是为了追求精确美术，而是把容易被文字隐藏的关系显露出来：出口在哪里，谁挡住谁，物件属于谁，人物必须穿过谁的区域，摄影机在哪一侧可以同时看见行动与反应。</p>
+
+        <div class="bl-grid">
+          <article class="bl-card"><small>DISTANCE</small><h3>距离</h3><p>接近可能是亲密、控制、威胁或求助；含义取决于人物目标和对方是否接受。</p></article>
+          <article class="bl-card"><small>ORIENTATION</small><h3>朝向</h3><p>面对、并肩、背对和斜向决定交流是否直接，也决定视线与身体的矛盾。</p></article>
+          <article class="bl-card"><small>GROUPING</small><h3>分组</h3><p>谁与谁同处一个视觉群组，谁被孤立，常比台词更早说明联盟和排斥。</p></article>
+          <article class="bl-card"><small>ACCESS</small><h3>通路</h3><p>门、走廊、桌子和人物身体构成行动条件；控制通路往往等于控制场景节奏。</p></article>
+          <article class="bl-card"><small>LEVEL</small><h3>高低</h3><p>站立、坐下、台阶与俯身改变身体关系，但不能脱离情境机械等同于权力。</p></article>
+          <article class="bl-card"><small>OCCLUSION</small><h3>遮挡</h3><p>前景、门框、他人或道具可以限制信息，也能把“无法靠近”变成画面结构。</p></article>
+        </div>
+
+        <p>俄克拉荷马州立大学的开放电影教材将 staging 定义为身体相对于布景和彼此的位置与运动，并提醒分析重点是具有叙事意义的位置变化，而非所有偶然动作。参见 <a href="https://open.library.okstate.edu/introfilmtv/part/mise-en-scene/" target="_blank" rel="noopener">Introduction to Film &amp; TV · Mise en scène</a>。</p>
+      </section>
+
+      <section>
+        <div class="bl-label">02 · MOTIVATED MOVEMENT</div>
+        <h2 class="bl-heading">让行动产生移动，而不是让移动假装行动</h2>
+        <p>人物走动通常应有直接原因：取得物件、避开问题、缩短谈判距离、挡住出口、重新获得视线、照顾他人或结束交流。情绪会影响动作质量，却不应成为唯一原因。“因为紧张所以来回走”远不如“为了避开对视而持续整理不需要整理的相框”具体。</p>
+
+        <div class="bl-table-wrap"><table class="bl-table"><thead><tr><th>人物行动</th><th>可能的空间实现</th><th>关系变化</th><th>需要避免</th></tr></thead><tbody>
+          <tr><td>回避</td><td>借寻找物件持续转身；让柜台保持在两人之间</td><td>延迟直接交流，同时暴露回避本身</td><td>无目标地背对摄影机</td></tr>
+          <tr><td>施压</td><td>控制出口、缩短距离或迫使对方停下手中动作</td><td>把语言压力变成身体条件</td><td>默认“靠近就是强势”</td></tr>
+          <tr><td>让步</td><td>移开障碍、退出对方行动路径、放低或放下物件</td><td>交还选择权，但未必表示认同</td><td>突然拥抱来替代细微变化</td></tr>
+          <tr><td>试探</td><td>只进入部分空间，保留退路；用物件建立间接接触</td><td>关系暂时打开但仍可撤回</td><td>用夸张徘徊制造所谓犹豫</td></tr>
+        </tbody></table></div>
+
+        <div class="bl-note"><span class="bl-note-title">动作动词先于路线</span><p>写调度时先标注“阻止、绕开、交还、观察、撤退”，再选择人物位置和路径。这样即使现场空间改变，动作目的仍然能够保留。</p></div>
+      </section>
+
+      <section>
+        <div class="bl-label">03 · CAMERA AND BLOCKING</div>
+        <h2 class="bl-heading">摄影机与人物共同设计：谁为谁移动</h2>
+        <p>调度不是先排完演员，再让摄影机负责“拍到”。人物路径会改变构图、焦点、光线和剪辑连续性；摄影机位置又会改变动作对观众的意义。两者需要在同一平面图和同一次排练中被检查。</p>
+
+        <div class="bl-grid">
+          <article class="bl-card"><small>OBSERVE</small><h3>摄影机不动</h3><p>让人物进出已有画框，观众能够比较位置变化；适合空间关系本身清楚的场景。</p></article>
+          <article class="bl-card"><small>REFRAME</small><h3>小幅重新构图</h3><p>人物移动后以摇摄或轻微位移恢复重点，不改变整个观看立场。</p></article>
+          <article class="bl-card"><small>FOLLOW</small><h3>随行动移动</h3><p>保持人物与环境路径的关系，让观众经历移动，而不仅看见起点和终点。</p></article>
+          <article class="bl-card"><small>REVEAL</small><h3>摄影机主动揭示</h3><p>绕过遮挡或改变位置，提供人物未必主动展示的新空间和新信息。</p></article>
+        </div>
+
+        <p>Yale 的摄影指南区分固定支点上的 pan、tilt 与机位在空间中实际移动的 tracking shot。调度设计需要先判断观看位置是否改变，再决定术语；相似的画面位移可能带来完全不同的空间信息。参见 <a href="https://filmanalysis.yale.edu/cinematography/" target="_blank" rel="noopener">Yale Film Analysis · Cinematography</a>。</p>
+      </section>
+
+      <section>
+        <div class="bl-label">04 · DEPTH AND LAYERS</div>
+        <h2 class="bl-heading">前、中、后景不是装饰层，而是关系同时存在的方式</h2>
+        <p>深度调度允许多个行动在同一镜头内保持可见：前景人物可能拒绝参与，中景人物执行主要动作，后景人物等待或观察。焦点、光线和遮挡决定这些层次是同时被读到，还是按顺序被发现。</p>
+
+        <h3 class="bl-subheading">深度并不等于信息越多越好</h3>
+        <p>如果三个层次都有高对比动作，观众无法确认主要变化。可以通过动作先后、清晰度、亮度、色彩和人物语义建立主次。调度的目标是让关系可读，不是把所有角色都放进同一画面。</p>
+
+        <div class="bl-note blue"><span class="bl-note-title">同框与分切的选择</span><p>同框适合让观众比较人物之间的距离、反应和权力；分切适合限制信息、强化单方经验或重新解释前一镜。不能因为“两个人对话”就自动使用正反打，也不能为了炫耀长镜头而拒绝必要的切换。</p></div>
+      </section>
+
+      <section>
+        <div class="bl-label">05 · ENTRANCES, EXITS, OFFSCREEN SPACE</div>
+        <h2 class="bl-heading">进入、离开与画外空间：边界本身会制造事件</h2>
+        <p>人物入画意味着他进入观众当前可见的关系；离画则可能结束参与、转向未知空间，或迫使其他人物作出反应。门与画框都不是普通边缘，它们控制谁能出现、谁能离开，以及观众是否提前知道某人的存在。</p>
+
+        <div class="bl-grid">
+          <article class="bl-card"><small>ENTRY</small><h3>先听见，再看见</h3><p>脚步、钥匙和门铃可以让画外人物先成为压力，随后入画完成确认。</p></article>
+          <article class="bl-card"><small>EXIT</small><h3>离开后继续影响</h3><p>人物离画不等于行动终止；留下的声音、目光和空位会继续组织场景。</p></article>
+          <article class="bl-card"><small>THRESHOLD</small><h3>停在边界</h3><p>门口、楼梯或柜台边缘允许人物同时保留进入和撤退两种可能。</p></article>
+          <article class="bl-card"><small>OFFSCREEN</small><h3>把原因留在画外</h3><p>只拍反应可限制信息；先给画外声音可制造预期。隐藏应服务于视点，而非随意省略。</p></article>
+        </div>
+      </section>
+
+      <section>
+        <div class="bl-label">06 · WORKING FLOOR PLAN</div>
+        <h2 class="bl-heading">旧照相馆：用平面图检查关系与摄影机条件</h2>
+        <p>下面的平面图是<strong>虚构教学场景</strong>的一个初始方案。它不是最终镜头，而是检查空间：林岚靠近柜台寻找录音机，父亲停在暗房入口，二人之间有一条动作轴；摄影机位于入口一侧，可以同时看见林岚的行动与父亲是否靠近。</p>
+
+        <div class="bl-stage" aria-label="旧照相馆调度平面示意图">
+          <div class="bl-wall top"></div><div class="bl-wall left"></div><div class="bl-counter"></div><div class="bl-darkroom"></div><div class="bl-door"></div><div class="bl-sight"></div><div class="bl-camera"></div><div class="bl-person lin">林</div><div class="bl-person father">父</div><div class="bl-axis"></div><div class="bl-stage-note">示意图只表达入口、柜台、暗房、人物初始位置、摄影机视域和人物轴线；真实调度仍需结合表演、镜头与光线测试。</div>
+        </div>
+
+        <div class="bl-flow">
+          <div class="bl-flow-row"><small>BEAT 01</small><b>保持分隔</b><p>林岚从入口直达柜台，父亲退至暗房门边；柜台与纵深把两人分处不同区域。</p></div>
+          <div class="bl-flow-row"><small>BEAT 02</small><b>第一次接近</b><p>录音机无法启动。父亲只向前一步，没有越过柜台端点；移动表达帮助意图，也保留她的退路。</p></div>
+          <div class="bl-flow-row"><small>BEAT 03</small><b>主动让出</b><p>林岚抬头时，父亲反而退回暗房边，把电池留在她可取得的位置，避免把照顾变成逼迫。</p></div>
+          <div class="bl-flow-row"><small>BEAT 04</small><b>短暂同层</b><p>她拿走电池时，两人第一次在同一纵深层次被看见，但仍没有靠近或拥抱。</p></div>
+          <div class="bl-flow-row"><small>BEAT 05</small><b>离开后的空位</b><p>林岚从入口离开，摄影机不跟；父亲与柜台上钥匙留在画面中，空出的路径成为结果。</p></div>
+        </div>
+
+        <p>这个方案的关键不是路线复杂，而是每次位置变化都对应前一篇分析出的行动：绕开、受阻、试探、发现和接受。</p>
+      </section>
+
+      <section>
+        <div class="bl-label">07 · BLOCKING WORKFLOW</div>
+        <h2 class="bl-heading">从排练到镜头：一套六步调度流程</h2>
+        <div class="bl-flow">
+          <div class="bl-flow-row"><small>STEP 01</small><b>标记节拍</b><p>确认每段的目标、阻力、策略和信息变化，避免只按台词页数分配位置。</p></div>
+          <div class="bl-flow-row"><small>STEP 02</small><b>画空间事实</b><p>标出入口、出口、障碍、重要物件、光源和不能改变的现实条件。</p></div>
+          <div class="bl-flow-row"><small>STEP 03</small><b>先排人物行动</b><p>用最少动作完成目标，观察演员或动作草图提供的自然路径，不急于放摄影机。</p></div>
+          <div class="bl-flow-row"><small>STEP 04</small><b>选择观看位置</b><p>根据视点和信息策略决定同框、遮挡、距离与是否移动。</p></div>
+          <div class="bl-flow-row"><small>STEP 05</small><b>检查轴线与连续性</b><p>标记人物轴、行进方向、视线和道具手位，确认计划的镜头可以相接。</p></div>
+          <div class="bl-flow-row"><small>STEP 06</small><b>用简拍或预演验证</b><p>手机排练、分镜动态预览或低成本生成测试都可用于检查可读性，再进入高成本制作。</p></div>
+        </div>
+
+        <p>纽约电影学院将现场流程概括为 block、light、rehearse、adjustments、shoot，说明走位会成为摄影、灯光和排练的共同基础，而非摄影完成后的附属步骤。参见 <a href="https://www.nyfa.edu/film-school-blog/the-5-stages-of-blocking-a-scene/" target="_blank" rel="noopener">New York Film Academy · The 5 Stages of Blocking a Scene</a>。</p>
+      </section>
+
+      <section>
+        <div class="bl-label">08 · GENERATIVE BLOCKING</div>
+        <h2 class="bl-heading">生成影像中的调度：把关系写成起止状态</h2>
+        <p>生成提示词常把调度写成“人物自然走动”，结果容易出现无目的漂移、穿模、位置交换和手部关系错误。更稳定的方式是分别规定人物身份、初始位置、一个主要行动、相机响应和结束关系。</p>
+
+        <div class="bl-table-wrap"><table class="bl-table"><thead><tr><th>层次</th><th>需要说明</th><th>旧照相馆示例</th></tr></thead><tbody>
+          <tr><td>初始布局</td><td>人物数量、左右与前后关系、重要障碍和物件</td><td>林岚在前景柜台左侧，父亲在后景暗房门边，柜台隔开两人</td></tr>
+          <tr><td>行动触发</td><td>什么事件引发移动，谁先动</td><td>录音机无法开机后，父亲才向前一步</td></tr>
+          <tr><td>路径与幅度</td><td>走向哪里、是否越过边界、速度和停点</td><td>父亲缓慢接近柜台端点但不绕到林岚一侧</td></tr>
+          <tr><td>相机响应</td><td>静止、轻微重构图、跟随或揭示</td><td>固定机位，仅小幅向右重构图以保留两人</td></tr>
+          <tr><td>结束关系</td><td>最终位置、朝向、距离和保留项</td><td>父亲退回后景，电池留在两人之间，身份与服装保持一致</td></tr>
+        </tbody></table></div>
+
+        <div class="bl-note warning"><span class="bl-note-title">运动预算</span><p>一个短生成片段若同时要求两人交叉走位、复杂手部交接、摄影机环绕和背景人群运动，控制通常显著下降。先保留推动节拍的主要位置变化，其余动作分镜处理。</p></div>
+      </section>
+
+      <section>
+        <div class="bl-label">09 · COLLABORATION</div>
+        <h2 class="bl-heading">调度是协作接口：表演、美术、摄影与声音共享空间</h2>
+        <p>人物能否走到某处取决于布景，面部是否可见取决于光线，移动是否自然取决于表演，画外人物是否仍然存在取决于声音。导演不必独自设计所有细节，但需要让各部门理解同一个戏剧目的。</p>
+
+        <p>美国导演工会关于导演与美术指导协作的研讨资料强调，双方共同发展故事的视觉语言并把银幕世界建立起来。对于生成工作流，这种协作关系可以对应为：场景概念图定义空间，美术参考定义材质，调度图定义关系，视频提示定义变化；任何一张参考图都不应同时含混地控制所有任务。参见 <a href="https://www.dga.org/events/2017/may2017/directing4prosproddesign0317" target="_blank" rel="noopener">DGA · Director/Production Designer Collaboration</a>。</p>
+      </section>
+
+      <section>
+        <div class="bl-label">10 · COMMON PITFALLS</div>
+        <h2 class="bl-heading">六个常见误区：空间变化必须有叙事成本</h2>
+        <div class="bl-grid">
+          <article class="bl-card"><small>PITFALL 01</small><h3>用走动填满对白</h3><p>动作没有目标，只是担心画面静止。静止本身可以让拒绝、等待和压力更清楚。</p></article>
+          <article class="bl-card"><small>PITFALL 02</small><h3>把靠近固定解释为亲密</h3><p>靠近也可能是控制、侵犯或求助；必须观察对方回应与前后关系。</p></article>
+          <article class="bl-card"><small>PITFALL 03</small><h3>只画人物，不画通路</h3><p>忽略门、家具和道具后，路径在实际空间中无法执行，或破坏光线与连续性。</p></article>
+          <article class="bl-card"><small>PITFALL 04</small><h3>摄影机追随所有动作</h3><p>每动必跟会消除画框压力。先问人物是否可以在固定关系中完成变化。</p></article>
+          <article class="bl-card"><small>PITFALL 05</small><h3>深度等于塞满层次</h3><p>前中后景同时竞争会降低可读性。深度应显示关系，而非展示场景复杂度。</p></article>
+          <article class="bl-card"><small>PITFALL 06</small><h3>提示词只写“自然走位”</h3><p>模型缺少行动因果与停点，容易生成持续漂移。明确触发、路径和结束关系。</p></article>
+        </div>
+      </section>
+
+      <section>
+        <div class="bl-label">11 · PRACTICE</div>
+        <h2 class="bl-heading">五个练习：不用复杂设备也能训练调度</h2>
+        <div class="bl-exercises">
+          <div class="bl-exercise"><div><h3>俯视平面图</h3><p>为一个双人场景画房间、出口、障碍和物件，只用圆点和箭头标出每个节拍的位置变化。</p></div></div>
+          <div class="bl-exercise"><div><h3>固定机位调度</h3><p>摄影机完全不动，用人物进入、离开、接近、遮挡和停顿完成三个关系变化。</p></div></div>
+          <div class="bl-exercise"><div><h3>同一动作，三种意义</h3><p>让人物“向对方走近”，分别设计为威胁、安慰和请求，改变速度、停点、朝向与对方回应。</p></div></div>
+          <div class="bl-exercise"><div><h3>画外人物</h3><p>让一个人物至少三十秒不入画，只用声音、视线和其他人的动作维持其空间存在。</p></div></div>
+          <div class="bl-exercise"><div><h3>生成调度压力测试</h3><p>从单人单动作开始，逐步增加第二人物、道具和相机移动，记录在哪一层出现身份、路径或空间错误。</p></div></div>
+        </div>
+      </section>
+
+      <section>
+        <div class="bl-label">12 · FURTHER READING</div>
+        <h2 class="bl-heading">继续学习：从场面调度进入空间叙事</h2>
+        <ul class="bl-sources">
+          <li><div class="bl-no">01</div><div><a href="https://filmanalysis.yale.edu/mise-en-scene/" target="_blank" rel="noopener">Yale Film Analysis · Mise-en-scène</a><span>系统介绍人物、布景、灯光、服装与构图如何共同形成场面。</span></div></li>
+          <li><div class="bl-no">02</div><div><a href="https://open.library.okstate.edu/introfilmtv/part/mise-en-scene/" target="_blank" rel="noopener">Introduction to Film &amp; TV · Mise en scène</a><span>开放教材，重点讨论 staging、身体位置、深度空间与叙事意义。</span></div></li>
+          <li><div class="bl-no">03</div><div><a href="https://filmanalysis.yale.edu/cinematography/" target="_blank" rel="noopener">Yale Film Analysis · Cinematography</a><span>理解取景、景别、机位、焦点和摄影机运动如何改变观看位置。</span></div></li>
+          <li><div class="bl-no">04</div><div><a href="https://ocw.mit.edu/courses/21l-011-the-film-experience-fall-2013/resources/lecture-5-film-as-global-cultural-form-montage-mise-en-scene/" target="_blank" rel="noopener">MIT OpenCourseWare · Montage and Mise-en-scène</a><span>从电影史与形式角度比较镜内组织和镜头组合。</span></div></li>
+          <li><div class="bl-no">05</div><div><a href="https://www.nyfa.edu/film-school-blog/the-5-stages-of-blocking-a-scene/" target="_blank" rel="noopener">New York Film Academy · The 5 Stages of Blocking a Scene</a><span>面向实践的现场调度、灯光、排练、调整和拍摄流程。</span></div></li>
+          <li><div class="bl-no">06</div><div><a href="https://www.dga.org/events/2017/may2017/directing4prosproddesign0317" target="_blank" rel="noopener">DGA · Creating the On-Screen World</a><span>导演与美术指导如何协作建立故事世界和视觉语言。</span></div></li>
+        </ul>
+      </section>
+
+      <p class="bl-closing">成熟的调度不追求人物一直在动，而是让空间记住关系：谁曾经挡住出口，谁后来让开道路，谁始终停在边界，以及一次很小的位置变化为何足以成为场景的转折。</p>
+    </article>
+  </main>
+</body>
+</html>

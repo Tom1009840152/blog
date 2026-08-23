@@ -19,6 +19,7 @@ export type DomainMeta = {
   englishTitle: string;
   description: string;
   accent: string;
+  introduction: ArticleMeta;
   sections: SectionMeta[];
 };
 
@@ -30,7 +31,22 @@ export const contentDomains: DomainMeta[] = [
     englishTitle: 'Model Foundations',
     description: '从图像到视频，理解生成模型如何组织噪声、序列、时间与世界。',
     accent: '#8fa8ff',
+    introduction: {
+      id: 'model-foundations-introduction',
+      title: '篇章引言：理解生成模型的基础地图',
+      sourceFile: 'posts/domain-introductions/model-foundations.html',
+      tags: ['模型基础', '生成模型', '模型机制']
+    },
     sections: [
+      {
+        id: 'model-training',
+        title: '模型训练',
+        description: '理解预训练与微调阶段的数据工程、规模规律与质量控制。',
+        articles: [
+          { id: 'llm-training-data-preparation', title: '大模型训练的数据准备', sourceFile: 'posts/training/llm-training-data-preparation.html', tags: ['LLM', '模型训练', '数据工程', 'Scaling Law'] },
+          { id: 'llm-fine-tuning', title: '大模型微调：全参数微调与高效参数微调', sourceFile: 'posts/training/llm-fine-tuning.html', tags: ['LLM', '模型微调', 'LoRA', '模型评估'] }
+        ]
+      },
       {
         id: 'image-models',
         title: '图像模型',
@@ -55,17 +71,68 @@ export const contentDomains: DomainMeta[] = [
   {
     id: 'aesthetic-foundations',
     index: '02',
-    title: '美学基础',
-    englishTitle: 'Visual Aesthetics',
-    description: '建立构图、光线、色彩与视觉叙事的基本判断。',
+    title: '视觉创作',
+    englishTitle: 'Visual Creation',
+    description: '从美学与摄影语言出发，学习描述、生成和迭代图像与视频。',
     accent: '#f0a574',
+    introduction: {
+      id: 'aesthetic-foundations-introduction',
+      title: '篇章引言：从视觉判断走向生成影像',
+      sourceFile: 'posts/domain-introductions/aesthetic-foundations.html',
+      tags: ['视觉创作', '视觉语言', '生成影像']
+    },
     sections: [
       {
         id: 'visual-language',
         title: '美学与摄影',
         description: '从镜头与画面语言开始训练视觉判断。',
         articles: [
-          { id: 'visual-aesthetics', title: '画面语言：用视觉说话', sourceFile: 'posts/aesthetics/visual-aesthetics.html', tags: ['美学', '摄影', '构图', '视觉语言'] }
+          { id: 'visual-aesthetics', title: '画面语言：用视觉说话', sourceFile: 'posts/aesthetics/visual-aesthetics.html', tags: ['美学', '摄影', '构图', '视觉语言'] },
+          { id: 'lighting-language', title: '光线的语言：方向、软硬、光比与色温', sourceFile: 'posts/aesthetics/lighting-language.html', tags: ['美学', '摄影', '光线', '布光'] },
+          { id: 'color-foundations', title: '色彩基础：颜色为什么会改变画面情绪', sourceFile: 'posts/aesthetics/color-foundations.html', tags: ['美学', '色彩', '视觉心理', '配色'] },
+          { id: 'advanced-composition', title: '构图进阶：视觉重心、留白与视线流动', sourceFile: 'posts/aesthetics/advanced-composition.html', tags: ['美学', '构图', '视觉重心', '视线流动'] },
+          { id: 'lens-space-perspective', title: '镜头与空间：焦段、距离和透视', sourceFile: 'posts/aesthetics/lens-space-perspective.html', tags: ['美学', '摄影', '焦段', '透视'] }
+        ]
+      },
+      {
+        id: 'directing-foundations',
+        title: '导演思维',
+        description: '从人物目标、场景关系与观众信息出发，用调度、镜头和剪辑组织时间与叙事。',
+        articles: [
+          { id: 'directing-mindset', title: '导演思维入门：决定观众看见什么、何时看见', sourceFile: 'posts/directing/directing-mindset.html', tags: ['导演思维', '视点', '信息设计', '视听策略'] },
+          { id: 'scene-analysis', title: '场景拆解：人物目标、冲突、节拍与信息变化', sourceFile: 'posts/directing/scene-analysis.html', tags: ['场景分析', '人物目标', '冲突', '节拍'] },
+          { id: 'mise-en-scene-blocking', title: '场面调度：人物、摄影机与空间如何共同叙事', sourceFile: 'posts/directing/mise-en-scene-blocking.html', tags: ['场面调度', '空间', '人物动作', '摄影机'] },
+          { id: 'shot-design-storyboarding', title: '镜头设计与分镜：把场景变成可执行的镜头序列', sourceFile: 'posts/directing/shot-design-storyboarding.html', tags: ['镜头设计', '分镜', '镜头表', '覆盖'] },
+          { id: 'editing-thinking', title: '剪辑思维：连续性、节奏、切点与蒙太奇', sourceFile: 'posts/directing/editing-thinking.html', tags: ['剪辑', '连续性', '节奏', '蒙太奇'] }
+        ]
+      },
+      {
+        id: 'generative-visual-language',
+        title: '生成影像语言',
+        description: '把视觉意图拆成可观察、可生成、可验证的描述与约束。',
+        articles: [
+          { id: 'intent-to-prompt', title: '从视觉意图到提示词：生成影像的描述语法', sourceFile: 'posts/generative-visual-language/intent-to-prompt.html', tags: ['提示词', '生成影像', '视觉语言', '创作方法'] },
+          { id: 'dynamic-image-language', title: '动态影像语言：运镜、调度、节奏与连续性', sourceFile: 'posts/generative-visual-language/dynamic-image-language.html', tags: ['动态影像', '运镜', '场面调度', '连续性'] },
+          { id: 'style-medium-material', title: '风格、媒介与材质：生成模型常用视觉词汇', sourceFile: 'posts/generative-visual-language/style-medium-material.html', tags: ['视觉词汇', '艺术媒介', '材质', '风格'] }
+        ]
+      },
+      {
+        id: 'image-model-tutorials',
+        title: '图片模型教程',
+        description: '把视觉意图转化为可生成、可编辑、可迭代的图片工作流。',
+        articles: [
+          { id: 'gpt-image2-tutorial', title: 'GPT Image 2 使用教程', sourceFile: 'posts/tutorial/gpt-image2-tutorial.html', tags: ['GPT Image 2', '图片生成', '使用教程'] },
+          { id: 'nano-banana2-tutorial', title: 'Nano Banana 2 使用教程', sourceFile: 'posts/tutorial/nano-banana2-tutorial.html', tags: ['Nano Banana 2', '图片生成', '使用教程'] },
+          { id: 'midjourney-tutorial', title: 'Midjourney 使用教程', sourceFile: 'posts/tutorial/midjourney-tutorial.html', tags: ['Midjourney', '图片生成', '使用教程'] }
+        ]
+      },
+      {
+        id: 'video-model-tutorials',
+        title: '视频模型教程',
+        description: '围绕参考素材、时间轴、运镜与一致性组织视频生成流程。',
+        articles: [
+          { id: 'seedance2-tutorial', title: 'Seedance 2.0 使用教程', sourceFile: 'posts/tutorial/seedance2-tutorial.html', tags: ['Seedance 2.0', '视频生成', '使用教程'] },
+          { id: 'seedance25-tutorial', title: 'Seedance 2.5 使用教程', sourceFile: 'posts/tutorial/seedance25-tutorial.html', tags: ['Seedance 2.5', '视频生成', '使用教程'] }
         ]
       }
     ]
@@ -77,6 +144,12 @@ export const contentDomains: DomainMeta[] = [
     englishTitle: 'Development',
     description: '补齐前端、工程工具、网络协议与协作语言的基础地图。',
     accent: '#75d4ba',
+    introduction: {
+      id: 'development-foundations-introduction',
+      title: '篇章引言：理解软件如何被构建与协作',
+      sourceFile: 'posts/domain-introductions/development-foundations.html',
+      tags: ['开发基础', '工程协作', '工程基础']
+    },
     sections: [
       {
         id: 'frontend-learning',
@@ -119,29 +192,33 @@ export const contentDomains: DomainMeta[] = [
     index: '04',
     title: '应用实践',
     englishTitle: 'Applied Practice',
-    description: '把模型能力变成 Agent、图像和视频生产工作流。',
+    description: '把模型能力转化为可评估、可维护的 AI 系统与业务流程。',
     accent: '#c7a1ee',
+    introduction: {
+      id: 'application-practice-introduction',
+      title: '篇章引言：把模型能力转化为业务系统',
+      sourceFile: 'posts/domain-introductions/application-practice.html',
+      tags: ['应用实践', 'AI 系统', '工程落地']
+    },
     sections: [
       {
         id: 'llm-applications',
         title: 'LLM 应用',
-        description: '从 Agent 概念到评测体系与多模态实践。',
+        description: '从 Agent、评测体系到大模型推荐系统实践。',
         articles: [
           { id: 'ai-agent-intro', title: 'AI Agent 概念入门', sourceFile: 'posts/llm/ai-agent-intro.html', tags: ['AI', 'Agent', 'LLM'] },
           { id: 'agent-evaluation', title: '测评1：Agent 开发中的评测体系', sourceFile: 'posts/llm/agent-evaluation.html', tags: ['AI', 'Agent', '评测'] },
-          { id: 'agent-evaluation2', title: '测评2：多模态评测集构建实战', sourceFile: 'posts/llm/agent-evaluation2.html', tags: ['AI', 'Agent', '多模态'] }
+          { id: 'agent-evaluation2', title: '测评2：多模态评测集构建实战', sourceFile: 'posts/llm/agent-evaluation2.html', tags: ['AI', 'Agent', '多模态'] },
+          { id: 'llm-recommender-systems', title: '大模型与推荐系统：LLM + RS 与 LLM as RS', sourceFile: 'posts/llm/llm-recommender-systems.html', tags: ['LLM', '推荐系统', '生成式推荐'] }
         ]
       },
       {
-        id: 'model-tutorials',
-        title: '图片 / 视频模型教程',
-        description: '围绕主流生成模型建立可复用的创作方法。',
+        id: 'real-world-cases',
+        title: '真实案例',
+        description: '从真实业务约束出发，复盘 AI 系统的落地路径与工程取舍。',
         articles: [
-          { id: 'seedance2-tutorial', title: 'Seedance 2.0 使用教程', sourceFile: 'posts/tutorial/seedance2-tutorial.html', tags: ['Seedance 2.0', '视频生成', '使用教程'] },
-          { id: 'seedance25-tutorial', title: 'Seedance 2.5 使用教程', sourceFile: 'posts/tutorial/seedance25-tutorial.html', tags: ['Seedance 2.5', '视频生成', '使用教程'] },
-          { id: 'gpt-image2-tutorial', title: 'GPT Image 2 使用教程', sourceFile: 'posts/tutorial/gpt-image2-tutorial.html', tags: ['GPT Image 2', '图片生成', '使用教程'] },
-          { id: 'nano-banana2-tutorial', title: 'Nano Banana 2 使用教程', sourceFile: 'posts/tutorial/nano-banana2-tutorial.html', tags: ['Nano Banana 2', '图片生成', '使用教程'] },
-          { id: 'midjourney-tutorial', title: 'Midjourney 使用教程', sourceFile: 'posts/tutorial/midjourney-tutorial.html', tags: ['Midjourney', '图片生成', '使用教程'] }
+          { id: 'ctrip-customer-service-ai', title: '携程客服 AI 转型：传统机器人与 LLM 的协同', sourceFile: 'posts/cases/ctrip-customer-service-ai.html', tags: ['客服 AI', 'LLM', '知识治理'] },
+          { id: 'llm-data-analysis', title: 'LLM 与数据分析：从写 SQL 到可信问数', sourceFile: 'posts/cases/llm-data-analysis.html', tags: ['LLM', '数据分析', 'Text-to-SQL', '数据治理'] }
         ]
       }
     ]
@@ -153,6 +230,12 @@ export const contentDomains: DomainMeta[] = [
     englishTitle: 'Observations',
     description: '在技术地图之外，持续观察产业、商业与长期变化。',
     accent: '#e0c775',
+    introduction: {
+      id: 'other-introduction',
+      title: '篇章引言：在技术之外观察长期变化',
+      sourceFile: 'posts/domain-introductions/other.html',
+      tags: ['产业观察', '商业分析', '长期变化']
+    },
     sections: [
       {
         id: 'business-observation',
