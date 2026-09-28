@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>中国本土电商（一）：从淘宝到抖音，理解平台电商的主要模式</title>
+  <style>
+    .dp-thesis {
+      margin: 30px 0;
+      padding: 24px 26px;
+      border: 1px solid color-mix(in srgb, var(--domain-accent) 32%, #d8d0c6);
+      border-left: 4px solid var(--domain-accent);
+      border-radius: 4px 16px 16px 4px;
+      background: linear-gradient(135deg, color-mix(in srgb, var(--domain-accent) 11%, #fff), rgba(255, 255, 255, 0.7));
+      color: #49372e;
+      font-family: "Noto Serif SC", serif;
+      font-size: 18px;
+      line-height: 1.8;
+    }
+
+    .dp-flow {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 9px;
+      margin: 27px 0;
+    }
+
+    .dp-flow-step {
+      position: relative;
+      min-height: 96px;
+      padding: 16px 12px;
+      border: 1px solid rgba(104, 76, 57, 0.16);
+      border-radius: 12px;
+      background: rgba(255, 252, 248, 0.84);
+      text-align: center;
+    }
+
+    .dp-flow-step:not(:last-child)::after {
+      position: absolute;
+      top: 50%;
+      right: -10px;
+      z-index: 2;
+      color: #b59a88;
+      content: "→";
+      transform: translateY(-50%);
+    }
+
+    .dp-flow-step span {
+      display: block;
+      margin-bottom: 7px;
+      color: var(--domain-accent);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+    }
+
+    .dp-flow-step b {
+      display: block;
+      margin-bottom: 5px;
+      color: #594338;
+      font-size: 14px;
+    }
+
+    .dp-flow-step small {
+      color: #75685f;
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
+    .dp-mode-grid,
+    .dp-role-grid,
+    .dp-channel-grid,
+    .dp-metric-grid,
+    .dp-risk-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin: 24px 0;
+    }
+
+    .dp-mode-card,
+    .dp-role-card,
+    .dp-channel-card,
+    .dp-metric-card,
+    .dp-risk-card {
+      padding: 19px 20px;
+      border: 1px solid rgba(84, 66, 53, 0.14);
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.58);
+      box-shadow: 0 8px 24px rgba(72, 51, 38, 0.04);
+    }
+
+    .dp-mode-card b,
+    .dp-role-card b,
+    .dp-channel-card b,
+    .dp-metric-card b,
+    .dp-risk-card b {
+      display: block;
+      margin-bottom: 7px;
+      color: #67452f;
+      font-size: 15px;
+    }
+
+    .dp-mode-card p,
+    .dp-role-card p,
+    .dp-channel-card p,
+    .dp-metric-card p,
+    .dp-risk-card p {
+      margin: 0;
+      color: #675e57;
+      font-size: 14px;
+      line-height: 1.75;
+    }
+
+    .dp-mode-card span,
+    .dp-platform-kicker,
+    .dp-case-kicker {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--domain-accent);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+    }
+
+    .dp-platform-panel {
+      margin: 26px 0;
+      padding: 23px 24px;
+      border: 1px solid rgba(94, 71, 55, 0.15);
+      border-radius: 16px;
+      background: linear-gradient(145deg, rgba(255, 253, 250, 0.94), rgba(247, 241, 235, 0.78));
+    }
+
+    .dp-platform-panel h3 {
+      margin: 0 0 10px;
+      color: #50382b;
+      font-family: "Noto Serif SC", serif;
+      font-size: 20px;
+    }
+
+    .dp-platform-panel p {
+      margin: 9px 0;
+    }
+
+    .dp-pill-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 14px 0 0;
+    }
+
+    .dp-pill-list span {
+      padding: 6px 10px;
+      border: 1px solid color-mix(in srgb, var(--domain-accent) 28%, #d8d0c8);
+      border-radius: 999px;
+      background: color-mix(in srgb, var(--domain-accent) 6%, #fff);
+      color: #6c4d3b;
+      font-size: 12px;
+    }
+
+    .dp-lane-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin: 24px 0;
+    }
+
+    .dp-lane {
+      padding: 20px;
+      border: 1px solid rgba(83, 67, 56, 0.14);
+      border-radius: 14px;
+      background: #fffdfa;
+    }
+
+    .dp-lane strong {
+      display: block;
+      margin-bottom: 9px;
+      color: #5d3c2a;
+      font-size: 15px;
+    }
+
+    .dp-lane ul {
+      margin: 0;
+      padding-left: 19px;
+      color: #675e57;
+      font-size: 13px;
+      line-height: 1.8;
+    }
+
+    .dp-table-wrap {
+      margin: 25px 0;
+      overflow-x: auto;
+      border: 1px solid rgba(83, 67, 56, 0.14);
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.67);
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .dp-table {
+      width: 100%;
+      min-width: 760px;
+      border-collapse: collapse;
+      font-size: 13px;
+      line-height: 1.65;
+    }
+
+    .dp-table th,
+    .dp-table td {
+      padding: 13px 15px;
+      border-bottom: 1px solid rgba(83, 67, 56, 0.1);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    .dp-table th {
+      background: color-mix(in srgb, var(--domain-accent) 9%, #f7f2ec);
+      color: #5b4233;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .dp-table tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .dp-table td:first-child {
+      color: #70472f;
+      font-weight: 650;
+      white-space: nowrap;
+    }
+
+    .dp-instant-flow {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      gap: 7px;
+      margin: 26px 0;
+    }
+
+    .dp-instant-step {
+      position: relative;
+      min-height: 94px;
+      padding: 14px 9px;
+      border: 1px solid rgba(84, 113, 98, 0.2);
+      border-radius: 11px;
+      background: linear-gradient(180deg, #fbfdfc, #f0f5f2);
+      text-align: center;
+    }
+
+    .dp-instant-step:not(:last-child)::after {
+      position: absolute;
+      top: 50%;
+      right: -8px;
+      z-index: 2;
+      color: #86a092;
+      content: "→";
+      transform: translateY(-50%);
+    }
+
+    .dp-instant-step span {
+      display: block;
+      margin-bottom: 6px;
+      color: #64816f;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .dp-instant-step b {
+      color: #3e574a;
+      font-size: 12px;
+    }
+
+    .dp-instant-step small {
+      display: block;
+      margin-top: 5px;
+      color: #68766f;
+      font-size: 11px;
+      line-height: 1.5;
+    }
+
+    .dp-responsibility {
+      display: grid;
+      gap: 9px;
+      margin: 24px 0;
+    }
+
+    .dp-responsibility-row {
+      display: grid;
+      grid-template-columns: 120px minmax(0, 1fr);
+      gap: 14px;
+      align-items: start;
+      padding: 14px 16px;
+      border: 1px solid rgba(84, 113, 98, 0.18);
+      border-radius: 11px;
+      background: rgba(247, 251, 248, 0.83);
+    }
+
+    .dp-responsibility-row b {
+      color: #436250;
+      font-size: 14px;
+    }
+
+    .dp-responsibility-row p {
+      margin: 0;
+      color: #647068;
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    .dp-note,
+    .dp-warning {
+      margin: 24px 0;
+      padding: 19px 21px;
+      border-radius: 13px;
+      font-size: 14px;
+      line-height: 1.78;
+    }
+
+    .dp-note {
+      border: 1px solid rgba(91, 125, 108, 0.22);
+      background: rgba(232, 240, 235, 0.68);
+      color: #42564b;
+    }
+
+    .dp-warning {
+      border: 1px solid color-mix(in srgb, var(--domain-accent) 30%, #d8c8bb);
+      background: color-mix(in srgb, var(--domain-accent) 8%, #fcf7f1);
+      color: #674b3b;
+    }
+
+    .dp-note b,
+    .dp-warning b {
+      color: #513b2f;
+    }
+
+    .dp-case {
+      margin: 28px 0;
+      padding: 24px;
+      border: 1px solid color-mix(in srgb, var(--domain-accent) 31%, #d6cabe);
+      border-radius: 17px;
+      background: linear-gradient(145deg, color-mix(in srgb, var(--domain-accent) 7%, #fff), #f7f1eb);
+    }
+
+    .dp-case h3 {
+      margin: 0 0 12px;
+      color: #503629;
+      font-family: "Noto Serif SC", serif;
+      font-size: 20px;
+    }
+
+    .dp-case-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 11px;
+      margin-top: 18px;
+    }
+
+    .dp-case-card {
+      padding: 16px 17px;
+      border: 1px solid rgba(92, 68, 51, 0.13);
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.66);
+    }
+
+    .dp-case-card b {
+      display: block;
+      margin-bottom: 6px;
+      color: #6c432d;
+      font-size: 14px;
+    }
+
+    .dp-case-card p {
+      margin: 0;
+      color: #685d55;
+      font-size: 13px;
+      line-height: 1.72;
+    }
+
+    .dp-checklist {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px 18px;
+      margin: 23px 0;
+      padding: 22px;
+      border-radius: 14px;
+      background: #f5f0ea;
+      list-style: none;
+    }
+
+    .dp-checklist li {
+      position: relative;
+      padding-left: 25px;
+      color: #5e534b;
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    .dp-checklist li::before {
+      position: absolute;
+      top: 2px;
+      left: 0;
+      color: var(--domain-accent);
+      content: "✓";
+      font-weight: 800;
+    }
+
+    .dp-reading-list {
+      display: grid;
+      gap: 11px;
+      margin: 22px 0 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .dp-reading-list li {
+      padding: 14px 17px;
+      border-left: 3px solid color-mix(in srgb, var(--domain-accent) 72%, #8d6f5c);
+      background: rgba(247, 242, 237, 0.78);
+      color: #5f554e;
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    .dp-reading-list a {
+      color: #8b4f31;
+      text-decoration-thickness: 1px;
+      text-underline-offset: 3px;
+    }
+
+    @media (max-width: 760px) {
+      .dp-flow,
+      .dp-instant-flow {
+        grid-template-columns: 1fr;
+      }
+
+      .dp-flow-step:not(:last-child)::after,
+      .dp-instant-step:not(:last-child)::after {
+        top: auto;
+        right: 50%;
+        bottom: -15px;
+        transform: translateX(50%) rotate(90deg);
+      }
+
+      .dp-mode-grid,
+      .dp-role-grid,
+      .dp-channel-grid,
+      .dp-metric-grid,
+      .dp-risk-grid,
+      .dp-lane-grid,
+      .dp-case-grid,
+      .dp-checklist {
+        grid-template-columns: 1fr;
+      }
+
+      .dp-responsibility-row {
+        grid-template-columns: 1fr;
+        gap: 5px;
+      }
+
+      .dp-platform-panel,
+      .dp-case {
+        padding: 20px 16px;
+      }
+
+      .dp-thesis {
+        padding: 20px;
+        font-size: 17px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="meta-row">
+      <span>2026-09-28</span>
+      <span>中国本土电商 · 第一篇</span>
+      <span>阅读约 22 分钟</span>
+      <span>淘宝 · 京东 · 拼多多 · 抖音 · 即时零售</span>
+    </div>
+  </header>
+
+  <main>
+    <article class="article-body">
+      <p class="lead">中国本土电商已经不能用“开一家网店”概括。淘宝、京东、拼多多、抖音、小红书、微信、美团闪购和淘宝闪购都能承接交易，但它们组织需求、商品、内容、库存和履约的方式不同。本文以截至 2026 年 9 月的公开资料为基础，建立一张平台机制地图，重点解释同一商品进入不同平台后，经营对象究竟发生了什么变化。</p>
+
+      <section>
+        <div class="section-label">01 · Operating System</div>
+        <h2 id="platform-operating-system" class="section-heading">平台不是渠道列表，而是一套交易操作系统</h2>
+        <p>把平台只理解为流量入口，会忽略交易之后的大部分工作。一个完整平台需要让需求被发现，让商品可以比较，让消费者建立信任，让订单和支付成立，再把库存、配送、售后与复购连接起来。不同平台的差异，首先体现在这条链路由什么触发、由谁执行。</p>
+
+        <div class="dp-flow" role="img" aria-label="电商平台从需求到复购的五段经营链路">
+          <div class="dp-flow-step"><span>01 · DEMAND</span><b>需求形成</b><small>明确采购、内容激发、即时需要或关系触达</small></div>
+          <div class="dp-flow-step"><span>02 · DISCOVERY</span><b>发现商品</b><small>搜索、推荐、直播、店铺、活动或附近供给</small></div>
+          <div class="dp-flow-step"><span>03 · DECISION</span><b>建立决策</b><small>品牌、评价、内容、价格、服务与履约确定性</small></div>
+          <div class="dp-flow-step"><span>04 · FULFILL</span><b>交易履约</b><small>下单、支付、锁库、发货、配送与售后</small></div>
+          <div class="dp-flow-step"><span>05 · RETAIN</span><b>复访复购</b><small>店铺、会员、关注、内容、社群与再次搜索</small></div>
+        </div>
+
+        <div class="dp-mode-grid">
+          <div class="dp-mode-card"><span>SHELF &amp; MARKETPLACE</span><b>综合与货架经营</b><p>用户往往带着相对明确的需求进入，通过搜索、推荐、类目、店铺和活动完成比较。淘宝天猫、京东和拼多多是主要案例，但三者的交易角色并不相同。</p></div>
+          <div class="dp-mode-card"><span>CONTENT COMMERCE</span><b>内容与交易协同</b><p>短视频、直播、图文和创作者表达可以先形成兴趣，再由商城、搜索、商品卡和店铺承接主动购物。抖音、快手和小红书的典型入口不同。</p></div>
+          <div class="dp-mode-card"><span>QUICK COMMERCE</span><b>本地即时零售</b><p>平台依据地理位置展示服务半径内的门店或前置仓库存，订单需要同时满足可售、备货、运力和预计送达时间。</p></div>
+          <div class="dp-mode-card"><span>RELATIONSHIP COMMERCE</span><b>关系与会员经营</b><p>公众号、视频号、微信小店、小程序、企业微信、社群和会员体系组合使用，更强调持续触达、服务与复购，而不是单一中心化商城。</p></div>
+        </div>
+
+        <div class="dp-thesis">这些分类描述的是平台的典型起点，不是排他的边界。淘宝有直播和短视频，抖音有商城与搜索，美团有商品货架，微信也能完成站内交易。分析平台时应先观察需求如何形成，再判断销售、库存、履约和售后分别由谁承担。</div>
+      </section>
+
+      <section>
+        <div class="section-label">02 · Roles</div>
+        <h2 id="roles-before-platforms" class="section-heading">先区分经营角色，再讨论平台流量</h2>
+        <p>同一个 App 内可以同时存在平台交易、自营零售、第三方商家、创作者推广和多种履约服务。页面看起来相似，不代表合同关系相同。中国《电子商务法》区分电子商务平台经营者、平台内经营者以及通过自建网站或其他网络服务开展经营的主体；《网络交易监督管理办法》进一步说明，网络社交、网络直播等服务如果提供商品浏览、订单生成和在线支付等平台服务，也应依法承担相应平台义务。<a href="https://www.samr.gov.cn/zfjcj/tzgg/art/2023/art_d337c3291e8b40459ca03dea54395856.html" target="_blank" rel="noopener">市场监管总局：《中华人民共和国电子商务法》</a>；<a href="https://www.samr.gov.cn/wljys/gzzd/art/2023/art_09c394cce74f424a8d82dbc4811a11ec.html" target="_blank" rel="noopener">市场监管总局：《网络交易监督管理办法》</a></p>
+
+        <div class="dp-role-grid">
+          <div class="dp-role-card"><b>平台经营者</b><p>提供网络经营场所、交易撮合、信息发布、支付连接、规则治理或争议处理等服务，不意味着每张订单都由平台持货销售。</p></div>
+          <div class="dp-role-card"><b>平台内经营者</b><p>在平台销售商品或提供服务，通常需要管理商品信息、价格、库存、发货和售后，并遵守适用法律与平台规则。</p></div>
+          <div class="dp-role-card"><b>自营零售主体</b><p>从供应商采购或控制商品，再以自身名义向消费者销售。此时平台品牌、销售方、库存方和履约方可能更紧密地结合。</p></div>
+          <div class="dp-role-card"><b>达人、主播与买手</b><p>通过内容介绍、推荐或分销促成交易，但推广者不一定是商品销售方，也不自动承担商家的全部履约责任。</p></div>
+          <div class="dp-role-card"><b>仓储与配送服务方</b><p>可能由平台关联公司、第三方物流、即时配送服务商或商家自行提供。配送商品不等于拥有商品，也不等于决定售价。</p></div>
+          <div class="dp-role-card"><b>消费者关系运营者</b><p>店铺、会员、粉丝、公众号、社群等可以支持复访，但触达权限、数据使用和迁移范围仍受平台规则、授权和隐私要求约束。</p></div>
+        </div>
+
+        <div class="dp-note"><b>最先确认的四个问题：</b>订单页面标明的销售方是谁，商品在成交前由谁控制，库存与发货由谁负责，退款和质量争议由谁处理。平台名称本身不能替代这四项判断。</div>
+      </section>
+
+      <section>
+        <div class="section-label">03 · Taobao &amp; Tmall</div>
+        <h2 id="taobao-tmall" class="section-heading">淘宝与天猫：店铺经营仍是基础，但流量早已不只来自搜索</h2>
+        <p>淘宝天猫最容易被概括为“搜索货架”，但这一标签已经过于狭窄。阿里巴巴 2026 财年年报将淘宝 App 描述为用户购物旅程的入口和生态中的顶层流量入口，商品发现同时覆盖搜索、推荐流、直播、短视频、店铺和各类频道。商家可以同时经营商品、店铺呈现、品牌表达、会员和活动。</p>
+
+        <div class="dp-platform-panel">
+          <span class="dp-platform-kicker">Taobao &amp; Tmall</span>
+          <h3>商品、店铺、内容与平台活动共同形成交易入口</h3>
+          <p>搜索承接明确需求，推荐和内容帮助发现商品，店铺沉淀品牌与完整货盘，平台活动重新组织价格、商品和流量。商家还可以使用关键词、信息流和展示等营销产品，但付费流量并不等于自然排序规则。</p>
+          <div class="dp-pill-list"><span>搜索</span><span>推荐</span><span>店铺</span><span>直播与短视频</span><span>会员</span><span>平台活动</span></div>
+        </div>
+
+        <p>淘宝和天猫以商家店铺型市场为主，但不能写成完全不持货的“纯平台”。公开年报披露，直营销售收入主要来自天猫超市、天猫国际的直营业务。反过来，体系拥有物流能力也不表示所有淘宝订单都由平台统一持货和发货。具体销售方、仓库、承运服务与售后主体仍要按店铺和订单判断。<a href="https://www.hkexnews.hk/listedco/listconews/sehk/2026/0618/2026061800844.pdf" target="_blank" rel="noopener">阿里巴巴集团：2026 财年年度报告</a></p>
+
+        <h3 class="subheading">适合观察的不是单一流量，而是店铺经营的组合结果</h3>
+        <p>淘宝天猫经营可以同时观察搜索曝光与点击、推荐和内容进店、商品详情转化、店铺成交、会员复购、退款与履约。某个入口增长并不必然带来更高利润：平台活动可能提高订单量，也可能改变折扣、广告、库存和售后成本。</p>
+      </section>
+
+      <section>
+        <div class="section-label">04 · JD</div>
+        <h2 id="jd-dual-model" class="section-heading">京东：同一前台同时存在自营零售与第三方商家市场</h2>
+        <p>京东是理解交易角色差异的直接案例。其公开年报将电商业务分为在线零售和在线市场：在线零售由京东向供应商采购商品，再直接销售给消费者；在线市场则由第三方商家向消费者销售，京东提供交易处理和结算，并可向商家提供营销、物流等服务。</p>
+
+        <div class="dp-lane-grid">
+          <div class="dp-lane">
+            <strong>京东自营</strong>
+            <ul>
+              <li>京东作为商品零售方采购并销售商品</li>
+              <li>平台需要承担采购、库存和零售经营风险</li>
+              <li>履约通常与京东供应链体系紧密连接</li>
+              <li>收入与商品成本按零售业务逻辑确认</li>
+            </ul>
+          </div>
+          <div class="dp-lane">
+            <strong>第三方商家市场</strong>
+            <ul>
+              <li>第三方商家是商品销售方</li>
+              <li>商家可以自行履约，也可购买京东物流服务</li>
+              <li>京东提供市场、交易、营销和可选服务</li>
+              <li>平台服务收入与商品销售额不能混为一谈</li>
+            </ul>
+          </div>
+        </div>
+
+        <p>因此，“在京东下单”不能直接推导出“京东自营”，也不能推导出“必然由京东物流配送”。页面中的销售方、发货方和售后说明比 App 名称更重要。京东也披露了个性化推荐、定向促销、按点击或展示计费的营销服务；上述公开年报并未提供一套可由外部机械复现的自然排序公式。<a href="https://ir.jd.com/static-files/59161341-5e71-4da8-81c9-864836e00c0b" target="_blank" rel="noopener">京东集团：2025 年度报告</a></p>
+      </section>
+
+      <section>
+        <div class="section-label">05 · Pinduoduo</div>
+        <h2 id="pinduoduo-platform" class="section-heading">拼多多：价格与活动很重要，但平台机制不等于一个“低价”标签</h2>
+        <p>拼多多公开年报把国内平台描述为连接消费者与第三方商家的交易平台，主要收入来自在线营销服务和交易服务。平台可以组织商品展示、营销活动、交易规则与争议处理，但普通平台订单中的商品通常由第三方商家提供，履约也主要依靠商家与第三方物流网络。</p>
+
+        <div class="dp-platform-panel">
+          <span class="dp-platform-kicker">Pinduoduo</span>
+          <h3>价值表达、商品供给、互动机制与平台治理共同作用</h3>
+          <p>平台历史上的拼团机制强化了互动与分享，但当前经营不能只用“拼团”概括。搜索、浏览、推荐、营销活动、商品信息、价格表达和口碑传播都可能参与交易形成。商家需要同时管理商品竞争力、活动条件、库存、发货和售后。</p>
+          <div class="dp-pill-list"><span>商品与价格</span><span>搜索与浏览</span><span>营销活动</span><span>互动分享</span><span>交易服务</span><span>第三方履约</span></div>
+        </div>
+
+        <p>平台服务费、营销费用、发货时限和售后规则会随服务类型、类目、商家条件和规则版本变化，不宜用一个统一比例代表全平台。平台帮助建立交易秩序，也不等于平台成为每件商品的销售方或亲自完成每次配送。<a href="https://investor.pddholdings.com/static-files/92dafbdc-3125-4f2c-a28f-3d61203efbaf" target="_blank" rel="noopener">PDD Holdings：2025 年度报告</a></p>
+      </section>
+
+      <section>
+        <div class="section-label">06 · Douyin &amp; Kuaishou</div>
+        <h2 id="douyin-kuaishou" class="section-heading">抖音与快手：内容场形成兴趣，货架场承接主动购物</h2>
+        <p>把抖音和快手写成“只靠主播卖货”已经不准确。短视频和直播可以通过内容表达形成需求，商城、搜索、店铺、频道和商品卡则承接更明确的购物意图。商家可以自播和制作内容，也可以通过平台分销能力与达人合作。</p>
+
+        <div class="dp-channel-grid">
+          <div class="dp-channel-card"><b>抖音电商</b><p>直播、短视频和图文构成内容入口；商城、搜索、商品卡和店铺承接主动购物。达人可以通过精选联盟选择商品并按合作方案获得佣金，商家仍需管理商品、订单、物流、发票与售后。</p></div>
+          <div class="dp-channel-card"><b>快手电商</b><p>直播和短视频建立内容信任，商城、搜索、频道与店铺承接确定需求。快手当前官方材料使用“内容种草—货架承接—店铺复购”描述全域链路，关注关系是复访和转化的经营要素之一，但不是唯一流量来源。</p></div>
+        </div>
+
+        <p>抖音官方学习中心目前将直播、短视频和图文纳入内容运营，并为商城、搜索和商品卡提供货架经营课程；精选联盟说明与平台总则进一步界定了商家、达人和订单责任。快手 2026 年第二季度资料则直接披露内容、货架与店铺复购的协同方向。这些资料说明两者都在经营跨场域链路，但具体活动、流量权重和佣金政策仍会变化。<a href="https://school.jinritemai.com/doudian/web/home" target="_blank" rel="noopener">抖音电商官方学习中心</a>；<a href="https://school.jinritemai.com/doudian/web/articlev0/aHntJKvpJAUb" target="_blank" rel="noopener">抖音电商：精选联盟商家版说明</a>；<a href="https://school.jinritemai.com/doudian/web/article/aHetyAbkjJyu" target="_blank" rel="noopener">抖音电商规则总则</a>；<a href="https://ir.kuaishou.com/zh-hans/news-releases/news-release-details/kuaishoukejifabu2026niandierjidujizhongqiweijingshenhecaiwuyeji" target="_blank" rel="noopener">快手科技：2026 年第二季度业绩资料</a></p>
+
+        <h3 class="subheading">内容推广者不自动等于商品销售方</h3>
+        <p>达人、主播或买手负责内容表达、商品推荐和流量转化，并不因此当然成为订单中的商品经营者。普通平台店铺订单仍需识别实际销售商家、发货主体和售后责任。2026 年施行的《直播电商监督管理办法》也分别界定直播电商平台经营者、直播间运营者、直播营销人员和服务机构，并为各角色规定相应义务。<a href="https://www.samr.gov.cn/zw/zfxxgk/fdzdgknr/fgs/art/2026/art_ce66ea61fcec4583b5dbd677f470088b.html" target="_blank" rel="noopener">市场监管总局、国家网信办：《直播电商监督管理办法》</a></p>
+      </section>
+
+      <section>
+        <div class="section-label">07 · Xiaohongshu &amp; Weixin</div>
+        <h2 id="xiaohongshu-weixin" class="section-heading">小红书与微信：消费决策、关系触达与交易承接需要分别理解</h2>
+        <div class="dp-channel-grid">
+          <div class="dp-channel-card"><b>小红书：笔记和搜索参与消费决策</b><p>笔记、搜索和直播帮助发现、比较与形成判断；商品笔记、买手直播、商家自播和店铺承接站内交易。内容种草合作与买手分销属于不同业务链路，不宜混写成同一种佣金合作。</p></div>
+          <div class="dp-channel-card"><b>微信：一组协同工具，而非单一商城</b><p>视频号和公众号承担内容触达，微信小店或具备交易能力的商家小程序承接交易，企业微信、社群和会员体系支持后续服务与复购。小程序是应用载体，不等于统一的中心化货架平台。</p></div>
+        </div>
+
+        <p>小红书官方招商页面列出买手带货、商品笔记和商家自播等经营方式，说明平台已能完成从内容到站内交易的承接，不能再简单描述为“只种草、不成交”。不过，博主内容合作、买手分销和商家自播的合同与责任不同。分销订单的库存和发货通常由对应店铺商家承担；当买手同时经营自有店铺时，推广者与商家角色可以重合。<a href="https://zhaoshang.xiaohongshu.com/" target="_blank" rel="noopener">小红书电商招商官网</a>；<a href="https://pgy.xiaohongshu.com/role-introduce?needLogout=needLogout" target="_blank" rel="noopener">小红书蒲公英：角色与合作说明</a>；<a href="https://school.xiaohongshu.com/en/open/package/package-shipped.html" target="_blank" rel="noopener">小红书开放平台：订单发货说明</a></p>
+
+        <p>截至 2026 年 9 月，腾讯当前公开资料与开放文档统一使用“微信小店”，本文不再沿用“视频号小店”旧称。商家小程序则可以由商家自行开发或通过服务商建设，与微信小店不是同一产品。所谓“私域”更准确的含义，是商家在用户授权和平台规则范围内具备一定的持续触达、服务与复购运营能力，并不意味着平台内粉丝或用户数据可以被任意取得和迁移。<a href="https://developers.weixin.qq.com/miniprogram/dev/platform-capabilities/industry/mini-shop/" target="_blank" rel="noopener">微信开放文档：微信小店</a>；<a href="https://static.www.tencent.com/uploads/2026/05/13/aaeed028d215a9612da4b41aca17708b.pdf" target="_blank" rel="noopener">腾讯：2026 年第一季度业绩资料</a>；<a href="https://www.tencent.com/zh-cn/products/weixin-mini-programs/" target="_blank" rel="noopener">腾讯：微信小程序</a></p>
+      </section>
+
+      <section>
+        <div class="section-label">08 · Quick Commerce</div>
+        <h2 id="quick-commerce" class="section-heading">美团闪购与淘宝闪购：即时零售经营的是附近库存与分钟级履约</h2>
+        <p>即时零售不是把普通快递机械压缩到三十分钟，而是以本地可售库存为供给，通过线上即时下单、线下即时履约和近场配送满足本地即时需求。平台需要同时处理地理位置、服务半径、门店营业状态、可售库存、备货能力、配送运力和预计送达时间。商务部研究院的公开报告也将消费者、平台、骑手、商超、仓储物流和中小商家列为即时零售链路的重要参与者。<a href="https://dzswgf.mofcom.gov.cn/news/phone/43/2025/11/m-1764222761541.html" target="_blank" rel="noopener">全国电子商务公共服务网：即时零售行业发展报告摘要</a></p>
+
+        <div class="dp-instant-flow" role="img" aria-label="即时零售从定位到交付售后的典型履约链路">
+          <div class="dp-instant-step"><span>LOCATE</span><b>定位与半径</b><small>筛选可服务地址</small></div>
+          <div class="dp-instant-step"><span>ASSORT</span><b>本地目录</b><small>展示附近商品</small></div>
+          <div class="dp-instant-step"><span>CHECK</span><b>接单与核库</b><small>核对可售；系统支持时预占库存</small></div>
+          <div class="dp-instant-step"><span>PICK</span><b>拣配打包</b><small>门店或仓内作业</small></div>
+          <div class="dp-instant-step"><span>DISPATCH</span><b>调度运力</b><small>匹配取货任务</small></div>
+          <div class="dp-instant-step"><span>DELIVER</span><b>近场交付</b><small>运输与妥投</small></div>
+          <div class="dp-instant-step"><span>SERVICE</span><b>售后处理</b><small>缺货、退款与退货</small></div>
+        </div>
+
+        <h3 class="subheading">本地供给不只有一种仓</h3>
+        <p>即时零售可以连接商超、便利店和品牌专卖店等实体门店库存，也可以使用面向线上订单优化的前置仓或闪电仓，还可能由平台或零售商经营自营前置配送中心。因此，不能把所有闪电仓写成平台自营，也不能把所有即时订单写成第三方商家交易。<a href="https://www1.hkexnews.hk/listedco/listconews/sehk/2026/0424/2026042400179.pdf" target="_blank" rel="noopener">美团 2025 年年度报告</a></p>
+
+        <div class="dp-responsibility">
+          <div class="dp-responsibility-row"><b>平台侧</b><p>提供附近供给发现、交易工具和规则治理，可提供或组织预计时效计算与配送调度；具体订单也可能采用合作配送或商家自配送，平台还可能经营部分自营供给。</p></div>
+          <div class="dp-responsibility-row"><b>商家侧</b><p>维护商品、店铺基础价格、营业与库存信息，接单后完成核货、拣选、复核和包装，并承担相应商品质量与售后责任；平台优惠可能改变用户到手价与结算结构。</p></div>
+          <div class="dp-responsibility-row"><b>配送侧</b><p>完成取货、运输与交付。合作配送、众包和商家自配送可能并存，不能笼统假定骑手都与平台建立同一种关系。</p></div>
+        </div>
+
+        <p>美团闪购延续美团的本地生活与即时配送入口；淘宝闪购则把本地即时供给与淘宝电商入口结合。需要特别注意当前名称：阿里巴巴官方业务页说明，饿了么已于 2025 年 12 月全面焕新为淘宝闪购，当前通过淘宝 App 首页一级入口及独立品牌 App 等触点提供服务。<a href="https://www.meituan.com/news/NN25041508500227X" target="_blank" rel="noopener">美团：美团闪购品牌说明</a>；<a href="https://www.alibabagroup.com/zh-HK/about-alibaba-businesses-1894256634985709568" target="_blank" rel="noopener">阿里巴巴集团：淘宝闪购业务介绍</a></p>
+
+        <div class="dp-warning"><b>“三十分钟到家”是常见品牌心智，不是所有订单的一刀切承诺。</b>实际预计送达时间会受距离、库存准确性、商家备货、局部运力、订单密度、道路、天气和异常事件影响。经营分析应使用页面承诺时段、实际妥投和超时原因，而不是只记录一个平台宣传数字。<a href="https://www.meituan.com/news/NN260508192002553" target="_blank" rel="noopener">美团：即时配送算法说明</a>；<a href="https://h5.ele.me/legal-agreement/terms/privacy_other/20221118142653830/20221118142653830.html" target="_blank" rel="noopener">蜂鸟众包：算法说明</a></div>
+      </section>
+
+      <section>
+        <div class="section-label">09 · Comparison</div>
+        <h2 id="platform-comparison" class="section-heading">同一件商品换个平台，变化的是需求、责任和履约结构</h2>
+        <p>平台比较不宜从“谁流量大”开始。更可复用的方法是分别比较交易前端与履约后端：前端关注需求、入口和信任，后端关注销售主体、库存位置、交付方式和成本。</p>
+
+        <div class="dp-table-wrap">
+          <table class="dp-table">
+            <thead><tr><th>平台或模式</th><th>典型需求起点</th><th>主要承载单元</th><th>常见信任凭据</th><th>核心经营能力</th></tr></thead>
+            <tbody>
+              <tr><td>淘宝 / 天猫</td><td>明确需求、逛购与活动发现</td><td>商品、店铺、内容和活动</td><td>品牌店铺、评价、商品信息与服务</td><td>货盘、店铺、搜索推荐、会员与活动协同</td></tr>
+              <tr><td>京东</td><td>明确采购与履约确定性</td><td>自营商品或第三方店铺商品</td><td>销售方、商品评价、配送与售后承诺</td><td>区分自营/平台角色并组织供应链服务</td></tr>
+              <tr><td>拼多多</td><td>商品发现、价格比较与活动</td><td>商品、店铺与平台活动</td><td>价格、评价、商品信息和平台保障</td><td>供给、价格表达、活动和履约稳定性</td></tr>
+              <tr><td>抖音 / 快手</td><td>内容激发与主动搜索并存</td><td>短视频、直播、商品卡、商城和店铺</td><td>内容表达、主播达人、店铺和评价</td><td>内容生产、达人协同与货架承接</td></tr>
+              <tr><td>小红书</td><td>内容发现、搜索比较与决策</td><td>笔记、直播、商品笔记和店铺</td><td>使用经验、博主表达、品牌与店铺</td><td>内容可信度、搜索占位和交易承接</td></tr>
+              <tr><td>微信</td><td>内容、社交分享、会员和服务触达</td><td>微信小店、商家小程序及关系触点</td><td>品牌关系、朋友分享、服务和会员记录</td><td>触达许可、服务流程、会员与复购经营</td></tr>
+              <tr><td>美团闪购 / 淘宝闪购（即时零售）</td><td>附近、即时和确定时段的需要</td><td>附近门店、前置仓与本地商品目录</td><td>距离、可售、预计时效和平台保障</td><td>本地库存、拣配、调度与异常处理</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p>以下是典型履约模式，并非互斥的平台分类；多种模式可以在同一个 App、品牌或商品体系内并存，具体仍需按订单判断。</p>
+        <div class="dp-table-wrap">
+          <table class="dp-table">
+            <thead><tr><th>模式</th><th>库存节点</th><th>交易主体</th><th>主要交付</th><th>经营风险</th></tr></thead>
+            <tbody>
+              <tr><td>店铺型平台</td><td>商家仓、品牌仓或服务仓</td><td>通常为平台内商家，部分业务可能自营</td><td>常规快递、仓配或自提</td><td>跨渠道超卖、活动毛利、发货与退款</td></tr>
+              <tr><td>自营零售</td><td>零售商自有或控制的库存网络</td><td>自营零售主体</td><td>自有或合作仓配网络</td><td>采购、库存周转、损耗与履约成本</td></tr>
+              <tr><td>内容电商</td><td>商家仓、品牌仓或平台服务仓</td><td>通常为商家；创作者负责推广</td><td>常规快递为主，依订单方案变化</td><td>内容依赖、退货、佣金与流量成本</td></tr>
+              <tr><td>即时零售</td><td>本地门店、前置仓或自营配送中心</td><td>平台内商户或自营主体，逐单判断</td><td>近场即时配送或自提</td><td>盘差缺货、备货超时、运力与客诉</td></tr>
+              <tr><td>关系经营</td><td>由商家自有系统或服务商连接</td><td>商家或品牌主体</td><td>快递、到店、即时配送均可能</td><td>触达合规、系统割裂和运营成本</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section>
+        <div class="section-label">10 · Teaching Case</div>
+        <h2 id="thermos-platform-case" class="section-heading">案例假设：一个保温杯品牌如何安排多平台角色</h2>
+        <div class="dp-case">
+          <span class="dp-case-kicker">Teaching case · 非真实企业数据</span>
+          <h3>同一款 500 ml 保温杯，不在所有平台复制同一套经营动作</h3>
+          <p>假设一个保温杯品牌已经建立统一的 SPU、SKU、成本和质量标准，希望同时覆盖明确采购、内容发现、即时送礼和老客复购。以下仅用于说明渠道分工，不代表任何平台要求或企业经营效果。</p>
+          <div class="dp-case-grid">
+            <div class="dp-case-card"><b>淘宝天猫：完整货盘与品牌店铺</b><p>展示颜色、容量、配件和礼盒等完整选择，通过搜索、推荐、店铺和会员承接明确需求及复购。</p></div>
+            <div class="dp-case-card"><b>京东：先明确自营还是平台商家</b><p>若以供应商身份进入京东自营，由京东采购并作为零售方销售；若开设第三方店铺，则另行选择自发货或物流服务。</p></div>
+            <div class="dp-case-card"><b>拼多多：重新设计价值表达</b><p>可以围绕组合装、规格和活动组织商品，但仍需核算真实毛利、发货能力和售后成本，不能只追求页面低价。</p></div>
+            <div class="dp-case-card"><b>抖音快手：用内容解释场景</b><p>短视频或直播演示保温、清洁和使用场景，商城、搜索与店铺承接比较；达人推广与品牌自播分别核算。</p></div>
+            <div class="dp-case-card"><b>美团或淘宝闪购：解决即时需要</b><p>把少量高频 SKU 布入符合服务半径的门店或仓，重点管理本地可售、备货、配送和缺货替代。</p></div>
+            <div class="dp-case-card"><b>微信：连接服务与复购</b><p>微信小店或小程序承接交易，公众号、视频号、企业微信和会员体系用于说明、售后服务和复购触达。</p></div>
+          </div>
+        </div>
+
+        <p>跨平台可以共享商品主数据、品牌素材、质量标准和成本口径，但不应强行共享全部 SKU、活动、库存池和服务承诺。礼盒、组合装、本地即时 SKU 和内容专属货盘可以使用不同销售单元；库存则需要明确共享、隔离或安全缓冲策略，避免一个平台的爆量转化为其他平台的缺货取消。</p>
+      </section>
+
+      <section>
+        <div class="section-label">11 · Metrics &amp; Choice</div>
+        <h2 id="metrics-and-platform-choice" class="section-heading">选择平台应从商品、履约与组织能力倒推</h2>
+        <p>平台选择不是把平台用户画像与商品画像做一次静态匹配。更稳妥的方法是先判断商品决策方式、履约约束和单位经济，再确认组织是否具备持续经营能力。</p>
+
+        <div class="dp-metric-grid">
+          <div class="dp-metric-card"><b>需求与发现</b><p>搜索词、推荐曝光、内容观看、直播进入、附近访问和会员触达分别解释不同需求来源。</p></div>
+          <div class="dp-metric-card"><b>交易效率</b><p>详情转化、内容点击到成交、支付率、客单价和连带率需要按入口拆分，不能只看整店平均。</p></div>
+          <div class="dp-metric-card"><b>内容效率</b><p>内容生产成本、有效观看、商品点击、成交、退款和长期搜索价值需要放在同一观察窗口。</p></div>
+          <div class="dp-metric-card"><b>履约质量</b><p>可售率、缺货取消、按时发货、备货时长、妥投时效、售后与退款反映承诺能否兑现。</p></div>
+          <div class="dp-metric-card"><b>单位经济</b><p>净销售额、商品成本、平台与支付费用、仓配、达人佣金、广告和售后成本共同决定贡献。</p></div>
+          <div class="dp-metric-card"><b>关系与复购</b><p>会员激活、复购间隔、累计贡献和触达成本比粉丝总量更接近真实经营价值。</p></div>
+        </div>
+
+        <ul class="dp-checklist">
+          <li>商品主要依靠主动搜索、内容教育还是即时需要</li>
+          <li>销售方、库存方、发货方与售后方已经明确</li>
+          <li>毛利能够覆盖平台、内容、履约和售后成本</li>
+          <li>组织能够稳定生产商品信息或内容素材</li>
+          <li>库存系统可以处理渠道隔离、共享与安全缓冲</li>
+          <li>服务承诺与仓配能力在高峰期仍能兑现</li>
+          <li>平台内触达与自有会员数据的边界已经明确</li>
+          <li>指标可以从流量追到净销售额和贡献毛利</li>
+        </ul>
+      </section>
+
+      <section>
+        <div class="section-label">12 · Rules &amp; Risks</div>
+        <h2 id="rules-and-risks" class="section-heading">平台规则会变化，经营责任不能被流量掩盖</h2>
+        <p>入驻资质、技术服务费、佣金、保证金、发货时限、活动价格和流量产品都可能更新。本文因此不写统一费率或算法权重。2026 年施行的《网络交易平台规则监督管理办法》要求平台规则遵循公开、公平、公正原则，并对平台利用规则不合理限制商家经营、强制参加推广促销或收取不合理费用等行为作出规范。<a href="https://www.samr.gov.cn/zw/zfxxgk/fdzdgknr/fgs/art/2026/art_85b474fc5a08494bb60ca6a280b98d7d.html" target="_blank" rel="noopener">市场监管总局、国家网信办：《网络交易平台规则监督管理办法》</a></p>
+
+        <div class="dp-risk-grid">
+          <div class="dp-risk-card"><b>用一个标签定义平台</b><p>“淘宝只靠搜索”“抖音只有直播”“小红书只种草”都会忽略平台内部已经存在的多入口经营。</p></div>
+          <div class="dp-risk-card"><b>把推广者当作销售方</b><p>达人和主播可以促成交易，但商品经营、发货、开票和售后仍需回到具体订单主体。</p></div>
+          <div class="dp-risk-card"><b>把平台粉丝直接当私域资产</b><p>关注、会员和群聊属于平台内能力，触达与数据使用仍受用户授权、产品权限和规则约束。</p></div>
+          <div class="dp-risk-card"><b>把平台订单写成统一履约</b><p>京东自营与第三方店铺、淘宝平台店铺与直营业务、即时平台商户与自营供给都需要分别判断。</p></div>
+          <div class="dp-risk-card"><b>多个平台复制同一库存数字</b><p>同步延迟、在途订单和盘点差异可能导致跨渠道超卖，需要共享规则与安全缓冲。</p></div>
+          <div class="dp-risk-card"><b>用 GMV 代替经营结果</b><p>平台口径、补贴、退款、广告、达人、仓配和售后成本不同，成交规模必须继续调节到贡献毛利。</p></div>
+        </div>
+
+        <div class="dp-warning"><b>平台具体规则应以经营当日页面为准。</b>需要落地入驻、收费、活动或发货政策时，应记录规则名称、生效日期、适用类目、店铺类型与查询链接；历史文章中的费率不能直接作为当前经营依据。</div>
+      </section>
+
+      <section>
+        <div class="section-label">13 · Conclusion</div>
+        <h2 id="conclusion" class="section-heading">结论：平台选择本质上是经营系统选择</h2>
+        <p>淘宝天猫以店铺和商品经营为基础，同时连接搜索、推荐与内容；京东让自营零售和第三方商家市场在同一前台并存；拼多多以第三方商家平台为主，通过商品、价格、活动和互动机制组织交易；抖音与快手把内容发现和货架承接连接起来；小红书与微信分别强化消费决策和关系经营；美团闪购与淘宝闪购则把本地库存、商家备货和即时配送放进同一订单。</p>
+        <p>这些平台没有一套可以直接复制的成功公式。可复用的是分析顺序：先确认需求从哪里形成，再确认商品和内容如何被发现；先确认谁销售、谁持货、谁履约，再比较流量成本；最后把退款、履约和平台费用调节进真实经营结果。</p>
+        <p>下一篇将继续讨论本土平台中的商家角色、平台规则、收费、结算与账期，说明页面成交金额如何变成商家实际可结算资金。</p>
+      </section>
+
+      <section>
+        <div class="section-label">14 · Further Reading</div>
+        <h2 id="further-reading" class="section-heading">延伸阅读</h2>
+        <ul class="dp-reading-list">
+          <li><a href="https://www.hkexnews.hk/listedco/listconews/sehk/2026/0618/2026061800844.pdf" target="_blank" rel="noopener">阿里巴巴集团 2026 财年年度报告</a>——淘宝天猫的流量入口、商家服务、营销和直营业务边界。</li>
+          <li><a href="https://ir.jd.com/static-files/59161341-5e71-4da8-81c9-864836e00c0b" target="_blank" rel="noopener">京东集团 2025 年度报告</a>——在线零售、第三方市场、营销与物流服务的业务结构。</li>
+          <li><a href="https://investor.pddholdings.com/static-files/92dafbdc-3125-4f2c-a28f-3d61203efbaf" target="_blank" rel="noopener">PDD Holdings 2025 年度报告</a>——拼多多平台、在线营销和交易服务的公开说明。</li>
+          <li><a href="https://school.jinritemai.com/doudian/web/home" target="_blank" rel="noopener">抖音电商官方学习中心</a>——内容、货架、店铺与达人合作的当前经营资料。</li>
+          <li><a href="https://www.kwaixiaodian.com/" target="_blank" rel="noopener">快手电商官网</a>——直播、短视频、商城、店铺和快分销等产品入口。</li>
+          <li><a href="https://zhaoshang.xiaohongshu.com/" target="_blank" rel="noopener">小红书电商招商官网</a>——买手带货、商品笔记和商家自播等经营路径。</li>
+          <li><a href="https://developers.weixin.qq.com/miniprogram/dev/platform-capabilities/industry/mini-shop/" target="_blank" rel="noopener">微信开放文档：微信小店</a>——当前微信交易产品与开放能力说明。</li>
+          <li><a href="https://www1.hkexnews.hk/listedco/listconews/sehk/2026/0424/2026042400179.pdf" target="_blank" rel="noopener">美团 2025 年年度报告</a>——即时零售、本地供给、闪电仓与自营前置配送中心的业务结构。</li>
+          <li><a href="https://www.alibabagroup.com/zh-HK/about-alibaba-businesses-1894256634985709568" target="_blank" rel="noopener">阿里巴巴集团：淘宝闪购</a>——当前品牌名称、服务品类与产品入口。</li>
+          <li><a href="https://www.samr.gov.cn/zw/zfxxgk/fdzdgknr/fgs/art/2026/art_ce66ea61fcec4583b5dbd677f470088b.html" target="_blank" rel="noopener">《直播电商监督管理办法》</a>——直播平台、直播间运营者、营销人员与服务机构的责任边界。</li>
+        </ul>
+      </section>
+    </article>
+  </main>
+</body>
+</html>

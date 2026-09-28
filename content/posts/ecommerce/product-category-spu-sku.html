@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>电商基础（二）：商品、类目、SPU 与 SKU</title>
+  <style>
+    .pm-term-note {
+      margin: 28px 0;
+      padding: 22px 24px;
+      border-left: 3px solid var(--domain-accent);
+      border-radius: 0 13px 13px 0;
+      background: color-mix(in srgb, var(--domain-accent) 8%, #fff);
+    }
+
+    .pm-term-note b {
+      display: block;
+      margin-bottom: 7px;
+      font-family: 'Noto Serif SC', serif;
+      font-size: 16px;
+    }
+
+    .pm-term-note p { margin: 0; }
+
+    .pm-term-note a,
+    .pm-reading-list a {
+      color: color-mix(in srgb, var(--domain-accent) 72%, #352d27);
+      text-underline-offset: 3px;
+    }
+
+    .pm-layer-map {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin: 28px 0;
+    }
+
+    .pm-layer-card {
+      position: relative;
+      min-height: 148px;
+      padding: 42px 18px 18px;
+      border: 1px solid rgba(64, 53, 43, 0.14);
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.56);
+    }
+
+    .pm-layer-card::before {
+      content: attr(data-index);
+      position: absolute;
+      top: 15px;
+      left: 18px;
+      color: var(--domain-accent);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+    }
+
+    .pm-layer-card b {
+      display: block;
+      margin-bottom: 7px;
+      font-size: 14px;
+    }
+
+    .pm-layer-card p {
+      margin: 0;
+      color: #6d655c;
+      font-size: 12px;
+      line-height: 1.72;
+    }
+
+    .pm-relation-map {
+      margin: 30px 0;
+      padding: 24px;
+      border: 1px solid rgba(64, 53, 43, 0.14);
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.43);
+    }
+
+    .pm-relation-core {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr auto 1fr;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .pm-relation-node {
+      padding: 16px 12px;
+      border: 1px solid color-mix(in srgb, var(--domain-accent) 30%, #d4cbc0);
+      border-radius: 11px;
+      background: color-mix(in srgb, var(--domain-accent) 7%, #fff);
+      text-align: center;
+    }
+
+    .pm-relation-node b {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 13px;
+    }
+
+    .pm-relation-node span {
+      display: block;
+      color: #776f65;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .pm-relation-arrow {
+      color: #a59b90;
+      font-size: 17px;
+    }
+
+    .pm-relation-branches {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 9px;
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px dashed rgba(64, 53, 43, 0.18);
+    }
+
+    .pm-relation-branch {
+      padding: 12px;
+      border-radius: 9px;
+      background: rgba(238, 233, 225, 0.68);
+      color: #665e55;
+      font-size: 11px;
+      line-height: 1.6;
+      text-align: center;
+    }
+
+    .pm-table-wrap {
+      margin: 26px 0;
+      overflow-x: auto;
+      border: 1px solid rgba(64, 53, 43, 0.14);
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.53);
+    }
+
+    .pm-table {
+      width: 100%;
+      min-width: 700px;
+      border-collapse: collapse;
+      font-size: 12px;
+      line-height: 1.65;
+    }
+
+    .pm-table th,
+    .pm-table td {
+      padding: 13px 15px;
+      border-bottom: 1px solid rgba(64, 53, 43, 0.1);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    .pm-table tr:last-child td { border-bottom: 0; }
+
+    .pm-table th {
+      background: color-mix(in srgb, var(--domain-accent) 8%, #f7f4ee);
+      color: #50483f;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .pm-table td:first-child {
+      color: #302b26;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .pm-taxonomy {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      margin: 24px 0;
+      padding: 20px;
+      border: 1px solid rgba(64, 53, 43, 0.14);
+      border-radius: 13px;
+      background: rgba(255, 255, 255, 0.46);
+    }
+
+    .pm-taxonomy span {
+      padding: 8px 11px;
+      border: 1px solid color-mix(in srgb, var(--domain-accent) 27%, #d5cdc3);
+      border-radius: 999px;
+      background: color-mix(in srgb, var(--domain-accent) 6%, #fff);
+      color: #5e574f;
+      font-size: 12px;
+    }
+
+    .pm-taxonomy i {
+      color: #a59b90;
+      font-style: normal;
+    }
+
+    .pm-attribute-grid,
+    .pm-rule-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 13px;
+      margin: 26px 0;
+    }
+
+    .pm-attribute-card,
+    .pm-rule-card {
+      padding: 19px;
+      border: 1px solid rgba(64, 53, 43, 0.14);
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.55);
+    }
+
+    .pm-attribute-card b,
+    .pm-rule-card b {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 13px;
+    }
+
+    .pm-attribute-card p,
+    .pm-rule-card p {
+      margin: 0;
+      color: #6d655c;
+      font-size: 12px;
+      line-height: 1.72;
+    }
+
+    .pm-thesis {
+      margin: 30px 0;
+      padding: 24px 26px;
+      border: 1px solid color-mix(in srgb, var(--domain-accent) 33%, #d7cec3);
+      border-radius: 15px;
+      background: linear-gradient(135deg, color-mix(in srgb, var(--domain-accent) 9%, #fff), rgba(255, 255, 255, 0.7));
+      font-family: 'Noto Serif SC', serif;
+      font-size: 18px;
+      font-weight: 600;
+      line-height: 1.8;
+    }
+
+    .pm-matrix {
+      width: 100%;
+      min-width: 580px;
+      border-collapse: separate;
+      border-spacing: 8px;
+      font-size: 12px;
+    }
+
+    .pm-matrix th {
+      padding: 9px;
+      color: #665f56;
+      font-weight: 600;
+      text-align: center;
+    }
+
+    .pm-matrix td {
+      min-width: 155px;
+      padding: 15px;
+      border: 1px solid color-mix(in srgb, var(--domain-accent) 30%, #d5cdc2);
+      border-radius: 11px;
+      background: color-mix(in srgb, var(--domain-accent) 7%, #fff);
+      text-align: center;
+    }
+
+    .pm-matrix td b {
+      display: block;
+      margin-bottom: 5px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+    }
+
+    .pm-matrix td span {
+      color: #746c63;
+      font-size: 11px;
+    }
+
+    .pm-matrix td.pm-empty {
+      border-style: dashed;
+      background: rgba(235, 231, 224, 0.42);
+      color: #9a9187;
+    }
+
+    .pm-case {
+      margin: 28px 0;
+      padding: 24px;
+      border: 1px solid color-mix(in srgb, var(--domain-accent) 27%, #d7cfc4);
+      border-radius: 16px;
+      background: linear-gradient(155deg, rgba(255, 255, 255, 0.7), color-mix(in srgb, var(--domain-accent) 7%, #f5f1e9));
+    }
+
+    .pm-case-label {
+      margin: 0 0 9px;
+      color: var(--domain-accent);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .pm-case h3 { margin-top: 0; }
+
+    .pm-steps {
+      display: grid;
+      gap: 12px;
+      margin: 26px 0;
+      padding: 0;
+      list-style: none;
+      counter-reset: pm-step;
+    }
+
+    .pm-steps li {
+      position: relative;
+      padding: 18px 18px 18px 58px;
+      border: 1px solid rgba(64, 53, 43, 0.13);
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.55);
+      counter-increment: pm-step;
+    }
+
+    .pm-steps li::before {
+      content: counter(pm-step, decimal-leading-zero);
+      position: absolute;
+      top: 18px;
+      left: 18px;
+      color: var(--domain-accent);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .pm-steps b {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 13px;
+    }
+
+    .pm-steps span {
+      color: #6c645b;
+      font-size: 12px;
+      line-height: 1.72;
+    }
+
+    .pm-checklist {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin: 25px 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .pm-checklist li {
+      position: relative;
+      padding: 14px 15px 14px 39px;
+      border: 1px solid rgba(64, 53, 43, 0.12);
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.5);
+      color: #5f574f;
+      font-size: 12px;
+      line-height: 1.65;
+    }
+
+    .pm-checklist li::before {
+      content: '✓';
+      position: absolute;
+      top: 13px;
+      left: 15px;
+      color: var(--domain-accent);
+      font-weight: 700;
+    }
+
+    .pm-boundary {
+      margin: 26px 0;
+      padding: 20px 22px;
+      border: 1px solid rgba(64, 53, 43, 0.14);
+      border-radius: 13px;
+      background: rgba(239, 235, 228, 0.72);
+    }
+
+    .pm-boundary b {
+      display: block;
+      margin-bottom: 7px;
+    }
+
+    .pm-boundary p {
+      margin: 0;
+      color: #655d54;
+      font-size: 13px;
+      line-height: 1.8;
+    }
+
+    .pm-reading-list {
+      margin: 22px 0 0;
+      padding-left: 22px;
+    }
+
+    .pm-reading-list li {
+      margin-bottom: 12px;
+      padding-left: 5px;
+    }
+
+    @media (max-width: 900px) {
+      .pm-layer-map { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .pm-relation-branches { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 640px) {
+      .pm-term-note,
+      .pm-thesis,
+      .pm-case,
+      .pm-relation-map { padding: 18px; }
+
+      .pm-layer-map,
+      .pm-attribute-grid,
+      .pm-rule-grid,
+      .pm-checklist { grid-template-columns: 1fr; }
+
+      .pm-layer-card { min-height: 0; }
+
+      .pm-relation-core { grid-template-columns: 1fr; }
+      .pm-relation-arrow { transform: rotate(90deg); text-align: center; }
+      .pm-relation-branches { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="meta-row">
+      <span>2026-09-28</span>
+      <span>电商基础 · 第二篇</span>
+      <span>阅读约 15 分钟</span>
+      <span>商品建模 · SPU/SKU · 商品数据</span>
+    </div>
+  </header>
+
+  <article class="article-body">
+    <p class="lead">消费者看到的可能只是一个商品页，但为了让这个页面可以被搜索、选择、定价、下单和履约，典型实物电商系统通常会按职责拆分类目、属性、产品聚合层、销售规格、外部标识、价格、库存和渠道刊登等对象，具体结构仍取决于业务类型。商品建模的目标，就是为这些对象建立稳定、不混乱且可持续扩展的关系。</p>
+
+    <section>
+      <div class="section-label">01 · Product Model</div>
+      <h2 id="why-product-model" class="section-heading">为什么同一件商品会变成多个系统对象</h2>
+      <p>现实中的商品可以被观察、触摸和交付，系统却只能处理标识、字段、状态和关系。商品建模因此不是把一段文案填进后台，而是把现实中的供给转换成可计算的结构。</p>
+
+      <div class="pm-layer-map">
+        <div class="pm-layer-card" data-index="01"><b>现实交付对象</b><p>实物、服务、数字内容或组合权益，是最终向客户提供的对象。</p></div>
+        <div class="pm-layer-card" data-index="02"><b>商品主数据</b><p>对商品进行结构化描述，保存类目、品牌、属性和标识等稳定信息。</p></div>
+        <div class="pm-layer-card" data-index="03"><b>SPU</b><p>将共享主要产品特征的一组变体聚合起来，回答“是否属于同一款”。</p></div>
+        <div class="pm-layer-card" data-index="04"><b>SKU</b><p>在给定业务中可被独立选择、销售或管理库存的具体规格。</p></div>
+        <div class="pm-layer-card" data-index="05"><b>渠道刊登</b><p>商品在某个平台、站点或市场中的销售表达，可有独立标题和状态。</p></div>
+        <div class="pm-layer-card" data-index="06"><b>库存、价格与标识</b><p>与 SKU 建立关联，但各自拥有不同维度、变化频率和生命周期。</p></div>
+      </div>
+
+      <div class="pm-term-note">
+        <b>术语边界：SPU 与 SKU 不是一套全球统一的数据模型</b>
+        <p>SPU 是中国电商和商品系统中常用的聚合概念，不同平台、ERP 和 PIM 系统对其边界可能有不同定义。其他系统也可能使用 product group、parent product、style 或 model 等名称表达类似关系。本文给出的是工程上常用的抽象，实际接入时仍应以目标系统的字段和规则为准。</p>
+      </div>
+
+      <p>例如，<a href="https://developer.alibaba.com/docs/doc.htm?articleId=101776&amp;docType=1&amp;treeId=796" target="_blank" rel="noopener">淘宝开放平台的名词解释</a>用类目和关键属性描述产品，并由销售属性组合出 SKU；其他平台的字段命名、必填关系和聚合规则可能不同。平台定义可以用于理解具体接入，不应被扩大为行业唯一标准。</p>
+
+      <div class="pm-relation-map" role="img" aria-label="类目、SPU、SKU 与其他商品对象关系图">
+        <div class="pm-relation-core">
+          <div class="pm-relation-node"><b>类目与属性</b><span>提供语义框架</span></div>
+          <span class="pm-relation-arrow">→</span>
+          <div class="pm-relation-node"><b>SPU</b><span>聚合共性</span></div>
+          <span class="pm-relation-arrow">→</span>
+          <div class="pm-relation-node"><b>SKU</b><span>表达具体变体</span></div>
+        </div>
+        <div class="pm-relation-branches">
+          <div class="pm-relation-branch">外部标识与载体<br>SKU ↔ GTIN 等标识 → 条码 / RFID</div>
+          <div class="pm-relation-branch">库存记录<br>SKU × 地点 × 状态</div>
+          <div class="pm-relation-branch">价格政策<br>SKU × 渠道 × 时间</div>
+          <div class="pm-relation-branch">渠道刊登<br>引用并转换商品数据</div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-label">02 · Category</div>
+      <h2 id="category" class="section-heading">类目不只是前台菜单，而是商品的语义坐标</h2>
+      <p>类目将商品放入一个可理解的语义空间。同样是“杯子”，保温杯、酒杯、儿童吸管杯和一次性纸杯需要的属性、检索词、履约信息和可能的合规要求并不相同。在多数平台的商品模型中，类目通常会决定或影响可用属性与发布要求；一些企业系统也会独立维护属性模板。</p>
+
+      <div class="pm-taxonomy" aria-label="保温杯类目路径示例">
+        <span>家居日用</span><i>→</i><span>餐饮具</span><i>→</i><span>水具</span><i>→</i><span>保温杯</span>
+      </div>
+
+      <p>实际业务中至少存在三类“分类”：企业内部类目用于管理商品主数据；平台类目用于接入特定平台的商品体系；营销分组或标签则用于主题页、活动和运营筛选。它们可以相互映射，但不应被当作同一件事。</p>
+
+      <div class="pm-table-wrap">
+        <table class="pm-table">
+          <thead><tr><th>分类方式</th><th>主要用途</th><th>稳定性</th><th>常见风险</th></tr></thead>
+          <tbody>
+            <tr><td>企业内部类目</td><td>组织主数据、属性模板、报表与责任分工</td><td>应相对稳定</td><td>按组织架构随意划分，导致多渠道难以复用</td></tr>
+            <tr><td>平台类目</td><td>决定平台属性模板、筛选和部分审核规则</td><td>受平台版本影响</td><td>把内部类目与某一平台直接绑死</td></tr>
+            <tr><td>营销分组与标签</td><td>支持活动、主题、人群和季节性组织</td><td>可快速变化</td><td>用临时运营标签取代正式类目和标准属性</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>多渠道业务不能只将内部中文类目翻译为外语名称。每个平台都可能有自己的类目树和属性要求，因此需要维护“内部类目 → 渠道类目”的显式映射。<a href="https://support.google.com/merchants/answer/6324436" target="_blank" rel="noopener">Google Merchant Center 的官方说明</a>也区分了预定义的 Google product category 与商家自定义的 product type，这是“平台类目不等于商家内部分类”的一个具体例子。</p>
+    </section>
+
+    <section>
+      <div class="section-label">03 · Attributes</div>
+      <h2 id="attributes" class="section-heading">属性决定“相同”与“不同”如何被表达</h2>
+      <p>属性是商品数据的基本语汇。它们既描述商品，也决定哪些差异需要被拆成可独立选择的规格。为了避免所有字段混在一起，可先按用途分为四类。</p>
+
+      <div class="pm-attribute-grid">
+        <div class="pm-attribute-card"><b>共享与关键属性</b><p>例如品牌、系列、型号、基础结构和主要材质，常用于判断一组变体能否归入同一 SPU。</p></div>
+        <div class="pm-attribute-card"><b>销售属性</b><p>例如颜色、尺码、容量、存储空间和套装组合，消费者选择它们来确定具体 SKU。</p></div>
+        <div class="pm-attribute-card"><b>描述与检索属性</b><p>例如风格、功能、适用场景和人群，支持商品展示、搜索、筛选和推荐。</p></div>
+        <div class="pm-attribute-card"><b>物流与合规属性</b><p>例如净重、包装尺寸、产地、成分、危险品标记和认证信息，支持履约与市场准入。</p></div>
+      </div>
+
+      <h3 class="subheading">属性治理比属性数量更重要</h3>
+      <p>一个字段如果没有统一的名称、值域、单位和缺失值规则，就很难用于筛选、分析和多语言转换。“500mL”、“0.5 L”和“500 毫升”可以是不同的展示文本，但在底层应归一到同一标准值和单位。展示值服务人的阅读，标准值服务系统的计算，两者不必强行合并。</p>
+    </section>
+
+    <section>
+      <div class="section-label">04 · SPU</div>
+      <h2 id="spu" class="section-heading">SPU 负责聚合共性，但聚合边界需要业务定义</h2>
+      <p>SPU 可以理解为一个共享产品特征的变体组。它允许品牌、系列、基础设计、通用详情和其他共性信息只维护一次，再由多个 SKU 表达颜色、尺码或容量等差异。</p>
+
+      <div class="pm-rule-grid">
+        <div class="pm-rule-card"><b>适合在 SPU 层共享</b><p>品牌、产品系列、基础外观设计、核心功能、通用说明和一组可选销售属性。</p></div>
+        <div class="pm-rule-card"><b>可能需要拆分 SPU</b><p>核心结构、型号、代际、功能、适用范围或安全标准发生实质变化。</p></div>
+      </div>
+
+      <p>不同企业对“同一款”的判断会受业务目标影响。例如外观相似但内部结构完全不同的两代产品，如果合并为同一 SPU，就可能共用了不适用的详情、参数或评价。反之，如果仅因颜色不同就建立多个 SPU，共享信息会被重复维护，长期容易出现数据漂移。</p>
+
+      <div class="pm-thesis">SPU 没有脱离业务语境的“唯一正确划分”。好的 SPU 边界应让共性可以复用，差异不会被隐藏，并且能稳定映射到各个销售渠道。</div>
+
+      <p><a href="https://developers.google.com/search/docs/appearance/structured-data/product-variants" target="_blank" rel="noopener">Google Search 的商品变体结构化数据文档</a>使用 <code>ProductGroup</code>、<code>hasVariant</code> 和 <code>variesBy</code> 表达“父组与变体”关系。它不是 SPU 的通用定义，但可以作为另一种商品聚合模型的官方实例。</p>
+    </section>
+
+    <section>
+      <div class="section-label">05 · SKU</div>
+      <h2 id="sku" class="section-heading">SKU 把可选择的规格落到具体单元</h2>
+      <p>SKU 回答的不是“这是什么产品”，而是“此次选择、销售或库存管理针对哪一个具体规格”。一件衣服有颜色和尺码可选时，每一个有效的“颜色 × 尺码”组合通常是一个 SKU。即使商品没有可见规格，系统也通常需要至少一个 SKU 用于交易和库存管理。</p>
+
+      <h3 class="subheading">销售属性组合不等于机械生成笛卡尔积</h3>
+      <p>如果一个 SPU 包含 3 种颜色和 4 个尺码，理论上存在 12 种组合，但业务实际可能只生产其中 8 种。只有真实存在、能够被销售或管理的组合才应成为有效 SKU。否则，页面会展示无法交付的规格，库存与报表也会出现大量空对象。</p>
+
+      <div class="pm-rule-grid">
+        <div class="pm-rule-card"><b>标识应稳定且在管理范围内唯一</b><p>规格名称和展示文案可以修改，但 SKU 的内部 ID 或编码不宜随意更换或回收，否则历史订单和库存轨迹可能被串联。</p></div>
+        <div class="pm-rule-card"><b>包装与组合可能形成新单元</b><p>单只、两只礼盒、整箱和搭配套装如果能被独立订购、定价或备货，通常需要单独建模。</p></div>
+      </div>
+
+      <p>SKU 编码的具体形式由企业或系统决定。<a href="https://help.shopify.com/en/manual/products/details/sku" target="_blank" rel="noopener">Shopify 的官方文档</a>将 SKU 描述为用于内部库存跟踪和销售报告的代码，并建议在其管理后台中保持唯一。这是一种常见的实践口径，但不意味着所有系统的 SKU 定义和校验规则完全相同。</p>
+    </section>
+
+    <section>
+      <div class="section-label">06 · Related Objects</div>
+      <h2 id="related-objects" class="section-heading">SKU、条码、库存、价格与刊登不能画等号</h2>
+      <p>这些对象经常围绕同一个 SKU 出现，因此容易在表格或早期系统中被合并成一行。当渠道、仓库或包装层级增多时，这种简化就会开始失效。</p>
+
+      <div class="pm-table-wrap">
+        <table class="pm-table">
+          <thead><tr><th>对象</th><th>它回答的问题</th><th>为什么不等于 SKU</th><th>建议粒度</th></tr></thead>
+          <tbody>
+            <tr><td>外部标识与载体</td><td>供应链中如何识别贸易项目，并让机器捕获标识数据</td><td>SKU 是企业内部管理代码；GTIN 按 GS1 标准识别贸易项目；条码与 RFID 等则是数据载体</td><td>分开维护内部编码、外部标识、包装层级与载体</td></tr>
+            <tr><td>库存记录</td><td>某个具体规格在哪里、处于什么状态、数量多少</td><td>同一 SKU 可分布在多个仓库，并同时存在可售、锁定、在途或残次等状态</td><td>SKU × 地点 × 状态，必要时再加批次</td></tr>
+            <tr><td>价格</td><td>在某个市场、渠道、币种和时间条件下如何销售</td><td>同一 SKU 可有多个渠道价格、促销价和会员价，价格生命周期也更短</td><td>SKU × 市场/渠道 × 时间与适用条件</td></tr>
+            <tr><td>渠道刊登</td><td>某个商品如何在特定渠道展示和销售</td><td>同一 SKU 可在多渠道被引用，各渠道的标题、语言、图片、价格和上下架状态可不同</td><td>渠道 × 市场 × SPU/SKU 的发布关系</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="subheading">条码是载体，GTIN 是标识，SKU 是内部管理单元</h3>
+      <p><a href="https://www.gs1.org/standards/id-keys/gtin" target="_blank" rel="noopener">GS1 将 GTIN（Global Trade Item Number）定义为用于唯一识别贸易项目的编号</a>；贸易项目可以是在供应链中被定价、订购或开票的产品或服务。<a href="https://support.gs1.org/support/solutions/articles/43000734095-how-do-gs1-gtins-and-barcodes-work-" target="_blank" rel="noopener">GS1 对 GTIN 与条码工作方式的说明</a>将条码描述为 GTIN 等数据的可扫描表示。因此，外部标识、条码载体与内部 SKU 需要分层理解。</p>
+
+      <div class="pm-term-note">
+        <b>不宜预设永久的一对一关系</b>
+        <p>一个具体业务中，一个 SKU 常与一个零售单品标识对应，但包装层级、组合套装、渠道映射和内部系统拆分都可能使关系更复杂。更稳妥的做法是分别维护 SKU 与外部标识，并明确每个映射的适用包装和市场范围。</p>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-label">07 · Example</div>
+      <h2 id="cup-example" class="section-heading">案例假设：一款保温杯如何变成可售 SKU</h2>
+      <p>下面的字段、编码和数量均为教学假设，只用于说明关系，不代表真实品牌或平台规则。</p>
+
+      <div class="pm-case">
+        <p class="pm-case-label">Assumption · 商品假设</p>
+        <h3 class="subheading">某系列保温杯有 350mL 与 500mL 两种容量，黑、白两种颜色，但 350mL 不生产白色</h3>
+
+        <div class="pm-table-wrap">
+          <table class="pm-matrix" aria-label="保温杯 SKU 规格矩阵">
+            <thead><tr><th>容量 / 颜色</th><th>黑色</th><th>白色</th></tr></thead>
+            <tbody>
+              <tr><th>350mL</th><td><b>CUP-350-BLK</b><span>有效 SKU</span></td><td class="pm-empty"><b>—</b><span>不存在的组合</span></td></tr>
+              <tr><th>500mL</th><td><b>CUP-500-BLK</b><span>有效 SKU</span></td><td><b>CUP-500-WHT</b><span>有效 SKU</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="pm-rule-grid">
+          <div class="pm-rule-card"><b>类目</b><p>内部类目暂设为“家居日用 › 餐饮具 › 水具 › 保温杯”，各销售渠道再分别映射。</p></div>
+          <div class="pm-rule-card"><b>SPU 共性</b><p>共享品牌、系列、杯体材质、基础结构与通用详情；容量和颜色作为销售属性。</p></div>
+          <div class="pm-rule-card"><b>SKU 与标识</b><p>只生成 3 个真实可售的 SKU，每个 SKU 分配稳定内部编码，再与合适的外部商品标识关联。</p></div>
+          <div class="pm-rule-card"><b>包装层级</b><p>如果两只礼盒被独立定价、订购和备货，应建立新的销售或库存单元，而不是只把数量写成 2。</p></div>
+        </div>
+      </div>
+
+      <p>假设某个 SKU 分布在华东仓和华南仓，库存系统需要分别记录两个地点的现有、锁定与可售状态，而不是在 SPU 或 SKU 主记录上保存一个永远正确的“总库存”。同理，该 SKU 在中文站和英文站可以使用不同的标题、语言、售价和履约说明，但这些渠道信息不应反过来改变 SKU 的基础身份。</p>
+    </section>
+
+    <section>
+      <div class="section-label">08 · Data Quality</div>
+      <h2 id="data-quality" class="section-heading">商品数据错误会沿下游链路扩散</h2>
+      <p>商品建模处在交易上游。一个类目、属性或标识错误，可能同时影响搜索、展示、库存、履约和数据分析。因此，商品数据不是只有编辑人员需要关心的内容问题。</p>
+
+      <div class="pm-table-wrap">
+        <table class="pm-table">
+          <thead><tr><th>建模错误</th><th>直接后果</th><th>可能扩散到</th><th>修复原则</th></tr></thead>
+          <tbody>
+            <tr><td>类目错置</td><td>属性模板或发布要求与商品不匹配</td><td>搜索筛选、渠道审核、类目分析</td><td>在目标体系允许范围内选择足够精确且可用的类目，并维护渠道映射</td></tr>
+            <tr><td>属性全部写成自由文本</td><td>同义值无法聚合</td><td>筛选、分析、推荐和翻译</td><td>分离标准值与展示值，统一单位和枚举词表</td></tr>
+            <tr><td>SPU 合并过度</td><td>不同型号共用错误详情</td><td>用户选择、评价聚合和售后</td><td>按核心结构与功能重新划分产品边界</td></tr>
+            <tr><td>SPU 拆分过细</td><td>共性信息重复维护</td><td>内容一致性和多渠道更新</td><td>明确哪些差异只是销售属性，合并真正共性</td></tr>
+            <tr><td>生成不存在的 SKU</td><td>页面出现无法交付的规格</td><td>库存、订单、客服和转化分析</td><td>只维护真实有效的属性组合</td></tr>
+            <tr><td>复用旧 SKU 编码</td><td>新旧商品历史被串联</td><td>订单、库存、退货和财务追溯</td><td>停用标识而非回收，保留完整生命周期</td></tr>
+            <tr><td>把内部 SKU 当作 GTIN</td><td>企业内部与跨组织标识语义混乱</td><td>数据交换、收货扫码、商品匹配和追溯</td><td>分开维护内部编码、GTIN 等外部标识与条码/RFID 载体</td></tr>
+            <tr><td>在 SPU 层记一个库存数</td><td>无法识别具体规格缺货</td><td>可售判断、订单分配和履约</td><td>将库存下沉到 SKU、地点与状态粒度</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-label">09 · Workflow</div>
+      <h2 id="modeling-workflow" class="section-heading">一套可执行的商品建模流程</h2>
+      <p>建模的起点应该是真实的售卖和交付方式，而不是某一个后台界面已经拥有哪些字段。以下流程可用于新商品建模，也可用于检查现有商品数据。</p>
+
+      <ol class="pm-steps">
+        <li><b>明确实际售卖与交付单位</b><span>确认消费者最终选择什么，仓库和服务系统实际处理什么。</span></li>
+        <li><b>选择准确且可用的类目</b><span>在目标体系允许范围内选择足够精确的类目，再为各个渠道建立可追踪的映射。</span></li>
+        <li><b>划分四类属性</b><span>分清共享与关键属性、销售属性、描述属性、物流与合规属性。</span></li>
+        <li><b>确定 SPU 边界</b><span>判断哪些变体共享同一核心产品特征，哪些差异已经构成新的产品。</span></li>
+        <li><b>枚举真实有效的 SKU</b><span>按销售属性组合生成具体变体，删除不生产、不销售或无法履约的组合。</span></li>
+        <li><b>分配稳定内部标识</b><span>确保 SKU 编码或 ID 在管理范围内唯一，再维护 GTIN 等外部标识、包装层级与条码/RFID 载体的关系。</span></li>
+        <li><b>分离接入库存、价格与刊登</b><span>让变化频率不同的对象保持独立，通过关系被组合为完整销售表达。</span></li>
+      </ol>
+
+      <h3 class="subheading">上线前检查清单</h3>
+      <ul class="pm-checklist">
+        <li>类目足够精确，与商品真实用途一致</li>
+        <li>属性单位、枚举值和缺失值规则已统一</li>
+        <li>SPU 不会合并实质不同的型号或代际</li>
+        <li>只存在可销售或可管理的有效 SKU 组合</li>
+        <li>商品图片、规格名称与实际变体一致</li>
+        <li>SKU 标识不重复，不复用已停用的历史编码</li>
+        <li>外部标识、包装层级和 SKU 的映射具有明确范围</li>
+        <li>库存、价格和渠道刊登不被硬编码进主数据</li>
+      </ul>
+    </section>
+
+    <section>
+      <div class="section-label">10 · Boundary</div>
+      <h2 id="model-boundary" class="section-heading">基础 SPU/SKU 模型不能覆盖所有商品</h2>
+      <p>“SPU 聚合共性、SKU 表达销售规格”适合建立基础认知，但真实业务还可能需要更多层次。这些情形不是对基础模型的否定，而是需要在基础身份之外增加新的追踪维度。</p>
+
+      <div class="pm-boundary"><b>常见扩展维度</b><p>食品、药品或化妆品可能需要批次与效期；高价设备可能需要序列号；组合套装可能需要 BOM 或组件关系；称重商品需要变量数量和价格处理；定制品、预售或按单生产需要额外的配置与交期模型；跨境销售还需要多语言、市场属性和合规证据。</p></div>
+
+      <p>SKU 通常识别一类相同规格的库存，而不是某一件独一无二的实物。需要追踪到单件设备时，应在商品或贸易项目身份之上继续增加序列号；需要追踪一组生产或入库记录时，则增加批号。</p>
+
+      <p>无论模型如何扩展，最基本的判断仍然是：哪些信息描述稳定身份，哪些信息表达可选择差异，哪些信息只在特定地点、渠道、市场或时间下有效。把不同生命周期的信息分开，是商品数据能够长期维护的前提。</p>
+    </section>
+
+    <section>
+      <div class="section-label">11 · Conclusion</div>
+      <h2 id="conclusion" class="section-heading">结论：先建立商品身份，再谈搜索、交易与履约</h2>
+      <p>类目为商品提供语义坐标，属性表达共性与差异，SPU 聚合一款产品的共享信息，SKU 则将具体可售规格落到可识别单元。条码、库存、价格和渠道刊登围绕这些基础对象建立关联，但不应与它们混为一体。</p>
+      <p>一套可靠的商品模型，最终会影响商品能否被正确检索和筛选，页面是否能准确展示规格，库存是否可以被正确扣减，以及各个渠道能否共享同一份可信主数据。下一篇将在这一基础上，讨论流量、转化漏斗与用户决策。</p>
+    </section>
+
+    <section>
+      <div class="section-label">12 · Further Reading</div>
+      <h2 id="further-reading" class="section-heading">延伸阅读</h2>
+      <ul class="pm-reading-list">
+        <li><a href="https://www.gs1.org/standards/id-keys/gtin" target="_blank" rel="noopener">GS1：Global Trade Item Number (GTIN)</a></li>
+        <li><a href="https://support.gs1.org/support/solutions/articles/43000734095-how-do-gs1-gtins-and-barcodes-work-" target="_blank" rel="noopener">GS1：GTIN 与条码如何工作</a></li>
+        <li><a href="https://www.samr.gov.cn/zw/zfxxgk/fdzdgknr/fgs/art/2026/art_0f6e0c2afbd149cd813886485764fc97.html" target="_blank" rel="noopener">市场监管总局：《商品条码管理办法》</a></li>
+        <li><a href="https://help.shopify.com/en/manual/products/details/sku" target="_blank" rel="noopener">Shopify Help Center：Using SKUs to manage inventory</a></li>
+        <li><a href="https://developers.google.com/search/docs/appearance/structured-data/product-variants" target="_blank" rel="noopener">Google Search Central：Product variant structured data</a></li>
+        <li><a href="https://support.google.com/merchants/answer/6324436" target="_blank" rel="noopener">Google Merchant Center：Google product category</a></li>
+        <li><a href="https://developer.alibaba.com/docs/doc.htm?articleId=101776&amp;docType=1&amp;treeId=796" target="_blank" rel="noopener">淘宝开放平台：产品、商品、SPU 与 SKU 名词解释</a></li>
+      </ul>
+    </section>
+  </article>
+</body>
+</html>

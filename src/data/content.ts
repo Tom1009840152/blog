@@ -224,8 +224,86 @@ export const contentDomains: DomainMeta[] = [
     ]
   },
   {
-    id: 'other',
+    id: 'ecommerce-business',
     index: '05',
+    title: '电商业务',
+    englishTitle: 'E-commerce Business',
+    description: '面向新人建立电商业务全景，理解中国本土与跨境电商的交易、经营和履约链路。',
+    accent: '#d98c5f',
+    introduction: {
+      id: 'ecommerce-business-introduction',
+      title: '篇章引言：电商业务的基础地图',
+      sourceFile: 'posts/domain-introductions/ecommerce-business.html',
+      tags: ['电商基础', '中国本土电商', '跨境电商']
+    },
+    sections: [
+      {
+        id: 'ecommerce-foundations',
+        title: '电商基础',
+        description: '从商品、流量、交易、履约和复购理解电商的基本经营链路。',
+        articles: [
+          {
+            id: 'ecommerce-business-basics',
+            title: '电商基础（一）：商品、流量、交易、履约与复购',
+            sourceFile: 'posts/ecommerce/ecommerce-business-basics.html',
+            tags: ['电商基础', '交易链路', '经营指标', '新人入门']
+          },
+          {
+            id: 'product-category-spu-sku',
+            title: '电商基础（二）：商品、类目、SPU 与 SKU',
+            sourceFile: 'posts/ecommerce/product-category-spu-sku.html',
+            tags: ['电商基础', '商品建模', 'SPU/SKU', '商品数据']
+          },
+          {
+            id: 'traffic-conversion-funnel',
+            title: '电商基础（三）：流量、转化漏斗与用户决策',
+            sourceFile: 'posts/ecommerce/traffic-conversion-funnel.html',
+            tags: ['电商基础', '流量分析', '转化漏斗', '用户决策']
+          },
+          {
+            id: 'pricing-promotions-orders-payments',
+            title: '电商基础（四）：价格、促销、订单与支付',
+            sourceFile: 'posts/ecommerce/pricing-promotions-orders-payments.html',
+            tags: ['电商基础', '价格与促销', '订单系统', '支付']
+          },
+          {
+            id: 'inventory-warehousing-logistics-aftersales',
+            title: '电商基础（五）：库存、仓储、物流与售后',
+            sourceFile: 'posts/ecommerce/inventory-warehousing-logistics-aftersales.html',
+            tags: ['电商基础', '库存管理', '仓储物流', '售后']
+          },
+          {
+            id: 'gmv-revenue-gross-profit-analysis',
+            title: '电商基础（六）：GMV、收入、毛利与经营分析',
+            sourceFile: 'posts/ecommerce/gmv-revenue-gross-profit-analysis.html',
+            tags: ['电商基础', 'GMV', '毛利分析', '经营指标']
+          }
+        ]
+      },
+      {
+        id: 'domestic-ecommerce',
+        title: '中国本土电商',
+        description: '理解平台电商、内容电商、即时零售与私域经营的差异。',
+        articles: [
+          {
+            id: 'china-ecommerce-platform-models',
+            title: '中国本土电商（一）：从淘宝到抖音，理解平台电商的主要模式',
+            sourceFile: 'posts/ecommerce/china-ecommerce-platform-models.html',
+            tags: ['中国本土电商', '平台电商', '内容电商', '即时零售']
+          }
+        ]
+      },
+      {
+        id: 'cross-border-ecommerce',
+        title: '跨境电商',
+        description: '围绕市场选择、平台与独立站、跨境履约、支付和合规建立基础认知。',
+        articles: []
+      }
+    ]
+  },
+  {
+    id: 'other',
+    index: '06',
     title: '其他',
     englishTitle: 'Observations',
     description: '在技术地图之外，持续观察产业、商业与长期变化。',

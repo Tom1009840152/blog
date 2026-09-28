@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>电商基础（五）：库存、仓储、物流与售后</title>
+  <style>
+    .il-thesis {
+      margin: 30px 0;
+      padding: 24px 26px;
+      border: 1px solid rgba(102, 128, 115, 0.3);
+      border-left: 4px solid #668073;
+      border-radius: 4px 16px 16px 4px;
+      background: linear-gradient(135deg, rgba(102, 128, 115, 0.12), rgba(102, 128, 115, 0.025));
+      color: #34483e;
+      font-family: "Noto Serif SC", serif;
+      font-size: 18px;
+    }
+
+    .il-layer-grid,
+    .il-dimension-grid,
+    .il-rule-grid,
+    .il-metric-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin: 24px 0;
+    }
+
+    .il-layer-card,
+    .il-dimension-card,
+    .il-rule-card,
+    .il-metric-card {
+      padding: 18px 20px;
+      border: 1px solid rgba(74, 91, 82, 0.15);
+      border-radius: 14px;
+      background: rgba(251, 253, 251, 0.86);
+      box-shadow: 0 8px 24px rgba(46, 67, 56, 0.045);
+    }
+
+    .il-layer-card b,
+    .il-dimension-card b,
+    .il-rule-card b,
+    .il-metric-card b {
+      display: block;
+      margin-bottom: 7px;
+      color: #3f6652;
+      font-size: 15px;
+    }
+
+    .il-layer-card p,
+    .il-dimension-card p,
+    .il-rule-card p,
+    .il-metric-card p {
+      margin: 0;
+      color: #58665f;
+      font-size: 14px;
+      line-height: 1.75;
+    }
+
+    .il-formula {
+      display: block;
+      margin: 10px 0 8px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      background: rgba(102, 128, 115, 0.1);
+      color: #365747;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 13px;
+      overflow-wrap: anywhere;
+    }
+
+    .il-state-flow,
+    .il-warehouse-flow,
+    .il-logistics-flow,
+    .il-return-flow {
+      display: grid;
+      gap: 9px;
+      margin: 26px 0;
+    }
+
+    .il-state-flow {
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+
+    .il-warehouse-flow {
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+    }
+
+    .il-logistics-flow {
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+    }
+
+    .il-return-flow {
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+
+    .il-flow-step {
+      position: relative;
+      min-height: 86px;
+      padding: 15px 11px;
+      border: 1px solid rgba(102, 128, 115, 0.24);
+      border-radius: 12px;
+      background: linear-gradient(180deg, #fbfdfc, #f1f6f3);
+      text-align: center;
+    }
+
+    .il-flow-step:not(:last-child)::after {
+      position: absolute;
+      top: 50%;
+      right: -9px;
+      width: 9px;
+      height: 1px;
+      background: rgba(102, 128, 115, 0.55);
+      content: "";
+    }
+
+    .il-flow-step span {
+      display: block;
+      margin-bottom: 7px;
+      color: #789285;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .il-flow-step b {
+      display: block;
+      color: #3f594c;
+      font-size: 13px;
+    }
+
+    .il-flow-step small {
+      display: block;
+      margin-top: 5px;
+      color: #69766f;
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
+    .il-table-wrap {
+      margin: 24px 0;
+      overflow-x: auto;
+      border: 1px solid rgba(74, 91, 82, 0.15);
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.72);
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .il-table {
+      width: 100%;
+      min-width: 720px;
+      border-collapse: collapse;
+    }
+
+    .il-table th,
+    .il-table td {
+      padding: 13px 15px;
+      border-bottom: 1px solid rgba(74, 91, 82, 0.11);
+      text-align: left;
+      vertical-align: top;
+      font-size: 13px;
+      line-height: 1.65;
+    }
+
+    .il-table th {
+      background: #e9f0ec;
+      color: #365345;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .il-table tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .il-table td:first-child {
+      color: #41634f;
+      font-weight: 650;
+      white-space: nowrap;
+    }
+
+    .il-note,
+    .il-warning {
+      margin: 24px 0;
+      padding: 19px 21px;
+      border-radius: 13px;
+      font-size: 14px;
+      line-height: 1.78;
+    }
+
+    .il-note {
+      border: 1px solid rgba(102, 128, 115, 0.22);
+      background: rgba(231, 239, 234, 0.68);
+      color: #43564c;
+    }
+
+    .il-warning {
+      border: 1px solid rgba(191, 125, 80, 0.25);
+      background: rgba(250, 238, 228, 0.72);
+      color: #654a3a;
+    }
+
+    .il-note b,
+    .il-warning b {
+      color: #3b5447;
+    }
+
+    .il-object-map {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin: 26px 0;
+    }
+
+    .il-object {
+      padding: 17px 13px;
+      border: 1px solid rgba(74, 91, 82, 0.14);
+      border-top: 3px solid rgba(102, 128, 115, 0.68);
+      border-radius: 12px;
+      background: #fbfdfc;
+      text-align: center;
+    }
+
+    .il-object b {
+      display: block;
+      margin-bottom: 7px;
+      color: #3e5d4d;
+      font-size: 14px;
+    }
+
+    .il-object p {
+      margin: 0;
+      color: #68736d;
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .il-route {
+      display: grid;
+      grid-template-columns: 120px minmax(0, 1fr);
+      gap: 0;
+      margin: 12px 0;
+      overflow: hidden;
+      border: 1px solid rgba(74, 91, 82, 0.15);
+      border-radius: 13px;
+      background: rgba(255, 255, 255, 0.72);
+    }
+
+    .il-route-name {
+      display: flex;
+      align-items: center;
+      padding: 15px;
+      background: rgba(102, 128, 115, 0.12);
+      color: #3e5c4d;
+      font-weight: 700;
+    }
+
+    .il-route-factors {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      padding: 13px 15px;
+    }
+
+    .il-route-factors span {
+      padding: 5px 9px;
+      border-radius: 999px;
+      background: #edf3ef;
+      color: #506258;
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    .il-case {
+      margin: 28px 0;
+      padding: 24px;
+      border: 1px solid rgba(102, 128, 115, 0.3);
+      border-radius: 17px;
+      background: linear-gradient(145deg, #fbfdfc, #edf4f0);
+    }
+
+    .il-case-kicker {
+      margin-bottom: 8px;
+      color: #4f7a63;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .il-case h3 {
+      margin: 0 0 12px;
+      color: #33493e;
+      font-family: "Noto Serif SC", serif;
+      font-size: 20px;
+    }
+
+    .il-case p {
+      margin: 8px 0;
+    }
+
+    .il-case-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 11px;
+      margin-top: 18px;
+    }
+
+    .il-case-step {
+      padding: 14px;
+      border: 1px solid rgba(102, 128, 115, 0.18);
+      border-radius: 11px;
+      background: rgba(255, 255, 255, 0.68);
+    }
+
+    .il-case-step b {
+      display: block;
+      margin-bottom: 6px;
+      color: #436551;
+      font-size: 13px;
+    }
+
+    .il-case-step p {
+      color: #5f6d65;
+      font-size: 13px;
+      line-height: 1.65;
+    }
+
+    .il-checklist {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px 18px;
+      margin: 22px 0;
+      padding: 22px;
+      border-radius: 14px;
+      background: #edf3ef;
+      list-style: none;
+    }
+
+    .il-checklist li {
+      position: relative;
+      padding-left: 25px;
+      color: #526058;
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    .il-checklist li::before {
+      position: absolute;
+      top: 3px;
+      left: 0;
+      color: #4f8066;
+      content: "✓";
+      font-weight: 800;
+    }
+
+    .il-reading-list {
+      display: grid;
+      gap: 11px;
+      margin: 22px 0 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .il-reading-list li {
+      padding: 14px 17px;
+      border-left: 3px solid rgba(102, 128, 115, 0.72);
+      background: rgba(237, 243, 239, 0.75);
+      color: #526058;
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    .il-reading-list a {
+      color: #3f6d55;
+      text-decoration-thickness: 1px;
+      text-underline-offset: 3px;
+    }
+
+    @media (max-width: 760px) {
+      .il-layer-grid,
+      .il-dimension-grid,
+      .il-rule-grid,
+      .il-metric-grid,
+      .il-checklist,
+      .il-case-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .il-state-flow,
+      .il-warehouse-flow,
+      .il-logistics-flow,
+      .il-return-flow {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .il-flow-step:not(:last-child)::after {
+        display: none;
+      }
+
+      .il-object-map {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .il-route {
+        grid-template-columns: 1fr;
+      }
+
+      .il-route-name {
+        padding: 11px 14px;
+      }
+
+      .il-case {
+        padding: 20px 16px;
+      }
+
+      .il-thesis {
+        padding: 20px;
+        font-size: 17px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="meta-row">
+      <span>2026-09-28</span>
+      <span>电商基础 · 第五篇</span>
+      <span>阅读约 18 分钟</span>
+      <span>库存管理 · 仓储履约 · 物流售后</span>
+    </div>
+  </header>
+
+  <main>
+    <article class="article-body">
+      <p class="lead">支付成功只代表交易获得了资金确认，并不代表商品已经可以被准确、及时地交付。库存回答“承诺什么”，仓储回答“如何把实物变成可发出的包裹”，物流回答“包裹如何抵达”，售后则处理交付之后的逆向流动与资金回退。四者共同决定一笔订单能否从账面成交变成完整履约。</p>
+
+      <section>
+        <div class="section-label">01 · Fulfillment</div>
+        <h2 id="fulfillment-chain" class="section-heading">履约不是发货动作，而是一组相互约束的状态</h2>
+        <p>面向新人理解电商履约，最容易出现的误区是把订单状态当成全部真相。实际系统通常同时维护商品库存、履约任务、仓内作业、包裹运输、退货和退款等对象。某笔订单可以已经支付但尚未分仓，也可以部分发货、部分退款；包裹显示妥投时，订单仍可能存在未交付商品。</p>
+        <div class="il-layer-grid">
+          <div class="il-layer-card"><b>库存层</b><p>记录某个 SKU 在特定地点、货权和质量状态下有多少数量，以及其中多少允许继续承诺。</p></div>
+          <div class="il-layer-card"><b>履约层</b><p>把订单行分配给仓库或服务商，形成待处理任务，并决定是否拆单、调拨或等待补货。</p></div>
+          <div class="il-layer-card"><b>物流层</b><p>以包裹、运单和节点事件描述承运过程，包括揽收、转运、异常、签收与退回。</p></div>
+          <div class="il-layer-card"><b>售后层</b><p>以申请、审核、退回、验收、处置和退款处理交易之后的问题，不覆盖原对象的历史。</p></div>
+        </div>
+        <div class="il-thesis">履约系统的核心不是不断修改一个“总状态”，而是让库存、实物、单据和资金各自可追踪，并通过稳定的关联关系保持一致。</div>
+        <p>Shopify 的公开订单模型也分别展示订单、支付、履约和退货状态，并明确作废支付不等于取消订单。这不是所有系统必须照搬的标准，而是理解“状态应按业务对象分离”的直接例子。<a href="https://help.shopify.com/en/manual/fulfillment/managing-orders/order-status" target="_blank" rel="noopener">Shopify：订单状态说明</a></p>
+      </section>
+
+      <section>
+        <div class="section-label">02 · Inventory</div>
+        <h2 id="inventory-dimensions" class="section-heading">库存首先是多维记录，其次才是一个数量</h2>
+        <p>“某款保温杯有 100 件库存”通常无法支持实际履约。至少还需要知道具体 SKU、存放地点、货物状态和归属主体。批次、效期、序列号、销售渠道与库存成本是否作为维度，则取决于商品特征、合规要求和系统边界。</p>
+        <div class="il-dimension-grid">
+          <div class="il-dimension-card"><b>商品与地点</b><p>SKU 决定被计数的销售单元；仓库、门店、前置仓或供应商虚拟仓决定实物或供给位于何处。</p></div>
+          <div class="il-dimension-card"><b>货权与用途</b><p>自有、寄售、平台仓或客户退回品可能处在同一物理地点，但可支配主体和用途不同。</p></div>
+          <div class="il-dimension-card"><b>质量状态</b><p>良品、待检、残次、冻结和报废不能混为可售库存；退货入库也不应直接恢复销售。</p></div>
+          <div class="il-dimension-card"><b>批次与追溯</b><p>食品、化妆品、医疗或带序列号商品常需继续记录批次、生产日期、效期或唯一设备标识。</p></div>
+        </div>
+        <p>一种常见库存分解是“现货 = 可售 + 已承诺 + 不可售”。在途库存尚未完成收货，因此通常单独记录。Shopify 当前也区分 on hand、available、committed、unavailable 和 incoming，并把已分配给未履约订单的数量列入 committed。<a href="https://help.shopify.com/en/manual/products/inventory/fundamentals/inventory-states" target="_blank" rel="noopener">Shopify：库存状态</a></p>
+        <div class="il-state-flow" role="img" aria-label="一种自定义实现中库存从在途到出库的状态变化示例">
+          <div class="il-flow-step"><span>INCOMING</span><b>在途</b><small>采购或调拨途中</small></div>
+          <div class="il-flow-step"><span>AVAILABLE</span><b>可售</b><small>允许形成新承诺</small></div>
+          <div class="il-flow-step"><span>RESERVED</span><b>预占</b><small>为订单暂时锁定</small></div>
+          <div class="il-flow-step"><span>COMMITTED</span><b>已承诺</b><small>进入确定履约任务</small></div>
+          <div class="il-flow-step"><span>SHIPPED</span><b>已出库</b><small>实物交给承运方</small></div>
+        </div>
+        <div class="il-note"><b>图示只是一种自定义实现：</b>术语并非通用标准。有些系统把预占与已承诺视为同一状态，有些系统在下单时预占、支付时承诺，也有系统在仓库接单时才扣减。设计时应先写明每个字段的业务含义和触发时点，再讨论名称。</div>
+      </section>
+
+      <section>
+        <div class="section-label">03 · ATP</div>
+        <h2 id="atp-and-reservation" class="section-heading">ATP 决定可承诺数量，预占与扣减决定承诺如何落账</h2>
+        <p>ATP（Available to Promise，可承诺量）不是仓库盘点数的别名，而是某一承诺时点、某一履约范围内仍可接受新需求的数量。最简化的现货模型可以写成：</p>
+        <span class="il-formula">简化 ATP = 总在手现货 − 已承诺或已预占 − 不可售 − 尚未计入前述状态的额外保留量</span>
+        <p>各项必须互斥。如果系统中的“可售量（Available）”已经扣除了已承诺、不可售和安全库存，ATP 应从该可售量开始，只再扣除尚未反映在其中的额外保留，不能重复扣减。</p>
+        <p>如果业务允许预售或承诺未来到货，ATP 还可能纳入“在承诺日期前可信到达的供给”和“此前已接受的未来需求”。这要求系统同时管理日期、补货可靠性和订单优先级。把全部采购在途直接加到今日可售，会把供应延误转化为客户侧延期。</p>
+        <div class="il-table-wrap">
+          <table class="il-table">
+            <thead><tr><th>节点</th><th>典型库存动作</th><th>需要防止的问题</th><th>恢复条件</th></tr></thead>
+            <tbody>
+              <tr><td>加入购物车</td><td>多数业务只校验，不长期锁定</td><td>购物车占住库存导致虚假缺货</td><td>通常无需释放</td></tr>
+              <tr><td>提交订单</td><td>按策略创建短时预占</td><td>并发下单读取同一剩余量</td><td>超时、取消或校验失败</td></tr>
+              <tr><td>支付成功</td><td>把临时预占转为确定承诺</td><td>支付回调重复、晚到或乱序</td><td>取消、关闭或售后释放</td></tr>
+              <tr><td>仓库出库</td><td>扣减实物账并关闭对应承诺</td><td>重复出库、少拣或替代发货</td><td>拦截退回或退货重新入账</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <h3 class="subheading">超卖不是单一技术故障</h3>
+        <p>超卖可能来自并发控制失效、渠道库存同步延迟、盘点差异、取消释放失败、仓损未登记、预售配置错误，也可能是商家主动允许缺货销售。因而“库存不能为负”只是一个可选校验，不足以定义问题。更实用的边界是：系统接受了承诺，却无法在承诺时点以约定方式履行。</p>
+        <p>降低非计划超卖通常需要原子化预占或带版本的条件更新、稳定的订单幂等键、预占过期机制、支付与库存补偿流程，以及渠道间的周期对账。强一致可以缩小并发窗口，但无法修复仓库账实不符；安全库存可以吸收不确定性，却会降低表面可售量。</p>
+      </section>
+
+      <section>
+        <div class="section-label">04 · Routing</div>
+        <h2 id="multi-location-routing" class="section-heading">多仓路由是在库存、时效、成本与风险之间求可执行解</h2>
+        <p>订单达到可履约条件后，系统需要把订单行分配到可以执行的履约节点；在本文的预付场景中，这一条件是支付成功，货到付款、账期或先授权后捕获等模式会采用不同条件。最近的仓库未必拥有完整库存，库存充足的仓库未必覆盖收货地区，单仓发货可以减少包裹数量，但跨区运输可能增加成本和时间。因此路由不是简单的距离排序。</p>
+        <div class="il-route"><div class="il-route-name">可执行约束</div><div class="il-route-factors"><span>目标 SKU 有 ATP</span><span>仓库可处理该商品</span><span>配送服务覆盖地址</span><span>截单与容量允许</span><span>合规限制满足</span></div></div>
+        <div class="il-route"><div class="il-route-name">优化目标</div><div class="il-route-factors"><span>减少拆单</span><span>缩短预计交付</span><span>降低履约成本</span><span>平衡仓库负载</span><span>避免库存碎片</span></div></div>
+        <div class="il-route"><div class="il-route-name">例外策略</div><div class="il-route-factors"><span>缺货等待</span><span>跨仓调拨</span><span>供应商直发</span><span>门店发货</span><span>人工改仓</span></div></div>
+        <p>路由结果应形成独立履约单，而不是直接覆盖原订单。一个订单可以按仓库、交付方式、温层或发货日期拆成多个履约单。Shopify 的公开路由说明也将“尽量减少拆分”“留在目标市场”和“从较近地点发货”列为可排序规则，并说明没有单一仓库能完成订单时仍可能拆分。<a href="https://help.shopify.com/en/manual/fulfillment/setup/order-routing" target="_blank" rel="noopener">Shopify：订单路由</a></p>
+        <div class="il-warning"><b>路由必须保存当时的输入与规则版本。</b>事后看到某仓现在有货，不代表下单时有货；仓库营业状态、配送区域、容量和库存都可能已经变化。没有决策快照，异常订单很难复盘。</div>
+      </section>
+
+      <section>
+        <div class="section-label">05 · Warehouse</div>
+        <h2 id="warehouse-operations" class="section-heading">仓储作业把系统数量转化为可核验的实物流</h2>
+        <p>仓库管理不是“找到商品并装箱”这么简单。入库决定账上库存何时获得实物依据，库位管理决定能否找到货，拣选与复核决定订单行是否准确，出库交接则记录仓库与承运方之间实物保管和作业责任的交接节点；它不自动决定商家对消费者的合同责任或法律风险何时转移。</p>
+        <h3 class="subheading">入库链路</h3>
+        <div class="il-warehouse-flow" role="img" aria-label="仓库入库的常见作业流程">
+          <div class="il-flow-step"><span>01</span><b>到货预告</b><small>采购单或调拨单</small></div>
+          <div class="il-flow-step"><span>02</span><b>收货</b><small>清点箱数与外观</small></div>
+          <div class="il-flow-step"><span>03</span><b>验收</b><small>核对 SKU、数量与质量</small></div>
+          <div class="il-flow-step"><span>04</span><b>标识</b><small>批次、效期或序列号</small></div>
+          <div class="il-flow-step"><span>05</span><b>上架</b><small>分配并确认库位</small></div>
+          <div class="il-flow-step"><span>06</span><b>可售</b><small>按规则释放库存</small></div>
+        </div>
+        <h3 class="subheading">出库链路</h3>
+        <div class="il-warehouse-flow" role="img" aria-label="仓库出库的常见作业流程">
+          <div class="il-flow-step"><span>01</span><b>释放任务</b><small>履约单进入仓库</small></div>
+          <div class="il-flow-step"><span>02</span><b>分波与拣货</b><small>按路线或批次取货</small></div>
+          <div class="il-flow-step"><span>03</span><b>复核</b><small>核对商品与数量</small></div>
+          <div class="il-flow-step"><span>04</span><b>打包</b><small>选择包装与耗材</small></div>
+          <div class="il-flow-step"><span>05</span><b>称重贴单</b><small>建立包裹和运单</small></div>
+          <div class="il-flow-step"><span>06</span><b>出库交接</b><small>扫描交给承运方</small></div>
+        </div>
+        <p>每个关键动作都应留下“谁、在何时、对哪个单据、在哪个库位、处理了哪个 SKU 和多少数量”的记录。条码扫描可以降低手工录入错误，但条码本身不保证商品、库位和单据绑定正确；复核规则仍要覆盖串码、混批、少拣、多拣与包装错配。</p>
+        <p>盘点用于校验账实差异，而不是定期把系统数量改成现场数量。规范的调整记录需要保留差异原因、原值、新值、审批与关联作业，否则后续无法区分盗损、漏扫、单位换算错误和历史迁移问题。</p>
+      </section>
+
+      <section>
+        <div class="section-label">06 · Parcels</div>
+        <h2 id="orders-fulfillments-parcels" class="section-heading">订单、履约单、包裹与运单通常不是一一对应</h2>
+        <p>订单表达购买关系，订单行表达购买了哪些商品；履约单把订单行分配给执行节点；包裹表达实际装载单元；运单表达承运服务。四者关注的问题不同，因此不能只保留一个“订单号 + 快递单号”字段。</p>
+        <div class="il-object-map" role="img" aria-label="订单、履约、包裹和运单的关系">
+          <div class="il-object"><b>订单</b><p>价格、买方与交易承诺</p></div>
+          <div class="il-object"><b>履约单</b><p>订单行分仓后的执行任务</p></div>
+          <div class="il-object"><b>包裹</b><p>商品、数量、重量与包装</p></div>
+          <div class="il-object"><b>运单</b><p>承运商服务与轨迹标识</p></div>
+        </div>
+        <p>一个订单可能因多仓、预售、不同配送方式或超重限制拆成多个包裹；一个包裹可以装入多条订单行；换单转运时，一个包裹还可能先后关联不同承运段和追踪号。在干线运输层，多个消费者包裹又可能装入同一邮袋、集装箱或总运单。这里的“非一一对应”不意味着应随意把不同收件人的零售订单混装成一个末端包裹，而是要求系统准确表达各层装载与运输关系。</p>
+        <p>Shopify 的履约说明同样指出，当同一地点无法完成全部商品、商品不能共同运输，或订单同时包含配送与自提时，会形成多个履约部分。<a href="https://help.shopify.com/en/manual/fulfillment/fulfilling-orders/single-fulfillment" target="_blank" rel="noopener">Shopify：拆分履约</a></p>
+      </section>
+
+      <section>
+        <div class="section-label">07 · Logistics</div>
+        <h2 id="logistics-and-tracking" class="section-heading">物流轨迹是事件证据，妥投是结果状态而非绝对事实</h2>
+        <p>承运链路通常包含揽收、分拨、干线、目的地处理、末端派送和妥投。平台或商家接收到的轨迹，大多来自承运商扫描、设备定位或人工操作。事件可能延迟、缺失、重复或乱序，因此不能仅凭最新上报时间排序后覆盖状态。</p>
+        <div class="il-logistics-flow" role="img" aria-label="本土配送的常见物流节点">
+          <div class="il-flow-step"><span>PICKUP</span><b>已揽收</b><small>承运方接收包裹</small></div>
+          <div class="il-flow-step"><span>ORIGIN</span><b>始发处理</b><small>入站与分拣</small></div>
+          <div class="il-flow-step"><span>LINEHAUL</span><b>干线运输</b><small>跨区域移动</small></div>
+          <div class="il-flow-step"><span>DESTINATION</span><b>目的地处理</b><small>进入末端网络</small></div>
+          <div class="il-flow-step"><span>OUT</span><b>派送中</b><small>末端配送尝试</small></div>
+          <div class="il-flow-step"><span>DELIVERED</span><b>已妥投</b><small>留下交付凭证</small></div>
+        </div>
+        <p>系统应同时保存承运商原始代码、标准化状态、事件发生时间、接收时间、地点和异常原因。标准化状态便于统一展示，原始事件便于争议核查。妥投事件可能由签名、照片、取件码、门卫代收或承运商扫描形成，其证据强度取决于服务类型与当地规则；客诉“未收到”不应因轨迹显示妥投而自动关闭。</p>
+        <div class="il-rule-grid">
+          <div class="il-rule-card"><b>时效承诺</b><p>区分仓库处理时间、承运运输时间和总交付时间，并明确工作日、截单时间及偏远地区条件。</p></div>
+          <div class="il-rule-card"><b>异常处理</b><p>为滞留、拒收、地址错误、破损、丢失和退回设置识别窗口、责任人和升级路径。</p></div>
+          <div class="il-rule-card"><b>轨迹完整性</b><p>监控出库无揽收、长时间无更新、妥投后回退等矛盾，并保留人工修正记录。</p></div>
+          <div class="il-rule-card"><b>客户沟通</b><p>通知应基于可解释节点，不把“已创建运单”表述为“承运商已经揽收”。</p></div>
+        </div>
+      </section>
+
+      <section>
+        <div class="section-label">08 · Cross-border</div>
+        <h2 id="cross-border-logistics" class="section-heading">跨境物流在运输之外增加申报、清关与目的国交付约束</h2>
+        <p>本土电商通常在单一关税区和相对统一的地址、支付与承运网络内履约。跨境直发则可能经过国内集货、出口申报、国际干线、进口清关、目的国分拨和末端派送。海外仓模式把部分跨境运输提前到备货阶段，消费者订单从目的国或目标市场仓发出，但相应增加库存前置、当地仓配与退货处置压力。</p>
+        <div class="il-table-wrap">
+          <table class="il-table">
+            <thead><tr><th>环节</th><th>本土履约常见关注点</th><th>跨境直发增加的关注点</th><th>海外仓增加的关注点</th></tr></thead>
+            <tbody>
+              <tr><td>库存</td><td>多仓 ATP、调拨与区域覆盖</td><td>可否发往目的国、运输限制</td><td>跨国补货周期、滞销与货权</td></tr>
+              <tr><td>数据</td><td>地址、电话、商品与运单</td><td>品名、价值、原产地、HS 编码及申报资料</td><td>进口备货资料与当地库存账</td></tr>
+              <tr><td>运输</td><td>干线与末端网络</td><td>出口、国际干线、清关、转单与末端</td><td>当地派送，前置补货另走跨境链路</td></tr>
+              <tr><td>费用</td><td>仓配费、运费与异常成本</td><td>国际运费、税费承担和清关服务</td><td>头程、仓租、操作费与本地配送</td></tr>
+              <tr><td>售后</td><td>本地退货地址与较短逆向链路</td><td>跨境退运成本、可退地址与进口税费处理</td><td>当地退货、检测、再售或集中处置</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>世界海关组织的跨境电商框架强调预先电子数据、风险管理、税收征管、安全与合作等内容。具体申报字段、低值规则、税费和责任主体由出境地、目的地、运输方式及业务模式共同决定，不能用单一国家或平台规则替代逐地核验。<a href="https://www.wcoomd.org/-/media/wco/public/global/pdf/topics/facilitation/activities-and-programmes/ecommerce/wco-framework-of-standards-on-crossborder-ecommerce_en.pdf" target="_blank" rel="noopener">世界海关组织：跨境电商标准框架</a></p>
+        <div class="il-warning"><b>商品页面可以展示预计到达时间，但不能把干线时效当成总时效。</b>跨境承诺还要纳入仓库处理、航班或船期、清关、节假日和末端网络。税费由商家预收还是由收件人承担，也应在下单前清楚说明，并以目标市场适用规则为准。</div>
+      </section>
+
+      <section>
+        <div class="section-label">09 · After-sales</div>
+        <h2 id="returns-and-refunds" class="section-heading">退货、退款、换货与逆向物流必须分开记录</h2>
+        <p>售后不是给原订单增加一个“已退”标签。退货描述商品是否以及如何返回，退款描述资金是否以及如何退回，换货包含退回旧商品和发出新商品两段履约，补发则可能只有新的正向履约。四者可以组合，也可能独立发生。</p>
+        <p>下图展示“审核同意且要求退回实物”时的一条主路径。审核拒绝可以直接关闭申请；部分场景也可能依据规则无需退货而先行退款，因此不应把图中的每一步设为强制节点。</p>
+        <div class="il-return-flow" role="img" aria-label="已授权且需要退回实物时的一种退货处理主路径">
+          <div class="il-flow-step"><span>REQUEST</span><b>售后申请</b><small>商品、原因与诉求</small></div>
+          <div class="il-flow-step"><span>AUTHORIZE</span><b>审核授权</b><small>规则、凭证与方案</small></div>
+          <div class="il-flow-step"><span>RETURN</span><b>逆向运输</b><small>退货单与追踪信息</small></div>
+          <div class="il-flow-step"><span>INSPECT</span><b>收货检验</b><small>数量、状态与责任</small></div>
+          <div class="il-flow-step"><span>RESOLVE</span><b>处置完成</b><small>退款、换货或其他结论</small></div>
+        </div>
+        <p>退回商品到仓后应先进入待检或隔离状态。检验结果可能是良品重新上架、拆封降级、维修翻新、退供应商或报废；库存恢复量不必等于申请退货量。若在实物尚未返回时先行退款，应把它记录为服务策略，而不是伪造已收货节点。</p>
+        <p>退款也有独立生命周期。支付机构可能返回待处理、成功或失败等结果，部分退款还要关联到订单行、优惠、运费和税费的分摊。Stripe 的公开退款对象即包含 pending、requires_action、succeeded、failed 和 canceled 等状态，说明“已提交退款”不能直接等同于“资金已经到账”。<a href="https://docs.stripe.com/api/refunds" target="_blank" rel="noopener">Stripe：退款对象与状态</a></p>
+        <div class="il-table-wrap">
+          <table class="il-table">
+            <thead><tr><th>对象</th><th>核心问题</th><th>示例状态</th><th>不应被什么替代</th></tr></thead>
+            <tbody>
+              <tr><td>售后申请</td><td>提出什么诉求，是否符合受理条件</td><td>待审核、已同意、已拒绝、已关闭</td><td>客服工单备注</td></tr>
+              <tr><td>退货单</td><td>哪些商品应退回，实物走到哪里</td><td>待寄回、运输中、已收货、已检验</td><td>退款状态</td></tr>
+              <tr><td>退款单</td><td>退多少、退到何处，资金是否完成</td><td>待提交、处理中、成功、失败</td><td>订单取消状态</td></tr>
+              <tr><td>换货履约</td><td>替换商品如何出库和交付</td><td>待分配、待出库、运输中、已交付</td><td>原订单的发货记录</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <h3 class="subheading">售后规则具有地区、商品与渠道边界</h3>
+        <p>中国《网络购买商品七日无理由退货暂行办法》规定了适用范围，同时列出定作、鲜活易腐等不适用情形，并要求结合商品性质判断完好标准。<a href="https://www.samr.gov.cn/zw/zfxxgk/fdzdgknr/fgs/art/2023/art_26ca8fe29e184edd899fa0a7a060d935.html" target="_blank" rel="noopener">国家市场监督管理总局：网络购买商品七日无理由退货暂行办法</a> 欧盟面向消费者的官方说明则将多数远程销售的撤回期表述为 14 天，也列出定制品、易腐品等例外。<a href="https://europa.eu/youreurope/citizens/consumers/shopping/returns/index_en.htm" target="_blank" rel="noopener">Your Europe：退货与撤回权</a> 两者只说明规则存在地域差异；具体业务仍需结合销售地、商家身份、商品类型、平台条款和最新法律意见核验。</p>
+      </section>
+
+      <section>
+        <div class="section-label">10 · Example</div>
+        <h2 id="thermos-fulfillment-example" class="section-heading">案例假设：同一款保温杯的本土订单与跨境订单</h2>
+        <div class="il-case">
+          <div class="il-case-kicker">Teaching Scenario · 非真实经营数据</div>
+          <h3>从库存承诺到退货入库</h3>
+          <p>假设某保温杯品牌销售“500ml 黑色”SKU。华东仓总在手 12 件，其中 2 件待质检、3 件已被有效订单预占（包含下文上海订单的 2 件），另有 1 件安全缓冲且尚未计入不可售；四组数量互斥。欧洲海外仓有 4 件可售。以下数字仅用于解释对象与状态，不代表任何企业配置或效果。</p>
+          <div class="il-case-grid">
+            <div class="il-case-step"><b>1 · 计算可承诺量</b><p>从总在手开始，华东仓简化 ATP 为 12 − 2 件待检 − 3 件预占 − 1 件安全缓冲 = 6 件。欧洲仓按自己的库存账独立计算。</p></div>
+            <div class="il-case-step"><b>2 · 本土订单路由</b><p>一张购买 2 件、收货地为上海的预付订单此前已经完成预占。支付成功并达到可履约条件后，系统把这 2 件从预占转为承诺，ATP 不再次减少，并生成一个履约单。</p></div>
+            <div class="il-case-step"><b>3 · 跨境订单路由</b><p>德国收货的 1 件订单若满足欧洲仓覆盖和合规条件，可由海外仓当地发货；若改为中国直发，则需要另一套时效、申报与税费判断。</p></div>
+            <div class="il-case-step"><b>4 · 拆分包裹</b><p>若本土订单还包含仅华南仓有货的杯刷，可形成两个履约单与两个包裹；订单仍是一笔，但分别产生轨迹和交付结果。</p></div>
+            <div class="il-case-step"><b>5 · 退货申请</b><p>收货后申请退回其中一只杯子时，创建退货单并关联具体订单行与数量；是否适用无理由退货按销售地、商品状态和渠道规则判断。</p></div>
+            <div class="il-case-step"><b>6 · 检验与退款</b><p>仓库收到退件后先进入待检。检验可再售才恢复可售量；退款单独跟踪支付渠道结果，失败时进入异常处理而非改写为成功。</p></div>
+          </div>
+        </div>
+        <p>该案例显示，库存、路由、仓储、运输和售后并不是五段互不相关的流程。SKU 与订单行把需求连接到库存，履约单把需求连接到仓库，包裹与运单连接到运输，退货单与退款单则分别把实物和资金带回可核验状态。</p>
+      </section>
+
+      <section>
+        <div class="section-label">11 · Measurement</div>
+        <h2 id="metrics-and-validation" class="section-heading">指标用于定位约束，验证用于确认系统没有制造假象</h2>
+        <p>履约指标需要围绕准确、及时、成本与体验四个方向组织。单看平均配送时长可能掩盖长尾延误，单看发货率也可能鼓励提前点击发货。因此每个指标都要记录起止事件、统计对象、异常订单范围、时间窗口和分母。</p>
+        <div class="il-metric-grid">
+          <div class="il-metric-card"><b>库存准确与可承诺</b><span class="il-formula">账实相符率、非计划缺货率、预占超时量</span><p>用于检查库存账能否支持销售承诺；盘点范围、容差和冻结规则必须一致。</p></div>
+          <div class="il-metric-card"><b>仓内履约</b><span class="il-formula">订单释放至出库时长、按时出库率、拣选准确率</span><p>区分系统等待、仓内操作和承运交接，避免把未揽收算作运输延迟。</p></div>
+          <div class="il-metric-card"><b>物流交付</b><span class="il-formula">首扫及时率、按时妥投率、首投成功率、异常件率</span><p>按承运商、线路、地区和服务产品分层，不能只看总体平均值。</p></div>
+          <div class="il-metric-card"><b>逆向与售后</b><span class="il-formula">退货率、退款完成时长、退件检验时长、原因结构</span><p>退货率需按商品件数、订单数或金额明确口径，并排除仍在观察期的订单。</p></div>
+        </div>
+        <h3 class="subheading">上线前应验证的八项不变量</h3>
+        <ul class="il-checklist">
+          <li>同一库存事件重复到达，不会重复增加或扣减数量。</li>
+          <li>可售、预占、不可售与实物账之间的勾稽关系能够解释。</li>
+          <li>部分发货、部分取消、部分退货和部分退款可以独立推进。</li>
+          <li>支付回调、仓库回传和物流事件乱序时不会回退到错误状态。</li>
+          <li>拆单、合包、换单和补发后仍能追到原订单行与责任节点。</li>
+          <li>退件未检验前不会自动恢复为可售，退款失败不会显示已完成。</li>
+          <li>跨境线路缺少申报字段或目的国服务不可达时会被明确拦截。</li>
+          <li>库存、仓库、承运商、支付与财务系统之间能够周期性对账。</li>
+        </ul>
+        <p>验证方法可以组合使用：用状态机测试覆盖合法与非法迁移，用并发测试验证库存预占，用历史回放检查幂等与乱序，用仓库盘点和系统对账校验账实，用抽样签收凭证和客诉核查物流状态。只有报表变好而异常单未减少，通常不足以证明流程得到改善。</p>
+      </section>
+
+      <section>
+        <div class="section-label">12 · Conclusion</div>
+        <h2 id="conclusion" class="section-heading">结论：把履约看成承诺、实物、信息与资金的同步</h2>
+        <p>库存管理的重点是明确在何处、以何种状态、为谁保留了多少商品；仓储管理的重点是让每次实物移动都有可核验记录；物流管理的重点是连接包裹、承运段与交付证据；售后管理的重点是让逆向实物与退款资金分别闭环。</p>
+        <p>本土和跨境电商可以复用同一套对象化思路，但不能复用全部规则。跨境业务增加目的国可达性、申报数据、清关、税费、转运和当地消费者规则，海外仓则把时效问题部分转化为库存前置与本地处置问题。系统设计应保留这些边界，而不是用一个“已发货”状态掩盖差异。</p>
+        <div class="il-thesis">可靠履约不等于从不发生缺货、延误或退货，而是承诺有依据、异常可识别、责任可追溯、修复可执行，最终让实物和资金回到可核对状态。</div>
+        <p>下一篇将进入经营分析，继续区分 GMV、收入、毛利和现金流等常被混用的指标，并讨论如何把流量、交易、履约与售后数据连接成可以解释的经营结果。</p>
+      </section>
+
+      <section>
+        <div class="section-label">13 · Further Reading</div>
+        <h2 id="further-reading" class="section-heading">延伸阅读</h2>
+        <ul class="il-reading-list">
+          <li><a href="https://help.shopify.com/en/manual/products/inventory/fundamentals/inventory-states" target="_blank" rel="noopener">Shopify Help Center：Understanding inventory states</a> — 查看现货、可售、已承诺、不可售与在途的产品化定义。</li>
+          <li><a href="https://help.shopify.com/en/manual/fulfillment/setup/order-routing" target="_blank" rel="noopener">Shopify Help Center：Order routing</a> — 了解多地点库存下减少拆分、区域与距离规则如何组合。</li>
+          <li><a href="https://help.shopify.com/en/manual/fulfillment/managing-orders/order-status" target="_blank" rel="noopener">Shopify Help Center：Understanding your order statuses</a> — 对照订单、支付、履约和退货状态的分离方式。</li>
+          <li><a href="https://www.wcoomd.org/-/media/wco/public/global/pdf/topics/facilitation/activities-and-programmes/ecommerce/wco-framework-of-standards-on-crossborder-ecommerce_en.pdf" target="_blank" rel="noopener">World Customs Organization：Framework of Standards on Cross-Border E-Commerce</a> — 查阅跨境电商海关标准框架及其核心原则。</li>
+          <li><a href="https://www.samr.gov.cn/zw/zfxxgk/fdzdgknr/fgs/art/2023/art_26ca8fe29e184edd899fa0a7a060d935.html" target="_blank" rel="noopener">国家市场监督管理总局：网络购买商品七日无理由退货暂行办法</a> — 核对中国网络零售无理由退货的适用范围与例外。</li>
+          <li><a href="https://docs.stripe.com/api/refunds" target="_blank" rel="noopener">Stripe Docs：Refunds</a> — 观察退款对象、状态与支付记录之间的关系。</li>
+        </ul>
+      </section>
+    </article>
+  </main>
+</body>
+</html>

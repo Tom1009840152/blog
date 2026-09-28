@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>电商基础（三）：流量、转化漏斗与用户决策</title>
+  <style>
+    .tf-thesis {
+      margin: 30px 0;
+      padding: 24px 26px;
+      border: 1px solid rgba(217, 140, 95, 0.34);
+      border-left: 4px solid #d98c5f;
+      border-radius: 4px 16px 16px 4px;
+      background: linear-gradient(135deg, rgba(217, 140, 95, 0.12), rgba(217, 140, 95, 0.025));
+      color: #3f3028;
+      font-family: "Noto Serif SC", serif;
+      font-size: 18px;
+    }
+
+    .tf-object-grid,
+    .tf-source-grid,
+    .tf-decision-grid,
+    .tf-formula-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin: 24px 0;
+    }
+
+    .tf-object-card,
+    .tf-source-card,
+    .tf-decision-card,
+    .tf-formula-card {
+      padding: 18px 20px;
+      border: 1px solid rgba(92, 74, 62, 0.15);
+      border-radius: 14px;
+      background: rgba(255, 252, 248, 0.82);
+      box-shadow: 0 8px 24px rgba(71, 51, 39, 0.045);
+    }
+
+    .tf-object-card b,
+    .tf-source-card b,
+    .tf-decision-card b,
+    .tf-formula-card b {
+      display: block;
+      margin-bottom: 7px;
+      color: #6f3f28;
+      font-size: 15px;
+    }
+
+    .tf-object-card p,
+    .tf-source-card p,
+    .tf-decision-card p,
+    .tf-formula-card p {
+      margin: 0;
+      color: #64584f;
+      font-size: 14px;
+      line-height: 1.75;
+    }
+
+    .tf-object-card code,
+    .tf-formula-card code,
+    .tf-event code,
+    .tf-note code {
+      color: #9a4f2d;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.88em;
+    }
+
+    .tf-channel-map {
+      display: grid;
+      gap: 12px;
+      margin: 26px 0;
+    }
+
+    .tf-channel-row {
+      display: grid;
+      grid-template-columns: 132px minmax(0, 1fr);
+      align-items: stretch;
+      overflow: hidden;
+      border: 1px solid rgba(92, 74, 62, 0.15);
+      border-radius: 13px;
+      background: rgba(255, 255, 255, 0.66);
+    }
+
+    .tf-channel-name {
+      display: flex;
+      align-items: center;
+      padding: 14px 16px;
+      background: rgba(217, 140, 95, 0.12);
+      color: #69402c;
+      font-weight: 700;
+    }
+
+    .tf-channel-steps {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      padding: 13px 16px;
+    }
+
+    .tf-channel-steps span {
+      padding: 5px 9px;
+      border-radius: 999px;
+      background: #f6eee8;
+      color: #5b4c43;
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    .tf-channel-steps i {
+      color: #b47756;
+      font-style: normal;
+    }
+
+    .tf-event-line {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 8px;
+      margin: 26px 0;
+    }
+
+    .tf-event {
+      position: relative;
+      min-height: 92px;
+      padding: 15px 12px;
+      border: 1px solid rgba(217, 140, 95, 0.26);
+      border-radius: 12px;
+      background: linear-gradient(180deg, #fffaf6, #faf4ef);
+      text-align: center;
+    }
+
+    .tf-event:not(:last-child)::after {
+      position: absolute;
+      top: 50%;
+      right: -8px;
+      width: 8px;
+      height: 1px;
+      background: rgba(217, 140, 95, 0.55);
+      content: "";
+    }
+
+    .tf-event b {
+      display: block;
+      margin-bottom: 8px;
+      color: #65412f;
+      font-size: 14px;
+    }
+
+    .tf-event code {
+      display: block;
+      overflow-wrap: anywhere;
+      font-size: 12px;
+    }
+
+    .tf-table-wrap {
+      margin: 24px 0;
+      overflow-x: auto;
+      border: 1px solid rgba(92, 74, 62, 0.15);
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.7);
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .tf-table {
+      width: 100%;
+      min-width: 680px;
+      border-collapse: collapse;
+    }
+
+    .tf-table th,
+    .tf-table td {
+      padding: 13px 15px;
+      border-bottom: 1px solid rgba(92, 74, 62, 0.11);
+      text-align: left;
+      vertical-align: top;
+      font-size: 13px;
+      line-height: 1.65;
+    }
+
+    .tf-table th {
+      background: #f4e9e1;
+      color: #604232;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .tf-table tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .tf-table td:first-child {
+      color: #75472f;
+      font-weight: 650;
+      white-space: nowrap;
+    }
+
+    .tf-paths {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin: 25px 0;
+    }
+
+    .tf-path {
+      padding: 18px;
+      border: 1px solid rgba(92, 74, 62, 0.14);
+      border-radius: 14px;
+      background: rgba(251, 247, 243, 0.86);
+    }
+
+    .tf-path strong {
+      display: block;
+      margin-bottom: 12px;
+      color: #6f3f28;
+    }
+
+    .tf-path ol {
+      margin: 0;
+      padding-left: 20px;
+      color: #62564e;
+      font-size: 13px;
+      line-height: 1.8;
+    }
+
+    .tf-formula-card {
+      border-top: 3px solid rgba(217, 140, 95, 0.65);
+    }
+
+    .tf-formula {
+      display: block;
+      margin: 10px 0 8px;
+      color: #8a4527;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 13px;
+      overflow-wrap: anywhere;
+    }
+
+    .tf-note,
+    .tf-warning {
+      margin: 24px 0;
+      padding: 19px 21px;
+      border-radius: 13px;
+      font-size: 14px;
+      line-height: 1.78;
+    }
+
+    .tf-note {
+      border: 1px solid rgba(102, 128, 115, 0.22);
+      background: rgba(231, 239, 234, 0.66);
+      color: #43564c;
+    }
+
+    .tf-warning {
+      border: 1px solid rgba(191, 125, 80, 0.25);
+      background: rgba(250, 238, 228, 0.72);
+      color: #654a3a;
+    }
+
+    .tf-note b,
+    .tf-warning b {
+      color: #61402e;
+    }
+
+    .tf-decision-card {
+      position: relative;
+      padding-left: 52px;
+    }
+
+    .tf-decision-index {
+      position: absolute;
+      top: 18px;
+      left: 17px;
+      display: grid;
+      width: 25px;
+      height: 25px;
+      place-items: center;
+      border-radius: 50%;
+      background: #d98c5f;
+      color: #fff;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .tf-diagnosis {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin: 26px 0;
+    }
+
+    .tf-diagnosis-card {
+      padding: 19px 20px;
+      border-radius: 14px;
+      background: #fbf7f3;
+      border: 1px solid rgba(92, 74, 62, 0.14);
+    }
+
+    .tf-diagnosis-card strong {
+      display: block;
+      margin-bottom: 9px;
+      color: #75472f;
+    }
+
+    .tf-diagnosis-card p {
+      margin: 6px 0;
+      color: #62564e;
+      font-size: 14px;
+      line-height: 1.72;
+    }
+
+    .tf-diagnosis-card b {
+      color: #3e5147;
+    }
+
+    .tf-case {
+      margin: 28px 0;
+      padding: 24px;
+      border: 1px solid rgba(217, 140, 95, 0.3);
+      border-radius: 17px;
+      background: linear-gradient(145deg, #fffaf6, #f7eee8);
+    }
+
+    .tf-case-kicker {
+      margin-bottom: 8px;
+      color: #a25835;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .tf-case h3 {
+      margin: 0 0 12px;
+      color: #4f3528;
+      font-family: "Noto Serif SC", serif;
+      font-size: 20px;
+    }
+
+    .tf-case p {
+      margin: 8px 0;
+    }
+
+    .tf-funnel {
+      display: grid;
+      gap: 7px;
+      max-width: 680px;
+      margin: 24px auto;
+    }
+
+    .tf-funnel-step {
+      position: relative;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 16px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 11px 16px;
+      overflow: hidden;
+      border-radius: 9px;
+      background: #f2e8e1;
+      color: #4e3d34;
+      font-size: 13px;
+      box-sizing: border-box;
+    }
+
+    .tf-funnel-step::before {
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: var(--funnel-width);
+      background: linear-gradient(90deg, rgba(217, 140, 95, 0.62), rgba(217, 140, 95, 0.32));
+      content: "";
+    }
+
+    .tf-funnel-step b {
+      position: relative;
+      z-index: 1;
+      white-space: nowrap;
+    }
+
+    .tf-funnel-step span {
+      position: relative;
+      z-index: 1;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      white-space: nowrap;
+    }
+
+    .tf-experiment {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 9px;
+      margin: 26px 0;
+    }
+
+    .tf-experiment-step {
+      padding: 17px 12px;
+      border: 1px solid rgba(92, 74, 62, 0.14);
+      border-radius: 13px;
+      background: rgba(255, 252, 248, 0.82);
+      text-align: center;
+    }
+
+    .tf-experiment-step span {
+      display: block;
+      margin-bottom: 7px;
+      color: #b2623d;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .tf-experiment-step b {
+      color: #564238;
+      font-size: 13px;
+    }
+
+    .tf-checklist {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px 18px;
+      margin: 22px 0;
+      padding: 22px;
+      border-radius: 14px;
+      background: #f5f0eb;
+      list-style: none;
+    }
+
+    .tf-checklist li {
+      position: relative;
+      padding-left: 25px;
+      color: #584d46;
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    .tf-checklist li::before {
+      position: absolute;
+      top: 3px;
+      left: 0;
+      color: #b56642;
+      content: "✓";
+      font-weight: 800;
+    }
+
+    .tf-reading-list {
+      display: grid;
+      gap: 11px;
+      margin: 22px 0 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .tf-reading-list li {
+      padding: 14px 17px;
+      border-left: 3px solid rgba(217, 140, 95, 0.72);
+      background: rgba(247, 241, 236, 0.78);
+      color: #584d46;
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    .tf-reading-list a {
+      color: #9a4f2d;
+      text-decoration-thickness: 1px;
+      text-underline-offset: 3px;
+    }
+
+    @media (max-width: 760px) {
+      .tf-object-grid,
+      .tf-source-grid,
+      .tf-decision-grid,
+      .tf-formula-grid,
+      .tf-diagnosis,
+      .tf-checklist {
+        grid-template-columns: 1fr;
+      }
+
+      .tf-paths {
+        grid-template-columns: 1fr;
+      }
+
+      .tf-channel-row {
+        grid-template-columns: 1fr;
+      }
+
+      .tf-channel-name {
+        padding: 11px 14px;
+      }
+
+      .tf-event-line {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .tf-event:not(:last-child)::after {
+        display: none;
+      }
+
+      .tf-experiment {
+        grid-template-columns: 1fr;
+      }
+
+      .tf-experiment-step {
+        text-align: left;
+      }
+
+      .tf-case {
+        padding: 20px 16px;
+      }
+
+      .tf-funnel-step {
+        width: 100%;
+      }
+
+      .tf-thesis {
+        padding: 20px;
+        font-size: 17px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="meta-row">
+      <span>2026-09-28</span>
+      <span>电商基础 · 第三篇</span>
+      <span>阅读约 16 分钟</span>
+      <span>流量分析 · 转化漏斗 · 用户决策</span>
+    </div>
+  </header>
+
+  <main>
+    <article class="article-body">
+      <p class="lead">商品模型回答“卖的是什么”，流量与转化分析回答“需求如何找到商品，又为何继续或停止行动”。本文不把漏斗当作一张固定图，而是从数据口径、决策条件和验证方法出发，建立一套可以迁移到平台电商、内容电商与独立站的分析框架。</p>
+
+      <section>
+        <div class="section-label">01 · Traffic</div>
+        <h2 id="traffic-is-not-business" class="section-heading">流量不是人数，更不等于生意</h2>
+        <p>“流量”通常是对一组可观测访问与互动的统称。曝光、点击、访客、会话和页面浏览都可以描述流量，但它们不是同一个对象，也不能直接相加。一次曝光可能没有进入店铺，一名访客可能产生多次会话，一次会话也可能包含多次商品浏览。</p>
+        <div class="tf-object-grid">
+          <div class="tf-object-card"><b>曝光（Impression）</b><p>内容、广告或商品入口被展示。是否需要实际进入可视区域，由具体平台口径决定。</p></div>
+          <div class="tf-object-card"><b>点击（Click）</b><p>用户触发某个入口。点击不保证页面成功打开，也不必然形成新的会话。</p></div>
+          <div class="tf-object-card"><b>访客（User / Visitor）</b><p>按账号、设备或标识去重后的访问主体。跨设备和隐私限制会影响识别结果。</p></div>
+          <div class="tf-object-card"><b>会话（Session）</b><p>分析工具按规则归并的一段连续访问。一名访客可以在统计周期内产生多次会话。</p></div>
+        </div>
+        <p>因此，“今天有一万流量”不是完整信息。需要继续说明它指一万次曝光、一万次点击、一万个会话还是一万名去重访客，以及数据来自哪个系统、采用什么时间窗口。Google Search Console 也分别定义曝光、点击与点击率，并提示不同搜索结果形态的曝光计数规则可能不同，说明指标名称必须连同平台口径一起理解。<a href="https://support.google.com/webmasters/answer/7042828?hl=zh-Hans" target="_blank" rel="noopener">Google Search Console：曝光、点击与排名</a></p>
+        <div class="tf-thesis">流量的业务价值不在于数字本身有多大，而在于它是否包含与商品匹配的需求，并能否被后续交易与履约环节承接。</div>
+      </section>
+
+      <section>
+        <div class="section-label">02 · Sources</div>
+        <h2 id="traffic-sources" class="section-heading">流量来源要按业务问题分类，而不是只看平台标签</h2>
+        <p>常见来源可以分为搜索、推荐与内容、付费广告、社交与转介、私域触达以及直接访问。它们描述的是需求被触发或被承接的方式，不是互斥的渠道清单：一条达人内容可能同时获得自然推荐和付费放大，一名消费者也可能先被短视频触达，数日后再通过品牌搜索完成购买。</p>
+        <div class="tf-source-grid">
+          <div class="tf-source-card"><b>搜索流量</b><p>由明确查询触发，通常带有较强问题意识；需继续区分平台内搜索、搜索引擎和品牌词。</p></div>
+          <div class="tf-source-card"><b>推荐与内容流量</b><p>由算法分发、直播、短视频或内容阅读触发，需求可能在接触内容后才逐渐形成。</p></div>
+          <div class="tf-source-card"><b>付费流量</b><p>通过广告或商业合作获得。判断质量时需要同时观察成本、转化与后续订单质量。</p></div>
+          <div class="tf-source-card"><b>关系与回访流量</b><p>来自会员、订阅、社群、邮件、消息触达或直接访问，常包含已有认知或交易关系。</p></div>
+        </div>
+        <p>独立站分析常用 <code>source / medium / campaign</code> 描述来源、媒介和活动。Google Analytics 将这些字段作为获客与归因的基础维度，并区分首次用户、会话和事件三个作用域。<a href="https://support.google.com/analytics/answer/15612152?hl=zh-Hans" target="_blank" rel="noopener">Google Analytics：流量来源维度</a> 这一思路同样适用于平台经营：即使后台已经提供渠道名称，也需要保留活动、内容、商品和人群等细分维度。</p>
+        <div class="tf-channel-map" role="img" aria-label="不同电商场景的常见流量与转化路径">
+          <div class="tf-channel-row"><div class="tf-channel-name">货架与搜索</div><div class="tf-channel-steps"><span>搜索或推荐曝光</span><i>→</i><span>商品点击</span><i>→</i><span>详情浏览</span><i>→</i><span>下单与支付</span></div></div>
+          <div class="tf-channel-row"><div class="tf-channel-name">内容与直播</div><div class="tf-channel-steps"><span>内容触达</span><i>→</i><span>商品曝光</span><i>→</i><span>商品点击</span><i>→</i><span>生单与成交</span></div></div>
+          <div class="tf-channel-row"><div class="tf-channel-name">独立站</div><div class="tf-channel-steps"><span>广告或自然入口</span><i>→</i><span>站点会话</span><i>→</i><span>加购</span><i>→</i><span>结算与购买</span></div></div>
+        </div>
+        <p>抖音电商罗盘的公开说明曾将直播转化拆为“进入—商品曝光—点击—生单—成交”等环节，而 Shopify 的行为报告使用“会话—加购—到达结账—完成结账”。两者都合理，但服务于不同场景。<a href="https://school.jinritemai.com/doudian/wap/article/113167" target="_blank" rel="noopener">抖音电商学习中心：罗盘流量转化</a>；<a href="https://help.shopify.com/en/manual/reports-and-analytics/shopify-reports/report-types/default-reports/behaviour-reports" target="_blank" rel="noopener">Shopify：行为报告</a></p>
+      </section>
+
+      <section>
+        <div class="section-label">03 · Events</div>
+        <h2 id="events-and-granularity" class="section-heading">画漏斗之前，先统一事件、对象与去重规则</h2>
+        <p>漏斗由一组有先后关系的事件构成。事件名称相同，不代表实现方式相同：商品详情页自动加载、页面进入可视区、停留达到一定时间，都可能被某个系统记为“浏览”。如果定义未被记录，图表越精美，误读风险越高。</p>
+        <div class="tf-event-line" role="img" aria-label="一种常见的电商事件序列">
+          <div class="tf-event"><b>商品曝光</b><code>view_item_list</code></div>
+          <div class="tf-event"><b>选择商品</b><code>select_item</code></div>
+          <div class="tf-event"><b>浏览详情</b><code>view_item</code></div>
+          <div class="tf-event"><b>加入购物车</b><code>add_to_cart</code></div>
+          <div class="tf-event"><b>开始结算</b><code>begin_checkout</code></div>
+          <div class="tf-event"><b>购买完成</b><code>purchase</code></div>
+        </div>
+        <p>以上命名来自 GA4 推荐的电商事件，仅用于展示一种可复用结构，并非所有平台必须采用的行业标准。GA4 还区分事件级指标与商品级指标：一次加购事件可以包含多个商品和多件数量。<a href="https://developers.google.com/analytics/devguides/collection/ga4/ecommerce" target="_blank" rel="noopener">Google Analytics：衡量电商行为</a></p>
+        <div class="tf-table-wrap">
+          <table class="tf-table">
+            <thead><tr><th>分析粒度</th><th>回答的问题</th><th>典型重复原因</th><th>适合的口径示例</th></tr></thead>
+            <tbody>
+              <tr><td>事件次数</td><td>某个动作一共发生多少次</td><td>同一主体反复浏览或加购</td><td>加购事件数、搜索次数</td></tr>
+              <tr><td>访客人数</td><td>有多少去重主体完成动作</td><td>跨设备、匿名与登录身份难合并</td><td>加购人数、购买人数</td></tr>
+              <tr><td>会话数</td><td>有多少段访问完成动作</td><td>同一访客多次回访</td><td>加购会话、购买会话</td></tr>
+              <tr><td>订单数</td><td>产生多少交易单据</td><td>一人多单、拆单或合单</td><td>支付订单数、有效订单数</td></tr>
+              <tr><td>商品件数</td><td>交易涉及多少销售单元</td><td>一单多 SKU、同 SKU 多件</td><td>购买件数、退款件数</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="tf-note"><b>事件字典至少应记录：</b>业务含义、触发条件、时间戳、主体标识、会话规则、商品与订单标识、去重键、金额与币种、事件版本，以及异常重试是否会重复上报。购买事件尤其需要稳定的交易标识来避免重复计数。</div>
+      </section>
+
+      <section>
+        <div class="section-label">04 · Journey</div>
+        <h2 id="funnel-is-not-linear" class="section-heading">转化漏斗是分析视角，不是用户必经的单行道</h2>
+        <p>漏斗通过“前一步的人数通常多于后一步”压缩复杂过程，便于发现损耗。但真实决策会出现回访、比较、跨设备、跳步和反向动作。收藏后数日购买、直接进入结算页、支付后取消、收到货后退款，都无法被一条从上到下的直线完整表达。</p>
+        <div class="tf-paths">
+          <div class="tf-path"><strong>快速路径</strong><ol><li>搜索明确型号</li><li>核对规格与到货时间</li><li>直接购买</li></ol></div>
+          <div class="tf-path"><strong>比较路径</strong><ol><li>内容触达</li><li>查看多个商品</li><li>离开并回访</li><li>使用优惠后购买</li></ol></div>
+          <div class="tf-path"><strong>关系路径</strong><ol><li>历史购买</li><li>会员或消息触达</li><li>直接进入商品</li><li>复购</li></ol></div>
+        </div>
+        <p>漏斗工具通常允许不同进入规则。GA4 将开放漏斗定义为可以从任意步骤进入，将封闭漏斗定义为必须从第一步进入，并只统计按指定顺序完成的步骤。仅改变这一设置，结果就可能明显不同。<a href="https://support.google.com/analytics/answer/9327974?hl=zh-Hans" target="_blank" rel="noopener">Google Analytics：漏斗探索</a></p>
+        <div class="tf-warning"><b>因此，漏斗不是“全体用户真实旅程”的还原。</b>它是对某个问题的抽象。分析前需要明确是否允许跳步、步骤之间最长间隔、是否要求同一会话、是否按顺序完成，以及同一主体多次进入时如何计数。</div>
+      </section>
+
+      <section>
+        <div class="section-label">05 · Conversion Rate</div>
+        <h2 id="conversion-rate" class="section-heading">转化率只有在分子、分母和时间窗口一致时才可比较</h2>
+        <p>转化率描述“基准集合中有多大比例完成目标动作”。同一个名称可能对应不同公式，例如“支付转化率”既可能以访问会话为分母，也可能以下单人数为分母。公式没有脱离业务问题的唯一正确答案，但必须保持透明。</p>
+        <div class="tf-formula-grid">
+          <div class="tf-formula-card"><b>点击率</b><span class="tf-formula">点击次数 ÷ 曝光次数</span><p>衡量入口是否促成点击，不等同进入后的购买质量。</p></div>
+          <div class="tf-formula-card"><b>访问—加购率</b><span class="tf-formula">加购会话数 ÷ 商品访问会话数</span><p>观察商品页是否促成下一步意向，需确保两者都按会话统计。</p></div>
+          <div class="tf-formula-card"><b>结算完成率</b><span class="tf-formula">完成购买会话数 ÷ 到达结算会话数</span><p>用于定位结算与支付环节摩擦，不覆盖前端获客效率。</p></div>
+          <div class="tf-formula-card"><b>访问—购买率</b><span class="tf-formula">完成购买会话数 ÷ 全部访问会话数</span><p>反映整段站内链路结果，但容易受流量结构变化影响。</p></div>
+        </div>
+        <p>Shopify 明确将在线商店转化率定义为“完成结账的会话数 ÷ 总会话数”，并提醒一次会话可能完成多笔购买，所以购买会话数不一定等于订单数。<a href="https://help.shopify.com/en/manual/reports-and-analytics/shopify-reports/report-types/default-reports/behaviour-reports" target="_blank" rel="noopener">Shopify：转化率口径</a></p>
+        <h3 class="subheading">比较转化率前还要统一四项条件</h3>
+        <ul>
+          <li><b>统计对象：</b>人数、会话、事件、订单或商品件数。</li>
+          <li><b>时间窗口：</b>同日转化、七日转化或跨周期归因。</li>
+          <li><b>订单状态：</b>提交订单、支付成功、有效成交或签收。</li>
+          <li><b>数据范围：</b>渠道、设备、地区、商品、新老客及是否过滤机器人或测试流量。</li>
+        </ul>
+      </section>
+
+      <section>
+        <div class="section-label">06 · Decision</div>
+        <h2 id="decision-factors" class="section-heading">用户决策可以拆成六类条件，但行为数据不能直接证明心理原因</h2>
+        <p>浏览、加购和离开是行为证据，而不是动机本身。某个商品加购率下降，可能来自需求不匹配、规格信息缺失、价格变化、配送限制，也可能只是埋点异常。为了形成可验证假设，可以把购买决策暂时拆成六类条件。</p>
+        <div class="tf-decision-grid">
+          <div class="tf-decision-card"><span class="tf-decision-index">1</span><b>相关性</b><p>商品是否解决当前需求，流量承诺与落地内容是否一致。</p></div>
+          <div class="tf-decision-card"><span class="tf-decision-index">2</span><b>可理解性</b><p>用途、规格、差异和限制是否能被准确识别与比较。</p></div>
+          <div class="tf-decision-card"><span class="tf-decision-index">3</span><b>价值判断</b><p>总成本与预期收益是否匹配，优惠是否真实且容易理解。</p></div>
+          <div class="tf-decision-card"><span class="tf-decision-index">4</span><b>信任</b><p>品牌、商家、评价、支付、承诺与售后信息是否降低不确定性。</p></div>
+          <div class="tf-decision-card"><span class="tf-decision-index">5</span><b>可获得性</b><p>目标规格是否有货，是否可配送，何时到达，是否满足地区限制。</p></div>
+          <div class="tf-decision-card"><span class="tf-decision-index">6</span><b>操作成本</b><p>加载、选择、登录、填写、结算和支付是否引入不必要摩擦。</p></div>
+        </div>
+        <p>这六类不是普遍适用的心理定律，而是一套诊断清单。行为数据用于发现“哪里发生了变化”，页面检查、客服记录、用户研究和实验才用于判断“为什么变化”。</p>
+      </section>
+
+      <section>
+        <div class="section-label">07 · Product Page</div>
+        <h2 id="product-page" class="section-heading">商品页的任务，是把商品数据转化为可判断的信息</h2>
+        <p>上一章讨论的类目、属性、SPU 与 SKU，是商品页能否正确承接决策的基础。类目与标题影响需求匹配，规格属性帮助比较，SKU 影响价格、库存和可售状态。商品数据正确只是起点，还需要让关键信息在决策时刻可见。</p>
+        <div class="tf-table-wrap">
+          <table class="tf-table">
+            <thead><tr><th>决策问题</th><th>页面需要提供的证据</th><th>常见数据基础</th><th>跨境场景的额外变量</th></tr></thead>
+            <tbody>
+              <tr><td>是否适合</td><td>用途、尺寸、材质、兼容性与限制</td><td>类目属性、关键属性、图文或视频</td><td>语言、单位换算、当地合规说明</td></tr>
+              <tr><td>实际支付多少</td><td>商品价、优惠、运费及其他可预见费用</td><td>价格、促销、运费模板</td><td>币种、汇率展示、税费与进口责任</td></tr>
+              <tr><td>何时可以收到</td><td>库存状态、发货地、预计交付时间</td><td>SKU 库存、仓库、物流服务</td><td>干线运输、清关与末端派送</td></tr>
+              <tr><td>出现问题怎么办</td><td>取消、退换、退款和客服路径</td><td>店铺政策、平台保障、售后规则</td><td>退货地址、逆向运费和地区规则</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>本土平台常由平台统一提供一部分信任与交易基础设施；跨境独立站则更需要主动解释币种、配送、税费和退货责任。差异不意味着某一种模式天然更容易转化，而是决策信息由不同主体承担。</p>
+      </section>
+
+      <section>
+        <div class="section-label">08 · Diagnosis</div>
+        <h2 id="diagnose-dropoff" class="section-heading">定位漏斗断点时，应同时保留多个解释</h2>
+        <p>漏斗诊断的第一步是找出变化发生在哪个阶段，第二步才是提出原因。直接把“低点击率”归因于素材、把“低支付率”归因于价格，容易忽略流量结构、库存状态、页面性能和数据采集等替代解释。</p>
+        <div class="tf-diagnosis">
+          <div class="tf-diagnosis-card"><strong>曝光 → 点击偏低</strong><p><b>可能解释：</b>受众不匹配、入口表达不清、展示位置差、价格缺乏竞争力。</p><p><b>先验证：</b>按词、人群、位置、素材与商品拆分，确认曝光口径是否变化。</p></div>
+          <div class="tf-diagnosis-card"><strong>访问 → 加购偏低</strong><p><b>可能解释：</b>商品承诺不一致、规格难理解、目标 SKU 缺货、总价或交付不合预期。</p><p><b>先验证：</b>检查落地页、站内搜索词、规格选择错误、库存与地区分层。</p></div>
+          <div class="tf-diagnosis-card"><strong>加购 → 结算偏低</strong><p><b>可能解释：</b>用户仍在比较、优惠门槛复杂、运费后置、购物车信息不完整。</p><p><b>先验证：</b>观察购物车退出路径、优惠使用失败与新增费用出现位置。</p></div>
+          <div class="tf-diagnosis-card"><strong>结算 → 支付偏低</strong><p><b>可能解释：</b>地址或配送受限、支付方式不适用、页面报错、风控拒绝。</p><p><b>先验证：</b>按国家、设备、支付方式和错误码拆分，并与支付订单核对。</p></div>
+        </div>
+        <div class="tf-note"><b>推荐的分析顺序：</b>先核对数据质量，再定位阶段；先看结构变化，再看平均值；先提出可被证伪的解释，再决定修改页面、流量策略还是交易流程。</div>
+      </section>
+
+      <section>
+        <div class="section-label">09 · Example</div>
+        <h2 id="thermos-cup-example" class="section-heading">案例假设：从保温杯流量中定位转化损耗</h2>
+        <div class="tf-case">
+          <div class="tf-case-kicker">Teaching case · 非真实企业数据</div>
+          <h3>延续上一章的保温杯，假设某周商品入口获得 100,000 次曝光和 6,000 次点击</h3>
+          <p>点击率为 6%。其中 5,000 次点击成功形成可识别的商品访问会话。点击次数与会话数没有强行合并，因为重复点击、加载失败、归因丢失和会话规则都可能造成差异。</p>
+        </div>
+        <div class="tf-funnel" role="img" aria-label="保温杯案例假设的站内会话漏斗">
+          <div class="tf-funnel-step" style="--funnel-width:100%"><b>商品访问会话</b><span>5,000 · 100%</span></div>
+          <div class="tf-funnel-step" style="--funnel-width:25%"><b>加购会话</b><span>1,250 · 25%</span></div>
+          <div class="tf-funnel-step" style="--funnel-width:15%"><b>到达结算会话</b><span>750 · 15%</span></div>
+          <div class="tf-funnel-step" style="--funnel-width:12%"><b>完成购买会话</b><span>600 · 12%</span></div>
+        </div>
+        <p>从整体看，访问—购买率为 12%，加购—结算阶段转化率为 60%，结算完成率为 80%。这些数字只能说明损耗位置，不能直接说明原因。继续按市场拆分后，结构差异才开始出现。</p>
+        <div class="tf-table-wrap">
+          <table class="tf-table">
+            <thead><tr><th>案例假设分组</th><th>访问会话</th><th>加购会话</th><th>结算会话</th><th>购买会话</th><th>访问—购买率</th></tr></thead>
+            <tbody>
+              <tr><td>中国本土</td><td>3,000</td><td>900（30%）</td><td>540</td><td>450</td><td>15%</td></tr>
+              <tr><td>跨境市场</td><td>2,000</td><td>350（17.5%）</td><td>210</td><td>150</td><td>7.5%</td></tr>
+              <tr><td>合计</td><td>5,000</td><td>1,250（25%）</td><td>750</td><td>600</td><td>12%</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>跨境市场的加购率和整体购买率较低，但仍不能立即归因于“海外用户购买意愿弱”。更合理的下一步，是检查流量查询词与落地内容是否匹配、容量单位是否易懂、目标国家是否可配送、运费和税费何时显示，以及当地常用支付方式是否可用。</p>
+        <p>如果新增流量主要来自跨境市场，整体转化率下降可能只是流量结构改变后的加权结果。这也说明平均转化率不能脱离渠道、地区、设备、商品和新老客结构单独判断。</p>
+      </section>
+
+      <section>
+        <div class="section-label">10 · Attribution</div>
+        <h2 id="attribution-boundary" class="section-heading">归因是在规则下分配功劳，不是还原唯一因果</h2>
+        <p>消费者可能经过内容曝光、品牌搜索、达人测评、邮件提醒和直接访问后才购买。归因模型需要决定把订单记给哪个触点：首次触点、末次非直接触点、按规则分配，或由模型分配权重。不同模型回答不同问题，因此平台广告后台、站点分析工具和订单系统出现不同结果并不罕见。</p>
+        <div class="tf-table-wrap">
+          <table class="tf-table">
+            <thead><tr><th>系统视角</th><th>主要回答</th><th>适合作为</th><th>不宜直接回答</th></tr></thead>
+            <tbody>
+              <tr><td>广告或内容平台</td><td>平台可识别触点后发生了哪些转化</td><td>投放与内容优化依据</td><td>跨平台唯一贡献</td></tr>
+              <tr><td>站点或应用分析</td><td>访问来源与站内事件如何关联</td><td>行为路径与来源分析</td><td>所有离线和跨设备行为</td></tr>
+              <tr><td>订单与支付系统</td><td>实际创建、支付、取消和退款多少订单</td><td>交易事实与财务核对</td><td>订单由哪个营销触点造成</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>Google Analytics 明确区分首次用户来源、会话来源和事件来源；事件级来源维度会按照所选归因模型为关键事件分配归因功劳。<a href="https://support.google.com/analytics/answer/11080067?hl=zh-Hans" target="_blank" rel="noopener">Google Analytics：流量来源维度的作用域</a> 这说明“某渠道带来多少订单”必须同时注明归因模型、回溯窗口、时区、去重方式与数据范围。</p>
+      </section>
+
+      <section>
+        <div class="section-label">11 · Experiment</div>
+        <h2 id="experimentation" class="section-heading">从漏斗诊断到改进，需要把解释变成可验证假设</h2>
+        <p>前后两周对比可以发现变化，却很难排除季节、促销、流量结构和竞争环境的影响。在条件允许时，随机对照实验可以把用户分配到不同版本，使主要差异集中在被测试变量上，从而更有力地判断因果。微软关于在线实验的研究将随机对照实验视为评估产品改动的重要方法。<a href="https://www.microsoft.com/en-us/research/publication/online-experimentation-at-microsoft/" target="_blank" rel="noopener">Microsoft Research：Online Experimentation at Microsoft</a></p>
+        <div class="tf-experiment" role="img" aria-label="从漏斗诊断到实验验证的五步流程">
+          <div class="tf-experiment-step"><span>01</span><b>定位断点</b></div>
+          <div class="tf-experiment-step"><span>02</span><b>提出假设</b></div>
+          <div class="tf-experiment-step"><span>03</span><b>限定变量</b></div>
+          <div class="tf-experiment-step"><span>04</span><b>预设指标</b></div>
+          <div class="tf-experiment-step"><span>05</span><b>评估结果</b></div>
+        </div>
+        <p>例如，发现跨境市场在结算前大量离开，可以提出“运费与预计到达时间展示过晚，增加了决策不确定性”的假设。测试方案只改变信息展示时机，主要指标观察结算进入率或购买率，同时设置页面性能、毛利、取消率和退款率等护栏指标。</p>
+        <p>护栏指标用于监控不希望被牺牲的结果。微软实验团队将页面加载时间、崩溃率和放弃率列为典型护栏指标，并强调数据质量指标与整体目标指标需要同时观察。<a href="https://www.microsoft.com/en-us/research/articles/patterns-of-trustworthy-experimentation-during-experiment-stage/" target="_blank" rel="noopener">Microsoft Research：可信实验中的指标体系</a></p>
+        <ul class="tf-checklist">
+          <li>实验前写明假设、目标人群与预期方向</li>
+          <li>主要指标只回答一个核心问题</li>
+          <li>确认埋点、分流与样本比例正常</li>
+          <li>避免同时改变多个无法拆分的变量</li>
+          <li>观察订单质量、成本与长期影响</li>
+          <li>不因短期波动反复提前终止实验</li>
+        </ul>
+      </section>
+
+      <section>
+        <div class="section-label">12 · Quality</div>
+        <h2 id="beyond-payment" class="section-heading">漏斗终点不应停在支付，而应回到订单质量</h2>
+        <p>支付成功是交易的重要节点，却不是经营结果的终点。如果只优化支付订单数，可能通过过度折扣、含糊承诺或低质量流量获得更多订单，同时带来取消、拒收、退款、客服成本和毛利下降。</p>
+        <div class="tf-object-grid">
+          <div class="tf-object-card"><b>交易质量</b><p>支付后取消率、退款率、拒付与异常订单占比。</p></div>
+          <div class="tf-object-card"><b>履约质量</b><p>缺货取消、准时发货、妥投与承诺交付达成情况。</p></div>
+          <div class="tf-object-card"><b>经济结果</b><p>获客成本、折扣、履约与售后成本，以及最终贡献空间。</p></div>
+          <div class="tf-object-card"><b>关系结果</b><p>满意度、复购、会员留存和后续自然回访。</p></div>
+        </div>
+        <p>更完整的经营漏斗应把“曝光—访问—加购—结算—支付”与“履约—退款—复购”连接起来。前半段解释需求如何转化，后半段检验承诺是否兑现。</p>
+      </section>
+
+      <section>
+        <div class="section-label">13 · Conclusion</div>
+        <h2 id="conclusion" class="section-heading">结论：先定义，再比较；先诊断，再解释；先验证，再推广</h2>
+        <p>流量分析的基础不是寻找一个行业通用的“标准转化率”，而是建立稳定的数据语言：明确来源、事件、粒度、时间窗口和订单状态，再按照商品、渠道、人群与市场拆解结构。</p>
+        <p>漏斗用于定位损耗，用户决策框架用于提出解释，实验和多源证据用于验证解释。三者各自承担不同任务。只有把支付后的退款、履约和复购纳入结果，转化优化才不会偏离经营质量。</p>
+        <p>下一篇将继续进入交易环节，拆解订单、支付、库存、履约与售后为什么需要各自独立的状态，以及这些状态如何保持一致。</p>
+      </section>
+
+      <section>
+        <div class="section-label">14 · Further Reading</div>
+        <h2 id="further-reading" class="section-heading">延伸阅读</h2>
+        <ul class="tf-reading-list">
+          <li><a href="https://developers.google.com/analytics/devguides/collection/ga4/ecommerce" target="_blank" rel="noopener">Google Analytics：Measure ecommerce</a>——电商事件与商品级数据的官方实现说明。</li>
+          <li><a href="https://support.google.com/analytics/answer/9327974?hl=zh-Hans" target="_blank" rel="noopener">Google Analytics：漏斗探索</a>——开放漏斗、封闭漏斗、步骤顺序和时间的官方口径。</li>
+          <li><a href="https://help.shopify.com/en/manual/reports-and-analytics/shopify-reports/report-types/default-reports/behaviour-reports" target="_blank" rel="noopener">Shopify：行为报告</a>——会话、加购、结账与完成购买的报告定义。</li>
+          <li><a href="https://support.google.com/analytics/answer/11080067?hl=zh-Hans" target="_blank" rel="noopener">Google Analytics：流量来源维度的作用域</a>——首次用户、会话和事件归因的差异。</li>
+          <li><a href="https://www.microsoft.com/en-us/research/publication/a-dirty-dozen-twelve-common-metric-interpretation-pitfalls-in-online-controlled-experiments/" target="_blank" rel="noopener">Microsoft Research：A Dirty Dozen</a>——在线实验中常见的指标解释陷阱。</li>
+        </ul>
+      </section>
+    </article>
+  </main>
+</body>
+</html>

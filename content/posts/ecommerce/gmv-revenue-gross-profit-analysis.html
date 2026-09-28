@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>电商基础（六）：GMV、收入、毛利与经营分析</title>
+  <style>
+    .ga-thesis {
+      margin: 30px 0;
+      padding: 24px 26px;
+      border: 1px solid rgba(217, 140, 95, 0.34);
+      border-left: 4px solid #d98c5f;
+      border-radius: 4px 16px 16px 4px;
+      background: linear-gradient(135deg, rgba(217, 140, 95, 0.12), rgba(217, 140, 95, 0.025));
+      color: #3f3028;
+      font-family: "Noto Serif SC", serif;
+      font-size: 18px;
+    }
+
+    .ga-metric-grid,
+    .ga-formula-grid,
+    .ga-analysis-grid,
+    .ga-risk-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin: 24px 0;
+    }
+
+    .ga-metric-card,
+    .ga-formula-card,
+    .ga-analysis-card,
+    .ga-risk-card {
+      padding: 18px 20px;
+      border: 1px solid rgba(92, 74, 62, 0.15);
+      border-radius: 14px;
+      background: rgba(255, 252, 248, 0.82);
+      box-shadow: 0 8px 24px rgba(71, 51, 39, 0.045);
+    }
+
+    .ga-metric-card b,
+    .ga-formula-card b,
+    .ga-analysis-card b,
+    .ga-risk-card b {
+      display: block;
+      margin-bottom: 7px;
+      color: #6f3f28;
+      font-size: 15px;
+    }
+
+    .ga-metric-card p,
+    .ga-formula-card p,
+    .ga-analysis-card p,
+    .ga-risk-card p {
+      margin: 0;
+      color: #64584f;
+      font-size: 14px;
+      line-height: 1.75;
+    }
+
+    .ga-formula-card {
+      border-top: 3px solid rgba(217, 140, 95, 0.65);
+    }
+
+    .ga-formula {
+      display: block;
+      margin: 10px 0 8px;
+      color: #8a4527;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 13px;
+      overflow-wrap: anywhere;
+    }
+
+    .ga-state-flow,
+    .ga-profit-bridge {
+      display: grid;
+      gap: 9px;
+      margin: 26px 0;
+    }
+
+    .ga-state-flow {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .ga-state-step {
+      position: relative;
+      padding: 18px 14px;
+      border: 1px solid rgba(217, 140, 95, 0.25);
+      border-radius: 13px;
+      background: linear-gradient(180deg, #fffaf6, #faf4ef);
+      text-align: center;
+    }
+
+    .ga-state-step:not(:last-child)::after {
+      position: absolute;
+      top: 50%;
+      right: -10px;
+      z-index: 2;
+      color: #b47756;
+      content: "→";
+      transform: translateY(-50%);
+    }
+
+    .ga-state-step span {
+      display: block;
+      margin-bottom: 8px;
+      color: #b2623d;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .ga-state-step b {
+      color: #574036;
+      font-size: 14px;
+    }
+
+    .ga-state-step p {
+      margin: 7px 0 0;
+      color: #6c5b51;
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .ga-table-wrap {
+      margin: 24px 0;
+      overflow-x: auto;
+      border: 1px solid rgba(92, 74, 62, 0.15);
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.7);
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .ga-table {
+      width: 100%;
+      min-width: 720px;
+      border-collapse: collapse;
+    }
+
+    .ga-table th,
+    .ga-table td {
+      padding: 13px 15px;
+      border-bottom: 1px solid rgba(92, 74, 62, 0.11);
+      text-align: left;
+      vertical-align: top;
+      font-size: 13px;
+      line-height: 1.65;
+    }
+
+    .ga-table th {
+      background: #f4e9e1;
+      color: #604232;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .ga-table tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .ga-table td:first-child {
+      color: #75472f;
+      font-weight: 650;
+    }
+
+    .ga-note,
+    .ga-warning {
+      margin: 24px 0;
+      padding: 19px 21px;
+      border-radius: 13px;
+      font-size: 14px;
+      line-height: 1.78;
+    }
+
+    .ga-note {
+      border: 1px solid rgba(102, 128, 115, 0.22);
+      background: rgba(231, 239, 234, 0.66);
+      color: #43564c;
+    }
+
+    .ga-warning {
+      border: 1px solid rgba(191, 125, 80, 0.25);
+      background: rgba(250, 238, 228, 0.72);
+      color: #654a3a;
+    }
+
+    .ga-note b,
+    .ga-warning b {
+      color: #61402e;
+    }
+
+    .ga-profit-row {
+      display: grid;
+      grid-template-columns: 180px minmax(0, 1fr) 110px;
+      align-items: center;
+      gap: 14px;
+      padding: 12px 15px;
+      border: 1px solid rgba(92, 74, 62, 0.13);
+      border-radius: 11px;
+      background: rgba(255, 252, 248, 0.86);
+    }
+
+    .ga-profit-row b {
+      color: #664332;
+      font-size: 14px;
+    }
+
+    .ga-profit-row span {
+      color: #6b5a50;
+      font-size: 13px;
+    }
+
+    .ga-profit-row code {
+      color: #9a4f2d;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 13px;
+      text-align: right;
+    }
+
+    .ga-tree {
+      display: grid;
+      gap: 12px;
+      margin: 25px 0;
+      padding: 22px;
+      border: 1px solid rgba(92, 74, 62, 0.14);
+      border-radius: 16px;
+      background: #fbf7f3;
+    }
+
+    .ga-tree-root {
+      padding: 14px 18px;
+      border-radius: 11px;
+      background: #d98c5f;
+      color: #fff;
+      font-family: "Noto Serif SC", serif;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .ga-tree-branches {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .ga-tree-branch {
+      padding: 15px;
+      border: 1px solid rgba(217, 140, 95, 0.22);
+      border-radius: 11px;
+      background: #fffdfb;
+    }
+
+    .ga-tree-branch b {
+      display: block;
+      margin-bottom: 7px;
+      color: #70462f;
+      font-size: 14px;
+    }
+
+    .ga-tree-branch p {
+      margin: 0;
+      color: #6a5b52;
+      font-size: 12px;
+      line-height: 1.7;
+    }
+
+    .ga-case {
+      margin: 28px 0;
+      padding: 24px;
+      border: 1px solid rgba(217, 140, 95, 0.3);
+      border-radius: 17px;
+      background: linear-gradient(145deg, #fffaf6, #f7eee8);
+    }
+
+    .ga-case-kicker {
+      margin-bottom: 8px;
+      color: #a25835;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .ga-case h3 {
+      margin: 0 0 12px;
+      color: #4f3528;
+      font-family: "Noto Serif SC", serif;
+      font-size: 20px;
+    }
+
+    .ga-case p {
+      margin: 8px 0;
+    }
+
+    .ga-checklist {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px 18px;
+      margin: 22px 0;
+      padding: 22px;
+      border-radius: 14px;
+      background: #f5f0eb;
+      list-style: none;
+    }
+
+    .ga-checklist li {
+      position: relative;
+      padding-left: 25px;
+      color: #584d46;
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    .ga-checklist li::before {
+      position: absolute;
+      top: 3px;
+      left: 0;
+      color: #b56642;
+      content: "✓";
+      font-weight: 800;
+    }
+
+    .ga-reading-list {
+      display: grid;
+      gap: 11px;
+      margin: 22px 0 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .ga-reading-list li {
+      padding: 14px 17px;
+      border-left: 3px solid rgba(217, 140, 95, 0.72);
+      background: rgba(247, 241, 236, 0.78);
+      color: #584d46;
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    .ga-reading-list a {
+      color: #9a4f2d;
+      text-decoration-thickness: 1px;
+      text-underline-offset: 3px;
+    }
+
+    @media (max-width: 760px) {
+      .ga-metric-grid,
+      .ga-formula-grid,
+      .ga-analysis-grid,
+      .ga-risk-grid,
+      .ga-checklist,
+      .ga-tree-branches {
+        grid-template-columns: 1fr;
+      }
+
+      .ga-state-flow {
+        grid-template-columns: 1fr;
+      }
+
+      .ga-state-step:not(:last-child)::after {
+        top: auto;
+        right: 50%;
+        bottom: -15px;
+        transform: translateX(50%) rotate(90deg);
+      }
+
+      .ga-profit-row {
+        grid-template-columns: 1fr;
+        gap: 4px;
+      }
+
+      .ga-profit-row code {
+        text-align: left;
+      }
+
+      .ga-case {
+        padding: 20px 16px;
+      }
+
+      .ga-thesis {
+        padding: 20px;
+        font-size: 17px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="meta-row">
+      <span>2026-09-28</span>
+      <span>电商基础 · 第六篇</span>
+      <span>阅读约 18 分钟</span>
+      <span>GMV · 收入 · 毛利 · 经营分析</span>
+    </div>
+  </header>
+
+  <main>
+    <article class="article-body">
+      <p class="lead">订单增长并不自动意味着收入增长，收入增长也不自动意味着利润改善。GMV、收入、毛利与贡献毛利分别观察交易规模、会计确认、商品盈利能力和增量经营结果。本文以统一口径为起点，把前五篇中的商品、流量、交易、履约与售后重新连接为一套基础经营分析框架。</p>
+
+      <section>
+        <div class="section-label">01 · Metric Layers</div>
+        <h2 id="four-metric-layers" class="section-heading">四个指标位于不同层级，不能沿着同一条等号推导</h2>
+        <p>把“成交金额”直接当作收入，再减采购款得到利润，会遗漏订单状态、履约义务、平台角色、退款税费以及仓配、支付、获客和售后成本。</p>
+        <div class="ga-metric-grid">
+          <div class="ga-metric-card"><b>GMV：交易规模</b><p>描述某个规则下的商品交易金额。它通常是经营指标，不是会计准则统一定义的报表项目。</p></div>
+          <div class="ga-metric-card"><b>收入：履约结果</b><p>按照适用会计准则，在履约义务满足并预计有权取得对价时确认，金额还取决于主要责任人或代理人判断。</p></div>
+          <div class="ga-metric-card"><b>毛利：商品层盈利空间</b><p>收入减去相应销售成本，用于观察商品、业务模式和履约结构留下的第一层利润空间。</p></div>
+          <div class="ga-metric-card"><b>经营结果：资源配置结果</b><p>在毛利基础上继续考虑销售、研发、管理等费用；管理分析还可定义贡献毛利观察增量经济性。</p></div>
+        </div>
+        <div class="ga-thesis">正确的分析顺序不是“GMV 越大越好”，而是依次确认：这是什么口径的交易、其中多少形成收入、收入对应多少成本，以及剩余利润是否足以覆盖获客与固定投入。</div>
+        <div class="ga-warning"><b>范围说明：</b>本文用于建立经营分析概念，不构成会计、审计或税务意见。财务报表确认和列报应依据企业适用准则、合同事实、所在司法辖区规定以及专业判断。</div>
+      </section>
+
+      <section>
+        <div class="section-label">02 · GMV</div>
+        <h2 id="gmv-definition" class="section-heading">GMV 没有脱离平台和状态的统一口径</h2>
+        <p>GMV 常译为商品交易总额或商品交易价值，用于描述一段时间内经由某个平台、店铺或渠道发生的交易规模。名称看似统一，计算边界却可能完全不同：是否从创建订单开始、是否要求支付、是否扣除取消和退款、是否包含运费、税费、优惠券与异常交易，都需要另行定义。</p>
+        <div class="ga-state-flow" role="img" aria-label="从下单GMV到结算GMV的四层状态口径">
+          <div class="ga-state-step"><span>01</span><b>下单 GMV</b><p>按订单创建时的商品金额统计</p></div>
+          <div class="ga-state-step"><span>02</span><b>支付 GMV</b><p>只保留支付成功的订单金额</p></div>
+          <div class="ga-state-step"><span>03</span><b>有效 GMV</b><p>进一步排除取消、全额退款等无效交易</p></div>
+          <div class="ga-state-step"><span>04</span><b>结算 GMV</b><p>按平台或商家结算规则确认可结算范围</p></div>
+        </div>
+        <p>这四层不是强制行业标准，而是便于协作的经营命名。订单可以跨天支付、跨月发货和退款，平台结算也可能晚于收货，因此同一自然月的四个口径通常不相等。只保留“GMV”一个字段，就无法区分真实销售、未支付订单、退款滞后或统计时间变化。</p>
+        <div class="ga-table-wrap">
+          <table class="ga-table">
+            <thead><tr><th>口径问题</th><th>可选规则</th><th>容易造成的差异</th><th>建议记录</th></tr></thead>
+            <tbody>
+              <tr><td>金额基数</td><td>标价、优惠前价格或消费者实付商品金额</td><td>大促时优惠前口径增长更快</td><td>商品原价、商家优惠、平台补贴分别保存</td></tr>
+              <tr><td>订单状态</td><td>创建、支付、发货、签收或结算</td><td>跨期支付和履约使趋势错位</td><td>事件时间与状态时间并存</td></tr>
+              <tr><td>退款处理</td><td>不扣、按申请扣、按成功退款扣</td><td>售后周期越长，近期数据越不完整</td><td>原始 GMV 与净退款调整分开</td></tr>
+              <tr><td>附加金额</td><td>是否包括运费、税费、关税、服务费</td><td>跨境与本土渠道不可直接比较</td><td>商品、运费、税费、其他费用拆列</td></tr>
+              <tr><td>币种</td><td>交易币、结算币或统一报告币</td><td>汇率波动改变折算后的增长率</td><td>原币金额、汇率日期和折算规则</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>公开披露也说明 GMV 不是标准化财务指标。Shopify 在 2025 年年报中将 GMV 定义为平台促成的订单价值，扣除退款，并包含运费、关税和增值税，同时明确 GMV 不代表其赚取的收入。阿里巴巴 2026 财年年报则将 GMV 定义为平台上已支付订单的价值，并包含买方向卖方支付的运费。两者都合理，但不可在没有口径说明时直接横比。<a href="https://www.sec.gov/Archives/edgar/data/1594805/000159480526000007/shop-20251231.htm" target="_blank" rel="noopener">Shopify 2025 Annual Report</a>；<a href="https://www.hkexnews.hk/listedco/listconews/sehk/2026/0618/2026061800844.pdf" target="_blank" rel="noopener">Alibaba Group FY2026 Annual Report</a></p>
+      </section>
+
+      <section>
+        <div class="section-label">03 · Revenue</div>
+        <h2 id="gmv-versus-revenue" class="section-heading">GMV 记录交易规模，收入记录企业履行了什么承诺</h2>
+        <p>支付成功不必然等于收入确认。实物商品需要判断控制权何时转移；会员、广告或软件服务的履约义务还可能在一段时间内持续满足。预收款在履约前可能形成合同负债，渠道到账也可能晚于收入确认。</p>
+        <p>财政部《企业会计准则第14号——收入》以合同和履约义务为核心，要求企业在客户取得相关商品控制权时确认收入；交易价格是企业因转让商品而预期有权收取的对价，代第三方收取及预计退还客户的款项不计入交易价格。<a href="https://kjs.mof.gov.cn/zt/kjzzss/kuaijizhunzeshishi/201709/t20170907_2694006.htm" target="_blank" rel="noopener">财政部：企业会计准则第14号——收入</a></p>
+        <div class="ga-formula-grid">
+          <div class="ga-formula-card"><b>经营口径：有效 GMV</b><span class="ga-formula">支付商品金额 − 无效订单对应商品金额 − 已纳入口径的退款</span><p>观察有效交易规模，仍不自动等于财务收入。</p></div>
+          <div class="ga-formula-card"><b>会计口径：交易价格</b><span class="ga-formula">合同对价 − 预计退还金额 − 代第三方收取款项 ± 其他调整</span><p>还需结合履约进度、可变对价与合同条款判断。</p></div>
+        </div>
+        <p>销售附有退货权时，退款不能只在现金付出时才进入分析。IFRS 15 要求对预计有权取得的对价确认收入，对预计退还金额确认退款负债，并对预计收回商品的权利确认相应资产；后续还需更新估计。<a href="https://www.ifrs.org/content/dam/ifrs/publications/pdf-standards/english/2024/issued/part-a/ifrs-15-revenue-from-contracts-with-customers.pdf?bypass=on" target="_blank" rel="noopener">IFRS 15：Revenue from Contracts with Customers</a></p>
+        <div class="ga-note"><b>三个时间字段应分开：</b>订单时间适合观察需求，履约或控制权转移时间用于支持收入判断，收款与结算时间用于资金分析。把三者压成一个“成交日期”，会让经营、财务与现金流无法对齐。</div>
+      </section>
+
+      <section>
+        <div class="section-label">04 · Gross or Net</div>
+        <h2 id="principal-agent" class="section-heading">总额法与净额法的边界，是控制商品或只是安排交易</h2>
+        <p>同一笔消费者支付 100 元的订单，不同主体确认的收入可能相差很大。自营零售商如果在转让前控制商品，通常以向客户收取的对价为收入，并确认对应商品成本；撮合交易的平台如果只是安排第三方商家提供商品，收入可能只是佣金或手续费。这个差异不是报表展示偏好，而是主要责任人和代理人判断的结果。</p>
+        <div class="ga-table-wrap">
+          <table class="ga-table">
+            <thead><tr><th>判断层面</th><th>主要责任人倾向</th><th>代理人倾向</th><th>需要核对的证据</th></tr></thead>
+            <tbody>
+              <tr><td>承诺内容</td><td>承诺自行向客户提供指定商品或服务</td><td>承诺安排另一方提供商品或服务</td><td>用户协议、商家合同、售后承诺</td></tr>
+              <tr><td>转让前控制</td><td>在客户取得前能够主导使用并获得主要利益</td><td>在转让前未控制指定商品或服务</td><td>采购权、处置权、服务组合方式</td></tr>
+              <tr><td>辅助迹象</td><td>承担主要履约责任、存货风险或定价裁量</td><td>风险和定价主要由第三方承担</td><td>缺货、退货、质量、价格和信用风险分配</td></tr>
+              <tr><td>收入呈现</td><td>按有权取得的对价总额确认收入</td><td>按佣金、手续费或净额确认收入</td><td>逐项履约义务与实际合同事实</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>中国收入准则规定，企业在向客户转让商品前能够控制该商品时为主要责任人，按已收或应收对价总额确认收入；否则为代理人，按预期有权收取的佣金或手续费确认。IFRS 15 的核心判断同样是企业在转让给客户之前是否控制指定商品或服务，主要履约责任、存货风险和定价裁量是帮助评估控制的迹象，而不是可以机械计分的清单。<a href="https://www.ifrs.org/news-and-events/updates/ifric/2021/ifric-update-november-2021/" target="_blank" rel="noopener">IFRS Interpretations Committee：Principal versus Agent</a></p>
+        <div class="ga-warning"><b>混合模式要逐项判断。</b>同一平台可能对自营商品是主要责任人，对第三方商品是代理人，对物流、广告或会员服务又承担不同履约义务。平台收取了全部货款，不等于平台可以把全部消费者支付额确认为收入。</div>
+      </section>
+
+      <section>
+        <div class="section-label">05 · Net Sales</div>
+        <h2 id="net-sales" class="section-heading">净销售额首先是一张调节表，而不是另一个模糊别名</h2>
+        <p>“净销售额”常用于内部分析，计算方式未必一致。应分别保留商品标价、商家折扣、消费者实付、预计退款、间接税和其他代收款，再形成与会计收入或管理口径的调节。</p>
+        <div class="ga-profit-bridge" role="img" aria-label="从商品标价到净销售额的调节关系">
+          <div class="ga-profit-row"><b>商品标价金额</b><span>按商品标价与数量形成的原始金额</span><code>起点</code></div>
+          <div class="ga-profit-row"><b>减：商家折扣与优惠</b><span>优惠券、直降、满减等由商家承担的让利</span><code>− discount</code></div>
+          <div class="ga-profit-row"><b>减：退货与退款调整</b><span>按既定口径扣除实际或预计不会取得的对价</span><code>− returns</code></div>
+          <div class="ga-profit-row"><b>减：代第三方收取款项</b><span>例如满足代收性质的部分间接税或其他款项</span><code>− pass-through</code></div>
+          <div class="ga-profit-row"><b>得：分析口径净销售额</b><span>仍需与财务收入按角色、履约和期间调节</span><code>= net sales</code></div>
+        </div>
+        <p>平台补贴需要单独拆分。平台替消费者承担价款与商家自行让利的经济结果可能不同；付款方同时是企业客户时，还要判断是否取得可明确区分的商品或服务。中国收入准则规定，应付客户对价原则上冲减交易价格，除非该款项用于向客户取得其他可明确区分的商品。处理方式取决于合同与资金流。</p>
+      </section>
+
+      <section>
+        <div class="section-label">06 · Gross Profit</div>
+        <h2 id="gross-profit" class="section-heading">毛利连接销售与商品成本，但毛利率仍受业务模式影响</h2>
+        <div class="ga-formula-grid">
+          <div class="ga-formula-card"><b>毛利</b><span class="ga-formula">收入 − 销售成本</span><p>观察收入覆盖直接销售成本后留下的金额。</p></div>
+          <div class="ga-formula-card"><b>毛利率</b><span class="ga-formula">毛利 ÷ 收入</span><p>衡量每单位收入的毛利空间，分母必须使用同口径收入。</p></div>
+        </div>
+        <p>对自营实物商品，销售成本通常以已售存货成本为核心。IAS 2 规定，存货出售时，其账面金额在确认相关收入的期间确认为费用；中国《企业会计准则第1号——存货》也要求将已售存货成本结转为当期损益。<a href="https://www.ifrs.org/issued-standards/list-of-standards/ias-2-inventories/" target="_blank" rel="noopener">IFRS Foundation：IAS 2 Inventories</a>；<a href="https://kjs.mof.gov.cn/zt/kjzzss/kuaijizhunzeshishi/200806/t20080618_46216.htm" target="_blank" rel="noopener">财政部：企业会计准则第1号——存货</a></p>
+        <p>毛利率不能脱离模式解释。平台按净额确认佣金收入时，收入分母远小于其促成的 GMV；自营零售按总额确认收入并结转商品成本。即使交易规模相同，收入和毛利率也不可直接比较，应同时观察 GMV、收入、毛利额、履约成本及平台角色。</p>
+      </section>
+
+      <section>
+        <div class="section-label">07 · Cost Map</div>
+        <h2 id="cost-classification" class="section-heading">退款、运费、平台费和广告费，需要按经济实质进入不同位置</h2>
+        <p>同一成本在不同报表中可能位于不同层级。会计列报可按功能或性质分类，管理报表则按决策问题重新组合；两套视图可以共存，但必须能够调节。</p>
+        <div class="ga-table-wrap">
+          <table class="ga-table">
+            <thead><tr><th>项目</th><th>优先回答的问题</th><th>常见经营归属</th><th>边界与注意事项</th></tr></thead>
+            <tbody>
+              <tr><td>退款与退货</td><td>企业最终有权取得多少对价</td><td>减少净销售额；退回商品与损耗另行调整成本</td><td>退款时点、预计退货和可再次销售比例要分开</td></tr>
+              <tr><td>商家折扣</td><td>谁承担消费者让利</td><td>通常从商品销售额调减</td><td>平台补贴与应付客户对价需按合同判断</td></tr>
+              <tr><td>正向运费</td><td>配送是履约组成还是另售服务</td><td>可列履约变动成本，并按会计政策与准则映射</td><td>消费者支付的运费也需判断是收入还是代收</td></tr>
+              <tr><td>逆向运费与处理费</td><td>一次退货消耗多少资源</td><td>售后或履约变动成本</td><td>应区分质量责任、无理由退货和承运方赔付</td></tr>
+              <tr><td>平台佣金与支付费</td><td>订单通过渠道和支付网络的增量成本</td><td>渠道或交易变动成本</td><td>商家视角的费用与平台视角的收入不可混用</td></tr>
+              <tr><td>仓储、拣配与包装</td><td>库存和订单履约消耗多少资源</td><td>履约成本，可再拆固定与变动部分</td><td>会计列报位置取决于业务和所采用政策</td></tr>
+              <tr><td>效果广告</td><td>新增订单付出了多少获客成本</td><td>销售与营销费用；贡献分析常在订单层扣除</td><td>归因订单不等于广告造成订单，应避免重复归因</td></tr>
+              <tr><td>品牌广告</td><td>长期心智投入如何安排</td><td>期间营销费用，通常不强配到单笔订单</td><td>短期转化不足以衡量全部效果</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="ga-note"><b>成本字典应记录：</b>来源系统、会计科目、管理层级、固定或变动属性、归属对象、分摊方法和更新时间。否则，“贡献毛利”很可能只是名称相同、内容不同的多个数字。</div>
+      </section>
+
+      <section>
+        <div class="section-label">08 · Contribution</div>
+        <h2 id="contribution-margin" class="section-heading">贡献毛利用于经营决策，但不是统一会计指标</h2>
+        <p>贡献毛利用于判断一次销售为固定投入留下多少空间。若以会计毛利为起点，只应继续扣除尚未计入销售成本、且随订单、商品、渠道或客户变化的增量成本；也可以从收入直接减去全部明确定义的变动成本。仓配、支付、平台佣金、售后和效果广告的层级因企业而异，因此必须同时给出公式并避免重复扣减。</p>
+        <div class="ga-profit-bridge" role="img" aria-label="从收入到经营利润的分层桥接">
+          <div class="ga-profit-row"><b>收入</b><span>按财务确认原则形成的起点</span><code>Revenue</code></div>
+          <div class="ga-profit-row"><b>减：销售成本</b><span>已售商品成本及会计政策纳入的相关成本</span><code>COGS</code></div>
+          <div class="ga-profit-row"><b>得：毛利</b><span>商品和商业模式的第一层利润空间</span><code>Gross profit</code></div>
+          <div class="ga-profit-row"><b>减：未计入销售成本的订单变动成本</b><span>履约、支付、渠道、售后及明确纳入的获客成本，仅列尚未在销售成本中扣除的部分</span><code>Variable costs</code></div>
+          <div class="ga-profit-row"><b>得：贡献毛利</b><span>管理口径，必须披露具体扣减项</span><code>Contribution</code></div>
+          <div class="ga-profit-row"><b>减：经营费用</b><span>未在前述层级扣除的销售、研发、管理等投入</span><code>Operating expenses</code></div>
+          <div class="ga-profit-row"><b>得：经营结果</b><span>还可能与法定报表项目存在进一步调节</span><code>Operating result</code></div>
+        </div>
+        <p>贡献毛利可以定义多层，例如从收入依次扣商品成本、佣金和支付费，再扣仓配、售后与效果广告；如果其中某项已经进入上一层，就不在下一层重复扣除。分层用于区分商品、渠道和获客的经济性，但不能替代经审计财务报表中的利润项目。</p>
+      </section>
+
+      <section>
+        <div class="section-label">09 · Unit Economics</div>
+        <h2 id="unit-economics" class="section-heading">单位经济模型要选择能对应决策的“单位”</h2>
+        <p>单位经济模型把总量还原到一个订单、一个有效件、一名新客或一个客户生命周期。单位并非越细越好：选订单可以判断免邮门槛，选件可以判断商品组合，选新客可以判断获客，选客户可以观察复购。分子与分母必须来自相同范围和时间窗口。</p>
+        <div class="ga-formula-grid">
+          <div class="ga-formula-card"><b>每单贡献</b><span class="ga-formula">贡献毛利 ÷ 有效订单数</span><p>适合比较客单价、包邮和渠道费率变化。</p></div>
+          <div class="ga-formula-card"><b>每件贡献</b><span class="ga-formula">商品层贡献毛利 ÷ 有效销售件数</span><p>适合观察 SKU 组合和多件折扣。</p></div>
+          <div class="ga-formula-card"><b>新客首单净贡献</b><span class="ga-formula">首单获客前贡献 − 可归属获客成本</span><p>用于判断首单是否回收获客投入，不等于客户终身价值；“获客前贡献”必须列明已扣成本。</p></div>
+          <div class="ga-formula-card"><b>客户累计净贡献</b><span class="ga-formula">各期扣留存前贡献之和 − 另行归属且尚未扣除的留存投入</span><p>需要按 cohort 跟踪，避免重复扣除营销费用，并明确观察窗口与折现假设。</p></div>
+        </div>
+        <p>品牌广告、自然流量和再营销相互作用，平台归因还可能重复计功。单位经济模型应区分可直接归属与分摊成本，并对无法证明因果的分摊保持克制。</p>
+      </section>
+
+      <section>
+        <div class="section-label">10 · Analysis Tree</div>
+        <h2 id="analysis-tree" class="section-heading">经营拆解树从结果向下定位，而不是堆叠更多平均数</h2>
+        <div class="ga-tree" role="img" aria-label="电商经营分析拆解树">
+          <div class="ga-tree-root">经营结果由交易规模、订单质量与单位经济性共同决定</div>
+          <div class="ga-tree-branches">
+            <div class="ga-tree-branch"><b>交易规模</b><p>流量 × 转化率 × 客单价，并继续拆到渠道、市场、商品和新老客。</p></div>
+            <div class="ga-tree-branch"><b>订单质量</b><p>支付成功、取消、履约、签收、退款与拒付，决定 GMV 能留下多少。</p></div>
+            <div class="ga-tree-branch"><b>单位经济性</b><p>净售价、商品成本、履约成本、渠道费、售后成本和获客投入。</p></div>
+          </div>
+        </div>
+        <p>毛利额下降可以先拆成收入与毛利率；收入再拆有效订单数与每单收入；毛利率继续拆售价、折扣、商品成本和品类结构。低毛利品类增长可能拉低整体毛利率，即使每个单品都没有恶化。</p>
+        <h3 class="subheading">一张基础经营看板应至少保留四层</h3>
+        <div class="ga-analysis-grid">
+          <div class="ga-analysis-card"><b>规模层</b><p>下单、支付、有效与结算 GMV，订单数、件数、客单价，并清楚标注币种和状态。</p></div>
+          <div class="ga-analysis-card"><b>质量层</b><p>支付率、取消率、缺货取消、退款率、拒付率和履约完成情况。</p></div>
+          <div class="ga-analysis-card"><b>利润层</b><p>收入、净销售额调节、销售成本、毛利、贡献毛利及对应比率。</p></div>
+          <div class="ga-analysis-card"><b>结构层</b><p>渠道、市场、品类、SKU、新老客、活动、币种和履约模式的构成与变化。</p></div>
+        </div>
+        <p>看板还应显示更新时间、退款成熟度、汇率版本和含税状态，避免把不同截止时间的数据放在一起。</p>
+      </section>
+
+      <section>
+        <div class="section-label">11 · Comparison</div>
+        <h2 id="comparison-methods" class="section-heading">同比、环比、结构与 cohort 回答的是四类不同问题</h2>
+        <div class="ga-table-wrap">
+          <table class="ga-table">
+            <thead><tr><th>方法</th><th>主要问题</th><th>适用场景</th><th>常见误区</th></tr></thead>
+            <tbody>
+              <tr><td>同比</td><td>与上年同周期相比是否改善</td><td>减弱节日与季节差异，观察年度趋势</td><td>节日错位、渠道新增或口径变更仍会破坏可比性</td></tr>
+              <tr><td>环比</td><td>与相邻周期相比发生什么变化</td><td>监控近期活动、价格与运营动作</td><td>把自然季节波动误判为运营效果</td></tr>
+              <tr><td>结构分析</td><td>整体变化来自单元表现还是构成变化</td><td>品类、渠道、地区、新老客与自营平台混合业务</td><td>只看整体平均值，忽略权重迁移</td></tr>
+              <tr><td>Cohort</td><td>同一批对象随时间如何变化</td><td>新客复购、首购渠道质量、商品生命周期</td><td>批次定义和观察窗口不一致，成熟 cohort 与新 cohort 直接比较</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>Cohort 可按首次购买月、渠道或首购商品定义。各批客户应在相同生命周期比较订单、净收入和累计贡献，不能把新 cohort 与已有十二个月历史的 cohort 直接比较累计价值。跨境数据还需统一折算汇率。</p>
+      </section>
+
+      <section>
+        <div class="section-label">12 · Example</div>
+        <h2 id="teaching-case" class="section-heading">案例假设：同一批保温杯订单如何形成四层经营数字</h2>
+        <div class="ga-case">
+          <div class="ga-case-kicker">Teaching case · 非真实企业数据</div>
+          <h3>假设某月在本土平台和跨境独立站销售保温杯</h3>
+          <p>以下数字仅用于演示口径，不代表行业基准，也不用于推断任何真实企业表现。管理报表统一以人民币展示；跨境交易保留原币，并使用预先确定的月度管理汇率折算。</p>
+        </div>
+        <div class="ga-table-wrap">
+          <table class="ga-table">
+            <thead><tr><th>案例假设</th><th>本土平台</th><th>跨境独立站</th><th>合计</th><th>分析含义</th></tr></thead>
+            <tbody>
+              <tr><td>支付商品金额</td><td>480,000 元</td><td>40,000 美元 × 7.20 = 288,000 元</td><td>768,000 元</td><td>支付 GMV，不含另收运费</td></tr>
+              <tr><td>支付后取消</td><td>20,000 元</td><td>8,000 元</td><td>28,000 元</td><td>尚未形成稳定有效交易</td></tr>
+              <tr><td>退款调整</td><td>30,000 元</td><td>20,000 元</td><td>50,000 元</td><td>按案例既定的成功退款口径扣除</td></tr>
+              <tr><td>有效 GMV</td><td>430,000 元</td><td>260,000 元</td><td>690,000 元</td><td>支付商品金额减取消与退款</td></tr>
+              <tr><td>财务收入调节</td><td>减代收税费 40,000 元</td><td>减代收税费 15,000 元</td><td>减 55,000 元</td><td>纯属案例假设，实际依合同与税制判断</td></tr>
+              <tr><td>收入</td><td>390,000 元</td><td>245,000 元</td><td>635,000 元</td><td>假设均为自营且已满足收入确认条件</td></tr>
+              <tr><td>销售成本</td><td>220,000 元</td><td>140,000 元</td><td>360,000 元</td><td>与已确认收入对应的已售商品成本</td></tr>
+              <tr><td>毛利</td><td>170,000 元</td><td>105,000 元</td><td>275,000 元</td><td>收入减销售成本</td></tr>
+              <tr><td>订单变动成本</td><td>85,000 元</td><td>72,000 元</td><td>157,000 元</td><td>案例纳入仓配、支付、渠道、售后和效果广告</td></tr>
+              <tr><td>贡献毛利</td><td>85,000 元</td><td>33,000 元</td><td>118,000 元</td><td>尚未扣除固定人员、系统、研发和管理等费用</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>案例总支付 GMV 为 768,000 元，有效 GMV 为 690,000 元，收入为 635,000 元，毛利率约为 43.3%，贡献毛利率约为 18.6%。这里的贡献毛利率以收入为分母；若企业以有效 GMV 为分母，结果会变成约 17.1%。两者没有谁天然正确，但必须标注分母。</p>
+        <p>跨境毛利率约为 42.9%，与本土约 43.6% 接近，但订单变动成本占比更高，贡献毛利率因而较低。仍需拆解国际运费、支付费、退货、广告、订单密度及后续复购；单月首单贡献不能单独证明长期价值。</p>
+      </section>
+
+      <section>
+        <div class="section-label">13 · Cross-border</div>
+        <h2 id="currency-and-tax" class="section-heading">跨境分析要同时保留交易币、功能货币和报告币</h2>
+        <p>跨境订单可能用美元标价、以欧元结算，而经营主体以人民币记账。原币反映定价，结算币影响到账，功能货币用于主体会计记录，集团还可能使用另一列报货币。只保存折算金额，会混淆经营变化与汇率变化。</p>
+        <p>IAS 21 将功能货币定义为主体经营所处主要经济环境的货币，并规范外币交易以及境外经营财务报表的折算。该准则第 21—22 段要求外币交易初始确认使用交易日的即期汇率，并允许在汇率未显著波动时使用接近实际汇率的期间平均汇率。企业做管理看板时还可以设置固定预算汇率，但应同时保留实际汇率影响和可比汇率视图。<a href="https://www.ifrs.org/content/dam/ifrs/publications/pdf-standards/english/2024/issued/part-a/ias-21-the-effects-of-changes-in-foreign-exchange-rates.pdf?bypass=on" target="_blank" rel="noopener">IFRS Foundation：IAS 21，第 21—22 段</a></p>
+        <div class="ga-table-wrap">
+          <table class="ga-table">
+            <thead><tr><th>跨境变量</th><th>对 GMV 的影响</th><th>对收入与利润的影响</th><th>建议视图</th></tr></thead>
+            <tbody>
+              <tr><td>汇率</td><td>报告币 GMV 可因折算波动而变化</td><td>收入、成本和结算时点不同会产生汇率影响</td><td>报告汇率与固定汇率增长并列</td></tr>
+              <tr><td>增值税或销售税</td><td>平台定义可能包含或排除</td><td>代第三方收取部分通常不构成企业交易价格</td><td>含税成交、税额与不含税收入分列</td></tr>
+              <tr><td>关税与进口费用</td><td>是否计入取决于 GMV 规则</td><td>由谁承担、是否代收及贸易条款影响归属</td><td>商品、关税、清关与服务费拆列</td></tr>
+              <tr><td>退款与拒付</td><td>跨期回冲改变有效 GMV</td><td>影响可取得对价，并产生支付和争议成本</td><td>按订单 cohort 追踪成熟退款率</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="ga-warning"><b>税费不可按地区标签一概而论。</b>销售地、主体所在地、平台是否被视为代征主体、商品类别、贸易条款和消费者身份都可能改变处理。经营看板应保存税种、税率来源、征收主体和合同责任，具体申报由专业人员确认。</div>
+      </section>
+
+      <section>
+        <div class="section-label">14 · Governance</div>
+        <h2 id="metric-governance" class="section-heading">经营数字可信的前提，是口径、数据和决策边界可追溯</h2>
+        <div class="ga-risk-grid">
+          <div class="ga-risk-card"><b>口径漂移</b><p>大促前后改变退款、运费或异常订单规则，却继续展示连续增长。解决方式是版本化指标定义并回算历史。</p></div>
+          <div class="ga-risk-card"><b>期间错配</b><p>当月广告费与未来转化混在一起，或用支付月 GMV 对比发货月成本。解决方式是同时提供自然期间与订单 cohort。</p></div>
+          <div class="ga-risk-card"><b>重复归因</b><p>多个广告平台都把同一订单记为自身转化，渠道贡献合计超过真实订单。解决方式是分开平台归因与统一订单视图。</p></div>
+          <div class="ga-risk-card"><b>幸存偏差</b><p>只分析签收订单，忽略缺货取消、风控拒绝和支付失败，导致履约和利润看起来过好。</p></div>
+          <div class="ga-risk-card"><b>退款未成熟</b><p>最近周期尚未经过完整退货窗口，直接与成熟月份比较会高估有效 GMV 和利润。</p></div>
+          <div class="ga-risk-card"><b>把管理指标当报表项目</b><p>贡献毛利、调整后利润或固定汇率增长若不附调节表，容易与法定收入、毛利和经营利润混淆。</p></div>
+        </div>
+        <ul class="ga-checklist">
+          <li>每个指标写明业务定义、公式和责任人</li>
+          <li>订单状态、退款窗口和时间字段可以回溯</li>
+          <li>GMV 与收入之间有稳定调节表</li>
+          <li>总额法与净额法判断保留合同依据</li>
+          <li>成本层级和分摊规则形成版本记录</li>
+          <li>原币、汇率和含税状态保留明细</li>
+          <li>同比、环比和 cohort 使用一致范围</li>
+          <li>管理指标不替代财务、审计和税务结论</li>
+        </ul>
+      </section>
+
+      <section>
+        <div class="section-label">15 · Conclusion</div>
+        <h2 id="conclusion" class="section-heading">结论：从交易规模走到可持续经营，需要一条完整调节链</h2>
+        <p>GMV 回答交易发生了多大规模，但必须注明订单状态、退款、运费、税费和币种。收入回答企业履行了什么承诺并有权取得多少对价，还要处理履约时点和主要责任人、代理人边界。毛利把收入与对应销售成本连接起来，贡献毛利再把仓配、渠道、售后和获客等增量成本纳入经营判断。</p>
+        <p>六篇基础内容由此形成一条完整链路：商品与 SKU 定义销售对象，流量和转化解释需求，价格、订单与支付形成交易，库存、物流与售后兑现承诺，最终由 GMV、收入、毛利和经营分析检验规模、质量与经济性。任何局部指标的增长，都应回到这条链路中确认代价与边界。</p>
+        <p>基础经营分析应建立可重复核对的语言：先定义状态和范围，再比较期间与结构；先还原收入和成本，再讨论增长；先区分事实、估计与假设，再配置资源。</p>
+      </section>
+
+      <section>
+        <div class="section-label">16 · Further Reading</div>
+        <h2 id="further-reading" class="section-heading">延伸阅读</h2>
+        <ul class="ga-reading-list">
+          <li><a href="https://kjs.mof.gov.cn/zt/kjzzss/kuaijizhunzeshishi/201709/t20170907_2694006.htm" target="_blank" rel="noopener">财政部：企业会计准则第14号——收入</a>——收入确认、交易价格、主要责任人与代理人的中国准则原文。</li>
+          <li><a href="https://www.ifrs.org/issued-standards/list-of-standards/ifrs-15-revenue-from-contracts-with-customers/" target="_blank" rel="noopener">IFRS Foundation：IFRS 15 Revenue from Contracts with Customers</a>——客户合同收入确认的国际财务报告准则入口。</li>
+          <li><a href="https://www.ifrs.org/issued-standards/list-of-standards/ias-2-inventories/" target="_blank" rel="noopener">IFRS Foundation：IAS 2 Inventories</a>——存货成本、可变现净值与已售存货费用确认。</li>
+          <li><a href="https://www.ifrs.org/issued-standards/list-of-standards/ias-21-the-effects-of-changes-in-foreign-exchange-rates/" target="_blank" rel="noopener">IFRS Foundation：IAS 21</a>——功能货币、外币交易与报表折算。</li>
+          <li><a href="https://www.sec.gov/Archives/edgar/data/1594805/000159480526000007/shop-20251231.htm" target="_blank" rel="noopener">Shopify 2025 Annual Report</a>——公开披露中的 GMV 定义，以及 GMV 与收入的明确区分。</li>
+        </ul>
+      </section>
+    </article>
+  </main>
+</body>
+</html>

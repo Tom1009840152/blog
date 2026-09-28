@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>电商基础（四）：价格、促销、订单与支付</title>
+  <style>
+    .po-thesis {
+      margin: 30px 0;
+      padding: 24px 26px;
+      border: 1px solid color-mix(in srgb, var(--domain-accent) 32%, #d8d0c6);
+      border-left: 4px solid var(--domain-accent);
+      border-radius: 4px 15px 15px 4px;
+      background: linear-gradient(135deg, color-mix(in srgb, var(--domain-accent) 10%, #fff), rgba(255, 255, 255, 0.68));
+      color: #443a32;
+      font-family: "Noto Serif SC", serif;
+      font-size: 18px;
+      font-weight: 600;
+      line-height: 1.8;
+    }
+
+    .po-object-grid,
+    .po-rule-grid,
+    .po-risk-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 13px;
+      margin: 26px 0;
+    }
+
+    .po-object-card,
+    .po-rule-card,
+    .po-risk-card {
+      padding: 19px 20px;
+      border: 1px solid rgba(64, 53, 43, 0.14);
+      border-radius: 13px;
+      background: rgba(255, 255, 255, 0.55);
+      box-shadow: 0 7px 22px rgba(66, 49, 37, 0.035);
+    }
+
+    .po-object-card b,
+    .po-rule-card b,
+    .po-risk-card b {
+      display: block;
+      margin-bottom: 7px;
+      color: #553c2f;
+      font-size: 14px;
+    }
+
+    .po-object-card p,
+    .po-rule-card p,
+    .po-risk-card p {
+      margin: 0;
+      color: #6d655c;
+      font-size: 13px;
+      line-height: 1.72;
+    }
+
+    .po-flow {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 8px;
+      margin: 28px 0;
+    }
+
+    .po-flow-step {
+      position: relative;
+      min-height: 94px;
+      padding: 15px 11px;
+      border: 1px solid color-mix(in srgb, var(--domain-accent) 28%, #d5ccc1);
+      border-radius: 11px;
+      background: color-mix(in srgb, var(--domain-accent) 6%, #fff);
+      text-align: center;
+    }
+
+    .po-flow-step:not(:last-child)::after {
+      position: absolute;
+      top: 50%;
+      right: -9px;
+      z-index: 2;
+      color: #a99f94;
+      content: "→";
+      font-size: 13px;
+      transform: translateY(-50%);
+    }
+
+    .po-flow-step span {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--domain-accent);
+      font-family: "JetBrains Mono", ui-monospace, monospace;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+    }
+
+    .po-flow-step b {
+      display: block;
+      color: #55483f;
+      font-size: 13px;
+    }
+
+    .po-table-wrap {
+      margin: 26px 0;
+      overflow-x: auto;
+      border: 1px solid rgba(64, 53, 43, 0.14);
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.56);
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .po-table {
+      width: 100%;
+      min-width: 700px;
+      border-collapse: collapse;
+      font-size: 13px;
+      line-height: 1.65;
+    }
+
+    .po-table th,
+    .po-table td {
+      padding: 13px 15px;
+      border-bottom: 1px solid rgba(64, 53, 43, 0.1);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    .po-table th {
+      background: color-mix(in srgb, var(--domain-accent) 8%, #f7f3ed);
+      color: #51473e;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .po-table tr:last-child td { border-bottom: 0; }
+
+    .po-table td:first-child {
+      color: #4f382c;
+      font-weight: 650;
+      white-space: nowrap;
+    }
+
+    .po-formula {
+      margin: 24px 0;
+      padding: 20px 22px;
+      overflow-wrap: anywhere;
+      border: 1px dashed color-mix(in srgb, var(--domain-accent) 42%, #cfc5ba);
+      border-radius: 12px;
+      background: color-mix(in srgb, var(--domain-accent) 5%, #fbf8f4);
+      color: #5c4c42;
+      font-family: "JetBrains Mono", ui-monospace, monospace;
+      font-size: 13px;
+      line-height: 1.8;
+    }
+
+    .po-formula b {
+      color: #7f482f;
+      font-family: "Noto Sans SC", sans-serif;
+    }
+
+    .po-note,
+    .po-warning {
+      margin: 24px 0;
+      padding: 19px 21px;
+      border-radius: 13px;
+      font-size: 14px;
+      line-height: 1.78;
+    }
+
+    .po-note {
+      border: 1px solid rgba(94, 126, 109, 0.23);
+      background: rgba(232, 240, 235, 0.69);
+      color: #43574c;
+    }
+
+    .po-warning {
+      border: 1px solid color-mix(in srgb, var(--domain-accent) 28%, #d9cabe);
+      background: color-mix(in srgb, var(--domain-accent) 8%, #fcf7f1);
+      color: #654b3d;
+    }
+
+    .po-note b,
+    .po-warning b { color: #513c31; }
+
+    .po-promo-stack {
+      display: grid;
+      gap: 10px;
+      margin: 26px 0;
+      padding: 23px;
+      border: 1px solid rgba(64, 53, 43, 0.14);
+      border-radius: 15px;
+      background: rgba(255, 255, 255, 0.46);
+    }
+
+    .po-promo-row {
+      display: grid;
+      grid-template-columns: 120px minmax(0, 1fr) auto;
+      gap: 14px;
+      align-items: center;
+      padding: 13px 15px;
+      border-radius: 10px;
+      background: color-mix(in srgb, var(--domain-accent) 6%, #f8f5f0);
+    }
+
+    .po-promo-row b {
+      color: #5d4031;
+      font-size: 13px;
+    }
+
+    .po-promo-row p {
+      margin: 0;
+      color: #6f675f;
+      font-size: 13px;
+      line-height: 1.65;
+    }
+
+    .po-promo-row code,
+    .po-status-code,
+    .po-case code {
+      color: #8b4c2d;
+      font-family: "JetBrains Mono", ui-monospace, monospace;
+      font-size: 12px;
+    }
+
+    .po-order-map {
+      display: grid;
+      grid-template-columns: 0.9fr 1.1fr;
+      gap: 14px;
+      margin: 27px 0;
+    }
+
+    .po-order-box {
+      padding: 20px;
+      border: 1px solid rgba(64, 53, 43, 0.14);
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.56);
+    }
+
+    .po-order-box > b {
+      display: block;
+      margin-bottom: 12px;
+      color: #583e30;
+      font-size: 15px;
+    }
+
+    .po-order-box ul {
+      margin: 0;
+      padding-left: 19px;
+      color: #6b6259;
+      font-size: 13px;
+      line-height: 1.8;
+    }
+
+    .po-state-lanes {
+      display: grid;
+      gap: 10px;
+      margin: 27px 0;
+    }
+
+    .po-state-lane {
+      display: grid;
+      grid-template-columns: 112px minmax(0, 1fr);
+      overflow: hidden;
+      border: 1px solid rgba(64, 53, 43, 0.14);
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.55);
+    }
+
+    .po-state-name {
+      display: flex;
+      align-items: center;
+      padding: 14px 15px;
+      background: color-mix(in srgb, var(--domain-accent) 9%, #f6f1eb);
+      color: #5a4032;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .po-state-values {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 15px;
+    }
+
+    .po-state-values span {
+      padding: 5px 9px;
+      border-radius: 999px;
+      background: #f1ece6;
+      color: #625a52;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .po-state-values i {
+      color: #a69b91;
+      font-style: normal;
+      font-size: 12px;
+    }
+
+    .po-reliability {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 11px;
+      margin: 27px 0;
+    }
+
+    .po-reliability-card {
+      padding: 18px 16px;
+      border-top: 3px solid color-mix(in srgb, var(--domain-accent) 68%, #fff);
+      border-radius: 11px;
+      background: rgba(248, 244, 239, 0.78);
+    }
+
+    .po-reliability-card span {
+      display: block;
+      margin-bottom: 7px;
+      color: var(--domain-accent);
+      font-family: "JetBrains Mono", ui-monospace, monospace;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .po-reliability-card b {
+      display: block;
+      margin-bottom: 6px;
+      color: #554238;
+      font-size: 13px;
+    }
+
+    .po-reliability-card p {
+      margin: 0;
+      color: #70675e;
+      font-size: 12px;
+      line-height: 1.7;
+    }
+
+    .po-case {
+      margin: 29px 0;
+      padding: 24px;
+      border: 1px solid color-mix(in srgb, var(--domain-accent) 28%, #d7cec3);
+      border-radius: 17px;
+      background: linear-gradient(145deg, rgba(255, 255, 255, 0.72), color-mix(in srgb, var(--domain-accent) 8%, #f5f0e9));
+    }
+
+    .po-case-label {
+      margin-bottom: 9px;
+      color: var(--domain-accent);
+      font-family: "JetBrains Mono", ui-monospace, monospace;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .po-case h3 { margin-top: 0; }
+
+    .po-amount-list {
+      display: grid;
+      gap: 8px;
+      margin: 22px 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .po-amount-list li {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 16px;
+      padding: 11px 14px;
+      border-bottom: 1px dashed rgba(64, 53, 43, 0.16);
+      color: #61584f;
+      font-size: 13px;
+    }
+
+    .po-amount-list li:last-child {
+      border-bottom: 0;
+      background: color-mix(in srgb, var(--domain-accent) 8%, #fff);
+      color: #4e382d;
+      font-weight: 700;
+    }
+
+    .po-checklist {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px 18px;
+      margin: 24px 0;
+      padding: 22px;
+      border-radius: 14px;
+      background: #f5f0ea;
+      list-style: none;
+    }
+
+    .po-checklist li {
+      position: relative;
+      padding-left: 25px;
+      color: #5f564e;
+      font-size: 13px;
+      line-height: 1.72;
+    }
+
+    .po-checklist li::before {
+      position: absolute;
+      top: 2px;
+      left: 0;
+      color: var(--domain-accent);
+      content: "✓";
+      font-weight: 800;
+    }
+
+    .po-reading-list {
+      display: grid;
+      gap: 11px;
+      margin: 22px 0 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .po-reading-list li {
+      padding: 14px 17px;
+      border-left: 3px solid color-mix(in srgb, var(--domain-accent) 70%, #fff);
+      background: rgba(247, 242, 236, 0.76);
+      color: #5f564e;
+      font-size: 13px;
+      line-height: 1.72;
+    }
+
+    .po-reading-list a,
+    .po-source-link {
+      color: color-mix(in srgb, var(--domain-accent) 75%, #352d27);
+      text-decoration-thickness: 1px;
+      text-underline-offset: 3px;
+    }
+
+    @media (max-width: 760px) {
+      .po-object-grid,
+      .po-rule-grid,
+      .po-risk-grid,
+      .po-order-map,
+      .po-checklist {
+        grid-template-columns: 1fr;
+      }
+
+      .po-flow {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .po-flow-step:not(:last-child)::after { display: none; }
+
+      .po-promo-stack,
+      .po-case { padding: 19px 16px; }
+
+      .po-promo-row {
+        grid-template-columns: 1fr;
+        gap: 5px;
+      }
+
+      .po-state-lane { grid-template-columns: 1fr; }
+
+      .po-state-name { padding: 10px 14px; }
+
+      .po-reliability { grid-template-columns: 1fr; }
+
+      .po-thesis {
+        padding: 20px;
+        font-size: 17px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="meta-row">
+      <span>2026-09-28</span>
+      <span>电商基础 · 第四篇</span>
+      <span>阅读约 19 分钟</span>
+      <span>价格 · 促销 · 订单 · 支付</span>
+    </div>
+  </header>
+
+  <main>
+    <article class="article-body">
+      <p class="lead">商品进入交易环节后，页面上的一个价格会被拆成定价规则、优惠明细、订单快照和支付交易。四者相互关联，却不能合并成一个数字或一种状态。本文从价格如何被计算与保存出发，说明促销叠加和分摊、订单与订单项、支付状态机、退款及对账之间的关系。</p>
+
+      <section>
+        <div class="section-label">01 · Transaction Objects</div>
+        <h2 id="transaction-objects" class="section-heading">从“卖多少钱”到“收到多少钱”，中间存在多层对象</h2>
+        <p>消费者在商品页看到一个售价，结算时可能叠加会员价、单品优惠、满减、优惠券、运费和税费，支付机构随后处理授权、扣款与退款。系统需要保留每一步的输入、结果和状态。</p>
+
+        <div class="po-flow" role="img" aria-label="价格、促销、订单与支付的对象链路">
+          <div class="po-flow-step"><span>01</span><b>价格规则</b></div>
+          <div class="po-flow-step"><span>02</span><b>促销计算</b></div>
+          <div class="po-flow-step"><span>03</span><b>结算报价</b></div>
+          <div class="po-flow-step"><span>04</span><b>订单快照</b></div>
+          <div class="po-flow-step"><span>05</span><b>支付交易</b></div>
+          <div class="po-flow-step"><span>06</span><b>退款与对账</b></div>
+        </div>
+
+        <div class="po-object-grid">
+          <div class="po-object-card"><b>价格回答“按什么条件报价”</b><p>它可能由市场、渠道、会员身份、币种、税制和生效时间决定，通常会持续变化。</p></div>
+          <div class="po-object-card"><b>促销回答“为何减免”</b><p>它记录资格、门槛、互斥关系、计算顺序和优惠来源，而不是简单修改商品原价。</p></div>
+          <div class="po-object-card"><b>订单回答“当时约定了什么”</b><p>它把商品、数量、价格、优惠、地址和承诺等交易事实固化为可追踪快照。</p></div>
+          <div class="po-object-card"><b>支付回答“资金处理到哪一步”</b><p>支付请求、授权、扣款、退款、拒付与结算有各自状态，不等同于订单状态。</p></div>
+        </div>
+
+        <div class="po-thesis">交易系统的核心不是让所有系统共享一个“最终状态”，而是让价格、订单、支付与履约分别记录自己的事实，再通过稳定标识和可重放事件保持关联。</div>
+      </section>
+
+      <section>
+        <div class="section-label">02 · Price</div>
+        <h2 id="price-rules-and-snapshots" class="section-heading">价格是一组带条件的规则，成交价是一份历史快照</h2>
+        <p>同一 SKU 可以在不同渠道、地区、客户等级和时段具有不同报价。所谓“商品价格”至少需要回答：针对哪个销售单元、以什么币种、是否含税、在哪个市场与渠道生效，以及有效期从何时开始。</p>
+
+        <div class="po-table-wrap">
+          <table class="po-table">
+            <thead><tr><th>价格层次</th><th>典型含义</th><th>关键条件</th><th>是否适合作为订单事实</th></tr></thead>
+            <tbody>
+              <tr><td>目录或基础价</td><td>定价体系中的基准报价</td><td>SKU、价目表、市场、币种、生效时间</td><td>不直接适合，后续可能改变</td></tr>
+              <tr><td>渠道销售价</td><td>特定店铺或渠道当前展示的价格</td><td>渠道、地区、客户范围和发布状态</td><td>需在下单时复制快照</td></tr>
+              <tr><td>会员或协议价</td><td>身份、等级或合同条件下的报价</td><td>客户资格、数量阶梯、有效期</td><td>需记录命中的资格与版本</td></tr>
+              <tr><td>优惠后单价</td><td>商品级促销作用后的结果</td><td>促销资格、叠加次序、数量</td><td>应作为订单项金额明细保存</td></tr>
+              <tr><td>应付总额</td><td>商品、优惠、运费、税费等汇总结果</td><td>收货地、配送方式、税制与舍入规则</td><td>应在订单和支付请求中保持可核对</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p>价格规则更新后，历史订单不应被重新计算。订单要保存商品名称、规格、成交单价、币种、税率或税额、优惠明细及计算版本等快照；商品主数据仍可继续变化，但不能反向覆盖既有交易。</p>
+
+        <h3 class="subheading">金额应使用最小货币单位或定点数</h3>
+        <p>二进制浮点数不能精确表示许多十进制金额，连续计算可能产生不可预期的小数误差。常见做法是按货币的最小单位保存整数，或使用精度明确的十进制定点类型。同时需要为每种币种配置小数位、舍入方向和舍入发生的位置，不能假设所有币种都保留两位小数。</p>
+        <div class="po-formula"><b>订单应付：</b>商品金额合计 − 商品优惠 − 订单优惠 + 运费 − 运费优惠 + 税费 + 其他已披露费用</div>
+
+        <p>公式只是基础结构，税费先算后减还是先减后算、运费是否进入计税基数、折扣如何影响发票金额，都取决于适用地区和交易方案，需要由业务、财税与合规共同确认。面向中国消费者的网络销售还应准确展示价格及其对应商品或服务，未予标明的费用不应在结算时突然出现；市场监管总局《明码标价和禁止价格欺诈规定》也明确禁止促销范围、规则与实际不一致。<a class="po-source-link" href="https://www.samr.gov.cn/zw/zfxxgk/fdzdgknr/fgs/art/2023/art_9a1f82a007964950a1a0f6c056f2fedf.html" target="_blank" rel="noopener">市场监管总局：明码标价和禁止价格欺诈规定</a></p>
+      </section>
+
+      <section>
+        <div class="section-label">03 · Promotion</div>
+        <h2 id="promotion-rules" class="section-heading">促销不是一个折扣字段，而是一套资格判断与计算规则</h2>
+        <p>“满 300 减 30”看似简单，实际还要定义哪些商品计入门槛、使用优惠后的金额还是优惠前金额判断、同一客户可使用几次、能否与会员价和优惠券叠加、退款后门槛失效如何处理。缺少这些定义，页面、客服、结算和财务就可能对同一活动给出不同结果。</p>
+
+        <div class="po-rule-grid">
+          <div class="po-rule-card"><b>适用范围与资格</b><p>市场、渠道、店铺、客户、人群、商品、类目、时间、数量以及设备或入口等条件。</p></div>
+          <div class="po-rule-card"><b>优惠动作</b><p>固定金额减免、比例折扣、阶梯价、买赠、免运费或赠送权益；动作需明确作用对象。</p></div>
+          <div class="po-rule-card"><b>叠加与互斥</b><p>哪些活动可组合、同类优惠取最优还是累加、多个优惠按何种优先级执行。</p></div>
+          <div class="po-rule-card"><b>限额与预算</b><p>单次上限、客户使用次数、总预算、库存型券数量和超限后的确定性处理。</p></div>
+          <div class="po-rule-card"><b>分摊与舍入</b><p>订单级优惠如何分配到订单项，最小货币单位产生的余数由哪一项承接。</p></div>
+          <div class="po-rule-card"><b>撤销与退款规则</b><p>取消、部分退货或换货时，赠品、门槛和已使用资格是否需要重新判断。</p></div>
+        </div>
+
+        <div class="po-promo-stack" role="img" aria-label="一种促销计算的示例顺序">
+          <div class="po-promo-row"><b>1 · 商品级优惠</b><p>先处理指定 SKU 的直降或折扣，生成商品优惠明细。</p><code>line discount</code></div>
+          <div class="po-promo-row"><b>2 · 订单级优惠</b><p>再判断满减、订单券等门槛，并按规则选择可叠加组合。</p><code>order discount</code></div>
+          <div class="po-promo-row"><b>3 · 配送优惠</b><p>运费产生后判断包邮或运费券，避免将运费优惠误算为商品折扣。</p><code>shipping discount</code></div>
+          <div class="po-promo-row"><b>4 · 税费与总额</b><p>依适用税制确定计算顺序，完成舍入并输出可解释的报价。</p><code>total</code></div>
+        </div>
+
+        <p>上面的顺序只是一种设计示例，不是统一行业规则。Shopify 的官方组合规则中，商品折扣会先于订单折扣作用于小计，配送折扣则作用于运费；是否允许组合仍取决于具体配置。这个例子说明促销引擎必须显式记录顺序与兼容关系，而不能依靠活动名称推断。<a class="po-source-link" href="https://help.shopify.com/en/manual/discounts/discount-combinations" target="_blank" rel="noopener">Shopify：Combining discounts</a></p>
+
+        <h3 class="subheading">订单级优惠为什么还要分摊到订单项</h3>
+        <p>分摊不是为了改变消费者看到的总优惠，而是为了支持部分退款、商家结算、税额计算、佣金核算和活动效果分析。常见基数包括订单项优惠前金额、商品优惠后金额或可参与活动的金额。无论采用哪种基数，都要保存促销 ID、规则版本、命中原因、分摊结果与舍入余数去向。</p>
+        <div class="po-warning"><b>“重新运行当前促销规则”不是可靠的退款算法。</b>活动可能已经结束，商品价格和客户资格也可能改变。退款应优先依据下单时保存的金额与分摊快照，再结合公开的退货退款政策处理。</div>
+      </section>
+
+      <section>
+        <div class="section-label">04 · Order Model</div>
+        <h2 id="order-and-lines" class="section-heading">订单是交易协议的快照，订单项是后续履约与退款的基础关联依据</h2>
+        <p>购物车表达暂时性的购买意向，可以增删商品并持续重新报价；结算报价是在特定地址、配送和身份条件下生成的短期结果；订单则代表交易已经被提交或创建。三者的生命周期不同，不宜使用同一条可变记录贯穿全部过程。</p>
+
+        <div class="po-order-map">
+          <div class="po-order-box">
+            <b>订单头（Order）</b>
+            <ul>
+              <li>订单 ID、展示单号与创建时间</li>
+              <li>客户、渠道、市场、币种和语言</li>
+              <li>收货与账单信息快照</li>
+              <li>商品、优惠、运费、税费和应付合计</li>
+              <li>订单、支付、履约和售后关联标识</li>
+            </ul>
+          </div>
+          <div class="po-order-box">
+            <b>订单项（Order Line）</b>
+            <ul>
+              <li>SKU ID 及下单时的名称、规格和图片快照</li>
+              <li>购买数量、单位标价和商品级优惠</li>
+              <li>订单级优惠分摊、税额及实付归属</li>
+              <li>发货、取消、退回和退款数量</li>
+              <li>商家、仓库、包裹或履约单关联关系</li>
+            </ul>
+          </div>
+        </div>
+
+        <p>一张订单可以包含多个 SKU，同一订单项也可能因为仓库、到货时间或商家不同被拆入多个履约单。因此，“订单”“包裹”“运单”不是一一对应关系；退款也不应只在订单头保存一个累计数字。</p>
+
+        <h3 class="subheading">可修改订单需要变更记录，而不是静默覆盖</h3>
+        <p>未支付订单可能允许改地址或取消，已支付订单也可能发生改价补款、删减商品或拆分发货。系统应保留变更前后值、操作者、原因、时间和相关资金动作，并重新校验库存、促销与税费影响。若历史快照被不可追溯地覆盖，客服解释、财务对账和争议处理都会失去依据。</p>
+      </section>
+
+      <section>
+        <div class="section-label">05 · State Separation</div>
+        <h2 id="order-is-not-payment" class="section-heading">下单不等于支付成功，订单状态与支付状态必须分离</h2>
+        <p>订单可以在付款前创建，也可能采用货到付款、账期或异步转账；一次订单还可能经历多次支付尝试。支付成功之后，订单仍可能等待审核或缺货；订单取消之后，也可能有退款尚未完成。用一个“已完成／未完成”字段覆盖全部过程，会迅速产生矛盾。</p>
+
+        <div class="po-state-lanes" role="img" aria-label="订单、支付、履约与售后的独立状态轨道">
+          <div class="po-state-lane"><div class="po-state-name">订单状态</div><div class="po-state-values"><span>已创建</span><i>→</i><span>已确认</span><i>→</i><span>已关闭</span><span>或已取消</span></div></div>
+          <div class="po-state-lane"><div class="po-state-name">收款状态</div><div class="po-state-values"><span>待支付</span><i>→</i><span>处理中</span><i>→</i><span>已支付</span><span>／失败／已取消</span></div></div>
+          <div class="po-state-lane"><div class="po-state-name">退款状态</div><div class="po-state-values"><span>无退款</span><i>→</i><span>待处理</span><i>→</i><span>处理中</span><i>→</i><span>成功／失败</span></div></div>
+          <div class="po-state-lane"><div class="po-state-name">履约状态</div><div class="po-state-values"><span>未履约</span><i>→</i><span>处理中</span><i>→</i><span>部分发货</span><i>→</i><span>已履约</span></div></div>
+          <div class="po-state-lane"><div class="po-state-name">售后状态</div><div class="po-state-values"><span>无申请</span><i>→</i><span>申请中</span><i>→</i><span>退货中</span><i>→</i><span>已结束</span></div></div>
+        </div>
+
+        <p>状态名称并无唯一标准，重点是每条状态轨道只描述一种事实。Shopify 的订单说明同样把订单、支付、履约和退货状态分别管理：支付可能处于待处理、已授权、已支付或部分退款，履约则可能仍未开始或仅部分完成。<a class="po-source-link" href="https://help.shopify.com/en/manual/fulfillment/managing-orders/order-status" target="_blank" rel="noopener">Shopify：Understanding your order statuses</a></p>
+
+        <div class="po-table-wrap">
+          <table class="po-table">
+            <thead><tr><th>场景</th><th>订单事实</th><th>支付事实</th><th>系统应避免的误判</th></tr></thead>
+            <tbody>
+              <tr><td>支付页面关闭</td><td>订单可能仍有效并等待付款</td><td>支付可能失败、处理中或状态未知</td><td>直接把前端退出当作支付失败</td></tr>
+              <tr><td>先授权后扣款</td><td>订单已创建并可能预留库存</td><td>资金已授权但尚未捕获</td><td>把授权成功记为最终收款</td></tr>
+              <tr><td>订单取消</td><td>停止后续交易或履约</td><td>未扣款可撤销授权，已扣款需另行退款</td><td>认为取消动作自动等于退款到账</td></tr>
+              <tr><td>部分退款</td><td>订单仍保留已成交和已履约部分</td><td>累计退款小于已收金额</td><td>把整单标为未支付或全部关闭</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section>
+        <div class="section-label">06 · Payment</div>
+        <h2 id="payment-lifecycle" class="section-heading">支付是可能异步完成、失败重试和结果未知的资金流程</h2>
+        <p>支付请求发出后，不一定立即得到最终结论。银行卡支付可能需要额外认证或先授权后扣款，银行转账与部分本地支付方式可能在稍后确认。网络超时只说明当前调用没有获得明确响应，不能证明支付没有发生。</p>
+
+        <div class="po-object-grid">
+          <div class="po-object-card"><b>支付意图或支付单</b><p>描述本次要收取的金额、币种、订单关联和当前处理状态，可承载多次尝试。</p></div>
+          <div class="po-object-card"><b>支付尝试</b><p>记录某种支付方式的一次发起、响应、错误码和渠道交易号，便于诊断重试。</p></div>
+          <div class="po-object-card"><b>资金交易</b><p>授权、捕获、扣款、撤销、退款与拒付等不可混用的资金动作。</p></div>
+          <div class="po-object-card"><b>结算记录</b><p>支付渠道实际向商家结算的金额、手续费、汇率和批次，通常晚于付款结果。</p></div>
+        </div>
+
+        <p>Stripe 的 PaymentIntent 生命周期展示了这种状态机：支付可能要求补充支付方式、确认或客户操作，也可能进入处理、待捕获、成功或取消。对于异步方式，“处理中”期间尚不能保证最终成功。该模型是具体支付机构的实现，不应直接照搬为所有渠道的统一状态，但能说明支付不能被压缩成一个布尔值。<a class="po-source-link" href="https://docs.stripe.com/payments/paymentintents/lifecycle" target="_blank" rel="noopener">Stripe：PaymentIntent lifecycle</a></p>
+
+        <h3 class="subheading">前端跳转结果不能作为唯一支付凭证</h3>
+        <p>浏览器可能被关闭、网络可能中断，返回页参数也可能被伪造。系统应以后端验证的支付对象、受签名保护的异步通知和主动查询为依据，再更新支付事实。发货等高风险动作还应基于经过业务确认的可用状态，而不是只看到“请求已受理”。</p>
+      </section>
+
+      <section>
+        <div class="section-label">07 · Reliability</div>
+        <h2 id="reliable-payments" class="section-heading">幂等、异步通知与对账共同构成支付可靠性</h2>
+        <p>支付链路跨越站点、订单系统、支付机构和银行，无法依靠一次同步调用永久保持一致。可靠设计需要在请求重复、消息迟到、响应丢失和局部系统不可用时，仍能恢复到可解释状态。</p>
+
+        <div class="po-reliability">
+          <div class="po-reliability-card"><span>01 · IDEMPOTENCY</span><b>同一业务动作只产生一次效果</b><p>为创建支付、扣款和退款等写操作分配稳定幂等键；重试使用同一键和相同参数。</p></div>
+          <div class="po-reliability-card"><span>02 · WEBHOOK</span><b>把通知当作可重复事件</b><p>验证签名、记录事件 ID、快速确认接收，再异步执行耗时业务逻辑。</p></div>
+          <div class="po-reliability-card"><span>03 · QUERY</span><b>对未知结果主动查询</b><p>同步响应超时或事件迟迟未到时，按渠道交易号查询权威状态，而非直接重扣。</p></div>
+          <div class="po-reliability-card"><span>04 · TRANSITION</span><b>只允许合法状态迁移</b><p>旧事件晚到时不能把已经成功的交易回退为处理中；每次迁移都保留来源和时间。</p></div>
+          <div class="po-reliability-card"><span>05 · LEDGER</span><b>资金动作采用追加式记录</b><p>不要覆盖累计金额；每笔收款、退款和费用都有独立标识，并能汇总到订单。</p></div>
+          <div class="po-reliability-card"><span>06 · RECONCILIATION</span><b>定期比较内外部记录</b><p>按交易、金额、币种和日期核对支付机构账单，识别单边成功、重复、漏单与差额。</p></div>
+        </div>
+
+        <p>Stripe 的 API 文档将幂等用于安全重试写请求，避免连接错误后重复创建对象或重复执行操作；其 Webhook 文档要求验证签名，并建议在复杂处理前尽快返回成功响应。<a class="po-source-link" href="https://docs.stripe.com/api/idempotent_requests" target="_blank" rel="noopener">Stripe：Idempotent requests</a>；<a class="po-source-link" href="https://docs.stripe.com/webhooks" target="_blank" rel="noopener">Stripe：Receive webhook events</a></p>
+
+        <div class="po-note"><b>幂等不等于去重全部业务。</b>幂等键的范围和有效期必须与一次业务意图匹配。例如“支付订单 A 的第 1 次确认”和“订单 A 改价后的第 2 次确认”应能被区分；Webhook 事件去重、状态迁移保护和资金账本仍需分别实现。</div>
+
+        <h3 class="subheading">对账回答的是“双方记录是否一致”</h3>
+        <p>实时接口用于推进交易，对账用于发现未被修复的差异。常见核对维度包括订单号、渠道交易号、交易类型、金额、币种、状态、手续费和结算批次。差异还需要有责任归属、修复动作与关闭条件。</p>
+      </section>
+
+      <section>
+        <div class="section-label">08 · Cancel &amp; Refund</div>
+        <h2 id="cancellation-and-refund" class="section-heading">取消、退货、退款和撤销授权是四种不同动作</h2>
+        <p>取消通常终止订单尚未完成的业务处理；退货描述商品从消费者返回的逆向履约；退款是将已收资金退回；撤销授权则是在资金尚未捕获时释放授权。它们可能相互触发，却不应互相代替。</p>
+
+        <div class="po-table-wrap">
+          <table class="po-table">
+            <thead><tr><th>动作</th><th>主要对象</th><th>可能触发</th><th>仍需单独确认</th></tr></thead>
+            <tbody>
+              <tr><td>取消订单</td><td>订单或未履约订单项</td><td>停止拣货、释放库存、关闭待付款</td><td>是否已扣款、是否需要退款</td></tr>
+              <tr><td>撤销授权</td><td>未捕获的支付授权</td><td>释放支付工具上的资金占用</td><td>渠道是否接受、状态何时最终确认</td></tr>
+              <tr><td>退货</td><td>商品与逆向物流</td><td>收货、质检、重新入库或报损</td><td>是否符合政策、可退金额多少</td></tr>
+              <tr><td>退款</td><td>原支付交易</td><td>全额或部分资金退回</td><td>退款是否成功、费用和汇率如何处理</td></tr>
+              <tr><td>拒付或争议</td><td>支付争议流程</td><td>举证、冻结或冲减资金</td><td>不是商家主动退款的同义词</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p>退款本身也有生命周期，可能处于待处理、需要操作、成功、失败或取消等状态；一次支付还可能发生多次部分退款，直到可退余额耗尽。Stripe 的退款对象即明确保存退款金额、币种、原支付关联与独立状态。<a class="po-source-link" href="https://docs.stripe.com/api/refunds" target="_blank" rel="noopener">Stripe：Refunds API</a></p>
+        <p>因此，发起退款后立即把售后标为“已退款”并不严谨，更合适的是先记录“退款处理中”，等待支付渠道确认或主动查询。是否恢复库存也要依据退货实物、质检结果和商品类型判断，不能因为资金已退便自动增加可售库存。</p>
+      </section>
+
+      <section>
+        <div class="section-label">09 · Domestic &amp; Cross-border</div>
+        <h2 id="market-differences" class="section-heading">本土与跨境交易共享基础模型，但价格和支付条件不同</h2>
+        <p>订单、订单项、金额快照和独立状态机在本土与跨境业务中都适用。差异主要来自币种、税费、支付方式、风控、结算主体和信息披露责任，不能用一个国家或渠道的默认值覆盖所有市场。</p>
+
+        <div class="po-table-wrap">
+          <table class="po-table">
+            <thead><tr><th>维度</th><th>中国本土常见关注点</th><th>跨境常见新增变量</th><th>建模要求</th></tr></thead>
+            <tbody>
+              <tr><td>价格展示</td><td>人民币、促销规则和附加费用需清晰</td><td>展示币种、结算币种、含税或未税表达</td><td>保存币种、税费口径和价格版本</td></tr>
+              <tr><td>汇率</td><td>单币种场景通常较简单</td><td>报价汇率、支付换汇和结算换汇可能不同</td><td>保存汇率来源、时间、方向与适用金额</td></tr>
+              <tr><td>税费与关税</td><td>依本地税务和发票要求处理</td><td>目的地税、进口税费、平台代扣代缴与申报方案</td><td>将税费拆项，不把规则硬编码为全球统一</td></tr>
+              <tr><td>支付方式</td><td>平台支付、钱包和银行卡等</td><td>本地卡组织、转账、先买后付和额外认证</td><td>允许异步结果与不同支付生命周期</td></tr>
+              <tr><td>资金风险</td><td>退款、欺诈和账户异常</td><td>拒付、跨币种退款损益、跨境结算周期</td><td>连接风控、争议、退款与结算账本</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p>例如，欧盟面向消费者的跨境电商涉及目的地增值税和 OSS/IOSS 等方案，适用条件取决于销售路径、货物来源、平台角色和订单价值等因素，不能仅凭“跨境订单”标签自动判断。欧盟委员会的官方专题页集中说明了 OSS、IOSS、电子接口角色和低值进口货物等边界。<a class="po-source-link" href="https://vat-one-stop-shop.ec.europa.eu/index_en" target="_blank" rel="noopener">European Commission：VAT One Stop Shop</a></p>
+        <div class="po-warning"><b>跨境结算页需要区分展示金额、支付金额和商家结算金额。</b>三者可能使用不同币种和汇率。退款时也不宜承诺必然按原展示币种获得完全相同的本币价值，具体结果取决于支付方式、汇率机制、费用政策及适用法律。</div>
+      </section>
+
+      <section>
+        <div class="section-label">10 · Example</div>
+        <h2 id="thermos-order-example" class="section-heading">案例假设：一张保温杯订单如何留下可解释的金额轨迹</h2>
+        <div class="po-case">
+          <div class="po-case-label">Teaching case · 非真实企业数据</div>
+          <h3>延续前文商品案例，假设订单包含两只 500 ml 保温杯和一个替换杯盖</h3>
+          <p>保温杯单价 159 元，两件参加“每件直减 20 元”；杯盖单价 39 元，不参加商品直减。商品优惠后合计 317 元，随后命中“可参与金额满 300 减 30”。标准运费为 12 元，同时使用一张 12 元运费券。本例仅展示计算与分摊结构，不代表任何平台的默认规则。</p>
+
+          <ul class="po-amount-list">
+            <li><span>保温杯：159 × 2</span><span>318.00 元</span></li>
+            <li><span>替换杯盖：39 × 1</span><span>39.00 元</span></li>
+            <li><span>商品级直减：20 × 2</span><span>−40.00 元</span></li>
+            <li><span>订单级满减</span><span>−30.00 元</span></li>
+            <li><span>标准运费与运费券</span><span>+12.00 −12.00 元</span></li>
+            <li><span>最终应付</span><span>287.00 元</span></li>
+          </ul>
+        </div>
+
+        <p>如果订单级 30 元按“商品优惠后的可参与金额”比例分摊，保温杯行的基数是 278 元，杯盖行是 39 元，总基数 317 元。按分舍入后，可记录保温杯行分摊 26.31 元、杯盖行分摊 3.69 元，于是两行净额分别为 251.69 元和 35.31 元。</p>
+        <div class="po-formula"><b>保温杯行分摊：</b>30.00 × 278 ÷ 317 ≈ 26.31　｜　<b>杯盖行分摊：</b>30.00 − 26.31 = 3.69</div>
+        <p>若一行内的两只保温杯还需要支持单件部分退款，则 251.69 元无法平均分成两个最小货币单位完全相同的金额。系统可以按确定规则保存为 125.85 元与 125.84 元，并记录余数分配，而不是退款时再次用浮点数临时计算。实际可退金额还要考虑退款政策、已履约状态、赠品与运费处理，不能仅凭数学分摊自动决定。</p>
+
+        <h3 class="subheading">从提交到支付确认</h3>
+        <ol>
+          <li>结算服务根据商品、客户、地址和活动版本生成短期报价，返回完整金额明细。</li>
+          <li>创建订单时复制 SKU、价格、促销、分摊和地址快照，并生成稳定订单 ID。</li>
+          <li>以订单 ID、金额和币种创建支付意图；创建请求使用幂等键，防止重复点击产生重复支付对象。</li>
+          <li>同步调用超时后，将支付标记为“结果未知”并主动查询；不立即创建新的扣款请求。</li>
+          <li>后端验证异步通知，按事件 ID 去重，确认支付成功后更新支付轨道，再触发后续订单确认与履约。</li>
+          <li>日终用渠道账单核对订单、支付、退款和手续费；差异进入待处理队列而非静默改账。</li>
+        </ol>
+      </section>
+
+      <section>
+        <div class="section-label">11 · Risks &amp; Verification</div>
+        <h2 id="risks-and-verification" class="section-heading">交易链路的常见错误，以及上线前应验证的边界</h2>
+        <div class="po-risk-grid">
+          <div class="po-risk-card"><b>只保存最终应付总额</b><p>优惠、税费和运费来源丢失，部分退款、商家结算与经营分析都无法还原。</p></div>
+          <div class="po-risk-card"><b>订单创建时再次计算价格</b><p>报价与落单之间规则变化，可能出现页面金额和订单金额不一致；应校验报价版本与有效期。</p></div>
+          <div class="po-risk-card"><b>重复通知重复发货</b><p>把每次支付通知都当作新成功事件，会重复推进履约；事件消费与业务动作都需幂等。</p></div>
+          <div class="po-risk-card"><b>用订单号代替全部交易号</b><p>一单多次尝试、多次部分退款与拒付无法区分；每个资金动作需要独立标识。</p></div>
+          <div class="po-risk-card"><b>取消后直接增加可售库存</b><p>商品可能已经出库或正在退回，资金和实物状态被混在一起。</p></div>
+          <div class="po-risk-card"><b>跨境统一写死含税与汇率</b><p>不同市场、税务角色和支付方案不一致，可能造成错误展示与结算差异。</p></div>
+        </div>
+
+        <ul class="po-checklist">
+          <li>价格能按 SKU、市场、渠道、币种和时间追溯</li>
+          <li>结算页展示的费用与订单快照逐项一致</li>
+          <li>促销资格、优先级、互斥和分摊规则有版本</li>
+          <li>订单项保存商品与金额快照，不依赖当前商品页</li>
+          <li>订单、支付、履约和售后状态分别维护</li>
+          <li>支付超时进入未知状态，不自动假定失败</li>
+          <li>写请求、通知消费和履约触发均可幂等重试</li>
+          <li>回调验签、事件去重和合法状态迁移已覆盖</li>
+          <li>部分取消、部分发货和部分退款可以表达</li>
+          <li>退款失败或待处理不会被显示为已完成</li>
+          <li>支付账单、手续费与内部资金记录可对账</li>
+          <li>跨境价格、税费、汇率和结算币种已拆分</li>
+        </ul>
+
+        <p>验证不能只覆盖“正常下单一次并支付成功”。还应测试重复点击、客户端断网、支付成功但同步响应丢失、通知重复与乱序、订单取消和支付成功并发、两次部分退款、退款失败、促销临界时间、不同币种舍入以及日切前后的对账等场景。</p>
+      </section>
+
+      <section>
+        <div class="section-label">12 · Conclusion</div>
+        <h2 id="conclusion" class="section-heading">结论：计算要可解释，状态要可分离，资金要可核对</h2>
+        <p>价格规则用于生成报价，促销规则说明减免理由，订单保存交易发生时的商品与金额快照，支付则独立记录资金动作。订单级优惠下沉到订单项，才能支持部分退款、结算和分析；订单、支付、履约与售后保持各自状态，才能准确表达现实中的组合情况。</p>
+        <p>可靠交易链路还需要接受“异步、重复与未知”是正常条件：以幂等保障安全重试，以签名和去重处理通知，以状态迁移保护事实，以账本和对账发现差异。下一篇将沿着已支付订单继续进入实物链路，讨论库存、仓储、物流与售后如何协同，以及可售库存为何不等于仓库现有数量。</p>
+      </section>
+
+      <section>
+        <div class="section-label">13 · Further Reading</div>
+        <h2 id="further-reading" class="section-heading">延伸阅读</h2>
+        <ul class="po-reading-list">
+          <li><a href="https://www.samr.gov.cn/zw/zfxxgk/fdzdgknr/fgs/art/2023/art_9a1f82a007964950a1a0f6c056f2fedf.html" target="_blank" rel="noopener">市场监管总局：《明码标价和禁止价格欺诈规定》</a>——网络价格展示、附加费用和促销规则的一手法规文本。</li>
+          <li><a href="https://help.shopify.com/en/manual/discounts/discount-combinations" target="_blank" rel="noopener">Shopify Help Center：Combining discounts</a>——商品、订单与配送折扣的组合和计算顺序示例。</li>
+          <li><a href="https://help.shopify.com/en/manual/fulfillment/managing-orders/order-status" target="_blank" rel="noopener">Shopify Help Center：Understanding your order statuses</a>——订单、支付、履约与退货状态的官方说明。</li>
+          <li><a href="https://docs.stripe.com/payments/paymentintents/lifecycle" target="_blank" rel="noopener">Stripe Docs：PaymentIntent lifecycle</a>——支付意图的处理、认证、待捕获、成功与取消状态。</li>
+          <li><a href="https://docs.stripe.com/api/idempotent_requests" target="_blank" rel="noopener">Stripe API Reference：Idempotent requests</a>——写请求安全重试和幂等键的官方说明。</li>
+          <li><a href="https://docs.stripe.com/webhooks" target="_blank" rel="noopener">Stripe Docs：Receive webhook events</a>——Webhook 验签、接收和异步处理建议。</li>
+          <li><a href="https://docs.stripe.com/api/refunds" target="_blank" rel="noopener">Stripe API Reference：Refunds</a>——部分退款、可退余额和退款状态的数据结构。</li>
+          <li><a href="https://vat-one-stop-shop.ec.europa.eu/index_en" target="_blank" rel="noopener">European Commission：VAT One Stop Shop</a>——欧盟跨境 B2C 电商增值税、OSS 与 IOSS 的官方专题入口。</li>
+        </ul>
+      </section>
+    </article>
+  </main>
+</body>
+</html>

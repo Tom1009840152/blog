@@ -317,7 +317,7 @@ a { color: inherit; }
 .domain-dock {
   position: absolute;
   z-index: 10;
-  top: clamp(350px, 46vh, 420px);
+  top: clamp(330px, 43vh, 400px);
   left: clamp(28px, 4vw, 62px);
   width: min(440px, 32vw);
   display: grid;

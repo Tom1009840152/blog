@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>电商基础（一）：商品、流量、交易、履约与复购</title>
+  <style>
+    .ec-definition {
+      margin: 30px 0;
+      padding: 24px 26px;
+      border-left: 3px solid var(--domain-accent);
+      border-radius: 0 14px 14px 0;
+      background: color-mix(in srgb, var(--domain-accent) 8%, #fff);
+    }
+
+    .ec-definition strong {
+      display: block;
+      margin-bottom: 8px;
+      font-family: 'Noto Serif SC', serif;
+      font-size: 17px;
+    }
+
+    .ec-definition p { margin: 0; }
+
+    .ec-definition small {
+      display: block;
+      margin-top: 10px;
+      color: #756e64;
+      font-size: 12px;
+      line-height: 1.7;
+    }
+
+    .ec-definition a,
+    .ec-reading-list a {
+      color: color-mix(in srgb, var(--domain-accent) 72%, #352d27);
+      text-underline-offset: 3px;
+    }
+
+    .ec-thesis {
+      margin: 32px 0;
+      padding: 26px 28px;
+      border: 1px solid color-mix(in srgb, var(--domain-accent) 34%, #d9d1c5);
+      border-radius: 16px;
+      background: linear-gradient(135deg, color-mix(in srgb, var(--domain-accent) 10%, #fff), rgba(255, 255, 255, 0.72));
+      font-family: 'Noto Serif SC', serif;
+      font-size: 18px;
+      font-weight: 600;
+      line-height: 1.8;
+    }
+
+    .ec-role-grid,
+    .ec-object-grid,
+    .ec-principle-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin: 26px 0;
+    }
+
+    .ec-role-card,
+    .ec-object-card,
+    .ec-principle-card {
+      padding: 20px;
+      border: 1px solid rgba(65, 54, 43, 0.13);
+      border-radius: 13px;
+      background: rgba(255, 255, 255, 0.57);
+    }
+
+    .ec-role-card b,
+    .ec-object-card b,
+    .ec-principle-card b {
+      display: block;
+      margin-bottom: 7px;
+      font-size: 14px;
+    }
+
+    .ec-role-card p,
+    .ec-object-card p,
+    .ec-principle-card p {
+      margin: 0;
+      color: #696158;
+      font-size: 13px;
+      line-height: 1.75;
+    }
+
+    .ec-flow-map {
+      margin: 28px 0;
+      padding: 20px;
+      border: 1px solid rgba(65, 54, 43, 0.13);
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.45);
+    }
+
+    .ec-flow-row {
+      display: grid;
+      grid-template-columns: 90px 1fr;
+      gap: 18px;
+      align-items: center;
+      padding: 13px 0;
+      border-bottom: 1px solid rgba(65, 54, 43, 0.1);
+    }
+
+    .ec-flow-row:last-child { border-bottom: 0; }
+
+    .ec-flow-name {
+      color: color-mix(in srgb, var(--domain-accent) 78%, #332b25);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+    }
+
+    .ec-flow-track {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #5f584f;
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
+    .ec-flow-track span {
+      padding: 6px 9px;
+      border: 1px solid color-mix(in srgb, var(--domain-accent) 28%, #d5cec4);
+      border-radius: 999px;
+      background: color-mix(in srgb, var(--domain-accent) 6%, #fff);
+      white-space: nowrap;
+    }
+
+    .ec-flow-arrow { color: #a39a8f; }
+
+    .ec-lifecycle {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 9px;
+      margin: 28px 0;
+      padding: 0;
+      list-style: none;
+      counter-reset: lifecycle;
+    }
+
+    .ec-lifecycle li {
+      position: relative;
+      min-height: 118px;
+      padding: 39px 13px 14px;
+      border: 1px solid rgba(65, 54, 43, 0.13);
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.58);
+      counter-increment: lifecycle;
+    }
+
+    .ec-lifecycle li::before {
+      content: counter(lifecycle, decimal-leading-zero);
+      position: absolute;
+      top: 12px;
+      left: 13px;
+      color: var(--domain-accent);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      font-weight: 600;
+    }
+
+    .ec-lifecycle b {
+      display: block;
+      margin-bottom: 5px;
+      font-size: 13px;
+    }
+
+    .ec-lifecycle span {
+      display: block;
+      color: #756d63;
+      font-size: 11px;
+      line-height: 1.6;
+    }
+
+    .ec-note {
+      margin: 24px 0;
+      padding: 18px 20px;
+      border: 1px solid rgba(65, 54, 43, 0.13);
+      border-radius: 12px;
+      background: rgba(241, 237, 229, 0.72);
+      color: #5f584f;
+      font-size: 13px;
+      line-height: 1.8;
+    }
+
+    .ec-note b { color: #292520; }
+
+    .ec-table-wrap {
+      margin: 26px 0;
+      overflow-x: auto;
+      border: 1px solid rgba(65, 54, 43, 0.13);
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.52);
+    }
+
+    .ec-table {
+      width: 100%;
+      min-width: 700px;
+      border-collapse: collapse;
+      font-size: 12px;
+      line-height: 1.65;
+    }
+
+    .ec-table th,
+    .ec-table td {
+      padding: 13px 15px;
+      border-bottom: 1px solid rgba(65, 54, 43, 0.1);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    .ec-table tr:last-child td { border-bottom: 0; }
+
+    .ec-table th {
+      background: color-mix(in srgb, var(--domain-accent) 8%, #f7f4ee);
+      color: #4e473f;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .ec-table td:first-child {
+      color: #302b26;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .ec-metric-funnel {
+      display: grid;
+      gap: 9px;
+      margin: 28px auto;
+      max-width: 680px;
+    }
+
+    .ec-metric-step {
+      width: var(--step-width);
+      min-width: 46%;
+      margin: 0 auto;
+      padding: 12px 18px;
+      border: 1px solid color-mix(in srgb, var(--domain-accent) 30%, #d8d0c6);
+      border-radius: 10px;
+      background: color-mix(in srgb, var(--domain-accent) 7%, #fff);
+      text-align: center;
+    }
+
+    .ec-metric-step b {
+      display: block;
+      font-size: 13px;
+    }
+
+    .ec-metric-step span {
+      color: #756d63;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+    }
+
+    .ec-formula {
+      margin: 18px 0;
+      padding: 16px 18px;
+      overflow-x: auto;
+      border-radius: 10px;
+      background: #2d2a27;
+      color: #f2ede5;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      line-height: 1.8;
+      white-space: nowrap;
+    }
+
+    .ec-case {
+      margin: 28px 0;
+      padding: 24px;
+      border: 1px solid color-mix(in srgb, var(--domain-accent) 25%, #d8d0c6);
+      border-radius: 16px;
+      background: linear-gradient(160deg, rgba(255, 255, 255, 0.7), color-mix(in srgb, var(--domain-accent) 7%, #f5f1e9));
+    }
+
+    .ec-case-label {
+      margin: 0 0 10px;
+      color: var(--domain-accent);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .ec-case h3 { margin-top: 0; }
+
+    .ec-case-steps {
+      margin: 20px 0 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .ec-case-steps li {
+      position: relative;
+      padding: 0 0 18px 30px;
+      color: #5f584f;
+      font-size: 13px;
+      line-height: 1.75;
+    }
+
+    .ec-case-steps li:last-child { padding-bottom: 0; }
+
+    .ec-case-steps li::before {
+      content: '';
+      position: absolute;
+      top: 8px;
+      left: 4px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--domain-accent);
+      box-shadow: 0 0 0 5px color-mix(in srgb, var(--domain-accent) 13%, transparent);
+    }
+
+    .ec-case-steps li::after {
+      content: '';
+      position: absolute;
+      top: 20px;
+      bottom: 1px;
+      left: 7px;
+      width: 1px;
+      background: color-mix(in srgb, var(--domain-accent) 34%, #ddd4c9);
+    }
+
+    .ec-case-steps li:last-child::after { display: none; }
+
+    .ec-risk-list {
+      display: grid;
+      gap: 12px;
+      margin: 24px 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .ec-risk-list li {
+      padding: 17px 19px;
+      border-left: 3px solid color-mix(in srgb, var(--domain-accent) 65%, #b16b45);
+      border-radius: 0 10px 10px 0;
+      background: rgba(255, 255, 255, 0.54);
+    }
+
+    .ec-risk-list b {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 13px;
+    }
+
+    .ec-risk-list span {
+      color: #696158;
+      font-size: 12px;
+      line-height: 1.7;
+    }
+
+    .ec-reading-list {
+      margin: 22px 0 0;
+      padding-left: 22px;
+    }
+
+    .ec-reading-list li {
+      margin-bottom: 12px;
+      padding-left: 5px;
+    }
+
+    @media (max-width: 900px) {
+      .ec-lifecycle { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 640px) {
+      .ec-definition,
+      .ec-thesis,
+      .ec-case { padding: 19px; }
+
+      .ec-role-grid,
+      .ec-object-grid,
+      .ec-principle-grid,
+      .ec-lifecycle { grid-template-columns: 1fr; }
+
+      .ec-lifecycle li { min-height: 0; }
+      .ec-flow-row { grid-template-columns: 1fr; gap: 6px; }
+      .ec-flow-track { flex-wrap: wrap; }
+      .ec-metric-step { width: 100%; min-width: 0; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="meta-row">
+      <span>2026-09-28</span>
+      <span>电商基础 · 第一篇</span>
+      <span>阅读约 14 分钟</span>
+      <span>交易链路 · 经营指标 · 新人入门</span>
+    </div>
+  </header>
+
+  <article class="article-body">
+    <p class="lead">电商的表面是页面、直播间和订单，底层则是一组必须同时成立的业务关系：商品需要被准确描述，需求需要被有效触达，交易需要被可靠记录，货物需要如约交付，经营结果还要能够被正确核算。本文从一笔订单出发，建立理解电商的第一层框架。</p>
+
+    <section>
+      <div class="section-label">01 · Definition</div>
+      <h2 id="what-is-ecommerce" class="section-heading">电商不只是“网上卖货”</h2>
+      <p>在法律口径中，电子商务的边界非常清晰。《中华人民共和国电子商务法》第二条将其定义为“通过互联网等信息网络销售商品或者提供服务的经营活动”。这一定义同时覆盖实物商品和服务，也不把电商限定在某一类平台中。</p>
+
+      <div class="ec-definition">
+        <strong>一个更适合业务学习的定义</strong>
+        <p>电商是利用信息网络组织商品或服务的展示、交易、支付、交付和后续服务，并对这些过程持续进行数据化经营。</p>
+        <small>法律定义来源：<a href="https://www.samr.gov.cn/zfjcj/tzgg/art/2023/art_d337c3291e8b40459ca03dea54395856.html" target="_blank" rel="noopener">市场监管总局《中华人民共和国电子商务法》</a>。上述业务定义是为了学习而做的概括，不替代法律原文。</small>
+      </div>
+
+      <p>因此，一个电商业务不能只用“有没有店铺”来判断。平台店铺、品牌自建站、小程序商城、社交媒体中的商品交易，以及通过直播完成的销售，在业务上都可以纳入同一套分析框架。</p>
+
+      <div class="ec-thesis">页面是电商的界面，订单是电商的记录，但只有供给、需求、交易、履约和核算共同成立，一门生意才真正完整。</div>
+    </section>
+
+    <section>
+      <div class="section-label">02 · Participants</div>
+      <h2 id="participants" class="section-heading">一笔订单背后有哪些参与者</h2>
+      <p>消费者看到的是一个商品页和一次支付，但订单背后通常由多类主体协同完成。不同业务模式可能把多个角色合并在同一家企业内，也可能将它们分配给多家服务商。</p>
+
+      <div class="ec-role-grid">
+        <div class="ec-role-card"><b>消费者</b><p>产生需求，搜索或接收推荐，评估商品，做出购买决策，并对交付结果提供反馈。</p></div>
+        <div class="ec-role-card"><b>品牌、商家或服务提供者</b><p>组织供给，确定商品信息、价格与服务承诺，并对商品或服务质量负责。</p></div>
+        <div class="ec-role-card"><b>平台或自建站经营者</b><p>提供商品展示、搜索推荐、交易规则、订单记录与争议处理等基础能力。</p></div>
+        <div class="ec-role-card"><b>支付与金融服务机构</b><p>处理付款、退款、结算和风险控制。支付结果与订单状态需要保持一致。</p></div>
+        <div class="ec-role-card"><b>仓储与物流服务商</b><p>承担入库、库存管理、拣选包装、配送和逆向物流，将交易承诺变成实际交付。</p></div>
+        <div class="ec-role-card"><b>营销、内容与技术服务商</b><p>提供广告、内容生产、客服、数据、系统和运营工具，帮助业务扩大规模。</p></div>
+      </div>
+
+      <p>《网络交易监督管理办法》将网络交易经营者区分为平台经营者、平台内经营者、自建网站经营者，以及通过其他网络服务开展交易的经营者。这种区分有助于识别“谁在提供交易场所”与“谁在销售商品或服务”，两者可能是不同主体。</p>
+    </section>
+
+    <section>
+      <div class="section-label">03 · Five Flows</div>
+      <h2 id="five-flows" class="section-heading">理解电商的五条基础流</h2>
+      <p>订单只是一个结果节点。要解释为什么能够产生订单、订单为什么可以交付，需要同时观察五类信息和资源的流动。</p>
+
+      <div class="ec-flow-map" role="img" aria-label="电商五条基础流示意图">
+        <div class="ec-flow-row"><span class="ec-flow-name">信息流</span><div class="ec-flow-track"><span>商品信息</span><i class="ec-flow-arrow">→</i><span>搜索与推荐</span><i class="ec-flow-arrow">→</i><span>评价与咨询</span></div></div>
+        <div class="ec-flow-row"><span class="ec-flow-name">交易流</span><div class="ec-flow-track"><span>购物车</span><i class="ec-flow-arrow">→</i><span>下单</span><i class="ec-flow-arrow">→</i><span>订单状态</span></div></div>
+        <div class="ec-flow-row"><span class="ec-flow-name">资金流</span><div class="ec-flow-track"><span>付款</span><i class="ec-flow-arrow">→</i><span>结算</span><i class="ec-flow-arrow">→</i><span>退款</span></div></div>
+        <div class="ec-flow-row"><span class="ec-flow-name">货物流</span><div class="ec-flow-track"><span>库存</span><i class="ec-flow-arrow">→</i><span>出库配送</span><i class="ec-flow-arrow">→</i><span>退货入库</span></div></div>
+        <div class="ec-flow-row"><span class="ec-flow-name">服务与数据流</span><div class="ec-flow-track"><span>客服与售后</span><i class="ec-flow-arrow">→</i><span>行为记录</span><i class="ec-flow-arrow">→</i><span>分析与优化</span></div></div>
+      </div>
+
+      <h3 class="subheading">五条流为什么必须一致</h3>
+      <p>每一条流都有自己的状态，也可能发生失配。页面显示“有货”，库存系统却没有可售库存，就是信息流与货物流失配；消费者已付款，订单仍显示待支付，则是资金流与交易流失配。不少电商故障的本质，都是多条流之间的状态没有及时对齐。</p>
+    </section>
+
+    <section>
+      <div class="section-label">04 · Lifecycle</div>
+      <h2 id="order-lifecycle" class="section-heading">从曝光到复购：一笔订单的完整生命周期</h2>
+      <p>电商链路可以分为交易前、交易中、交易后三个阶段。把这些阶段连起来，才能判断某个问题究竟属于流量、商品、交易、履约还是用户经营。</p>
+
+      <ol class="ec-lifecycle">
+        <li><b>曝光</b><span>商品在搜索、推荐、内容或广告中出现。</span></li>
+        <li><b>访问</b><span>潜在消费者进入商品页、店铺或活动页。</span></li>
+        <li><b>评估</b><span>查看详情、价格、评价、库存和服务承诺。</span></li>
+        <li><b>下单</b><span>确认商品、数量、收货信息、优惠和应付金额。</span></li>
+        <li><b>支付</b><span>支付成功后，订单进入待履约状态。</span></li>
+        <li><b>出库</b><span>锁定或扣减库存，完成拣选、复核与包装。</span></li>
+        <li><b>配送</b><span>包裹交给承运方，持续回传物流轨迹。</span></li>
+        <li><b>签收</b><span>消费者收到商品，交易逐步进入完成状态。</span></li>
+        <li><b>售后</b><span>处理咨询、退换货、退款、补发或质量问题。</span></li>
+        <li><b>复购</b><span>在合适的周期再次激活用户，进入新一轮交易。</span></li>
+      </ol>
+
+      <div class="ec-note"><b>链路不是单向的。</b>下单可能未支付，支付后可能取消，发货后可能拒收，签收后可能退货。因此，真实系统通常通过“状态机”管理订单允许发生的变化，而不是用一条永远向前的直线流程。</div>
+    </section>
+
+    <section>
+      <div class="section-label">05 · Business Objects</div>
+      <h2 id="business-objects" class="section-heading">新人需要先分清的业务对象</h2>
+      <p>电商系统中的概念很多，但基础学习的重点不是背缩写，而是理解“哪些对象不能混为一谈”。</p>
+
+      <div class="ec-object-grid">
+        <div class="ec-object-card"><b>SPU：抽象的商品单元</b><p>用于聚合共享主要属性的一组商品。例如某一款运动鞋，不区分颜色和尺码。</p></div>
+        <div class="ec-object-card"><b>SKU：可库存化的最小单元</b><p>通常对应可独立售卖、定价和管理库存的具体规格，例如黑色 42 码。</p></div>
+        <div class="ec-object-card"><b>商品不等于库存</b><p>商品描述“卖什么”，库存描述“在什么位置、有多少、是否可售”。</p></div>
+        <div class="ec-object-card"><b>价格不等于应付金额</b><p>商品价格、促销价格、优惠券、运费、税费和其他调整共同决定实际应付。</p></div>
+        <div class="ec-object-card"><b>订单不等于支付单</b><p>订单记录购买关系，支付单记录资金交互。一张订单可能对应多次支付尝试。</p></div>
+        <div class="ec-object-card"><b>订单不等于包裹</b><p>一张订单可能由多个仓库分开发货，形成多个包裹；退货也会形成逆向物流。</p></div>
+        <div class="ec-object-card"><b>退货不等于退款</b><p>退货关注货物如何退回，退款关注资金如何退回，两者的时点和状态并不必然一致。</p></div>
+        <div class="ec-object-card"><b>客户不等于一个账号</b><p>同一个人可能在多渠道使用不同账号，账号识别与合规的用户整合是两个层面的问题。</p></div>
+      </div>
+
+      <p>这些对象一旦被混淆，产品需求、数据报表和系统接口都容易产生歧义。比如“订单数”到底指提交订单、付款订单、发货订单还是完成订单，必须在指标定义中明确。</p>
+    </section>
+
+    <section>
+      <div class="section-label">06 · Metrics</div>
+      <h2 id="metrics" class="section-heading">经营指标必须回到业务环节</h2>
+      <p>指标的作用是描述某个业务环节发生了什么，而不是单纯堆叠数字。一条基础漏斗可以把用户从看见商品到完成交付的过程连起来。</p>
+
+      <div class="ec-metric-funnel" role="img" aria-label="电商基础转化漏斗">
+        <div class="ec-metric-step" style="--step-width:100%"><b>曝光</b><span>IMPRESSION</span></div>
+        <div class="ec-metric-step" style="--step-width:88%"><b>访问</b><span>VISIT</span></div>
+        <div class="ec-metric-step" style="--step-width:76%"><b>商品行为</b><span>VIEW / CART</span></div>
+        <div class="ec-metric-step" style="--step-width:64%"><b>提交订单</b><span>ORDER</span></div>
+        <div class="ec-metric-step" style="--step-width:52%"><b>支付成功</b><span>PAID</span></div>
+      </div>
+
+      <div class="ec-table-wrap">
+        <table class="ec-table">
+          <thead><tr><th>指标</th><th>常见计算思路</th><th>对应问题</th><th>口径风险</th></tr></thead>
+          <tbody>
+            <tr><td>点击率</td><td>点击量 ÷ 曝光量</td><td>入口是否有吸引力</td><td>人次、次数和去重规则需统一</td></tr>
+            <tr><td>支付转化率</td><td>支付人数或订单数 ÷ 访问人数</td><td>流量能否转化为交易</td><td>分子与分母必须使用同一粒度和时间窗口</td></tr>
+            <tr><td>客单价</td><td>成交金额 ÷ 成交订单数</td><td>平均每笔订单的交易规模</td><td>是否含税、运费、优惠和退款需明确</td></tr>
+            <tr><td>退款率</td><td>退款金额或退款订单 ÷ 对应成交</td><td>商品、承诺或履约是否存在问题</td><td>下单期与退款发生期可能错位</td></tr>
+            <tr><td>复购率</td><td>统计期内多次购买客户 ÷ 可复购客户</td><td>商品与服务能否形成持续关系</td><td>商品周期不同，不应用同一时间窗口横向比较</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="subheading">GMV、收入和利润不是一件事</h3>
+      <p>GMV 常被用来描述一定期间内的商品交易总额，但不同平台和企业可能在是否纳入未支付订单、退款订单、运费或税费方面采用不同口径。因此，任何 GMV 数字都应与口径一起阅读。</p>
+
+      <div class="ec-formula">GMV ≠ 营业收入 ≠ 毛利 ≠ 净利润</div>
+
+      <p>对自营零售业务而言，收入通常需要结合会计确认条件和退货等因素判断；对平台型业务而言，平台促成的整体交易额也不等于平台自身的收入。毛利还需要扣除相关成本，净利润则会继续受营销、履约、人员、技术和管理等费用影响。</p>
+    </section>
+
+    <section>
+      <div class="section-label">07 · Models</div>
+      <h2 id="business-models" class="section-heading">常见模式的差异在于谁控制关键环节</h2>
+      <p>平台、内容、店铺或网站只是可见入口。区分业务模式时，更有价值的问题是：谁掌握用户触达，谁承担商品与库存风险，谁负责履约，谁能使用交易数据。</p>
+
+      <div class="ec-table-wrap">
+        <table class="ec-table">
+          <thead><tr><th>对比维度</th><th>模式 A</th><th>模式 B</th><th>核心取舍</th></tr></thead>
+          <tbody>
+            <tr><td>平台店铺 / 独立站</td><td>利用平台已有流量、交易基础设施与信任机制</td><td>自主组织站点、获客、交易与用户关系</td><td>立即可用的平台能力，与更强的经营自主性</td></tr>
+            <tr><td>货架电商 / 内容电商</td><td>以搜索、分类、推荐和商品详情承接较明确的购物需求</td><td>通过短视频、直播或图文激发需求并完成转化</td><td>承接已有需求，与创造、放大需求</td></tr>
+            <tr><td>自营 / 平台撮合</td><td>经营者直接组织采购、销售与履约，并承担更多库存与商品风险</td><td>平台为多方交易提供场所、规则和技术服务</td><td>对货和服务的直接控制，与多边市场的规模</td></tr>
+            <tr><td>本土 / 跨境</td><td>主要在同一市场的语言、币种、支付、物流和法规环境中完成交易</td><td>在基础交易链路上叠加本地化、国际支付、跨境物流、关务税务与合规</td><td>同一套业务骨架，不同的外部约束和复杂度</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>这些分类不是互斥选项。一家企业可能同时经营平台店铺和独立站，同时使用搜索、直播和私域触达，并对不同品类采用不同履约方式。分类的价值在于看清责任、资源和风险如何分配。</p>
+    </section>
+
+    <section>
+      <div class="section-label">08 · Example</div>
+      <h2 id="example" class="section-heading">用一个假设订单串起整条链路</h2>
+      <p>下面的情境只用于说明业务关系，不代表任何真实企业流程或经营数据。</p>
+
+      <div class="ec-case">
+        <p class="ec-case-label">Assumption · 案例假设</p>
+        <h3 class="subheading">一名消费者购买一件有颜色和尺码可选的运动外套</h3>
+        <ol class="ec-case-steps">
+          <li><b>需求触发：</b>消费者通过内容推荐看到商品。此时发生了曝光，但尚未发生交易。</li>
+          <li><b>商品评估：</b>商品页呈现材质、尺码、价格、预计发货时间和退换货说明。信息是否准确会影响转化和后续退货。</li>
+          <li><b>确定 SKU：</b>消费者选择黑色 M 码。系统需要确认该具体 SKU 可售，而不只是这款外套“整体有库存”。</li>
+          <li><b>价格计算：</b>商品价格叠加促销、优惠券和运费规则，形成此次订单的应付金额。</li>
+          <li><b>交易成立：</b>订单记录商品快照、收货信息和金额。支付成功后，资金结果回传，订单转为待履约。</li>
+          <li><b>库存与出库：</b>系统扣减或最终确认库存，选择合适仓库，生成拣货任务，并在复核后出库。</li>
+          <li><b>交付与反馈：</b>物流信息持续更新。签收后，消费者可能保留商品，也可能因尺码不合适发起退换货。</li>
+          <li><b>后续经营：</b>企业分析该款商品的转化、尺码退货原因和用户复购周期，再决定信息优化、备货或后续触达。</li>
+        </ol>
+      </div>
+
+      <p>这个案例表明，“成交”并不是业务的终点。商品信息会影响退货，库存准确性会影响发货，履约体验会影响评价与复购。每一个环节既是上一个环节的结果，也是下一个环节的输入。</p>
+    </section>
+
+    <section>
+      <div class="section-label">09 · Pitfalls</div>
+      <h2 id="pitfalls" class="section-heading">新人常见的五个认知误区</h2>
+      <ul class="ec-risk-list">
+        <li><b>误区一：把电商等同于流量获取</b><span>流量只解决被看见的问题。商品不匹配、价格不成立或履约不可靠时，更多流量可能只会放大损失。</span></li>
+        <li><b>误区二：把页面转化率当作唯一目标</b><span>短期转化可以通过强促销提高，但退款、售后、毛利与用户信任也会同时变化。</span></li>
+        <li><b>误区三：把 GMV 当作收入或利润</b><span>交易规模、会计收入和最终利润是不同层次的指标，必须分开口径。</span></li>
+        <li><b>误区四：只学平台后台操作</b><span>界面和规则会变，商品、交易、库存、履约和核算的基础关系相对稳定。不理解对象，就很难判断操作背后的原因。</span></li>
+        <li><b>误区五：忽略口径和时间窗口</b><span>两张报表即使指标名称相同，也可能因时间、状态、去重与退款处理不同而无法直接比较。</span></li>
+      </ul>
+    </section>
+
+    <section>
+      <div class="section-label">10 · Method</div>
+      <h2 id="learning-method" class="section-heading">用一套稳定的问题理解任何电商业务</h2>
+      <p>面对一个陌生的平台、公司或市场时，可以先不记忆术语，而是按照以下四组问题还原业务。</p>
+
+      <div class="ec-principle-grid">
+        <div class="ec-principle-card"><b>供给：在卖什么</b><p>商品或服务如何组织？谁决定价格？库存和质量风险由谁承担？</p></div>
+        <div class="ec-principle-card"><b>需求：卖给谁</b><p>用户的需求从哪里出现？通过搜索、推荐、内容还是社交关系触达？</p></div>
+        <div class="ec-principle-card"><b>交易：如何达成</b><p>商品、价格、优惠、订单和支付如何连接？交易失败时如何处理？</p></div>
+        <div class="ec-principle-card"><b>交付与结果：是否成立</b><p>谁完成履约和售后？业务用什么指标判断规模、效率、质量与利润？</p></div>
+      </div>
+
+      <p>这套问题同时适用于中国本土电商和跨境电商。跨境场景的区别，在于每个环节还需要叠加目标市场、语言、币种、支付、国际物流、关务税务、商品合规和消费者保护等约束。后续文章将在这套共同骨架上分别展开。</p>
+    </section>
+
+    <section>
+      <div class="section-label">11 · Further Reading</div>
+      <h2 id="further-reading" class="section-heading">延伸阅读</h2>
+      <ul class="ec-reading-list">
+        <li><a href="https://www.samr.gov.cn/zfjcj/tzgg/art/2023/art_d337c3291e8b40459ca03dea54395856.html" target="_blank" rel="noopener">市场监管总局：《中华人民共和国电子商务法》</a></li>
+        <li><a href="https://www.samr.gov.cn/zw/zfxxgk/fdzdgknr/fgs/art/2025/art_4b47c79b8d994a42bba4835997688faa.html" target="_blank" rel="noopener">市场监管总局：《网络交易监督管理办法》</a></li>
+        <li><a href="https://www.stats.gov.cn/zs/tjws/tjzb/202301/t20230101_1903707.html" target="_blank" rel="noopener">国家统计局：《什么是社会消费品零售总额》</a></li>
+        <li><a href="https://www.mofcom.gov.cn/zhrmghgdzswf/jd/art/2019/art_2ad821c4868b47c4b13a03fb56e671c1.html" target="_blank" rel="noopener">商务部：《线上线下融合背景下〈电子商务法〉适用范围探讨》</a></li>
+      </ul>
+    </section>
+  </article>
+</body>
+</html>
